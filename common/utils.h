@@ -1,13 +1,15 @@
 #ifdef __ANDROID__
-
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-
 #endif // __ANDROID__
+
+#ifdef USE_X11
+Display *xDisplay;
+int xScreenId;
+#endif // USE_X11
 
 int glsurfaceview_width;
 int glsurfaceview_height;
-
 
 int   var_server_port;
 int   var_client_port;
