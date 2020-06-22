@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fifo.h"
 #include "pthread.h"
+#include "utils.h"
 
 #define SLEEP_USEC 1000
 #define FIFO_SIZE_IN_BITS 10

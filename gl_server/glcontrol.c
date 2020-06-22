@@ -36,9 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include <unistd.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
 #include "glcontrol.h"
 
 //#define DEBUG
@@ -63,7 +60,6 @@ void init_egl(graphics_context_t *gc)
 #endif
 
 #ifdef USE_X11
-  Display *x_dpy;
   Window win;
 #endif
 
@@ -72,13 +68,13 @@ void init_egl(graphics_context_t *gc)
 #endif
 
 #ifdef USE_X11
-  x_dpy = XOpenDisplay(NULL);
-  if (!x_dpy) {
+  xDisplay = XOpenDisplay(NULL);
+  if (!xDisplay) {
     printf("Error: couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
 	return;
   }
-  gc->display = eglGetDisplay(x_dpy);
+  gc->display = eglGetDisplay(xDisplay);
 #else
   gc->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
@@ -117,14 +113,18 @@ void init_egl(graphics_context_t *gc)
   // gc->d_window = glsurfaceview_window;
   // assert (glsurfaceview_window != NULL);
 #endif
-
+/*
 #ifdef __ANDROID__
   assert(gc->d_window != NULL);
-  gc->surface = eglCreateWindowSurface(gc->display, config, gc->d_window, NULL);
 #elif defined(USE_X11)
-  make_x_window(x_dpy, gc->display, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height, &win, &gc->context, &gc->surface);
-  XMapWindow(x_dpy, win);
+*/
+
+#ifdef USE_X11
+  make_egl_base(gc->display, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height, &win, &gc->context, &gc->surface);
+  XMapWindow(xDisplay, win);
   // gc->surface = eglCreateWindowSurface(gc->surface, config, win, NULL);
+#else
+  make_egl_base(gc->display, &gc->context, &gc->surface);
 #endif
 
   if (gc->surface == EGL_NO_SURFACE) {
@@ -165,7 +165,12 @@ void release_egl(graphics_context_t *gc)
  * Create an RGB, double-buffered X window.
  * Return the window and context handles.
  */
-void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, int y, int width, int height, Window *winRet, EGLContext *ctxRet, EGLSurface *surfRet)
+ 
+#ifdef USE_X11
+void make_egl_base(EGLDisplay egl_dpy, const char *name, int x, int y, int width, int height, Window *winRet, EGLContext *ctxRet, EGLSurface *surfRet)
+#else
+void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
+#endif // USE_X11
 {
    if (!eglInitialize(egl_dpy, NULL, NULL)) {
       printf("Error: eglInitialize() failed\n");
@@ -184,26 +189,28 @@ void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, 
       EGL_CONTEXT_CLIENT_VERSION, 2,
       EGL_NONE
    };
-
-   int scrnum;
+   
+#ifdef USE_X11
    XSetWindowAttributes attr;
    unsigned long mask;
    Window root;
    Window win;
    XVisualInfo *visInfo, visTemplate;
    int num_visuals;
+#endif // USE_X11
 
    EGLContext ctx;
    EGLConfig config;
    EGLint num_configs;
    EGLint vid;
-   
-   scrnum = DefaultScreen( x_dpy );
-   root = RootWindow( x_dpy, scrnum );
+
+#ifdef USE_X11
+   xScreenId = DefaultScreen(xDisplay);
+   root = RootWindow( xDisplay, xScreenId );
 
    /* The X window visual must match the EGL config */
-   visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(x_dpy, scrnum));
-   visInfo = XGetVisualInfo(x_dpy, VisualIDMask, &visTemplate, &num_visuals);
+   visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(xDisplay, xScreenId));
+   visInfo = XGetVisualInfo(xDisplay, VisualIDMask, &visTemplate, &num_visuals);
    if (!visInfo) {
       printf("Error: couldn't get X visual\n");
       exit(1);
@@ -212,11 +219,11 @@ void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, 
    /* window attributes */
    attr.background_pixel = 0;
    attr.border_pixel = 0;
-   attr.colormap = XCreateColormap( x_dpy, root, visInfo->visual, AllocNone);
+   attr.colormap = XCreateColormap( xDisplay, root, visInfo->visual, AllocNone);
    attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
-   win = XCreateWindow( x_dpy, root, 0, 0, width, height,
+   win = XCreateWindow( xDisplay, root, 0, 0, width, height,
 		        0, visInfo->depth, InputOutput,
 		        visInfo->visual, mask, &attr );
 
@@ -228,10 +235,11 @@ void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, 
       sizehints.width  = width;
       sizehints.height = height;
       sizehints.flags = USSize | USPosition;
-      XSetNormalHints(x_dpy, win, &sizehints);
-      XSetStandardProperties(x_dpy, win, name, name,
+      XSetNormalHints(xDisplay, win, &sizehints);
+      XSetStandardProperties(xDisplay, win, name, name,
                               None, (char **)NULL, 0, &sizehints);
    }
+#endif // USE_X11
 
    if (!eglChooseConfig( egl_dpy, attribs, &config, 1, &num_configs)) {
       printf("Error: couldn't get an EGL visual config\n");
@@ -259,8 +267,16 @@ void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, 
       eglQueryContext(egl_dpy, ctx, EGL_CONTEXT_CLIENT_VERSION, &val);
       assert(val == 2);
    }
-
+   
+#ifdef USE_X11
    *surfRet = eglCreateWindowSurface(egl_dpy, config, win, NULL);
+#elif defined(__ANDROID__)
+   *surfRet = eglCreateWindowSurface(egl_dpy, config, glsurfaceview_window, NULL);
+#else
+   printf("FIXME!!! on platform without X11 or Android? Windows?\n");
+   exit(1);
+#endif
+
    if (!*surfRet) {
       printf("Error: eglCreateWindowSurface failed: %p\n", eglGetError());
       exit(1);
@@ -272,10 +288,12 @@ void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, 
       assert(eglGetConfigAttrib(egl_dpy, config, EGL_SURFACE_TYPE, &val));
       assert(val & EGL_WINDOW_BIT);
    }
-
+   
+#ifdef USE_X11
    XFree(visInfo);
-
    *winRet = win;
+#endif // USE_X11
+
    *ctxRet = ctx;
 }
 

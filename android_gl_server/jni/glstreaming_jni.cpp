@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include "main.h"
-#include "glserver.h"
+#include "utils.h"
 
 bool need_init_glstream = true;
 

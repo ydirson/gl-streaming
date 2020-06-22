@@ -39,7 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glserver.h"
 #include "main.h"
-#include "glsurfaceview_utils.h"
 // #include "fastlog.h"
 
 int main(int argc, char * argv[])

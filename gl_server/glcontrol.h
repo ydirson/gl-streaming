@@ -32,8 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "GLES2/gl2.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
-
-#include "glsurfaceview_utils.h"
+#include "utils.h"
 
 typedef struct
 {
@@ -56,7 +55,9 @@ void check_gl_err(uint32_t cmd);
 
 EGLConfig config;
 #ifdef USE_X11
-void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, int y, int width, int height, Window *winRet, EGLContext *ctxRet, EGLSurface *surfRet);
+void make_egl_base(EGLDisplay egl_dpy, const char *name, int x, int y, int width, int height, Window *winRet, EGLContext *ctxRet, EGLSurface *surfRet);
+#else
+void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet);
 #endif // USE_X11
 void init_egl(graphics_context_t *gc);
 void release_egl(graphics_context_t *gc);
