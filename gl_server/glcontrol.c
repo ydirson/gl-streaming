@@ -67,19 +67,6 @@ void init_egl(graphics_context_t *gc)
   Window win;
 #endif
 
-  static const EGLint fb_attrib[] = {
-    EGL_RED_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_ALPHA_SIZE, 8,
-    EGL_DEPTH_SIZE, 16,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE };
-
-  static const EGLint context_attrib[] = {
-    EGL_CONTEXT_CLIENT_VERSION, 2,
-    EGL_NONE };
-
 #ifdef RASPBERRY_PI
   bcm_host_init();
 #endif
@@ -97,22 +84,6 @@ void init_egl(graphics_context_t *gc)
 #endif
   assert(gc->display != EGL_NO_DISPLAY);
   check_gl_err(eglGetDisplay);
-
-  r = eglInitialize(gc->display, NULL, NULL);
-  assert(EGL_FALSE != r);
-  check_gl_err(eglInitialize);
-
-  r = eglChooseConfig(gc->display, fb_attrib, &config, 1, &num_config);
-  assert(EGL_FALSE != r);
-  check_gl_err(eglChooseConfig);
-
-  r = eglBindAPI(EGL_OPENGL_ES_API);
-  assert(EGL_FALSE != r);
-  check_gl_err(eglBindAPI);
-
-  gc->context = eglCreateContext(gc->display, config, EGL_NO_CONTEXT, context_attrib);
-  assert(gc->context != EGL_NO_CONTEXT);
-  check_gl_err(eglCreateContext);
 
 #ifdef RASPBERRY_PI
   int32_t ri = graphics_get_display_size(0, &gc->screen_width, &gc->screen_height);
@@ -150,9 +121,10 @@ void init_egl(graphics_context_t *gc)
 #ifdef __ANDROID__
   assert(gc->d_window != NULL);
   gc->surface = eglCreateWindowSurface(gc->display, config, gc->d_window, NULL);
-#elif defined (GLS_SERVER) && defined(USE_X11)
+#elif defined(USE_X11)
   make_x_window(x_dpy, gc->display, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height, &win, &gc->context, &gc->surface);
-  gc->surface = eglCreateWindowSurface(gc->surface, config, win, NULL);
+  XMapWindow(x_dpy, win);
+  // gc->surface = eglCreateWindowSurface(gc->surface, config, win, NULL);
 #endif
 
   if (gc->surface == EGL_NO_SURFACE) {
@@ -287,7 +259,7 @@ void make_x_window(Display *x_dpy, EGLDisplay egl_dpy, const char *name, int x, 
       eglQueryContext(egl_dpy, ctx, EGL_CONTEXT_CLIENT_VERSION, &val);
       assert(val == 2);
    }
-XMapWindow(x_dpy, win);
+
    *surfRet = eglCreateWindowSurface(egl_dpy, config, win, NULL);
    if (!*surfRet) {
       printf("Error: eglCreateWindowSurface failed: %p\n", eglGetError());

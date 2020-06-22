@@ -73,9 +73,6 @@ extern "C" {
 #define TRUE 1
 #define FALSE 0
 
-Display *xDisplay;
-int xScreenId;
-
 gls_context_t glsc_global;
 static struct vbo_state
 {
