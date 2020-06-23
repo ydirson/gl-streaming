@@ -136,7 +136,6 @@ EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( c
 
 EGLBoolean eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config )
 {
-/*
 	gls_cmd_flush();
 	gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsc_global.tmp_buf.buf;
 	memcpy(dat->attrib_list, attrib_list, GLS_DATA_SIZE);
@@ -158,13 +157,16 @@ EGLBoolean eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list, EGLConfig
 	}
 	
 	return ret->success;
-*/
-	*num_config = 1;
-	return EGL_TRUE;
+
+	// *num_config = 1;
+	// return EGL_TRUE;
+	
+	// return eglGetConfigs(dpy, configs, config_size, num_config);
 }
 
 EGLSurface eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )
 {
+	xWindow = window;
 	return eglGetCurrentSurface(EGL_DRAW);
 }
 
@@ -186,8 +188,9 @@ EGLBoolean eglDestroySurface( EGLDisplay dpy, EGLSurface surface )
 EGLBoolean eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value )
 {
 	// This fix size assert in `es2gears` and `es2tri`.
-	if (attribute == EGL_WIDTH || attribute == EGL_HEIGHT) {
+	if (xWindow != NULL && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
 		XWindowAttributes xWindowAttrs;
+		
 		if (!XGetWindowAttributes(xDisplay, XDefaultRootWindow(xDisplay), &xWindowAttrs)) {
 			printf("Warning: XGetWindowAttributes failed!");
 		} else {
@@ -200,6 +203,9 @@ EGLBoolean eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute
 					return EGL_TRUE;
 			}
 		}
+		
+		// *value = 300;
+		// return EGL_TRUE;
 	}
 	
 	gls_cmd_flush();
