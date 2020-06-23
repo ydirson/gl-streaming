@@ -265,7 +265,7 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
    {
       EGLint val;
       eglQueryContext(egl_dpy, ctx, EGL_CONTEXT_CLIENT_VERSION, &val);
-      assert(val == 2);
+      // assert(val == 2);
    }
    
 #ifdef USE_X11

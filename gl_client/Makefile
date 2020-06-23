@@ -8,6 +8,8 @@ OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
 
 LIB_GLES=libGLESv2.so.2
 
+GLS_LIB_DIR=/usr/local/lib/gl-streaming
+
 EXES=$(LIB_GLES)
 
 all: $(EXES)
@@ -29,6 +31,11 @@ glclient.o: glclient.c glclient.h ../common/gls_command.h server.o
 
 $(LIB_GLES): $(OBJS)
 	gcc -shared -o $(LIB_GLES) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,--no-undefined $(LIBS)
+
+install:
+	mkdir $(GLS_LIB_DIR)
+	cp libGLESv2.so.2 $(GLS_LIB_DIR)/
+	ln -s $(GLS_LIB_DIR)/libGLESv2.so.2 $(GLS_LIB_DIR)/libEGL.so.1; echo "To use streaming, type: export LD_LIBRARY_PATH=$(GLS_LIB_DIR)"
 
 clean:
 	rm $(EXES) $(OBJS)

@@ -215,6 +215,12 @@ EGLBoolean eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute
 	return ret->success;
 }
 
+EGLBoolean eglReleaseThread(void)
+{
+	// Current stub
+	return EGL_TRUE;
+}
+
 /* EGL 1.1 render-to-texture APIs */
 EGLBoolean eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value)
 {
