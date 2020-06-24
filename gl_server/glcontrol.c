@@ -39,13 +39,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glcontrol.h"
 
 //#define DEBUG
-void check_gl_err(uint32_t cmd) {
-	int glError = glGetError();
-	if (glError != 0) {
-		LOGD("glGetError(command:%i) return error %p", cmd, glError);
+void base_check_gl_err(char* funcname, int error) {
+	if (error != GL_NO_ERROR) {
+		LOGD("glGetError(%s) return error %s", funcname, gluErrorString(error));
 	}
 #ifdef DEBUG
-	assert(glError == 0)
+	assert(error == 0)
+#endif // DEBUG
+}
+
+#define CASE_STRING( value ) case value: return #value; 
+const char* eglGetErrorString( EGLint error )
+{
+    switch( error )
+    {
+    CASE_STRING( EGL_SUCCESS             )
+    CASE_STRING( EGL_NOT_INITIALIZED     )
+    CASE_STRING( EGL_BAD_ACCESS          )
+    CASE_STRING( EGL_BAD_ALLOC           )
+    CASE_STRING( EGL_BAD_ATTRIBUTE       )
+    CASE_STRING( EGL_BAD_CONTEXT         )
+    CASE_STRING( EGL_BAD_CONFIG          )
+    CASE_STRING( EGL_BAD_CURRENT_SURFACE )
+    CASE_STRING( EGL_BAD_DISPLAY         )
+    CASE_STRING( EGL_BAD_SURFACE         )
+    CASE_STRING( EGL_BAD_MATCH           )
+    CASE_STRING( EGL_BAD_PARAMETER       )
+    CASE_STRING( EGL_BAD_NATIVE_PIXMAP   )
+    CASE_STRING( EGL_BAD_NATIVE_WINDOW   )
+    CASE_STRING( EGL_CONTEXT_LOST        )
+    default: return ("Unknown %i", error);
+    }
+}
+#undef CASE_STRING
+void base_check_egl_err(char* funcname, int error) {
+	if (error != EGL_SUCCESS) {
+		LOGD("eglGetError(%s) return error %s", funcname, eglGetErrorString(error));
+	}
+#ifdef DEBUG
+	assert(error == 0)
 #endif // DEBUG
 }
 
@@ -170,7 +202,7 @@ void release_egl(graphics_context_t *gc)
 void make_egl_base(EGLDisplay egl_dpy, const char *name, int x, int y, int width, int height, Window *winRet, EGLContext *ctxRet, EGLSurface *surfRet)
 #else
 void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
-#endif // USE_X11
+#endif
 {
    if (!eglInitialize(egl_dpy, NULL, NULL)) {
       printf("Error: eglInitialize() failed\n");
