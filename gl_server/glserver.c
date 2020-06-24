@@ -137,12 +137,10 @@ void glse_cmd_flush()
 {
   glsec_global.tmp_buf.ptr = 0;
   int quit = FALSE;
-  while (quit == FALSE)
-  {
+  while (quit == FALSE) {
     gls_command_t *c = (gls_command_t *)(glsec_global.tmp_buf.buf + glsec_global.tmp_buf.ptr);
     glsec_global.cmd_data = c;
-    switch (c->cmd)
-    {
+    switch (c->cmd) {
       case GLSC_BREAK:
         quit = TRUE;
         break;
@@ -191,20 +189,16 @@ void * glserver_thread(void * arg)
   while (quit == FALSE)
   {
     void *popptr = (void *)fifo_pop_ptr_get(a->fifo);
-    if (popptr == NULL)
-    {
+    if (popptr == NULL) {
       usleep(a->sleep_usec);
-    }
-    else
-    {
+    } else {
       gls_command_t *c = (gls_command_t *)popptr;
       glsec_global.cmd_data = c;
 #ifdef GL_DEBUG
       fprintf(fl,"@MainLoop: Attempting to execute command %i \n",c->cmd);
 #endif
 
-      switch (c->cmd)
-      {
+      switch (c->cmd) {
         case GLSC_FLIP:
           glse_cmd_flip();
           break;

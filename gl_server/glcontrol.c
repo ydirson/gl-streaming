@@ -39,42 +39,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glcontrol.h"
 
 //#define DEBUG
-void base_check_gl_err(char* funcname, int error) {
-	if (error != GL_NO_ERROR) {
-		LOGD("glGetError(%s) return error %s", funcname, gluErrorString(error));
+#define CASE_STRING( value ) case value: return #value; 
+const char* eglGetErrorString(EGLint err)
+{
+    switch(err) {
+		CASE_STRING( EGL_SUCCESS             )
+		CASE_STRING( EGL_NOT_INITIALIZED     )
+		CASE_STRING( EGL_BAD_ACCESS          )
+		CASE_STRING( EGL_BAD_ALLOC           )
+		CASE_STRING( EGL_BAD_ATTRIBUTE       )
+		CASE_STRING( EGL_BAD_CONTEXT         )
+		CASE_STRING( EGL_BAD_CONFIG          )
+		CASE_STRING( EGL_BAD_CURRENT_SURFACE )
+		CASE_STRING( EGL_BAD_DISPLAY         )
+		CASE_STRING( EGL_BAD_SURFACE         )
+		CASE_STRING( EGL_BAD_MATCH           )
+		CASE_STRING( EGL_BAD_PARAMETER       )
+		CASE_STRING( EGL_BAD_NATIVE_PIXMAP   )
+		CASE_STRING( EGL_BAD_NATIVE_WINDOW   )
+		CASE_STRING( EGL_CONTEXT_LOST        )
+		
+		default: return ("EGL_BAD_ERROR_%p", err);
+    }
+}
+const char* glGetErrorString(GLenum err)
+{
+    switch(err) {
+		CASE_STRING(GL_NO_ERROR)
+		CASE_STRING(GL_INVALID_ENUM)
+		CASE_STRING(GL_INVALID_VALUE)
+		CASE_STRING(GL_INVALID_OPERATION)
+		CASE_STRING(GL_OUT_OF_MEMORY)
+		case 0x8031: /* not core */ return "GL_TABLE_TOO_LARGE_EXT";
+		case 0x8065: /* not core */ return "GL_TEXTURE_TOO_LARGE_EXT";
+		CASE_STRING(GL_INVALID_FRAMEBUFFER_OPERATION)
+		
+		default: return("GL_BAD_ERROR_%p", err);
+    }
+}
+#undef CASE_STRING
+
+void base_check_egl_err(char* funcname) {
+	int error = eglGetError();
+	if (error != EGL_SUCCESS) {
+		LOGD("eglGetError(%s) return error %s", funcname, eglGetErrorString(error));
 	}
 #ifdef DEBUG
 	assert(error == 0)
 #endif // DEBUG
 }
-
-#define CASE_STRING( value ) case value: return #value; 
-const char* eglGetErrorString( EGLint error )
-{
-    switch( error )
-    {
-    CASE_STRING( EGL_SUCCESS             )
-    CASE_STRING( EGL_NOT_INITIALIZED     )
-    CASE_STRING( EGL_BAD_ACCESS          )
-    CASE_STRING( EGL_BAD_ALLOC           )
-    CASE_STRING( EGL_BAD_ATTRIBUTE       )
-    CASE_STRING( EGL_BAD_CONTEXT         )
-    CASE_STRING( EGL_BAD_CONFIG          )
-    CASE_STRING( EGL_BAD_CURRENT_SURFACE )
-    CASE_STRING( EGL_BAD_DISPLAY         )
-    CASE_STRING( EGL_BAD_SURFACE         )
-    CASE_STRING( EGL_BAD_MATCH           )
-    CASE_STRING( EGL_BAD_PARAMETER       )
-    CASE_STRING( EGL_BAD_NATIVE_PIXMAP   )
-    CASE_STRING( EGL_BAD_NATIVE_WINDOW   )
-    CASE_STRING( EGL_CONTEXT_LOST        )
-    default: return ("Unknown %i", error);
-    }
-}
-#undef CASE_STRING
-void base_check_egl_err(char* funcname, int error) {
-	if (error != EGL_SUCCESS) {
-		LOGD("eglGetError(%s) return error %s", funcname, eglGetErrorString(error));
+void base_check_gl_err(char* funcname) {
+	int error = glGetError();
+	if (error != GL_NO_ERROR) {
+		LOGD("glGetError(%s) return error %s", funcname, glGetErrorString(error));
 	}
 #ifdef DEBUG
 	assert(error == 0)
