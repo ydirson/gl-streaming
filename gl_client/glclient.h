@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/X.h>
 #include <X11/Xlib.h>
 
+#include "EGL/egl.h"
 #include "GLES2/gl2.h"
 #include "gls_command.h"
 #include "server.h"
@@ -91,6 +92,7 @@ struct attrib_ptr_s {
     GLuint webgl_vbo_id;
 } vt_attrib_pointer[16];
 
+uint32_t client_egl_error;
 uint32_t client_config_size;
 uint32_t client_config_keys[GLS_DATA_SIZE];
 uint32_t client_config_values[GLS_DATA_SIZE];

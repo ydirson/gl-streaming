@@ -3,7 +3,6 @@
 #include <dlfcn.h>
 
 #include "glclient.h"
-#include "EGL/egl.h"
 
 EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
 {
@@ -76,6 +75,12 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs,
 
 EGLAPI EGLint EGLAPIENTRY eglGetError( void )
 {
+	if (client_egl_error != EGL_SUCCESS) {
+		EGLint error = client_egl_error;
+		client_egl_error = EGL_SUCCESS;
+		return error;
+	}
+	
 	gls_cmd_flush();
 	GLS_SET_COMMAND_PTR(c, eglGetError);
 	GLS_SEND_PACKET(eglGetError);
@@ -135,8 +140,6 @@ EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
     switch (name) {
 		case EGL_VENDOR: return "gl-streaming wrapper";
 		case EGL_VERSION: return "1.4";
-		case EGL_CLIENT_APIS: return EGL_OPENGL_ES_API;
-		case EGL_EXTENSIONS: return "EGL_KHR_cl_event2 EGL_KHR_config_attribs EGL_KHR_context_flush_control EGL_KHR_create_context EGL_KHR_create_context_no_error EGL_KHR_fence_sync EGL_KHR_get_all_proc_addresses EGL_KHR_gl_colorspace EGL_KHR_gl_renderbuffer_image EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_image_base EGL_KHR_no_config_context EGL_KHR_reusable_sync EGL_KHR_surfaceless_context EGL_EXT_pixel_format_float EGL_KHR_wait_sync EGL_MESA_configless_context EGL_MESA_drm_image";
 		default: return "";
 	}
 */
@@ -155,7 +158,6 @@ EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
 EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char *procname )
 {
 	// Do not implement streaming
-	printf("gls info: getting proc address: %s\n", procname);
     return dlsym(dlopen(NULL, RTLD_LOCAL), procname);
 }
 
@@ -193,10 +195,11 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
 		if (attrib_list[client_config_size - 1] == EGL_NONE) {
 			client_config_size -= 1;
 		}
-		printf("client_config_size=%i\n", client_config_size);
+		
+		// printf("client_config_size=%i\n", client_config_size);
 		*num_config = client_config_size / 2;
 		for (int i = 0; i < client_config_size; i+=2) {
-			configs[i] = &attrib_list[i];
+			if (configs != NULL) configs[i] = &attrib_list[i];
 			client_config_keys[i] = attrib_list[i];
 			client_config_values[i] = attrib_list[i+1];
 		}
@@ -209,7 +212,14 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )
 {
+	
+	if (sizeof(void*) != sizeof(window)) {
+		client_egl_error = EGL_BAD_NATIVE_WINDOW;
+		return EGL_NO_SURFACE;
+	}
+	
 	xWindow = window;
+	
 	return eglGetCurrentSurface(EGL_DRAW);
 }
 
@@ -236,7 +246,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 		
 		if (!XGetWindowAttributes(xDisplay, XDefaultRootWindow(xDisplay), &xWindowAttrs)) {
 			printf("Warning: XGetWindowAttributes failed!");
-		} else { /*
+		} else {
 			switch (attribute) {
 				case EGL_WIDTH:
 					*value = xWindowAttrs.width;
@@ -244,11 +254,11 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 				case EGL_HEIGHT:
 					*value = xWindowAttrs.height;
 					return EGL_TRUE;
-			} */
+			}
 		}
 		
-		*value = 300;
-		return EGL_TRUE;
+		// *value = 300;
+		// return EGL_TRUE;
 	}
 	
 	gls_cmd_flush();

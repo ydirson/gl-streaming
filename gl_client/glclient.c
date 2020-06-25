@@ -117,6 +117,9 @@ int gls_init(server_context_t *arg)
 	  return FALSE;
   }
   xScreenId = DefaultScreen(xDisplay);
+  
+  client_egl_error = EGL_SUCCESS;
+  
   return TRUE;
 }
 
