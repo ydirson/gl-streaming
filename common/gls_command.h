@@ -273,7 +273,7 @@ typedef struct
 {
   uint32_t cmd;
 // FIXME sending return data???
-  uint32_t configs[GLS_DATA_SIZE];
+  char configs[GLS_DATA_SIZE];
   uint32_t num_config;
   uint32_t success;
 } gls_ret_eglChooseConfig_t;

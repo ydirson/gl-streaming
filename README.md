@@ -45,8 +45,9 @@ A fast, simple, lightweight and low latency framework suitable for embedded syst
 - [x] glTexSubImage2D
 
 ## Current status
+- This branch attempt to emulate EGL Config.
 - `es2_info`, `es2gears` will work; `es2tri` probably.
-- Some apps/games run on GL4ES will work on a blank screen, other will get crashed.
+- GL4ES apps now in segfault.
 
 ## Notes
 - Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modify.

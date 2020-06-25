@@ -1,4 +1,4 @@
-CFLAGS=-O3 -Wall -I../common -I. -I./include -DUSE_X11 -fPIC
+CFLAGS=-O3 -Wall -I../common -I. -I./include -DUSE_X11 -fPIC -g
 # Move to define in C code.
 # CFLAGS+=-DGL_CLIENT=1
 

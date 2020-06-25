@@ -91,6 +91,10 @@ struct attrib_ptr_s {
     GLuint webgl_vbo_id;
 } vt_attrib_pointer[16];
 
+uint32_t client_config_size;
+uint32_t client_config_keys[GLS_DATA_SIZE];
+uint32_t client_config_values[GLS_DATA_SIZE];
+
 float get_diff_time(struct timeval start, struct timeval end);
 int check_batch_overflow(size_t size, const char *msg);
 void push_batch_command(size_t size);
