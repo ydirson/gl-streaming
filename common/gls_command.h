@@ -138,6 +138,7 @@ enum GL_Server_Command
   GLSC_glHint,
   GLSC_glLineWidth,
   GLSC_glLinkProgram,
+  GLSC_glMapBufferOES,
   GLSC_glPixelStorei,
   GLSC_glPolygonOffset,
   GLSC_glReadPixels,
@@ -151,6 +152,7 @@ enum GL_Server_Command
   GLSC_glUniform1f,
   GLSC_glUniform4fv,
   GLSC_glUniformMatrix4fv,
+  GLSC_glUnmapBufferOES,
   GLSC_glUseProgram,
   GLSC_glVertexAttribPointer,
   GLSC_glViewport
@@ -984,6 +986,14 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint32_t target;
+  uint32_t access;
+} gls_glMapBufferOES_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
   uint32_t pname;
   int32_t param;
 } gls_glPixelStorei_t;
@@ -1126,6 +1136,20 @@ typedef struct
   uint32_t transpose;
   float value[1];
 } gls_glUniformMatrix4fv_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t target;
+} gls_glUnmapBufferOES_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_glUnmapBufferOES_t;
 
 
 typedef struct

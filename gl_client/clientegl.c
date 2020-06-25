@@ -1,5 +1,7 @@
 // This file declare EGL methods for stubs or streaming
 
+#include <dlfcn.h>
+
 #include "glclient.h"
 #include "EGL/egl.h"
 
@@ -64,7 +66,6 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs,
 	// Build a fake local config
 	if (client_config_size > 0) {
 		*num_config = client_config_size / 2;
-		// Skip the last one because it is EGL_NONE
 		for (int i = 0; i < client_config_size; i+=2) {
 			configs[i] = &client_config_values[i+1];
 		}
@@ -154,7 +155,8 @@ EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
 EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char *procname )
 {
 	// Do not implement streaming
-    return dlsym(dlopen(NULL, procname));
+	printf("gls info: getting proc address: %s\n", procname);
+    return dlsym(dlopen(NULL, RTLD_LOCAL), procname);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config )
@@ -187,12 +189,12 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
 	size_t config_arr_size = sizeof(attrib_list)/sizeof(attrib_list[0]);
 	if (config_arr_size > 0) {
 		client_config_size = config_arr_size;
+		// Skip the last one if it is EGL_NONE
 		if (attrib_list[client_config_size - 1] == EGL_NONE) {
 			client_config_size -= 1;
 		}
 		printf("client_config_size=%i\n", client_config_size);
 		*num_config = client_config_size / 2;
-		// Skip the last one because it is EGL_NONE
 		for (int i = 0; i < client_config_size; i+=2) {
 			configs[i] = &attrib_list[i];
 			client_config_keys[i] = attrib_list[i];
@@ -234,7 +236,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 		
 		if (!XGetWindowAttributes(xDisplay, XDefaultRootWindow(xDisplay), &xWindowAttrs)) {
 			printf("Warning: XGetWindowAttributes failed!");
-		} else {
+		} else { /*
 			switch (attribute) {
 				case EGL_WIDTH:
 					*value = xWindowAttrs.width;
@@ -242,11 +244,11 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 				case EGL_HEIGHT:
 					*value = xWindowAttrs.height;
 					return EGL_TRUE;
-			}
+			} */
 		}
 		
-		// *value = 300;
-		// return EGL_TRUE;
+		*value = 300;
+		return EGL_TRUE;
 	}
 	
 	gls_cmd_flush();

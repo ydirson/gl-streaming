@@ -577,6 +577,24 @@ void glse_glClearDepthf()
 }
 
 
+void glse_glMapBufferOES()
+{
+  GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
+  glMapBufferOES(c->target, c->access);
+}
+
+
+void glse_glUnmapBufferOES()
+{
+  GLSE_SET_COMMAND_PTR(c, glUnmapBufferOES);
+  GLboolean success = glUnmapBufferOES(c->target);
+  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_glUnmapBufferOES;
+  ret->success = success;
+  glse_cmd_send_data(0, sizeof(gls_ret_glUnmapBufferOES_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+
 void glse_glReadPixels()
 {
   GLSE_SET_COMMAND_PTR(c, glReadPixels);
@@ -767,6 +785,10 @@ int gles_flushCommand(gls_command_t *c) {
         glse_glLineWidth();
         pop_batch_command(sizeof(gls_glLineWidth_t));
         break;
+      case GLSC_glMapBufferOES:
+        glse_glMapBufferOES();
+        pop_batch_command(sizeof(gls_glMapBufferOES_t));
+        break;
       case GLSC_glPolygonOffset:
         glse_glPolygonOffset();
         pop_batch_command(sizeof(gls_glPolygonOffset_t));
@@ -861,6 +883,9 @@ int gles_executeCommand(gls_command_t *c) {
         case GLSC_glGetUniformLocation:
           glse_glGetUniformLocation();
           break;
+		case GLSC_glUnmapBufferOES:
+		  glse_glUnmapBufferOES();
+		  break;
         case GLSC_glReadPixels:
           glse_glReadPixels();
           break;
