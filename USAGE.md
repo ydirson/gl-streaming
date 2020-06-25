@@ -37,3 +37,6 @@ export LD_LIBRARY_PATH=$PATH_TO_STREAMINGLIB:$LD_LIBRARY_PATH
 
 ## Variables on compile
 - (Server) `GL_DEBUG`: enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
+
+## Environment variable on launch
+- (Client) `GLS_DEBUG`: print executing/flushing command to the console. Disabled by default.

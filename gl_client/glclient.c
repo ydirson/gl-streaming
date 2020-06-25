@@ -72,6 +72,23 @@ void push_batch_command(size_t size)
 int gls_init(server_context_t *arg)
 {
   memset(&glsc_global, 0, sizeof(glsc_global));
+  
+  const char* env_isDebugStr = getenv("GLS_DEBUG");
+  int env_isDebug;
+  if (env_isDebugStr == NULL) {
+	  env_isDebug = FALSE;
+  } else {
+	  env_isDebug = atoi(env_isDebugStr);
+  }
+  
+  if (env_isDebug == 0 || env_isDebug == 1) {
+	  glsc_global.is_debug = env_isDebug;
+  } else {
+	  printf("gls error: GLS_DEBUG variable must be 0 or 1\n");
+	  exit(EXIT_FAILURE);
+	  return FALSE;
+  }
+  
   glsc_global.sta = arg;
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
@@ -117,7 +134,6 @@ void gls_init_library()
     uint16_t his_port = 18145;
 	
 	const char* env_serverIp = getenv("GLS_SERVER_IP");
-	
 	if (env_serverIp == NULL) {
 		env_serverIp = "127.0.0.1";
 	} else {
