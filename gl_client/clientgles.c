@@ -492,7 +492,9 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
 	wait_for_data("timeout:glGetActiveUniform");
 	gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.tmp_buf.buf;
 	
-	*length = ret->length;
+	if (length != NULL) {
+		*length = ret->length;
+	}
 	*size = ret->size;
 	*type = ret->type;
 	*name = ret->name;
