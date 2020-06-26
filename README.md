@@ -46,7 +46,7 @@ A fast, simple, lightweight and low latency framework suitable for embedded syst
 
 ## Current status
 - This branch attempt to emulate EGL Config.
-- `es2_info`, `es2gears` will work; `es2tri` probably.
+- `es2_info`, `es2gears` and `es2tri` will work.
 - GL4ES apps now in segfault.
 
 ## Notes

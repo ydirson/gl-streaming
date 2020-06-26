@@ -103,6 +103,9 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType display)
 	return ret->display;
 */
 
+	xDisplay = display;
+	xScreenId = DefaultScreen(&xDisplay);
+
 	// Can't getting Android EGL display from Linux Native display?
 	return eglGetCurrentDisplay();
 }
@@ -212,7 +215,6 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )
 {
-	
 	if (sizeof(void*) != sizeof(window)) {
 		client_egl_error = EGL_BAD_NATIVE_WINDOW;
 		return EGL_NO_SURFACE;
@@ -243,8 +245,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 	// This fix size assert in `es2gears` and `es2tri`.
 	if (xWindow != NULL && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
 		XWindowAttributes xWindowAttrs;
-		
-		if (!XGetWindowAttributes(xDisplay, XDefaultRootWindow(xDisplay), &xWindowAttrs)) {
+		if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
 			printf("Warning: XGetWindowAttributes failed!");
 		} else {
 			switch (attribute) {
