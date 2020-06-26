@@ -5,25 +5,19 @@
 
 ### Client setup
 ```
-# Set $PATH_TO_STREAMINGLIB
-PATH_TO_STREAMINGLIB=/anywhere/you/want
-
 cd /path/to/android-gl-streaming/gl_client
 
 # Make the client
 make
 
-cp libGLESv2.so.2 $PATH_TO_STREAMINGLIB
+# Install gl-streaming client
+make install
 
 # Copy GL4ES into
-cp /path/to/gl4es/build/lib/libGL.so.1 $PATH_TO_STREAMINGLIB
-
-cd $PATH_TO_STREAMINGLIB
-
-ln -s libGLESv2.so.2 libEGL.so.1
+cp /path/to/gl4es/lib/libGL.so.1 /usr/local/lib/gl-streaming
 
 # Override system libGLESv2.so.2, libEGL.so.1 and libGL.so.1
-export LD_LIBRARY_PATH=$PATH_TO_STREAMINGLIB:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 ```
 
 ## Launch streaming!
