@@ -180,6 +180,7 @@ void glse_glGetActiveUniform()
   GLSE_SET_COMMAND_PTR(c, glGetActiveUniform);
   gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsec_global.tmp_buf.buf;
   char* name;
+  // LOGD("glGetActiveUniform(program=%p, index=%i, bufsize=%i)", c->program, c->index, c->bufsize);
   glGetActiveUniform (c->program, c->index, c->bufsize, &ret->length, &ret->size, &ret->type, name);
   ret->cmd = GLSC_glGetActiveUniform;
   ret->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
@@ -202,7 +203,6 @@ void glse_glGetAttribLocation()
 void glse_glGetError()
 {
   GLuint error = glGetError();
-  // Should check gl error inside glGetError() ???
   gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glGetError;
   ret->error = error;
@@ -251,6 +251,9 @@ void glse_glGetProgramiv()
 	GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
 	gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsec_global.tmp_buf.buf;
 	glGetProgramiv(c->program, c->pname, &ret->params);
+	
+	// LOGD("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", c->program, c->pname, &ret->params, ret->params);
+	
 	ret->cmd = GLSC_glGetProgramiv;
 	glse_cmd_send_data(0,sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
 }

@@ -43,7 +43,7 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
       vbo.vbo = buffer;
   else if( target == GL_ELEMENT_ARRAY_BUFFER )
       vbo.ibo = buffer;
-  else printf("gls: unsupported buffer type!\n");
+  else printf("gls error: unsupported buffer type!\n");
   GLS_PUSH_BATCH(glBindBuffer);
 }
 
@@ -484,6 +484,9 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
 	c->program = program;
 	c->index = index;
 	c->bufsize = bufsize;
+	
+	printf("glGetActiveUniform(program=%p, index=%i, bufsize=%i)\n", program, index, bufsize);
+	
 	GLS_SEND_PACKET(glGetActiveUniform);
     
 	wait_for_data("timeout:glGetActiveUniform");
@@ -581,8 +584,10 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
 
 	wait_for_data("timeout:glGetProgramiv");
 	gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.tmp_buf.buf;
-  
-	*params = &ret->params;
+	
+	*params = ret->params;
+	
+	printf("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", program, pname, params, *params);
 }
 
 
