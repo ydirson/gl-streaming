@@ -45,15 +45,15 @@ A fast, simple, lightweight and low latency framework suitable for embedded syst
 - [x] glTexSubImage2D
 
 ## Current status
-- `es2_info`, `es2gears` will work; `es2tri` probably.
-- Some apps/games run on GL4ES will work on a blank screen, other will get crashed.
+- `es2_info`, `es2gears` and `es2tri` will work.
+- GL4ES apps/games may in black screen.
 
 ## Notes
-- Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modify.
+- Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modifies.
 - Default port of server: 18145, client: 18146.
 
 ## Known issue (Android)
-- Rotate screen (change orientation) or put app to background cause app to spawn huge memory usage in a short time.
+- Some old devices: put app to background will make app lost EGL context.
 
 ## Quick start
 

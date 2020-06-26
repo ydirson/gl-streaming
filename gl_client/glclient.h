@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/X.h>
 #include <X11/Xlib.h>
 
+#include "EGL/egl.h"
 #include "GLES2/gl2.h"
 #include "gls_command.h"
 #include "server.h"
@@ -59,14 +60,14 @@ extern "C" {
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
 // c->cmd = GLSC_glFunctionName;
-#define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME) gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr); PTR->cmd = GLSC_##FUNCNAME; if (glsc_global.is_debug == TRUE) printf("gls info: executing command %s\n", #FUNCNAME);
+#define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME) gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr); PTR->cmd = GLSC_##FUNCNAME; if (glsc_global.is_debug == TRUE) printf("gls debug: executing command %s\n", #FUNCNAME);
 
 // push_batch_command(sizeof(gls_glFunctionName_t));
 #define GLS_PUSH_BATCH(FUNCNAME) push_batch_command(sizeof(gls_##FUNCNAME##_t))
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.out_buf.buf;
 // c->cmd = GLSC_glFunctionName;
-#define GLS_SET_COMMAND_PTR(PTR, FUNCNAME) gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.out_buf.buf; PTR->cmd = GLSC_##FUNCNAME; if (glsc_global.is_debug == TRUE) printf("gls info: executing command %s\n", #FUNCNAME);
+#define GLS_SET_COMMAND_PTR(PTR, FUNCNAME) gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.out_buf.buf; PTR->cmd = GLSC_##FUNCNAME; if (glsc_global.is_debug == TRUE) printf("gls debug: executing command %s\n", #FUNCNAME);
 
 // send_packet(sizeof(gls_glFunctionName_t));
 #define GLS_SEND_PACKET(FUNCNAME) send_packet(sizeof(gls_##FUNCNAME##_t))
@@ -90,6 +91,11 @@ struct attrib_ptr_s {
     GLuint vbo_id;
     GLuint webgl_vbo_id;
 } vt_attrib_pointer[16];
+
+uint32_t client_egl_error;
+uint32_t client_config_size;
+uint32_t client_config_keys[GLS_DATA_SIZE];
+uint32_t client_config_values[GLS_DATA_SIZE];
 
 float get_diff_time(struct timeval start, struct timeval end);
 int check_batch_overflow(size_t size, const char *msg);

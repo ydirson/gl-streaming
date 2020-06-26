@@ -675,6 +675,15 @@ GL_APICALL void GL_APIENTRY glLinkProgram (GLuint program)
 }
 
 
+GL_APICALL void GL_APIENTRY glMapBufferOES(GLenum target, GLenum access)
+{
+	GLS_SET_COMMAND_PTR_BATCH(c, glMapBufferOES);
+	c->target = target;
+	c->access = access;
+	GLS_PUSH_BATCH(glMapBufferOES);
+}
+
+
 GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
 {
   gls_cmd_flush();
@@ -992,6 +1001,19 @@ GL_APICALL void GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, G
   c->transpose = transpose;
   memcpy(c->value, value, datasize);
   push_batch_command(cmd_size);
+}
+
+
+GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glUnmapBufferOES);
+  c->target = target;
+  GLS_SEND_PACKET(glUnmapBufferOES);
+
+  wait_for_data("timeout:glUnmapBufferOES");
+  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.tmp_buf.buf;
+  return ret->success;
 }
 
 
