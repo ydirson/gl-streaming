@@ -34,3 +34,4 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 
 ## Environment variable on launch
 - (Client) `GLS_DEBUG`: print executing/flushing command to the console. Disabled by default.
+- (Client) `GLS_SERVER_IP`: set server IP address.
