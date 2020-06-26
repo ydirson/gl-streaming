@@ -50,11 +50,11 @@ A fast, simple, lightweight and low latency framework suitable for embedded syst
 - GL4ES apps now in segfault.
 
 ## Notes
-- Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modify.
+- Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modifies.
 - Default port of server: 18145, client: 18146.
 
 ## Known issue (Android)
-- Rotate screen (change orientation) or put app to background cause app to spawn huge memory usage in a short time.
+- Some old devices: put app to background will make app lost EGL context.
 
 ## Quick start
 
