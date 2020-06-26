@@ -3,10 +3,24 @@
 #include "glserver.h"
 
 
+void glse_glAttachShader()
+{
+  GLSE_SET_COMMAND_PTR(c, glAttachShader);
+  glAttachShader(c->program, c->shader);
+}
+
+
 void glse_glBindBuffer()
 {
   GLSE_SET_COMMAND_PTR(c, glBindBuffer);
   glBindBuffer(c->target, c->buffer);
+}
+
+
+void glse_glBindFramebuffer()
+{
+  GLSE_SET_COMMAND_PTR(c, glBindFramebuffer);
+  glBindFramebuffer(c->target, c->framebuffer);
 }
 
 
@@ -66,10 +80,52 @@ void glse_glColorMask()
 }
 
 
+void glse_glCompileShader()
+{
+  GLSE_SET_COMMAND_PTR(c, glCompileShader);
+  glCompileShader(c->shader);
+}
+
+
+void glse_glCreateProgram()
+{
+  GLuint program = glCreateProgram();
+  gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_glCreateProgram;
+  ret->program = program;
+  glse_cmd_send_data(0, sizeof(gls_ret_glCreateProgram_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+
+void glse_glCreateShader()
+{
+  GLSE_SET_COMMAND_PTR(c, glCreateShader);
+  uint32_t obj = glCreateShader(c->type);
+  gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_glCreateShader;
+  ret->obj = obj;
+  glse_cmd_send_data(0, sizeof(gls_ret_glCreateShader_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+
 void glse_glDeleteBuffers()
 {
   GLSE_SET_COMMAND_PTR(c, glDeleteBuffers);
   glDeleteBuffers (c->n, (GLuint *)glsec_global.tmp_buf.buf);
+}
+
+
+void glse_glDeleteProgram()
+{
+  GLSE_SET_COMMAND_PTR(c, glDeleteProgram);
+  glDeleteProgram(c->program);
+}
+
+
+void glse_glDeleteShader()
+{
+  GLSE_SET_COMMAND_PTR(c, glDeleteShader);
+  glDeleteShader(c->shader);
 }
 
 
@@ -91,6 +147,13 @@ void glse_glEnable()
 {
   GLSE_SET_COMMAND_PTR(c, glEnable);
   glEnable(c->cap);
+}
+
+
+void glse_glEnableVertexAttribArray()
+{
+  GLSE_SET_COMMAND_PTR(c,glEnableVertexAttribArray );
+  glEnableVertexAttribArray(c->index);
 }
 
 
@@ -185,12 +248,11 @@ void glse_glGetProgramInfoLog()
 
 void glse_glGetProgramiv()
 {
-  GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
-  gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsec_global.tmp_buf.buf;
-  glGetProgramiv(c->program, c->pname, &ret->params);
-  // LOGD("GLGetProgramiv from %p return %i", c->pname, ret->params);
-  ret->cmd = GLSC_glGetProgramiv;
-  glse_cmd_send_data(0,sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
+	GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
+	gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsec_global.tmp_buf.buf;
+	glGetProgramiv(c->program, c->pname, &ret->params);
+	ret->cmd = GLSC_glGetProgramiv;
+	glse_cmd_send_data(0,sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -228,51 +290,10 @@ void glse_glGetUniformLocation()
 }
 
 
-void glse_glEnableVertexAttribArray()
+void glse_glLinkProgram()
 {
-  GLSE_SET_COMMAND_PTR(c,glEnableVertexAttribArray );
-  glEnableVertexAttribArray(c->index);
-}
-
-
-
-void glse_glVertexAttribPointer()
-{
-  GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
-  glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid*)c->ptr);
-}
-
-
-void glse_glBindFramebuffer()
-{
-  GLSE_SET_COMMAND_PTR(c, glBindFramebuffer);
-  glBindFramebuffer(c->target, c->framebuffer);
-}
-
-
-void glse_glViewport()
-{
-  GLSE_SET_COMMAND_PTR(c, glViewport);
-  glViewport(c->x, c->y, c->width, c->height);
-}
-
-
-
-void glse_glUseProgram()
-{
-GLSE_SET_COMMAND_PTR(c, glUseProgram);
-  glUseProgram(c->program);
-}
-
-
-void glse_glCreateShader()
-{
-  GLSE_SET_COMMAND_PTR(c, glCreateShader);
-  uint32_t obj = glCreateShader(c->type);
-  gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = GLSC_glCreateShader;
-  ret->obj = obj;
-  glse_cmd_send_data(0, sizeof(gls_ret_glCreateShader_t), (char *)glsec_global.tmp_buf.buf);
+  GLSE_SET_COMMAND_PTR(c, glLinkProgram);
+  glLinkProgram(c->program);
 }
 
 
@@ -330,49 +351,35 @@ void glse_glShaderSource()
 }
 
 
-void glse_glCompileShader()
+void glse_glUseProgram()
 {
-  GLSE_SET_COMMAND_PTR(c, glCompileShader);
-  glCompileShader(c->shader);
+	GLSE_SET_COMMAND_PTR(c, glUseProgram);
+	glUseProgram(c->program);
 }
 
 
-void glse_glCreateProgram()
+void glse_glVertexAttribPointer()
 {
-  GLuint program = glCreateProgram();
-  gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = GLSC_glCreateProgram;
-  ret->program = program;
-  glse_cmd_send_data(0, sizeof(gls_ret_glCreateProgram_t), (char *)glsec_global.tmp_buf.buf);
+	GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
+	glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid*)c->ptr);
 }
 
 
-void glse_glAttachShader()
+void glse_glViewport()
 {
-  GLSE_SET_COMMAND_PTR(c, glAttachShader);
-  glAttachShader(c->program, c->shader);
+	GLSE_SET_COMMAND_PTR(c, glViewport);
+	glViewport(c->x, c->y, c->width, c->height);
 }
 
-
-void glse_glLinkProgram()
+/*
+void glse_glIsEnabled()
 {
-  GLSE_SET_COMMAND_PTR(c, glLinkProgram);
-  glLinkProgram(c->program);
+	// GLboolean glIsEnabled(	GLenum cap);
+	
+	
 }
+*/
 
-
-void glse_glDeleteProgram()
-{
-  GLSE_SET_COMMAND_PTR(c, glDeleteProgram);
-  glDeleteProgram(c->program);
-}
-
-
-void glse_glDeleteShader()
-{
-  GLSE_SET_COMMAND_PTR(c, glDeleteShader);
-  glDeleteShader(c->shader);
-}
 
 
 void glse_glUniform1f()

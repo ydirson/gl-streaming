@@ -930,6 +930,7 @@ typedef struct
   int32_t params;
 } gls_ret_glGetShaderiv_t;
 
+
 typedef struct
 {
   uint32_t cmd;

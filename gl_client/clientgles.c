@@ -335,15 +335,17 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   int vbo_bkp = vbo.vbo;
   int ibo_bkp = vbo.ibo;
   int i;
-  for( i = 0;i < 16; i++ )
+  for (i = 0; i < 16; i++)
   {
-      if( vt_attrib_pointer[i].isenabled )
+      if( vt_attrib_pointer[i].isenabled ) {
           wes_vertex_attrib_pointer(i, 65536);
+	  }
   }
   if( !vbo.ibo )
   {
-      if( !vbo.ibo_emu )
+      if( !vbo.ibo_emu ) {
           glGenBuffers(1, &vbo.ibo_emu);
+	  }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
       indices = 0;
@@ -360,8 +362,9 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   c->indices = (uint32_t)indices;
 #endif
   GLS_PUSH_BATCH(glDrawElements);
-  if( !ibo_bkp )
+  if( !ibo_bkp ) {
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
   glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 }
 GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices )
@@ -369,17 +372,17 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
     int vbo_bkp = vbo.vbo;
     int ibo_bkp = vbo.ibo;
     int i;
-    for( i = 0;i < 16; i++ )
+    for (i = 0; i < 16; i++) {
         wes_vertex_attrib_pointer(i, end);
-    if( !vbo.ibo )
-    {
-        if( !vbo.ibo_emu )
+	}
+    if (!vbo.ibo) {
+        if (!vbo.ibo_emu) {
             glGenBuffers(1, &vbo.ibo_emu);
+		}
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,  type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * (type == GL_UNSIGNED_SHORT ? 2 : 4), indices, GL_STREAM_DRAW);
         indices = 0;
-
-      }
+    }
 
 
     GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
@@ -508,21 +511,6 @@ GL_APICALL int GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* na
 }
 
 
-GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params) {
-  gls_cmd_flush();
-  GLS_SET_COMMAND_PTR(c, glGetShaderiv);
-  c->shader = shader;
-  c->pname = pname;
-  GLS_SEND_PACKET(glGetShaderiv);
-
-  wait_for_data("timeout:glGetShaderiv");
-  gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsc_global.tmp_buf.buf;
-  
-  *params = ret->params;
-  // printf("Done executing glGetShaderiv(%p, %p) with return %i\n", shader, pname, ret->params);
-}
-
-
 GL_APICALL GLenum GL_APIENTRY glGetError()
 {
 	gls_cmd_flush();
@@ -590,10 +578,27 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
 	c->program = program;
 	c->pname = pname;
 	GLS_SEND_PACKET(glGetProgramiv);
-    
+
 	wait_for_data("timeout:glGetProgramiv");
 	gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.tmp_buf.buf;
-	params = ret->params;
+  
+	*params = &ret->params;
+}
+
+
+GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glGetShaderiv);
+  c->shader = shader;
+  c->pname = pname;
+  GLS_SEND_PACKET(glGetShaderiv);
+
+  wait_for_data("timeout:glGetShaderiv");
+  gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsc_global.tmp_buf.buf;
+  
+  *params = ret->params;
+  // printf("Done executing glGetShaderiv(%p, %p) with return %i\n", shader, pname, ret->params);
 }
 
 
