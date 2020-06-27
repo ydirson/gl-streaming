@@ -1,9 +1,9 @@
-## Setup streaming environment
-### Server setup
+# Setup streaming environment
+## Server setup
 - Build Server app using Android Studio with NDK installed.
 - Install server APK. 
 
-### Client setup
+## Client setup
 ```
 cd /path/to/android-gl-streaming/gl_client
 
@@ -20,30 +20,30 @@ cp /path/to/gl4es/lib/libGL.so.1 /usr/local/lib/gl-streaming
 export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 ```
 
-## Launch streaming!
-### Launch server
+# Launch streaming!
+## Launch server
 - Do as title: Launch server.
 - Enter server port and client address, or leave empty for default values.
 
-### Launch client
+## Launch client
 - Test: run `es2_info, es2gears, es2tri, glxinfo, glxgears, glxdemo or glxheads`
 - Run an OpenGL Native Program or Java Program.
 
-## Variables on compile
-### Sever
+# Variables on compile
+## Sever
 - `GL_DEBUG`: Enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
 
-### Client
+## Client
 - `USE_SERVER_SIZE`: Use server window size insread of X Window size. Enabled by default. May be removed later.
 
-## Environment variable on launch
-### Server
+# Environment variable on launch
+## Server
 - Nothing yet.
 
-### Client
-#### `GLS_DEBUG`: Log executing/flushing command to the console. Disabled by default.
+## Client
+### • GLS_DEBUG: Log executing/flushing command to the console. Disabled by default.
 - 0: Disable command logging (default).
 - 1: Enable command logging.
 
-#### `GLS_SERVER_IP`: Set server IP address.
-- Example: `127.0.0.1`.
+### • GLS_SERVER_ADDR: Set server IP address and port.
+- Default value: `127.0.0.1:18145`.
