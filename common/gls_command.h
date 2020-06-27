@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 // To prevent incompatible version, change every
-#define GLS_VERSION 8
+#define GLS_VERSION 9
 // #define GL_MAJOR_VERSION 1
 // #define GL_MINOR_VERSION 2
 

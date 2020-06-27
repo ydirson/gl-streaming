@@ -219,8 +219,9 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 		client_egl_error = EGL_BAD_NATIVE_WINDOW;
 		return EGL_NO_SURFACE;
 	}
-	
+#ifndef USE_SERVER_SIZE
 	xWindow = window;
+#endif // USE_SERVER_SIZE
 	
 	return eglGetCurrentSurface(EGL_DRAW);
 }
@@ -243,6 +244,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surf
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value )
 {
 	// This fix size assert in `es2gears` and `es2tri`.
+#ifndef USE_SERVER_SIZE
 	if (xWindow != NULL && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
 		XWindowAttributes xWindowAttrs;
 		if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
@@ -261,6 +263,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 		// *value = 300;
 		// return EGL_TRUE;
 	}
+#endif // USE_SERVER_SIZE
 	
 	gls_cmd_flush();
 	GLS_SET_COMMAND_PTR(c, eglQuerySurface);

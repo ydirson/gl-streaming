@@ -3,10 +3,24 @@
 #include "glserver.h"
 
 
+void glse_glActiveTexture()
+{
+  GLSE_SET_COMMAND_PTR(c, glActiveTexture);
+  glActiveTexture(c->texture);
+}
+
+
 void glse_glAttachShader()
 {
   GLSE_SET_COMMAND_PTR(c, glAttachShader);
   glAttachShader(c->program, c->shader);
+}
+
+
+void glse_glBindAttribLocation()
+{
+  GLSE_SET_COMMAND_PTR(c, glBindAttribLocation);
+  glBindAttribLocation (c->program, c->index, (const GLchar*) c->name);
 }
 
 
@@ -35,6 +49,13 @@ void glse_glBlendEquationSeparate()
 {
   GLSE_SET_COMMAND_PTR(c, glBlendEquationSeparate);
   glBlendEquationSeparate(c->modeRGB, c->modeAlpha);
+}
+
+
+void glse_glBlendFunc()
+{
+  GLSE_SET_COMMAND_PTR(c, glBlendFunc);
+  glBlendFunc(c->sfactor, c->dfactor);
 }
 
 
@@ -73,6 +94,13 @@ void glse_glClearColor()
 }
 
 
+void glse_glClearDepthf()
+{
+  GLSE_SET_COMMAND_PTR(c, glClearDepthf);
+  glClearDepthf(c->depth);
+}
+
+
 void glse_glColorMask()
 {
   GLSE_SET_COMMAND_PTR(c, glColorMask);
@@ -108,6 +136,13 @@ void glse_glCreateShader()
 }
 
 
+void glse_glCullFace()
+{
+  GLSE_SET_COMMAND_PTR(c, glCullFace);
+  glActiveTexture(c->mode);
+}
+
+
 void glse_glDeleteBuffers()
 {
   GLSE_SET_COMMAND_PTR(c, glDeleteBuffers);
@@ -129,6 +164,13 @@ void glse_glDeleteShader()
 }
 
 
+void glse_glDeleteTextures()
+{
+  GLSE_SET_COMMAND_PTR(c, glDeleteTextures);
+  glDeleteTextures(c->n, c->textures);
+}
+
+
 void glse_glDepthFunc()
 {
   GLSE_SET_COMMAND_PTR(c, glDepthFunc);
@@ -136,11 +178,46 @@ void glse_glDepthFunc()
 }
 
 
+void glse_glDepthMask()
+{
+  GLSE_SET_COMMAND_PTR(c, glDepthMask);
+  glDepthMask(c->flag);
+}
+
+
+void glse_glDepthRangef()
+{
+  GLSE_SET_COMMAND_PTR(c, glDepthRangef);
+  glDepthRangef(c->zNear, c->zFar);
+}
+
+
+void glse_glDisableVertexAttribArray()
+{
+  GLSE_SET_COMMAND_PTR(c, glDisableVertexAttribArray);
+  glDisableVertexAttribArray(c->index);
+}
+
+
+void glse_glDisable()
+{
+  GLSE_SET_COMMAND_PTR(c, glDisable);
+  glDisable(c->cap);
+}
+
 void glse_glDrawArrays()
 {
   GLSE_SET_COMMAND_PTR(c, glDrawArrays);
   glDrawArrays(c->mode, c->first, c->count);
 }
+
+
+void glse_glDrawElements()
+{
+  GLSE_SET_COMMAND_PTR(c, glDrawElements);
+  glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
+}
+
 
 
 void glse_glEnable()
@@ -152,8 +229,25 @@ void glse_glEnable()
 
 void glse_glEnableVertexAttribArray()
 {
-  GLSE_SET_COMMAND_PTR(c,glEnableVertexAttribArray );
+  GLSE_SET_COMMAND_PTR(c, glEnableVertexAttribArray );
   glEnableVertexAttribArray(c->index);
+}
+
+
+void glse_glFinish()
+{
+  GLSE_SET_COMMAND_PTR(c, glFinish);
+  glFinish();
+  gls_command_t *ret = (gls_command_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = c->cmd;
+  size_t size = sizeof(gls_command_t);
+  glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
+}
+
+
+void glse_glFlush()
+{
+  glFlush();
 }
 
 
@@ -265,6 +359,22 @@ void glse_glGetProgramiv()
 }
 
 
+void glse_glGetShaderInfoLog()
+{
+  GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
+  gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsec_global.tmp_buf.buf;
+  uint32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
+  if (c->bufsize > maxsize)
+  {
+    c->bufsize = maxsize;
+  }
+  glGetShaderInfoLog(c->shader, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
+  ret->cmd = GLSC_glGetShaderInfoLog;
+  uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
+  glse_cmd_send_data(0, size, (char *)glsec_global.tmp_buf.buf);
+}
+
+
 void glse_glGetShaderiv()
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderiv);
@@ -299,10 +409,50 @@ void glse_glGetUniformLocation()
 }
 
 
+void glse_glHint()
+{
+  GLSE_SET_COMMAND_PTR(c, glHint);
+  glHint(c->target, c->mode);
+}
+
+
+void glse_glLineWidth()
+{
+  GLSE_SET_COMMAND_PTR(c, glLineWidth);
+  glLineWidth(c->width);
+}
+
+
 void glse_glLinkProgram()
 {
   GLSE_SET_COMMAND_PTR(c, glLinkProgram);
   glLinkProgram(c->program);
+}
+
+
+void glse_glPixelStorei()
+{
+  GLSE_SET_COMMAND_PTR(c, glPixelStorei);
+  glPixelStorei(c->pname, c->param);
+}
+
+
+void glse_glPolygonOffset()
+{
+  GLSE_SET_COMMAND_PTR(c, glPolygonOffset);
+  glPolygonOffset(c->factor, c->units);
+}
+
+
+void glse_glReadPixels()
+{
+  GLSE_SET_COMMAND_PTR(c, glReadPixels);
+  gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsec_global.tmp_buf.buf;
+  glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
+  ret->cmd = glReadPixels;
+  glse_cmd_send_data(0, sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.tmp_buf.buf);
+  
+  // gls_cmd_send_data(0, (uint32_t) (c->width * c->height) /* correct??? */ , (void *)ret->pixels);
 }
 
 
@@ -360,6 +510,70 @@ void glse_glShaderSource()
 }
 
 
+void glse_glStencilFunc()
+{
+  GLSE_SET_COMMAND_PTR(c, glStencilFunc);
+  glStencilFunc(c->func, c->r, c->m);
+}
+
+
+void glse_glStencilMask()
+{
+  GLSE_SET_COMMAND_PTR(c, glStencilMask);
+  glStencilMask(c->mask);
+}
+
+
+void glse_glStencilOp()
+{
+  GLSE_SET_COMMAND_PTR(c, glStencilOp);
+  glStencilOp(c->fail, c->zfail, c->zpass);
+}
+
+
+void glse_glTexParameteri()
+{
+  GLSE_SET_COMMAND_PTR(c, glTexParameteri);
+  glTexParameteri (c->target, c->pname, c->param);
+}
+
+
+void glse_glTexImage2D()
+{
+  GLSE_SET_COMMAND_PTR(c, glTexImage2D);
+  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels);
+}
+
+
+// Based from glTexImage2D
+void glse_glTexSubImage2D()
+{
+  GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
+  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->pixels);
+}
+
+
+void glse_glUniform1f()
+{
+  GLSE_SET_COMMAND_PTR(c, glUniform1f);
+  glUniform1f(c->location, c->x);
+}
+
+
+void glse_glUniform4fv()
+{
+  GLSE_SET_COMMAND_PTR(c, glUniform4fv);
+  glUniform4fv (c->location, c->count, (const GLfloat*) c->v);
+}
+
+
+void glse_glUniformMatrix4fv()
+{
+  GLSE_SET_COMMAND_PTR(c, glUniformMatrix4fv);
+  glUniformMatrix4fv(c->location, c->count, c->transpose, (const GLfloat*) c->value);
+}
+
+
 void glse_glUseProgram()
 {
 	GLSE_SET_COMMAND_PTR(c, glUseProgram);
@@ -389,217 +603,12 @@ void glse_glIsEnabled()
 }
 */
 
-
-
-void glse_glUniform1f()
-{
-  GLSE_SET_COMMAND_PTR(c, glUniform1f);
-  glUniform1f(c->location, c->x);
-}
-
-
-void glse_glDisableVertexAttribArray()
-{
-  GLSE_SET_COMMAND_PTR(c, glDisableVertexAttribArray);
-  glDisableVertexAttribArray(c->index);
-}
-
-
-void glse_glDisable()
-{
-  GLSE_SET_COMMAND_PTR(c, glDisable);
-  glDisable(c->cap);
-}
-
-
-void glse_glDrawElements()
-{
-  GLSE_SET_COMMAND_PTR(c, glDrawElements);
-  glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
-}
-
-
-void glse_glGetShaderInfoLog()
-{
-  GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
-  gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsec_global.tmp_buf.buf;
-  uint32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
-  if (c->bufsize > maxsize)
-  {
-    c->bufsize = maxsize;
-  }
-  glGetShaderInfoLog(c->shader, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
-  ret->cmd = GLSC_glGetShaderInfoLog;
-  uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
-  glse_cmd_send_data(0, size, (char *)glsec_global.tmp_buf.buf);
-}
-
-
-void glse_glBindAttribLocation()
-{
-  GLSE_SET_COMMAND_PTR(c, glBindAttribLocation);
-  glBindAttribLocation (c->program, c->index, (const GLchar*) c->name);
-}
-
-
-void glse_glUniform4fv()
-{
-  GLSE_SET_COMMAND_PTR(c, glUniform4fv);
-  glUniform4fv (c->location, c->count, (const GLfloat*) c->v);
-}
-
-
-void glse_glUniformMatrix4fv()
-{
-  GLSE_SET_COMMAND_PTR(c, glUniformMatrix4fv);
-  glUniformMatrix4fv(c->location, c->count, c->transpose, (const GLfloat*) c->value);
-}
-
-
-void glse_glFinish()
-{
-  GLSE_SET_COMMAND_PTR(c, glFinish);
-  glFinish();
-  gls_command_t *ret = (gls_command_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = c->cmd;
-  size_t size = sizeof(gls_command_t);
-  glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
-}
-
-
-void glse_glFlush()
-{
-  glFlush();
-}
-
-
-void glse_glTexParameteri()
-{
-  GLSE_SET_COMMAND_PTR(c, glTexParameteri);
-  glTexParameteri (c->target, c->pname, c->param);
-}
-
-
-void glse_glTexImage2D()
-{
-  GLSE_SET_COMMAND_PTR(c, glTexImage2D);
-  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels);
-}
-
-
-// Based from glTexImage2D
-void glse_glTexSubImage2D()
-{
-  GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
-  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->pixels);
-}
-
-
-void glse_glDeleteTextures()
-{
-  GLSE_SET_COMMAND_PTR(c, glDeleteTextures);
-  glDeleteTextures(c->n, c->textures);
-}
-
-
-void glse_glPixelStorei()
-{
-  GLSE_SET_COMMAND_PTR(c, glPixelStorei);
-  glPixelStorei(c->pname, c->param);
-}
-
-
-void glse_glActiveTexture()
-{
-  GLSE_SET_COMMAND_PTR(c, glActiveTexture);
-  glActiveTexture(c->texture);
-}
-
-
-void glse_glBlendFunc()
-{
-  GLSE_SET_COMMAND_PTR(c, glBlendFunc);
-  glBlendFunc(c->sfactor, c->dfactor);
-}
-
-
-void glse_glCullFace()
-{
-  GLSE_SET_COMMAND_PTR(c, glCullFace);
-  glActiveTexture(c->mode);
-}
-
-
-void glse_glDepthMask()
-{
-  GLSE_SET_COMMAND_PTR(c, glDepthMask);
-  glDepthMask(c->flag);
-}
-
-
-void glse_glDepthRangef()
-{
-  GLSE_SET_COMMAND_PTR(c, glDepthRangef);
-  glDepthRangef(c->zNear, c->zFar);
-}
-
-
-void glse_glStencilFunc()
-{
-  GLSE_SET_COMMAND_PTR(c, glStencilFunc);
-  glStencilFunc(c->func, c->r, c->m);
-}
-
-
-void glse_glStencilOp()
-{
-  GLSE_SET_COMMAND_PTR(c, glStencilOp);
-  glStencilOp(c->fail, c->zfail, c->zpass);
-}
-
-
-void glse_glPolygonOffset()
-{
-  GLSE_SET_COMMAND_PTR(c, glPolygonOffset);
-  glPolygonOffset(c->factor, c->units);
-}
-
-
-void glse_glStencilMask()
-{
-  GLSE_SET_COMMAND_PTR(c, glStencilMask);
-  glStencilMask(c->mask);
-}
-
-
-void glse_glLineWidth()
-{
-  GLSE_SET_COMMAND_PTR(c, glLineWidth);
-  glLineWidth(c->width);
-}
-
-
-void glse_glHint()
-{
-  GLSE_SET_COMMAND_PTR(c, glHint);
-  glHint(c->target, c->mode);
-}
-
-
-void glse_glClearDepthf()
-{
-  GLSE_SET_COMMAND_PTR(c, glClearDepthf);
-  glClearDepthf(c->depth);
-}
-
-
+// OES map buffer extension
 void glse_glMapBufferOES()
 {
   GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
   glMapBufferOES(c->target, c->access);
 }
-
-
 void glse_glUnmapBufferOES()
 {
   GLSE_SET_COMMAND_PTR(c, glUnmapBufferOES);
@@ -608,18 +617,6 @@ void glse_glUnmapBufferOES()
   ret->cmd = GLSC_glUnmapBufferOES;
   ret->success = success;
   glse_cmd_send_data(0, sizeof(gls_ret_glUnmapBufferOES_t), (char *)glsec_global.tmp_buf.buf);
-}
-
-
-void glse_glReadPixels()
-{
-  GLSE_SET_COMMAND_PTR(c, glReadPixels);
-  gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsec_global.tmp_buf.buf;
-  glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
-  ret->cmd = glReadPixels;
-  glse_cmd_send_data(0, sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.tmp_buf.buf);
-  
-  // gls_cmd_send_data(0, (uint32_t) (c->width * c->height) /* correct??? */ , (void *)ret->pixels);
 }
 
 

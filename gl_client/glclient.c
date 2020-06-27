@@ -131,20 +131,29 @@ void gls_init_library()
     if(init)
         return;
     int opt;
-    char my_ip[GLS_STRING_SIZE_PLUS];
-    char his_ip[GLS_STRING_SIZE_PLUS];
+    char my_ip[30]; // GLS_STRING_SIZE_PLUS
+    char his_ip[30]; // GLS_STRING_SIZE_PLUS
     uint16_t my_port = 18146;
     uint16_t his_port = 18145;
 	
-	const char* env_serverIp = getenv("GLS_SERVER_IP");
-	if (env_serverIp == NULL) {
-		env_serverIp = "127.0.0.1";
+	const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
+	if (env_serverAddr == NULL) {
+		strncpy(his_ip, "127.0.0.1", 10);
 	} else {
-		printf("GLS_SERVER_IP is set to %s\n", env_serverIp);
+		printf("GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
+		
+		char* env_serverAddr_search = ":";
+		int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
+		char env_serverAddr_arr[env_serverAddr_length];
+		strncpy(env_serverAddr_arr, env_serverAddr, env_serverAddr_length + 1);
+		
+		char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
+		strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
+		his_port = atoi(strtok(NULL, env_serverAddr_search));
+		
 	}
-	
-    strncpy(my_ip, "127.0.0.1", GLS_STRING_SIZE);
-    strncpy(his_ip, env_serverIp, GLS_STRING_SIZE);
+
+    strncpy(my_ip, "127.0.0.1", 10);
     server_init(&sc);
     set_bind_address_port(&sc, my_ip, my_port);
     set_address_port(&sc, his_ip, his_port);

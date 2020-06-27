@@ -13,7 +13,10 @@ ANativeWindow* glsurfaceview_window;
 
 Display *xDisplay;
 int xScreenId;
+#if defined(GLS_SERVER) || !defined(USE_SERVER_SIZE)
 Window xWindow;
+#endif // GLS_SERVER || !USE_SERVER_SIZE
+
 #endif // USE_X11
 
 #ifdef GLS_SERVER

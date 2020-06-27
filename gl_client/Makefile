@@ -1,6 +1,10 @@
-CFLAGS=-O3 -Wall -I../common -I. -I./include -DUSE_X11 -fPIC -g
-# Move to define in C code.
-# CFLAGS+=-DGL_CLIENT=1
+CFLAGS=-O3 -Wall -I../common -I. -I./include -fPIC -g
+
+# Use X11
+CFLAGS+=-DUSE_X11
+
+# Use screen size from server, prevent `free(): invalid pointer`.
+CFLAGS+=-DUSE_SERVER_SIZE
 
 LIBS=-pthread -ldl -lX11
 CFLAGS+= $(LIBS)
