@@ -477,6 +477,28 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
 }
 
 
+GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
+{
+	gls_cmd_flush();
+	GLS_SET_COMMAND_PTR(c, glGetActiveAttrib);
+	c->program = program;
+	c->index = index;
+	c->bufsize = bufsize;
+	
+	GLS_SEND_PACKET(glGetActiveAttrib);
+    
+	wait_for_data("timeout:glGetActiveAttrib");
+	gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.tmp_buf.buf;
+	
+	if (length != NULL) {
+		*length = ret->length;
+	}
+	*size = ret->size;
+	*type = ret->type;
+	*name = ret->name;
+}
+
+
 GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
 	gls_cmd_flush();
@@ -484,8 +506,6 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
 	c->program = program;
 	c->index = index;
 	c->bufsize = bufsize;
-	
-	printf("glGetActiveUniform(program=%p, index=%i, bufsize=%i)\n", program, index, bufsize);
 	
 	GLS_SEND_PACKET(glGetActiveUniform);
     
@@ -501,18 +521,18 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
 }
 
 
-GL_APICALL int GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)
+GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)
 {
-  gls_cmd_flush();
-  GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
-  c->program = program;
-  c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  strncpy(c->name, name, GLS_STRING_SIZE);
-  GLS_SEND_PACKET(glGetAttribLocation);
+	gls_cmd_flush();
+	GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
+	c->program = program;
+	c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
+	strncpy(c->name, name, GLS_STRING_SIZE);
+	GLS_SEND_PACKET(glGetAttribLocation);
 
-  wait_for_data("timeout:glGetAttribLocation");
-  gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.tmp_buf.buf;
-  return ret->index;
+	wait_for_data("timeout:glGetAttribLocation");
+	gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.tmp_buf.buf;
+	return ret->index;
 }
 
 

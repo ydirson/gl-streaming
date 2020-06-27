@@ -124,6 +124,7 @@ enum GL_Server_Command
   GLSC_glFlush,
   GLSC_glGenBuffers,
   GLSC_glGenTextures,
+  GLSC_glGetActiveAttrib,
   GLSC_glGetActiveUniform,
   GLSC_glGetAttribLocation,
   GLSC_glGetError,
@@ -797,8 +798,28 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t index;
   uint32_t program;
+  uint32_t index;
+  int32_t bufsize;
+} gls_glGetActiveAttrib_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  int32_t length;
+  int32_t size;
+  uint32_t type;
+  char name[GLS_STRING_SIZE_PLUS];
+} gls_ret_glGetActiveAttrib_t;
+
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t program;
+  uint32_t index;
   int32_t bufsize;
 } gls_glGetActiveUniform_t;
 

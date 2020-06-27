@@ -175,6 +175,16 @@ void glse_glGenTextures()
 }
 
 
+void glse_glGetActiveAttrib()
+{
+  GLSE_SET_COMMAND_PTR(c, glGetActiveAttrib);
+  gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsec_global.tmp_buf.buf;
+  glGetActiveAttrib (c->program, c->index, c->bufsize, &ret->length, &ret->size, &ret->type, (GLchar*)ret->name);
+  ret->cmd = GLSC_glGetActiveAttrib;
+  glse_cmd_send_data(0, sizeof(gls_ret_glGetActiveAttrib_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+
 void glse_glGetActiveUniform()
 {
   GLSE_SET_COMMAND_PTR(c, glGetActiveUniform);
@@ -281,10 +291,10 @@ void glse_glGetString()
 void glse_glGetUniformLocation()
 {
   GLSE_SET_COMMAND_PTR(c, glGetUniformLocation);
-  int location = glGetUniformLocation (c->program, (const GLchar*)c->name);
+  GLint location = glGetUniformLocation (c->program, (const GLchar*)c->name);
   gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glGetUniformLocation;
-  ret->location = (int32_t)location;
+  ret->location = location;
   glse_cmd_send_data(0, sizeof(gls_ret_glGetUniformLocation_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -428,21 +438,21 @@ void glse_glGetShaderInfoLog()
 void glse_glBindAttribLocation()
 {
   GLSE_SET_COMMAND_PTR(c, glBindAttribLocation);
-  glBindAttribLocation (c->program, c->index, c->name);
+  glBindAttribLocation (c->program, c->index, (const GLchar*) c->name);
 }
 
 
 void glse_glUniform4fv()
 {
   GLSE_SET_COMMAND_PTR(c, glUniform4fv);
-  glUniform4fv (c->location, c->count, (const GLfloat *)c->v);
+  glUniform4fv (c->location, c->count, (const GLfloat*) c->v);
 }
 
 
 void glse_glUniformMatrix4fv()
 {
   GLSE_SET_COMMAND_PTR(c, glUniformMatrix4fv);
-  glUniformMatrix4fv(c->location, c->count, c->transpose, (const GLfloat *)c->value);
+  glUniformMatrix4fv(c->location, c->count, c->transpose, (const GLfloat*) c->value);
 }
 
 
