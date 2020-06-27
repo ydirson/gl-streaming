@@ -1,7 +1,7 @@
 ## Setup streaming environment
 ### Server setup
 - Build Server app using Android Studio with NDK installed.
-- Install server APK.
+- Install server APK. 
 
 ### Client setup
 ```
@@ -30,8 +30,20 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Run an OpenGL Native Program or Java Program.
 
 ## Variables on compile
-- (Server) `GL_DEBUG`: enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
+### Sever
+- `GL_DEBUG`: Enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
+
+### Client
+- `USE_SERVER_SIZE`: Use server window size insread of X Window size. Enabled by default. May be removed later.
 
 ## Environment variable on launch
-- (Client) `GLS_DEBUG`: print executing/flushing command to the console. Disabled by default.
-- (Client) `GLS_SERVER_IP`: set server IP address.
+### Server
+- Nothing yet.
+
+### Client
+#### `GLS_DEBUG`: Log executing/flushing command to the console. Disabled by default.
+- 0: Disable command logging (default).
+- 1: Enable command logging.
+
+#### `GLS_SERVER_IP`: Set server IP address.
+- Example: `127.0.0.1`.
