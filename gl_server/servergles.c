@@ -866,6 +866,9 @@ int gles_executeCommand(gls_command_t *c) {
         case GLSC_glGenTextures:
           glse_glGenTextures();
           break;
+        case GLSC_glGetActiveAttrib:
+          glse_glGetActiveAttrib();
+          break;
         case GLSC_glGetActiveUniform:
           glse_glGetActiveUniform();
           break;
