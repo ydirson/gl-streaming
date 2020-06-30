@@ -90,14 +90,15 @@ extern "C" {
   void set_fifo_size_in_bits(server_context_t *c, unsigned int bits);
   void set_sleep_time(server_context_t *c, unsigned int usec);
   void set_max_mbps(server_context_t *c, unsigned int mbps);
-  
-  // GL_SERVER
   void set_server_address_port(server_context_t *c, char * addr, uint16_t port);
   void set_client_address_port(server_context_t *c, char * addr, uint16_t port);
+  
+  // GL_SERVER
   void set_client_user_context(server_context_t *c, void *ptr);
   void server_run(server_context_t *c, void *(*popper_thread)(void *));
 
   // GL_CLIENT
+  void *server_start(server_context_t *c);
   void socket_open(server_context_t *c);
   void socket_close(server_context_t *c);
 

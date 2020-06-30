@@ -838,7 +838,7 @@ typedef struct
 {
   uint32_t cmd;
   uint32_t program;
-  char name[GLS_STRING_SIZE_PLUS];
+  char name[50];
 } gls_glGetAttribLocation_t;
 
 
@@ -972,7 +972,7 @@ typedef struct
 {
   uint32_t cmd;
   uint32_t program;
-  char name[GLS_STRING_SIZE_PLUS];
+  char name[100];
 } gls_glGetUniformLocation_t;
 
 

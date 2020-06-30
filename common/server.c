@@ -113,39 +113,34 @@ void set_max_mbps(server_context_t *c, unsigned int mbps)
 }
 
 
-// #ifdef GLS_SERVER // GLS_SERVER
+#ifdef GLS_SERVER
+void set_client_user_context(server_context_t *c, void *ptr)
+{
+  c->popper_thread_arg.user_context_ptr = ptr;
+}
+#endif
+
 void set_server_address_port(server_context_t *c, char * addr, uint16_t port)
 {
-  strncpy(c->server_thread_arg.addr, addr, sizeof(c->server_thread_arg.addr));
-  c->server_thread_arg.port = port;
+#ifdef GLS_SERVER
+	strncpy(c->server_thread_arg.addr, addr, sizeof(c->server_thread_arg.addr));
+	c->server_thread_arg.port = port;
+#else
+	strncpy(c->addr, addr, sizeof(c->addr));
+	c->port = port;
+#endif
 }
 
 
 void set_client_address_port(server_context_t *c, char * addr, uint16_t port)
 {
-  strncpy(c->popper_thread_arg.addr, addr, sizeof(c->popper_thread_arg.addr));
-  c->popper_thread_arg.port = port;
-}
-
-
-void set_client_user_context(server_context_t *c, void *ptr)
-{
-  c->popper_thread_arg.user_context_ptr = ptr;
-}
-
-
-// #else // GL_CLIENT
-void set_address_port(server_context_t *c, char * addr, uint16_t port)
-{
-  strncpy(c->addr, addr, sizeof(c->addr));
-  c->port = port;
-}
-
-
-void set_bind_address_port(server_context_t *c, char * addr, uint16_t port)
-{
-  strncpy(c->bind_addr, addr, sizeof(c->bind_addr));
-  c->bind_port = port;
+#ifdef GLS_SERVER
+	strncpy(c->popper_thread_arg.addr, addr, sizeof(c->popper_thread_arg.addr));
+	c->popper_thread_arg.port = port;
+#else
+	strncpy(c->bind_addr, addr, sizeof(c->bind_addr));
+	c->bind_port = port;
+#endif
 }
 
 // #endif // GL_CLIENT

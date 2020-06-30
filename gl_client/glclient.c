@@ -130,7 +130,6 @@ void gls_init_library()
     static int init = FALSE;
     if(init)
         return;
-    int opt;
     char my_ip[30]; // GLS_STRING_SIZE_PLUS
     char his_ip[30]; // GLS_STRING_SIZE_PLUS
     uint16_t my_port = 18146;
@@ -155,8 +154,8 @@ void gls_init_library()
 
     strncpy(my_ip, "127.0.0.1", 10);
     server_init(&sc);
-    set_bind_address_port(&sc, my_ip, my_port);
-    set_address_port(&sc, his_ip, his_port);
+    set_client_address_port(&sc, my_ip, my_port);
+    set_server_address_port(&sc, his_ip, his_port);
 
     server_start(&sc);
     gls_init(&sc);
@@ -171,9 +170,12 @@ void gls_init_library()
 
 int gls_free()
 {
-  free(glsc_global.out_buf.buf);
-  free(glsc_global.tmp_buf.buf);
-  return TRUE;
+	XCloseDisplay(xDisplay);
+   
+	free(glsc_global.out_buf.buf);
+	free(glsc_global.tmp_buf.buf);
+  
+	return TRUE;
 }
 
 

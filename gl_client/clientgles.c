@@ -29,7 +29,7 @@ GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, 
   GLS_SET_COMMAND_PTR_BATCH(c, glBindAttribLocation);
   c->program = program;
   c->index = index;
-  c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
+  // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
   strncpy(c->name, name, GLS_STRING_SIZE);
   GLS_PUSH_BATCH(glBindAttribLocation);
 }
@@ -526,8 +526,15 @@ GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* 
 	gls_cmd_flush();
 	GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
 	c->program = program;
-	c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-	strncpy(c->name, name, GLS_STRING_SIZE);
+	// c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
+	
+	int nameLength = strnlen(name, 0xA00000) + 1;
+/*
+	if (nameLength > 50) {
+		printf("gls error: please increase glGetAttribLocation(char name[]) up to %d\n", nameLength);
+	}
+*/
+	strncpy(c->name, name, nameLength);
 	GLS_SEND_PACKET(glGetAttribLocation);
 
 	wait_for_data("timeout:glGetAttribLocation");
@@ -584,13 +591,11 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
 
   wait_for_data("timeout:glGetProgramInfoLog");
   gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsc_global.tmp_buf.buf;
-  if (length != NULL)
-  {
+  if (length != NULL) {
     *length = ret->length;
   }
-  if (ret->length == 0)
-  {
-    ret->infolog[0] = '\0';
+  if (ret->length == 0) {
+	ret->infolog[0] = '\0';
   }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
 }
@@ -609,7 +614,7 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
 	
 	*params = ret->params;
 	
-	printf("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", program, pname, params, *params);
+	// printf("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", program, pname, params, *params);
 }
 
 
@@ -639,8 +644,7 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
 
   wait_for_data("timeout:glGetShaderInfoLog");
   gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsc_global.tmp_buf.buf;
-  if (length != NULL)
-  {
+  if (length != NULL) {
     *length = ret->length;
   }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
@@ -672,8 +676,15 @@ GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* n
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetUniformLocation);
   c->program = program;
-  c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  strncpy(c->name, name, GLS_STRING_SIZE);
+  // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
+  
+  int nameLength = strnlen(name, 0xA00000) + 1;
+/*
+  if (nameLength > 100) {
+	  printf("gls error: please increase glGetUniformLocation(char name[]) up to %d\n", nameLength);
+  }
+*/
+  strncpy(c->name, name, nameLength);
   GLS_SEND_PACKET(glGetUniformLocation);
 
   wait_for_data("timeout:glGetUniformLocation");

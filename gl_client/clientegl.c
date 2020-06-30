@@ -253,10 +253,13 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 			switch (attribute) {
 				case EGL_WIDTH:
 					*value = xWindowAttrs.width;
-					return EGL_TRUE;
+					break;
 				case EGL_HEIGHT:
 					*value = xWindowAttrs.height;
-					return EGL_TRUE;
+					break;
+					
+				XFree(xWindowAttrs);
+				return EGL_TRUE;
 			}
 		}
 		
