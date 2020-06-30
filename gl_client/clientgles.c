@@ -39,11 +39,13 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
   GLS_SET_COMMAND_PTR_BATCH(c, glBindBuffer);
   c->target = target;
   c->buffer = buffer;
-  if( target == GL_ARRAY_BUFFER )
+#ifdef GLS_EMULATE_VBO
+  if(target == GL_ARRAY_BUFFER) {
       vbo.vbo = buffer;
-  else if( target == GL_ELEMENT_ARRAY_BUFFER )
+  } else if(target == GL_ELEMENT_ARRAY_BUFFER) {
       vbo.ibo = buffer;
-  else printf("gls error: unsupported buffer type!\n");
+  } else printf("gls error: unsupported buffer type!\n");
+#endif // GLS_EMULATE_VBO
   GLS_PUSH_BATCH(glBindBuffer);
 }
 
@@ -97,9 +99,9 @@ GL_APICALL void GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor)
 
 GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage)
 {
-  gls_cmd_flush();
-  // printf("GL_DBG: glBufferData size=%i realsize=%i\n",size,sizeof(data));
-  gls_cmd_send_data(0, (uint32_t)size, (void *)data);
+	gls_cmd_flush();
+	// printf("GL_DBG: glBufferData size=%i realsize=%i\n",size,sizeof(data));
+	gls_cmd_send_data(0, (uint32_t)size, (void *)data);
   GLS_SET_COMMAND_PTR(c, glBufferData);
   c->target = target;
   c->size = size;
@@ -110,48 +112,48 @@ GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const 
 
 GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data)
 {
-  gls_cmd_flush();
-  gls_cmd_send_data(0, (uint32_t)size, (void *)data);
+	gls_cmd_flush();
+	gls_cmd_send_data(0, (uint32_t)size, (void *)data);
 
-  GLS_SET_COMMAND_PTR(c, glBufferSubData);
-  c->target = target;
-  c->offset = offset;
-  c->size = size;
-  GLS_SEND_PACKET(glBufferSubData);
+	GLS_SET_COMMAND_PTR(c, glBufferSubData);
+	c->target = target;
+	c->offset = offset;
+	c->size = size;
+	GLS_SEND_PACKET(glBufferSubData);
 }
 
 
 GL_APICALL void GL_APIENTRY glClear (GLbitfield mask)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClear);
-  c->mask = mask;
-  GLS_PUSH_BATCH(glClear);
+	GLS_SET_COMMAND_PTR_BATCH(c, glClear);
+	c->mask = mask;
+	GLS_PUSH_BATCH(glClear);
 }
 
 
 GL_APICALL void GL_APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClearColor);
-  c->red = red;
-  c->green = green;
-  c->blue = blue;
-  c->alpha = alpha;
-  GLS_PUSH_BATCH(glClearColor);
+	GLS_SET_COMMAND_PTR_BATCH(c, glClearColor);
+	c->red = red;
+	c->green = green;
+	c->blue = blue;
+	c->alpha = alpha;
+	GLS_PUSH_BATCH(glClearColor);
 }
 
 GL_APICALL void GL_APIENTRY glClearDepthf (GLclampf depth)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClearDepthf);
-  c->depth = depth;
-  GLS_PUSH_BATCH(glClearDepthf);
+	GLS_SET_COMMAND_PTR_BATCH(c, glClearDepthf);
+	c->depth = depth;
+	GLS_PUSH_BATCH(glClearDepthf);
 }
 
 
 GL_APICALL void GL_APIENTRY glClearStencil (GLint s)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClearStencil);
-  c->s = s;
-  GLS_PUSH_BATCH(glClearStencil);
+	GLS_SET_COMMAND_PTR_BATCH(c, glClearStencil);
+	c->s = s;
+	GLS_PUSH_BATCH(glClearStencil);
 }
 
 GL_APICALL void GL_APIENTRY glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
@@ -166,42 +168,42 @@ GL_APICALL void GL_APIENTRY glColorMask(GLboolean red, GLboolean green, GLboolea
 
 GL_APICALL void GL_APIENTRY glCompileShader (GLuint shader)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glCompileShader);
-  c->shader = shader;
-  GLS_PUSH_BATCH(glCompileShader);
+	GLS_SET_COMMAND_PTR_BATCH(c, glCompileShader);
+	c->shader = shader;
+	GLS_PUSH_BATCH(glCompileShader);
 }
 
 
 GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
 {
-  gls_cmd_flush();
-  GLS_SET_COMMAND_PTR(c, glCreateProgram);
-  GLS_SEND_PACKET(glCreateProgram);
+	gls_cmd_flush();
+	GLS_SET_COMMAND_PTR(c, glCreateProgram);
+	GLS_SEND_PACKET(glCreateProgram);
 
-  wait_for_data("timeout:glCreateProgram");
-  gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsc_global.tmp_buf.buf;
-  return ret->program;
+	wait_for_data("timeout:glCreateProgram");
+	gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsc_global.tmp_buf.buf;
+	return ret->program;
 }
 
 
 GL_APICALL GLuint GL_APIENTRY glCreateShader (GLenum type)
 {
-  gls_cmd_flush();
-  GLS_SET_COMMAND_PTR(c, glCreateShader);
-  c->type = type;
-  GLS_SEND_PACKET(glCreateShader);
+	gls_cmd_flush();
+	GLS_SET_COMMAND_PTR(c, glCreateShader);
+	c->type = type;
+	GLS_SEND_PACKET(glCreateShader);
 
-  wait_for_data("timeout:glCreateShader");
-  gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsc_global.tmp_buf.buf;
-  return ret->obj;
+	wait_for_data("timeout:glCreateShader");
+	gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsc_global.tmp_buf.buf;
+	return ret->obj;
 }
 
 
 GL_APICALL void GL_APIENTRY glCullFace (GLenum mode)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glCullFace);
-  c->mode = mode;
-  GLS_PUSH_BATCH(glCullFace);
+	GLS_SET_COMMAND_PTR_BATCH(c, glCullFace);
+	c->mode = mode;
+	GLS_PUSH_BATCH(glCullFace);
 }
 
 
@@ -215,6 +217,85 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
   c->n = n;
   GLS_SEND_PACKET(glDeleteBuffers);
 }
+
+
+GL_APICALL void GL_APIENTRY glDeleteShader (GLuint shader)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteShader);
+  c->shader = shader;
+  GLS_PUSH_BATCH(glDeleteShader);
+}
+
+
+GL_APICALL void GL_APIENTRY glDeleteProgram (GLuint program)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteProgram);
+  c->program = program;
+  GLS_PUSH_BATCH(glDeleteProgram);
+}
+
+
+GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
+{
+  uint32_t datasize = n * sizeof(uint32_t);
+  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteTextures);
+  uint32_t cmd_size = (uint32_t)(((char *)c->textures + datasize) - (char *)c);
+  if (check_batch_overflow(cmd_size, "glDeleteTextures: buffer overflow") != TRUE) {
+    return;
+  }
+  c->cmd_size = cmd_size;
+  c->n = n;
+  memcpy(c->textures, textures, datasize);
+  push_batch_command(cmd_size);
+  gls_cmd_flush();
+}
+
+
+GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
+{
+#ifdef GLS_EMULATE_VBO
+  vt_attrib_pointer[index].isenabled = GL_FALSE;
+#endif // GLS_EMULATE_VBO
+  GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
+  c->index = index;
+  GLS_PUSH_BATCH(glDisableVertexAttribArray);
+}
+
+
+GL_APICALL void GL_APIENTRY glDisable (GLenum cap)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDisable);
+  c->cap = cap;
+  GLS_PUSH_BATCH(glDisable);
+}
+
+
+GL_APICALL void GL_APIENTRY glDepthFunc (GLenum func)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDepthFunc);
+  c->func = func;
+  GLS_PUSH_BATCH(glDepthFunc);
+}
+
+
+GL_APICALL void GL_APIENTRY glDepthMask (GLboolean flag)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDepthMask);
+  c->flag = flag;
+  GLS_PUSH_BATCH(glDepthMask);
+}
+
+
+GL_APICALL void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDepthRangef);
+  c->zNear = zNear;
+  c->zFar = zFar;
+  GLS_PUSH_BATCH(glDepthRangef);
+}
+
+
+#ifdef GLS_EMULATE_VBO
 static void wes_vertex_attrib_pointer(int i, int count)
 {
     long ptrdiff;
@@ -253,104 +334,53 @@ static void wes_vertex_attrib_pointer(int i, int count)
         glVertexAttribPointer(i, vt_attrib_pointer[i].size, vt_attrib_pointer[i].type, vt_attrib_pointer[i].normalized, vt_attrib_pointer[i].stride, 0);
     }
 }
+#endif // GLS_EMULATE_VBO
 
 
-GL_APICALL void GL_APIENTRY glDeleteShader (GLuint shader)
+GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteShader);
-  c->shader = shader;
-  GLS_PUSH_BATCH(glDeleteShader);
-}
+#ifdef GLS_EMULATE_VBO
+    int vbo_bkp = vbo.vbo;
+    int i;
+    for( i = 0;i < 16; i++ )
+    {
+        if( vt_attrib_pointer[i].isenabled )
+            wes_vertex_attrib_pointer(i, first + count);
+		// else printf("Vertex attrib pointer %i was not enabled\n", i);
+    }
+    glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
+#endif // GLS_EMULATE_VBO
 
-
-GL_APICALL void GL_APIENTRY glDeleteProgram (GLuint program)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteProgram);
-  c->program = program;
-  GLS_PUSH_BATCH(glDeleteProgram);
-}
-
-
-GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
-{
-  uint32_t datasize = n * sizeof(uint32_t);
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteTextures);
-  uint32_t cmd_size = (uint32_t)(((char *)c->textures + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glDeleteTextures: buffer overflow") != TRUE)
-  {
-    return;
-  }
-  c->cmd_size = cmd_size;
-  c->n = n;
-  memcpy(c->textures, textures, datasize);
-  push_batch_command(cmd_size);
-  gls_cmd_flush();
-}
-
-
-GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
-{
-  vt_attrib_pointer[index].isenabled = GL_FALSE;
-  GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
-  c->index = index;
-  GLS_PUSH_BATCH(glDisableVertexAttribArray);
-}
-
-
-GL_APICALL void GL_APIENTRY glDisable (GLenum cap)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDisable);
-  c->cap = cap;
-  GLS_PUSH_BATCH(glDisable);
-}
-
-
-GL_APICALL void GL_APIENTRY glDepthFunc (GLenum func)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDepthFunc);
-  c->func = func;
-  GLS_PUSH_BATCH(glDepthFunc);
-}
-
-
-GL_APICALL void GL_APIENTRY glDepthMask (GLboolean flag)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDepthMask);
-  c->flag = flag;
-  GLS_PUSH_BATCH(glDepthMask);
-}
-
-
-GL_APICALL void         GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDepthRangef);
-  c->zNear = zNear;
-  c->zFar = zFar;
-  GLS_PUSH_BATCH(glDepthRangef);
+  GLS_SET_COMMAND_PTR_BATCH(c, glDrawArrays);
+  c->mode = mode;
+  c->first = first;
+  c->count = count;
+  GLS_PUSH_BATCH(glDrawArrays);
 }
 
 
 GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
+#ifdef GLS_EMULATE_VBO
   int vbo_bkp = vbo.vbo;
   int ibo_bkp = vbo.ibo;
   int i;
-  for (i = 0; i < 16; i++)
-  {
+  for (i = 0; i < 16; i++) {
       if( vt_attrib_pointer[i].isenabled ) {
           wes_vertex_attrib_pointer(i, 65536);
 	  }
   }
-  if( !vbo.ibo )
-  {
+  if( !vbo.ibo ) {
       if( !vbo.ibo_emu ) {
           glGenBuffers(1, &vbo.ibo_emu);
 	  }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
+	  
+	  // why?
       indices = 0;
-
-    }
+  }
+#endif // GLS_EMULATE_VBO
 
   GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
   c->mode = mode;
@@ -362,11 +392,16 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   c->indices = (uint32_t)indices;
 #endif
   GLS_PUSH_BATCH(glDrawElements);
+
+#ifdef GLS_EMULATE_VBO
   if( !ibo_bkp ) {
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   }
   glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
+#endif // GLS_EMULATE_VBO
 }
+
+#ifdef GLS_EMULATE_VBO
 GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices )
 {
     int vbo_bkp = vbo.vbo;
@@ -399,33 +434,17 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
        glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 }
-
-
-GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count)
-{
-    int vbo_bkp = vbo.vbo;
-    int i;
-    for( i = 0;i < 16; i++ )
-    {
-        if( vt_attrib_pointer[i].isenabled )
-            wes_vertex_attrib_pointer(i, first + count);
-		// else printf("Vertex attrib pointer %i was not enabled\n", i);
-    }
-    glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
-  GLS_SET_COMMAND_PTR_BATCH(c, glDrawArrays);
-  c->mode = mode;
-  c->first = first;
-  c->count = count;
-  GLS_PUSH_BATCH(glDrawArrays);
-}
+#endif // GLS_EMULATE_VBO
 
 
 GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 {
-  vt_attrib_pointer[index].isenabled = GL_TRUE;
-  GLS_SET_COMMAND_PTR_BATCH(c, glEnableVertexAttribArray);
-  c->index = index;
-  GLS_PUSH_BATCH(glEnableVertexAttribArray);
+#ifdef GLS_EMULATE_VBO
+	vt_attrib_pointer[index].isenabled = GL_TRUE;
+#endif // GLS_EMULATE_VBO
+	GLS_SET_COMMAND_PTR_BATCH(c, glEnableVertexAttribArray);
+	c->index = index;
+	GLS_PUSH_BATCH(glEnableVertexAttribArray);
 }
 
 
@@ -1068,7 +1087,8 @@ GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
 }
 
 
-GL_APICALL void GL_APIENTRY glVertexAttribPointer_vbo (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)
+#ifdef GLS_EMULATE_VBO
+void glVertexAttribPointer_vbo (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)
 {
     vt_attrib_pointer[indx].size = size;
     vt_attrib_pointer[indx].type = type;
@@ -1077,39 +1097,42 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer_vbo (GLuint indx, GLint size, 
     vt_attrib_pointer[indx].ptr = ptr;
     vt_attrib_pointer[indx].vbo_id = vbo.vbo;
 }
+#endif // GLS_EMULATE_VBO
 
 
 GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)
 {
-  if( !vbo.vbo ) // ignore non-vbo
-  {
-      glVertexAttribPointer_vbo(indx, size, type, normalized, stride, ptr);
-      return;
-  }
-  vt_attrib_pointer[indx].vbo_id = vbo.vbo;
-  GLS_SET_COMMAND_PTR_BATCH(c, glVertexAttribPointer);
-  c->indx = indx;
-  c->size = size;
-  c->type = type;
-  c->normalized = normalized;
-  c->stride = stride;
+#ifdef GLS_EMULATE_VBO
+	if(!vbo.vbo) {// ignore non-vbo
+		glVertexAttribPointer_vbo(indx, size, type, normalized, stride, ptr);
+		return;
+	}
+	vt_attrib_pointer[indx].vbo_id = vbo.vbo;
+#endif // GLS_EMULATE_VBO
+
+	GLS_SET_COMMAND_PTR_BATCH(c, glVertexAttribPointer);
+	c->indx = indx;
+	c->size = size;
+	c->type = type;
+	c->normalized = normalized;
+	c->stride = stride;
 #if __WORDSIZE == 64
-  c->ptr = (uint32_t)(uint64_t)ptr;
+	c->ptr = (uint32_t)(uint64_t)ptr;
 #else
-  c->ptr = (uint32_t)ptr;
+	c->ptr = (uint32_t)ptr;
 #endif
-  GLS_PUSH_BATCH(glVertexAttribPointer);
+	GLS_PUSH_BATCH(glVertexAttribPointer);
 }
 
 
 GL_APICALL void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glViewport);
-  c->x = x;
-  c->y = y;
-  c->width = width;
-  c->height = height;
-  GLS_PUSH_BATCH(glViewport);
+	GLS_SET_COMMAND_PTR_BATCH(c, glViewport);
+	c->x = x;
+	c->y = y;
+	c->width = width;
+	c->height = height;
+	GLS_PUSH_BATCH(glViewport);
 }
 
 // Used for return void commands

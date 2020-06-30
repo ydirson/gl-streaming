@@ -4,7 +4,10 @@ CFLAGS=-O3 -Wall -I../common -I. -I./include -fPIC -g
 CFLAGS+=-DUSE_X11
 
 # Use screen size from server, prevent `free(): invalid pointer`.
-CFLAGS+=-DUSE_SERVER_SIZE
+# CFLAGS+=-DGLS_USE_SRVSIZE
+
+# Try to emulate client arrays with VBO.
+# CFLAGS+=-DGLS_EMULATE_VBO
 
 LIBS=-pthread -ldl -lX11
 CFLAGS+= $(LIBS)
