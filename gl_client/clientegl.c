@@ -250,15 +250,14 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 		if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
 			printf("Warning: XGetWindowAttributes failed!");
 		} else {
+			// printf("WIDTH=%d    HEIGHT=%d\n", xWindowAttrs.width, xWindowAttrs.height);
 			switch (attribute) {
 				case EGL_WIDTH:
 					*value = xWindowAttrs.width;
-					break;
+					return EGL_TRUE;
 				case EGL_HEIGHT:
 					*value = xWindowAttrs.height;
-					break;
-					
-				return EGL_TRUE;
+					return EGL_TRUE;
 			}
 		}
 		

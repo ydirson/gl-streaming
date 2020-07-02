@@ -584,7 +584,23 @@ void glse_glUseProgram()
 void glse_glVertexAttribPointer()
 {
 	GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
-	glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid*)c->ptr);
+
+	int ptr_str_len = strnlen(c->ptr, 0xA00000);
+	// LOGD("PTR Str len = %i", ptr_str_len);
+	
+	switch (c->ptr_isnull) {
+		case FALSE:
+			glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid *)c->ptr);
+			break;
+			
+		case TRUE:
+			glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, NULL);
+			break;
+			
+		case 2: // type uint32_t
+			glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (GLvoid *) c->ptr_uint);
+			break;
+	}
 }
 
 
@@ -761,10 +777,10 @@ int gles_flushCommand(gls_command_t *c) {
         glse_glUseProgram();
         pop_batch_command(sizeof(gls_glUseProgram_t));
         break;
-      case GLSC_glVertexAttribPointer:
-        glse_glVertexAttribPointer();
-        pop_batch_command(sizeof(gls_glVertexAttribPointer_t));
-        break;
+	  case GLSC_glVertexAttribPointer:
+		glse_glVertexAttribPointer();
+		pop_batch_command(sizeof(gls_glVertexAttribPointer_t));
+		break;
       case GLSC_glViewport:
         glse_glViewport();
         pop_batch_command(sizeof(gls_glViewport_t));
@@ -840,76 +856,76 @@ int gles_executeCommand(gls_command_t *c) {
 	// LOGD("Executing command %i\n", c->cmd);
 	switch (c->cmd) {
 		case GLSC_glBufferData:
-          glse_glBufferData();
-          break;
+			glse_glBufferData();
+			break;
         case GLSC_glBufferSubData:
-          glse_glBufferSubData();
-          break;
+			glse_glBufferSubData();
+			break;
         case GLSC_glCreateProgram:
-          glse_glCreateProgram();
-          break;
+			glse_glCreateProgram();
+			break;
         case GLSC_glCreateShader:
-          glse_glCreateShader();
-          break;
+			glse_glCreateShader();
+			break;
         case GLSC_glDeleteBuffers:
-          glse_glDeleteBuffers();
-          break;
+			glse_glDeleteBuffers();
+			break;
         case GLSC_glFinish:
-          glse_glFinish();
-          break;
+			glse_glFinish();
+			break;
         case GLSC_glGenBuffers:
-          glse_glGenBuffers();
-          break;
+			glse_glGenBuffers();
+			break;
         case GLSC_glGenTextures:
-          glse_glGenTextures();
-          break;
+			glse_glGenTextures();
+			break;
         case GLSC_glGetActiveAttrib:
-          glse_glGetActiveAttrib();
-          break;
+			glse_glGetActiveAttrib();
+			break;
         case GLSC_glGetActiveUniform:
-          glse_glGetActiveUniform();
-          break;
+			glse_glGetActiveUniform();
+			break;
         case GLSC_glGetAttribLocation:
-          glse_glGetAttribLocation();
-          break;
+			glse_glGetAttribLocation();
+			break;
 		case GLSC_glGetError:
-		  glse_glGetError();
-		  break;
+			glse_glGetError();
+			break;
         case GLSC_glGetFloatv:
-          glse_glGetFloatv();
-          break;
+			glse_glGetFloatv();
+			break;
         case GLSC_glGetIntegerv:
-          glse_glGetIntegerv();
-          break;
+			glse_glGetIntegerv();
+			break;
         case GLSC_glGetProgramInfoLog:
-          glse_glGetProgramInfoLog();
-          break;
+			glse_glGetProgramInfoLog();
+			break;
         case GLSC_glGetProgramiv:
-          glse_glGetProgramiv();
-          break;
+			glse_glGetProgramiv();
+			break;
         case GLSC_glGetShaderInfoLog:
-          glse_glGetShaderInfoLog();
-          break;
+			glse_glGetShaderInfoLog();
+			break;
         case GLSC_glGetShaderiv:
-          glse_glGetShaderiv();
-          break;
+			glse_glGetShaderiv();
+			break;
         case GLSC_glGetString:
-          glse_glGetString();
-          break;
+			glse_glGetString();
+			break;
         case GLSC_glGetUniformLocation:
-          glse_glGetUniformLocation();
-          break;
+			glse_glGetUniformLocation();
+			break;
 		case GLSC_glUnmapBufferOES:
-		  glse_glUnmapBufferOES();
-		  break;
+			glse_glUnmapBufferOES();
+			break;
         case GLSC_glReadPixels:
-          glse_glReadPixels();
-          break;
+			glse_glReadPixels();
+			break;
         case GLSC_glShaderSource:
-          glse_glShaderSource();
-          break;
+			glse_glShaderSource();
+			break;
 		default:
-		  return FALSE;
+			return FALSE;
 	}
 	check_gl_err(c->cmd);
 	return TRUE;

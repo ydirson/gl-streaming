@@ -34,17 +34,25 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - `GL_DEBUG`: Enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
 
 ## Client
-- `GLS_USE_SRVSIZE`: Use server window size insread of X Window size. Enabled by default. May be removed later.
-- `GLS_EMULATE_VBO`: Try to emulate client arrays with VBO. Disabled by default. May be removed later. It may slower than 2x when enabled.
+### `GLS_USE_SRVSIZE`
+- Use server window size insread of X Window size.
+- Enabled by default.
+- May be removed later.
+### `GLS_EMULATE_VBO`
+- Try to emulate client arrays with VBO.
+- Enabled by default.
+- This is experimental, disable may make `es2tri` or some programs show blank screen.
 
 # Environment variable on launch
 ## Server
 - Nothing yet.
 
 ## Client
-### • GLS_DEBUG: Log executing/flushing command to the console. Disabled by default.
+### • GLS_DEBUG
+- Log executing/flushing command to the console. Disabled by default.
 - 0: Disable command logging (default).
 - 1: Enable command logging.
 
-### • GLS_SERVER_ADDR: Set server IP address and port.
+### • GLS_SERVER_ADDR
+- Set server IP address and port.
 - Default value: `127.0.0.1:18145`.

@@ -1110,17 +1110,33 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 	vt_attrib_pointer[indx].vbo_id = vbo.vbo;
 #endif // GLS_EMULATE_VBO
 
+	gls_cmd_flush();
 	GLS_SET_COMMAND_PTR_BATCH(c, glVertexAttribPointer);
 	c->indx = indx;
 	c->size = size;
 	c->type = type;
-	c->normalized = normalized;
 	c->stride = stride;
-#if __WORDSIZE == 64
-	c->ptr = (uint32_t)(uint64_t)ptr;
+	
+#ifdef GLS_EMULATE_VBO
+	c->ptr_isnull = 2; // type uint32_t
+# if __WORDSIZE == 64
+	c->ptr_uint = (uint32_t)(uint64_t)ptr;
+# else // __WORDSIZE == 32
+	c->ptr_uint = (uint32_t)ptr;
+# endif // __WORDSIZE == 32
 #else
-	c->ptr = (uint32_t)ptr;
+	c->ptr_isnull = (ptr == NULL || ptr == 0xc);
+	if (c->ptr_isnull == FALSE) {
+		char *ptr_str = (char *)ptr;
+		int ptr_str_len = strnlen(ptr_str, 0xA00000);
+		memcpy(c->ptr, ptr_str, ptr_str_len);
+	} else if (ptr == 0xc) {
+		c->ptr_isnull = 2; // type uint32_t
+		c->ptr_uint = 0xc;
+	}
 #endif
+	
+	c->normalized = normalized;
 	GLS_PUSH_BATCH(glVertexAttribPointer);
 }
 
