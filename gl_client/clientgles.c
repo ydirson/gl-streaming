@@ -514,7 +514,10 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
 	}
 	*size = ret->size;
 	*type = ret->type;
-	*name = ret->name;
+	if (ret->length == 0) {
+		ret->name[0] = '\0';
+	}
+	strncpy(name, ret->name, (size_t)bufsize);
 }
 
 
@@ -536,7 +539,11 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
 	}
 	*size = ret->size;
 	*type = ret->type;
-	*name = ret->name;
+	
+	if (ret->length == 0) {
+		ret->name[0] = '\0';
+	}
+	strncpy(name, ret->name, (size_t)bufsize);
 }
 
 
@@ -665,6 +672,9 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
   gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsc_global.tmp_buf.buf;
   if (length != NULL) {
     *length = ret->length;
+  }
+  if (ret->length == 0) {
+	ret->infolog[0] = '\0';
   }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
 }
@@ -1081,9 +1091,78 @@ GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
 
 GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glUseProgram);
-  c->program = program;
-  GLS_PUSH_BATCH(glUseProgram);
+	GLS_SET_COMMAND_PTR_BATCH(c, glUseProgram);
+	c->program = program;
+	GLS_PUSH_BATCH(glUseProgram);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib1f(GLuint index, GLfloat v0)
+{
+	GLfloat arr[1] = {v0};
+	glVertexAttribFloat(index, 1, GL_FALSE, arr);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib2f(GLuint index, GLfloat v0, GLfloat v1)
+{
+	GLfloat arr[2] = {v0, v1};
+	glVertexAttribFloat(index, 2, GL_FALSE, arr);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib3f(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2)
+{
+	GLfloat arr[3] = {v0, v1, v2};
+	glVertexAttribFloat(index, 3, GL_FALSE, arr);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib4f(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
+{
+	GLfloat arr[4] = {v0, v1, v2, v3};
+	glVertexAttribFloat(index, 4, GL_FALSE, arr);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib1fv(GLuint index, const GLfloat *v)
+{
+	glVertexAttribFloat(index, 1, GL_TRUE, v);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib2fv(GLuint index, const GLfloat *v)
+{
+	glVertexAttribFloat(index, 2, GL_TRUE, v);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib3fv(GLuint index, const GLfloat *v)
+{
+	glVertexAttribFloat(index, 3, GL_TRUE, v);
+}
+
+
+GL_APICALL void GL_APIENTRY glVertexAttrib4fv(GLuint index, const GLfloat *v)
+{
+	glVertexAttribFloat(index, 4, GL_TRUE, v);
+}
+
+
+void glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_arr, GLfloat *arr)
+{
+	gls_cmd_flush();
+	gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsc_global.tmp_buf.buf;
+	memcpy(dat->arr, arr, num_float);
+	// It's small so use GLS_DATA_SIZE
+	gls_cmd_send_data(0, GLS_DATA_SIZE, glsc_global.tmp_buf.buf);
+	
+	GLS_SET_COMMAND_PTR(c, glVertexAttribFloat);
+	c->index = index;
+	c->num_float = num_float;
+	// If TRUE, call to glVertexAttrib*fv instead of glVertexAttrib*f
+	c->call_arr = call_arr;
+	GLS_SEND_PACKET(glVertexAttribFloat);
 }
 
 

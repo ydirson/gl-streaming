@@ -46,7 +46,7 @@ A fast, simple, lightweight and low latency framework suitable for embedded syst
 
 ## Current status
 - `es2_info`, `es2gears` and `es2tri` will work.
-- GL4ES apps/games may in black screen.
+- GL4ES apps/games may work in blank textures (will see in `glxdemo` and `glxheads`).
 
 ## Notes
 - Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modifies.

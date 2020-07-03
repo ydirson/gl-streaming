@@ -581,6 +581,35 @@ void glse_glUseProgram()
 }
 
 
+#define CASE_VTXATTR_FLOAT(INDEX, FLOAT_INDX, ...) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##f(INDEX, __VA_ARGS__); break;
+#define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY);
+void glse_glVertexAttribFloat()
+{
+	GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
+	gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsec_global.tmp_buf.buf;
+
+	if (c->call_arr) {
+		switch (c->num_float) {
+			// FIXME improve this code
+			CASE_VTXATTR_FLOAT_ARR(c->index, 1, dat->arr);
+			CASE_VTXATTR_FLOAT_ARR(c->index, 2, dat->arr);
+			CASE_VTXATTR_FLOAT_ARR(c->index, 3, dat->arr);
+			CASE_VTXATTR_FLOAT_ARR(c->index, 4, dat->arr);
+		}
+	} else {
+		switch (c->num_float) {
+			// FIXME improve this code
+			CASE_VTXATTR_FLOAT(c->index, 1, dat->arr[0]);
+			CASE_VTXATTR_FLOAT(c->index, 2, dat->arr[0], dat->arr[1]);
+			CASE_VTXATTR_FLOAT(c->index, 3, dat->arr[0], dat->arr[1], dat->arr[2]);
+			CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
+		}
+	}
+}
+#undef CASE_VTXATTR_FLOAT
+#undef CASE_VTXATTR_FLOAT_ARR
+
+
 void glse_glVertexAttribPointer()
 {
 	GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
@@ -917,6 +946,10 @@ int gles_executeCommand(gls_command_t *c) {
 			break;
 		case GLSC_glUnmapBufferOES:
 			glse_glUnmapBufferOES();
+			break;
+		// glVertexAttrib*f commands combine
+		case GLSC_glVertexAttribFloat:
+			glse_glVertexAttribFloat();
 			break;
         case GLSC_glReadPixels:
 			glse_glReadPixels();

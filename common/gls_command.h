@@ -155,6 +155,7 @@ enum GL_Server_Command
   GLSC_glUniformMatrix4fv,
   GLSC_glUnmapBufferOES,
   GLSC_glUseProgram,
+  GLSC_glVertexAttribFloat,
   GLSC_glVertexAttribPointer,
   GLSC_glViewport
 };
@@ -1179,6 +1180,20 @@ typedef struct
   uint32_t cmd;
   uint32_t program;
 } gls_glUseProgram_t;
+
+
+// glVertexAttrib*f and glVertexAttrib*fv combine
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t index;
+  uint32_t num_float;
+  uint32_t call_arr;
+} gls_glVertexAttribFloat_t;
+typedef struct
+{
+  float arr[4];
+} gls_data_glVertexAttribFloat_t;
 
 
 typedef struct
