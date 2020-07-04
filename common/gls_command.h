@@ -139,7 +139,7 @@ enum GL_Server_Command
   GLSC_glHint,
   GLSC_glLineWidth,
   GLSC_glLinkProgram,
-  GLSC_glMapBufferOES,
+
   GLSC_glPixelStorei,
   GLSC_glPolygonOffset,
   GLSC_glReadPixels,
@@ -153,11 +153,16 @@ enum GL_Server_Command
   GLSC_glUniform1f,
   GLSC_glUniform4fv,
   GLSC_glUniformMatrix4fv,
-  GLSC_glUnmapBufferOES,
   GLSC_glUseProgram,
   GLSC_glVertexAttribFloat,
   GLSC_glVertexAttribPointer,
-  GLSC_glViewport
+  GLSC_glViewport,
+  
+/*
+ * OES / EXT extension commands
+ */
+  GLSC_glMapBufferOES,
+  GLSC_glUnmapBufferOES
 };
 
 
@@ -1035,8 +1040,8 @@ typedef struct
   uint32_t cmd;
   int32_t x;
   int32_t y;
-  uint32_t width;
-  uint32_t height;
+  int32_t width;
+  int32_t height;
   uint32_t format;
   uint32_t type;
 } gls_glReadPixels_t;
@@ -1221,7 +1226,19 @@ typedef struct
 } gls_glViewport_t;
 
 
-
+/*
+ * OES / EXT extension commands
+ */
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t target;
+  uint32_t internalformat;
+  int32_t width;
+  uint32_t format;
+  uint32_t type;
+  char image[GLS_STRING_SIZE_PLUS];
+} gls_glConvolutionFilter1D_t;
 
 
 /*

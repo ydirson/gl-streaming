@@ -7,7 +7,7 @@ CFLAGS+=-DUSE_X11
 # CFLAGS+=-DGLS_USE_SRVSIZE
 
 # Try to emulate client arrays with VBO.
-CFLAGS+=-DGLS_EMULATE_VBO
+# CFLAGS+=-DGLS_EMULATE_VBO
 
 LIBS=-pthread -ldl -lX11
 CFLAGS+= $(LIBS)

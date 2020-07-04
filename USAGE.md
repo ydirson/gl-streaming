@@ -27,21 +27,24 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 
 ## Launch client
 - Test: run `es2_info, es2gears, es2tri, glxinfo, glxgears, glxdemo or glxheads`
-- Run an OpenGL Native Program or Java Program.
+- Run an program requires OpenGL or OpenGL ES (many: Xvfb, x-window-manager, etc...).
 
 # Variables on compile
 ## Sever
 - `GL_DEBUG`: Enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
 
 ## Client
-### `GLS_USE_SRVSIZE`
+### • `GLS_USE_SRVSIZE`
 - Use server window size insread of X Window size.
-- Enabled by default.
-- May be removed later.
-### `GLS_EMULATE_VBO`
+- Disabled by default.
+- May useful for fixing draw size bugs.
+
+### • `GLS_EMULATE_VBO`
 - Try to emulate client arrays with VBO.
 - Enabled by default.
-- This is experimental, disable may make `es2tri` or some programs show blank screen.
+- This is experimental, disable may make:
+ + `es2tri` or some programs show blank screen.
+ + `glxheads` show a rotating triange around surface instead of middle.
 
 # Environment variable on launch
 ## Server
@@ -56,3 +59,4 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 ### • GLS_SERVER_ADDR
 - Set server IP address and port.
 - Default value: `127.0.0.1:18145`.
+

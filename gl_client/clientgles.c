@@ -308,7 +308,7 @@ static void wes_vertex_attrib_pointer(int i, int count)
         glGenBuffers(1, &vt_attrib_pointer[i].webgl_vbo_id );
 
     // detect if we can fit multiple arrays to single VBO
-    ptrdiff = (char*)vt_attrib_pointer[i].ptr - (char*)vt_attrib_pointer[0].ptr;
+    ptrdiff = (char *)vt_attrib_pointer[i].ptr - (char *)vt_attrib_pointer[0].ptr;
     stride = vt_attrib_pointer[i].stride;
 
     // detect stride by type
@@ -747,15 +747,6 @@ GL_APICALL void GL_APIENTRY glLinkProgram (GLuint program)
 }
 
 
-GL_APICALL void GL_APIENTRY glMapBufferOES(GLenum target, GLenum access)
-{
-	GLS_SET_COMMAND_PTR_BATCH(c, glMapBufferOES);
-	c->target = target;
-	c->access = access;
-	GLS_PUSH_BATCH(glMapBufferOES);
-}
-
-
 GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
 {
   gls_cmd_flush();
@@ -1076,19 +1067,6 @@ GL_APICALL void GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, G
 }
 
 
-GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
-{
-  gls_cmd_flush();
-  GLS_SET_COMMAND_PTR(c, glUnmapBufferOES);
-  c->target = target;
-  GLS_SEND_PACKET(glUnmapBufferOES);
-
-  wait_for_data("timeout:glUnmapBufferOES");
-  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.tmp_buf.buf;
-  return ret->success;
-}
-
-
 GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
 {
 	GLS_SET_COMMAND_PTR_BATCH(c, glUseProgram);
@@ -1195,24 +1173,30 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 	c->size = size;
 	c->type = type;
 	c->stride = stride;
-	
-#ifdef GLS_EMULATE_VBO
-	c->ptr_isnull = 2; // type uint32_t
-# if __WORDSIZE == 64
-	c->ptr_uint = (uint32_t)(uint64_t)ptr;
-# else // __WORDSIZE == 32
-	c->ptr_uint = (uint32_t)ptr;
-# endif // __WORDSIZE == 32
-#else
 	c->ptr_isnull = (ptr == NULL || ptr == 0xc);
+	// printf("gls glVertexAttribPointer: type=%p, ptr=%p, unptr_null=%p\n", type, ptr, *&ptr);
 	if (c->ptr_isnull == FALSE) {
 		char *ptr_str = (char *)ptr;
-		int ptr_str_len = strnlen(ptr_str, 0xA00000);
-		memcpy(c->ptr, ptr_str, ptr_str_len);
+		
+		// FIXME it may wrong!
+		// c->ptr_isnull = ptr_str[0] == NULL;
+		
+		// int ptr_str_len = strnlen(ptr_str, 0xA00000) + 1;
+		if (c->ptr_isnull == FALSE) {
+			memcpy(c->ptr, ptr_str, GLS_STRING_SIZE);
+		}
+		// ptr_str_len);
 	} else if (ptr == 0xc) {
 		c->ptr_isnull = 2; // type uint32_t
-		c->ptr_uint = 0xc;
 	}
+#if __WORDSIZE == 64
+	c->ptr_uint = (uint32_t)(uint64_t)ptr;
+#else // __WORDSIZE == 32
+	c->ptr_uint = (uint32_t)ptr;
+#endif // __WORDSIZE == 32
+
+#ifdef GLS_EMULATE_VBO
+	c->ptr_isnull = 2; // type uint32_t
 #endif
 	
 	c->normalized = normalized;
@@ -1229,6 +1213,32 @@ GL_APICALL void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei
 	c->height = height;
 	GLS_PUSH_BATCH(glViewport);
 }
+
+
+/*
+ * OES / EXT extension commands
+ */
+GL_APICALL void GL_APIENTRY glMapBufferOES(GLenum target, GLenum access)
+{
+	GLS_SET_COMMAND_PTR_BATCH(c, glMapBufferOES);
+	c->target = target;
+	c->access = access;
+	GLS_PUSH_BATCH(glMapBufferOES);
+}
+
+
+GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glUnmapBufferOES);
+  c->target = target;
+  GLS_SEND_PACKET(glUnmapBufferOES);
+
+  wait_for_data("timeout:glUnmapBufferOES");
+  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.tmp_buf.buf;
+  return ret->success;
+}
+
 
 // Used for return void commands
 /*

@@ -648,12 +648,17 @@ void glse_glIsEnabled()
 }
 */
 
-// OES map buffer extension
+
+/*
+ * OES / EXT extension commands
+ */
 void glse_glMapBufferOES()
 {
-  GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
-  glMapBufferOES(c->target, c->access);
+	GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
+	glMapBufferOES(c->target, c->access);
 }
+
+
 void glse_glUnmapBufferOES()
 {
   GLSE_SET_COMMAND_PTR(c, glUnmapBufferOES);
@@ -866,6 +871,12 @@ int gles_flushCommand(gls_command_t *c) {
 	  case GLSC_glTexSubImage2D:
 		glse_glTexSubImage2D();
         pop_batch_command(((gls_glTexSubImage2D_t *)c)->cmd_size);
+		break;
+		
+		
+	  case GLSC_glConvolutionFilter1D:
+		glse_glConvolutionFilter1D();
+		pop_batch_command(sizeof(gls_glConvolutionFilter1D_t));
 		break;
 		
 /*

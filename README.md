@@ -46,20 +46,21 @@ A fast, simple, lightweight and low latency framework suitable for embedded syst
 
 ## Current status
 - `es2_info`, `es2gears` and `es2tri` will work.
-- GL4ES apps/games may work in blank textures (will see in `glxdemo` and `glxheads`).
+- GL4ES apps/games may work but in blank textures (will see in `glxdemo` and `glxheads`).
 
 ## Notes
 - Current minimum SDK level is set to 21 (Android 5) but it may work on older Android devices by some modifies.
 - Default port of server: 18145, client: 18146.
 
 ## Known issue (Android)
-- Some old devices: put app to background will make app lost EGL context.
+- Some old devices: put app to background will make app lost EGL context (not show anything).
 
 ## Quick start
+- See [USAGE.md](USAGE.md) for more instruction.
 
 ### Server
 - Build android_gl_server use Android Studio or other similar to.
-- Install android_gl_server apk to Android device or Emulator.
+- Install android_gl_server apk to Android device or AVD.
 - Run it.
 
 ### Client
