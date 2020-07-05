@@ -31,15 +31,17 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 
 # Variables on compile
 ## Sever
-- `GL_DEBUG`: Enable debug log write to `/sdard/mthr_log.txt`. Disabled by default.
+### • GL_DEBUG
+- Enable debug log write to `/sdard/mthr_log.txt`.
+- Disabled by default.
 
 ## Client
-### • `GLS_USE_SRVSIZE`
+### • GLS_USE_SRVSIZE
 - Use server window size insread of X Window size.
 - Disabled by default.
 - May useful for fixing draw size bugs.
 
-### • `GLS_EMULATE_VBO`
+### • GLS_EMULATE_VBO
 - Try to emulate client arrays with VBO.
 - Enabled by default.
 - This is experimental, disable may make:

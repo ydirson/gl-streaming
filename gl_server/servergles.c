@@ -622,7 +622,7 @@ void glse_glVertexAttribPointer()
 	int ptr_str_len = strnlen(c->ptr, 0xA00000);
 	// LOGD("PTR Str len = %i", ptr_str_len);
 	
-	if (c->ptr_isnul == TRUE) {
+	if (c->ptr_isnull == TRUE) {
 		glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (GLvoid *) c->ptr_uint);
 	} else {
 		glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid *)c->ptr);
