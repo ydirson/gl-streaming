@@ -346,12 +346,15 @@ void * glclient_thread(void * arg)
   {
     fcntl(joy_fd, F_SETFL, O_NONBLOCK);
   }
+  
+  EGLDisplay eglDpy = eglGetCurrentDisplay();
+  EGLSurface eglSurf = eglGetCurrentSurface(EGL_DRAW);
 
-  gls_init(a);
+  // gls_init(a);
 
-  gls_cmd_get_context();
-  gc.screen_width = glsc_global.screen_width;
-  gc.screen_height = glsc_global.screen_height;
+  // gls_cmd_get_context();
+  eglQuerySurface(eglDpy, eglSurf, EGL_WIDTH, &gc.screen_width);
+  eglQuerySurface(eglDpy, eglSurf, EGL_HEIGHT, &gc.screen_height);
   printf("width:%d height:%d\n",glsc_global.screen_width,glsc_global.screen_height);
   init_gl(&gc);
 
@@ -499,15 +502,15 @@ void * glclient_thread(void * arg)
     glDisableVertexAttribArray(gc.vloc_pos);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    gls_cmd_flip(i);
+    eglSwapBuffers(eglDpy, eglSurf);
     gettimeofday(&timee, NULL);
     //printf("%d:%f ms ", i, get_diff_time(times, timee) * 1000.0f);
   }
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  gls_cmd_flip(i);
+  eglSwapBuffers(eglDpy, eglSurf);
   release_gl(&gc);
-  gls_free();
+  // gls_free();
   if (joy_fd != -1)
   {
     close(joy_fd);
@@ -518,8 +521,9 @@ void * glclient_thread(void * arg)
 
 int main(int argc, char * argv[])
 {
-  static server_context_t sc;
   static glclient_context_t glcc;
+/*
+  static server_context_t sc;
   int opt;
   char my_ip[GLS_STRING_SIZE_PLUS];
   char his_ip[GLS_STRING_SIZE_PLUS];
@@ -527,7 +531,9 @@ int main(int argc, char * argv[])
   uint16_t his_port = 18145;
   strncpy(my_ip, "127.0.0.1", GLS_STRING_SIZE);
   strncpy(his_ip, "127.0.0.1", GLS_STRING_SIZE);
+*/
   strncpy(glcc.joy_dev, "/dev/input/js0", GLS_STRING_SIZE);
+/*
   while ((opt = getopt(argc, argv, "s:c:j:h")) != -1)
   {
     switch (opt)
@@ -553,8 +559,9 @@ int main(int argc, char * argv[])
   set_server_address_port(&sc, my_ip, my_port);
   set_client_address_port(&sc, his_ip, his_port);
   set_client_user_context(&sc, &glcc);
-
-  server_run(&sc, glclient_thread);
+*/
+  // server_run(&sc, glclient_thread);
+  server_run(NULL, glclient_thread);
 
   return 0;
 }

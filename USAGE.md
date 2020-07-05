@@ -36,9 +36,15 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Disabled by default.
 
 ## Client
+### USE_X11
+- Enable support for X11 apps.
+- Enabled by default.
+- Sample side doesn't use X11 so not enabled.
+
 ### • GLS_USE_SRVSIZE
 - Use server window size instead of X Window size.
 - Disabled by default.
+- This is enabled if USE_X11 is not enabled.
 - May useful for fixing draw size bugs.
 
 ### • GLS_EMULATE_VBO

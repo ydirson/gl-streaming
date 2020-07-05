@@ -18,15 +18,17 @@ EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
 
 EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value )
 {
-	if (attribute == EGL_NATIVE_VISUAL_ID) {
+#ifdef USE_X11
+	if (xDisplay != NULL && attribute == EGL_NATIVE_VISUAL_ID) {
 		*value = XVisualIDFromVisual(XDefaultVisual(xDisplay, xScreenId));
 		return EGL_TRUE;
-	} else {
-		for (int i = 0; i < client_config_size; i+=2) {
-			if (client_config_keys[i] == attribute) {
-				*value = client_config_values[i];
-				return EGL_TRUE;
-			}
+	}
+#endif
+	
+	for (int i = 0; i < client_config_size; i+=2) {
+		if (client_config_keys[i] == attribute) {
+			*value = client_config_values[i];
+			return EGL_TRUE;
 		}
 	}
 
@@ -103,9 +105,11 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType display)
 	return ret->display;
 */
 
+#ifdef USE_X11
 	xDisplay = display;
 	xScreenId = DefaultScreen(&xDisplay);
-
+#endif // USE_X11
+	
 	// Can't getting Android EGL display from Linux Native display?
 	return eglGetCurrentDisplay();
 }
@@ -219,7 +223,7 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 		client_egl_error = EGL_BAD_NATIVE_WINDOW;
 		return EGL_NO_SURFACE;
 	}
-#ifndef GLS_USE_SRVSIZE
+#if !defined(GLS_USE_SRVSIZE) && defined(USE_X11)
 	xWindow = window;
 #endif // GLS_USE_SRVSIZE
 	
@@ -244,8 +248,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surf
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value )
 {
 	// This fix size assert in `es2gears` and `es2tri`.
-#ifndef GLS_USE_SRVSIZE
-	if (xWindow != NULL && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
+#if !defined(GLS_USE_SRVSIZE) && defined(USE_X11)
+	if (xDisplay != NULL && xWindow != NULL && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
 		XWindowAttributes xWindowAttrs;
 		if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
 			printf("Warning: XGetWindowAttributes failed!");
@@ -264,7 +268,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 		// *value = 300;
 		// return EGL_TRUE;
 	}
-#endif // ndef GLS_USE_SRVSIZE
+#endif // ndef GLS_USE_SRVSIZE && def USE_X11
 	
 	gls_cmd_flush();
 	GLS_SET_COMMAND_PTR(c, eglQuerySurface);

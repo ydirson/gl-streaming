@@ -221,8 +221,16 @@ void socket_close(server_context_t *c)
 
 
 // #ifdef GLS_SERVER // GLS_SERVER
-void server_run(server_context_t *c, void *(*popper_thread)(void *))
+server_context_t *server_context;
+void server_run(server_context_t *ctx, void *(*popper_thread)(void *))
 {
+  server_context_t *c;
+  if (ctx == NULL) {
+	  c = server_context;
+  } else {
+	  c = ctx;
+	  server_context = ctx;
+  }
   fifo_init(&c->fifo, c->fifo_size_in_bits, c->fifo_packet_size_in_bits);
   c->server_thread_arg.fifo = &c->fifo;
   c->popper_thread_arg.fifo = &c->fifo;
