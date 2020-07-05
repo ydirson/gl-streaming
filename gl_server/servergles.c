@@ -214,8 +214,13 @@ void glse_glDrawArrays()
 
 void glse_glDrawElements()
 {
-  GLSE_SET_COMMAND_PTR(c, glDrawElements);
-  glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
+	GLSE_SET_COMMAND_PTR(c, glDrawElements);
+	
+	if (c->indices_isnull == TRUE) {
+		glDrawElements(c->mode, c->count, c->type, (GLvoid *) c->indices_uint);
+	} else {
+		glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
+	}
 }
 
 
@@ -617,18 +622,10 @@ void glse_glVertexAttribPointer()
 	int ptr_str_len = strnlen(c->ptr, 0xA00000);
 	// LOGD("PTR Str len = %i", ptr_str_len);
 	
-	switch (c->ptr_isnull) {
-		case FALSE:
-			glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid *)c->ptr);
-			break;
-			
-		case TRUE:
-			glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, NULL);
-			break;
-			
-		case 2: // type uint32_t
-			glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (GLvoid *) c->ptr_uint);
-			break;
+	if (c->ptr_isnul == TRUE) {
+		glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (GLvoid *) c->ptr_uint);
+	} else {
+		glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid *)c->ptr);
 	}
 }
 
@@ -871,12 +868,6 @@ int gles_flushCommand(gls_command_t *c) {
 	  case GLSC_glTexSubImage2D:
 		glse_glTexSubImage2D();
         pop_batch_command(((gls_glTexSubImage2D_t *)c)->cmd_size);
-		break;
-		
-		
-	  case GLSC_glConvolutionFilter1D:
-		glse_glConvolutionFilter1D();
-		pop_batch_command(sizeof(gls_glConvolutionFilter1D_t));
 		break;
 		
 /*

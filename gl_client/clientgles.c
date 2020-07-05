@@ -362,42 +362,57 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
 GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
 #ifdef GLS_EMULATE_VBO
-  int vbo_bkp = vbo.vbo;
-  int ibo_bkp = vbo.ibo;
-  int i;
-  for (i = 0; i < 16; i++) {
-      if( vt_attrib_pointer[i].isenabled ) {
-          wes_vertex_attrib_pointer(i, 65536);
-	  }
-  }
-  if( !vbo.ibo ) {
-      if( !vbo.ibo_emu ) {
-          glGenBuffers(1, &vbo.ibo_emu);
-	  }
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
+	int vbo_bkp = vbo.vbo;
+	int ibo_bkp = vbo.ibo;
+	int i;
+	for (i = 0; i < 16; i++) {
+		if( vt_attrib_pointer[i].isenabled ) {
+			wes_vertex_attrib_pointer(i, 65536);
+		}
+	}
+	if( !vbo.ibo ) {
+		if( !vbo.ibo_emu ) {
+			glGenBuffers(1, &vbo.ibo_emu);
+		}
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
 	  
-	  // why?
-      indices = 0;
-  }
+		// why?
+		indices = 0;
+	}
 #endif // GLS_EMULATE_VBO
 
-  GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
-  c->mode = mode;
-  c->count = count;
-  c->type = type;
-#if __WORDSIZE == 64
-  c->indices = (uint32_t)(uint64_t)indices;
-#else
-  c->indices = (uint32_t)indices;
-#endif
-  GLS_PUSH_BATCH(glDrawElements);
+	GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
+	c->mode = mode;
+	c->count = count;
+	c->type = type;
 
 #ifdef GLS_EMULATE_VBO
-  if( !ibo_bkp ) {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  }
-  glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
+	c->indices_isnull = 1;
+	c->indices[0] = '\0';
+#else // !GLS_EMULATE_VBO
+	c->indices_isnull = (indices == NULL);
+	if (c->indices_isnull == FALSE) {
+		const GLchar *indices_str = (const GLchar *)indices;
+		memcpy(c->indices, indices_str, GLS_STRING_SIZE);
+	} else {
+		c->indices[0] = '\0';
+	}
+#endif // !GLS_EMULATE_VBO
+
+#if __WORDSIZE == 64
+	c->indices_uint = (uint32_t)(uint64_t)indices;
+#else // __WORDSIZE == 32
+	c->indices_uint = (uint32_t)indices;
+#endif // __WORDSIZE == 32
+	
+	GLS_PUSH_BATCH(glDrawElements);
+
+#ifdef GLS_EMULATE_VBO
+	if( !ibo_bkp ) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+	glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 #endif // GLS_EMULATE_VBO
 }
 
@@ -1173,10 +1188,16 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 	c->size = size;
 	c->type = type;
 	c->stride = stride;
-	c->ptr_isnull = (ptr == NULL || ptr == 0xc);
+
+#ifdef GLS_EMULATE_VBO
+	c->ptr_isnull = 1;
+	c->ptr[0] = '\0';
+#else // !GLS_EMULATE_VBO
+	// 0xA0 glxgears crash?
+	c->ptr_isnull = (ptr == NULL || ptr == 0xc || ptr == 0xA20);
 	// printf("gls glVertexAttribPointer: type=%p, ptr=%p, unptr_null=%p\n", type, ptr, *&ptr);
 	if (c->ptr_isnull == FALSE) {
-		char *ptr_str = (char *)ptr;
+		const GLchar *ptr_str = (const GLchar *)ptr;
 		
 		// FIXME it may wrong!
 		// c->ptr_isnull = ptr_str[0] == NULL;
@@ -1184,21 +1205,19 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 		// int ptr_str_len = strnlen(ptr_str, 0xA00000) + 1;
 		if (c->ptr_isnull == FALSE) {
 			memcpy(c->ptr, ptr_str, GLS_STRING_SIZE);
+			// ptr_str_len);
 		}
-		// ptr_str_len);
-	} else if (ptr == 0xc) {
-		c->ptr_isnull = 2; // type uint32_t
+	} else {
+		c->ptr[0] = '\0';
 	}
+#endif // !GLS_EMULATE_VBO
+
 #if __WORDSIZE == 64
 	c->ptr_uint = (uint32_t)(uint64_t)ptr;
 #else // __WORDSIZE == 32
 	c->ptr_uint = (uint32_t)ptr;
 #endif // __WORDSIZE == 32
 
-#ifdef GLS_EMULATE_VBO
-	c->ptr_isnull = 2; // type uint32_t
-#endif
-	
 	c->normalized = normalized;
 	GLS_PUSH_BATCH(glVertexAttribPointer);
 }
