@@ -13,7 +13,7 @@ make
 # Install gl-streaming client
 make install
 
-# Copy GL4ES into
+# Copy GL4ES into (optional)
 cp /path/to/gl4es/lib/libGL.so.1 /usr/local/lib/gl-streaming
 
 # Override system libGLESv2.so.2, libEGL.so.1 and libGL.so.1
@@ -37,7 +37,7 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 
 ## Client
 ### • GLS_USE_SRVSIZE
-- Use server window size insread of X Window size.
+- Use server window size instead of X Window size.
 - Disabled by default.
 - May useful for fixing draw size bugs.
 
@@ -47,6 +47,7 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - This is experimental, disable may make:
  + `es2tri` or some programs show blank screen.
  + `glxheads` show a rotating triange around surface instead of middle.
+ + `glxgears` jump to invalid address and segmentation fault.
 
 # Environment variable on launch
 ## Server

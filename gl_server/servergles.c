@@ -546,7 +546,7 @@ void glse_glTexParameteri()
 void glse_glTexImage2D()
 {
   GLSE_SET_COMMAND_PTR(c, glTexImage2D);
-  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels);
+  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
 }
 
 
@@ -554,7 +554,7 @@ void glse_glTexImage2D()
 void glse_glTexSubImage2D()
 {
   GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
-  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->pixels);
+  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
 }
 
 

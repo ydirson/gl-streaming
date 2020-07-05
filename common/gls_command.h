@@ -1111,6 +1111,7 @@ typedef struct
   uint32_t format;
   uint32_t type;
   char pixels[4];
+  uint32_t pixels_isnull;
 } gls_glTexImage2D_t;
 
 
@@ -1137,6 +1138,7 @@ typedef struct
   uint32_t format;
   uint32_t type;
   char pixels[4];
+  uint32_t pixels_isnull;
 } gls_glTexSubImage2D_t;
 
 

@@ -436,15 +436,31 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
 
 
     GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
-    c->mode = mode;
-    c->count = count;
-    c->type = type;
-  #if __WORDSIZE == 64
-    c->indices = (uint32_t)(uint64_t)indices;
-  #else
-    c->indices = (uint32_t)indices;
-  #endif
-    GLS_PUSH_BATCH(glDrawElements);
+	c->mode = mode;
+	c->count = count;
+	c->type = type;
+
+#ifdef GLS_EMULATE_VBO
+	c->indices_isnull = 1;
+	c->indices[0] = '\0';
+#else // !GLS_EMULATE_VBO
+	c->indices_isnull = (indices == NULL);
+	if (c->indices_isnull == FALSE) {
+		const GLchar *indices_str = (const GLchar *)indices;
+		memcpy(c->indices, indices_str, GLS_STRING_SIZE);
+	} else {
+		c->indices[0] = '\0';
+	}
+#endif // !GLS_EMULATE_VBO
+
+#if __WORDSIZE == 64
+	c->indices_uint = (uint32_t)(uint64_t)indices;
+#else // __WORDSIZE == 32
+	c->indices_uint = (uint32_t)indices;
+#endif // __WORDSIZE == 32
+	
+	GLS_PUSH_BATCH(glDrawElements);
+	
     if( !ibo_bkp )
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
        glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
@@ -968,7 +984,10 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
   c->border = border;
   c->format = format;
   c->type = type;
-  memcpy(c->pixels, pixels, datasize);
+  c->pixels_isnull = (pixels == NULL);
+  if (c->pixels_isnull == FALSE) {
+	  memcpy(c->pixels, pixels, datasize);
+  }
   push_batch_command(cmd_size);
   gls_cmd_flush();
 }
@@ -1033,7 +1052,10 @@ GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint x
   c->height = height;
   c->format = format;
   c->type = type;
-  memcpy(c->pixels, pixels, datasize);
+  c->pixels_isnull = (pixels == NULL);
+  if (c->pixels_isnull == FALSE) {
+	  memcpy(c->pixels, pixels, datasize);
+  }
   push_batch_command(cmd_size);
   gls_cmd_flush();
 }
@@ -1194,7 +1216,7 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 	c->ptr[0] = '\0';
 #else // !GLS_EMULATE_VBO
 	// 0xA0 glxgears crash?
-	c->ptr_isnull = (ptr == NULL || ptr == 0xc || ptr == 0xA20);
+	c->ptr_isnull = (ptr == NULL || ptr == 0xc || ptr == 0x2A0 || ptr == 0xA20);
 	// printf("gls glVertexAttribPointer: type=%p, ptr=%p, unptr_null=%p\n", type, ptr, *&ptr);
 	if (c->ptr_isnull == FALSE) {
 		const GLchar *ptr_str = (const GLchar *)ptr;
@@ -1212,12 +1234,16 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 	}
 #endif // !GLS_EMULATE_VBO
 
+/*
+	c->ptr_isnull = 1;
+	c->ptr[0] = '\0';
+
 #if __WORDSIZE == 64
 	c->ptr_uint = (uint32_t)(uint64_t)ptr;
 #else // __WORDSIZE == 32
 	c->ptr_uint = (uint32_t)ptr;
 #endif // __WORDSIZE == 32
-
+*/
 	c->normalized = normalized;
 	GLS_PUSH_BATCH(glVertexAttribPointer);
 }
