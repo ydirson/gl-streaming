@@ -102,11 +102,11 @@ GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const 
 	gls_cmd_flush();
 	// printf("GL_DBG: glBufferData size=%i realsize=%i\n",size,sizeof(data));
 	gls_cmd_send_data(0, (uint32_t)size, (void *)data);
-  GLS_SET_COMMAND_PTR(c, glBufferData);
-  c->target = target;
-  c->size = size;
-  c->usage = usage;
-  GLS_SEND_PACKET(glBufferData);
+	GLS_SET_COMMAND_PTR(c, glBufferData);
+	c->target = target;
+	c->size = size;
+	c->usage = usage;
+	GLS_SEND_PACKET(glBufferData);
 }
 
 
@@ -1237,13 +1237,14 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 /*
 	c->ptr_isnull = 1;
 	c->ptr[0] = '\0';
+*/
 
 #if __WORDSIZE == 64
 	c->ptr_uint = (uint32_t)(uint64_t)ptr;
 #else // __WORDSIZE == 32
 	c->ptr_uint = (uint32_t)ptr;
 #endif // __WORDSIZE == 32
-*/
+
 	c->normalized = normalized;
 	GLS_PUSH_BATCH(glVertexAttribPointer);
 }
