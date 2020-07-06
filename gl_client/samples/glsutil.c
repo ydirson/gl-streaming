@@ -58,28 +58,39 @@ void mat_mul(float *a, float *b)
   c[13] = a[1] * b[12] + a[5] * b[13] + a[9]  * b[14] + a[13] * b[15];
   c[14] = a[2] * b[12] + a[6] * b[13] + a[10] * b[14] + a[14] * b[15];
   c[15] = a[3] * b[12] + a[7] * b[13] + a[11] * b[14] + a[15] * b[15];
-  a[0] =  c[0];  a[1] =  c[1];  a[2] =  c[2];   a[3] =  c[3];
-  a[4] =  c[4];  a[5] =  c[5];  a[6] =  c[6];   a[7] =  c[7];
-  a[8] =  c[8];  a[9] =  c[9];  a[10] = c[10];  a[11] = c[11];
-  a[12] = c[12]; a[13] = c[13]; a[14] = c[14];  a[15] = c[15];
+/*
+  for (int i = 0; i < 16; i++) {
+	  c[i] = i / 4 + 1;
+  }
+*/
+  for (int i = 0; i < 16; i++) {
+	  a[i] = c[i];
+  }
 }
 
 
 void mat_rotate_x(float *a, float angle)
 {
-  float c4, c5, c6, c7, c8, c9, c10, c11;
+  float carr[8];
   float s = sin(angle);
   float c = cos(angle);
-  c4  = a[4]  * c + a[8]  * s;
-  c5  = a[5]  * c + a[9]  * s;
-  c6  = a[6]  * c + a[10] * s;
-  c7  = a[7]  * c + a[11] * s;
-  c8  = a[8]  * c - a[4]  * s;
-  c9  = a[9]  * c - a[5]  * s;
-  c10 = a[10] * c - a[6]  * s;
-  c11 = a[11] * c - a[7]  * s;
-  a[4] = c4; a[5] = c5; a[6] =  c6;  a[7] =  c7;
-  a[8] = c8; a[9] = c9; a[10] = c10; a[11] = c11;
+/*
+  carr[0] = a[4]  * c + a[8]  * s;
+  carr[1] = a[5]  * c + a[9]  * s;
+  carr[2] = a[6]  * c + a[10] * s;
+  carr[3] = a[7]  * c + a[11] * s;
+  carr[4] = a[8]  * c - a[4]  * s;
+  carr[5] = a[9]  * c - a[5]  * s;
+  carr[6] = a[10] * c - a[6]  * s;
+  carr[7] = a[11] * c - a[7]  * s;
+*/
+  for (int i = 4; i < 12; i++) {
+	  carr[i - 4] = a[i] * c + (i < 8 ? (+a[i+4] : -a[i-4])) * s;
+  }
+
+  for (int i = 4; i < 12; i++) {
+	  a[i] = carr[i - 4];
+  }
 }
 
 
@@ -132,6 +143,9 @@ void mat_translate(float *a, float x, float y, float z)
 
 void mat_identity(float *m)
 {
+	for (int i = 0; i < 16; i++) {
+		m[i] = 0f;;
+	}
   m[0]  = 1.0f; m[1]  = 0.0f; m[2]  = 0.0f; m[3]  = 0.0f;
   m[4]  = 0.0f; m[5]  = 1.0f; m[6]  = 0.0f; m[7]  = 0.0f;
   m[8]  = 0.0f; m[9]  = 0.0f; m[10] = 1.0f; m[11] = 0.0f;
@@ -158,8 +172,14 @@ void mat_invert(float *m)
 {
   float a[16];
   mat_identity(a);
+  for (int i = 12; i < 15; i++) {
+	  a[i] = -m[i];
+	  m[i] = 0.0f;
+  }
+/*
   a[12] = -m[12]; a[13] = -m[13]; a[14] = -m[14];
   m[12] = 0.0f; m[13] = 0.0f; m[14] = 0.0f;
+*/
   mat_transpose(m);
   mat_mul(m, a);
 }
@@ -184,10 +204,9 @@ void mat_perspective(float *m, float aspect, float near, float far, float fview)
 
 void mat_copy(float *a, float *b)
 {
-  a[0]  = b[0];  a[1]  = b[1];  a[2]  = b[2];  a[3]  = b[3];
-  a[4]  = b[4];  a[5]  = b[5];  a[6]  = b[6];  a[7]  = b[7];
-  a[8]  = b[8];  a[9]  = b[9];  a[10] = b[10]; a[11] = b[11];
-  a[12] = b[12]; a[13] = b[13]; a[14] = b[14]; a[15] = b[15];
+	for (int i = 0; i < 16; i++) {
+		a[i] = b[i];
+	}
 }
 
 

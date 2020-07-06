@@ -104,6 +104,7 @@ enum GL_Server_Command
   GLSC_glClearStencil,
   GLSC_glColorMask,
   GLSC_glCompileShader,
+  GLSC_glCopyTexSubImage2D,
   GLSC_glCreateProgram,
   GLSC_glCreateShader,
   GLSC_glCullFace,
@@ -158,9 +159,7 @@ enum GL_Server_Command
   GLSC_glVertexAttribPointer,
   GLSC_glViewport,
   
-/*
- * OES / EXT extension commands
- */
+// OES / EXT extension commands
   GLSC_glMapBufferOES,
   GLSC_glUnmapBufferOES
 };
@@ -639,6 +638,20 @@ typedef struct
   uint32_t cmd;
   uint32_t shader;
 } gls_glCompileShader_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t target;
+  int32_t level;
+  int32_t xoffset;
+  int32_t yoffset;
+  int32_t x;
+  int32_t y;
+  int32_t width;
+  int32_t height;
+} gls_glCopyTexSubImage2D_t;
 
 
 typedef struct
@@ -1124,7 +1137,6 @@ typedef struct
 } gls_glTexParameteri_t;
 
 
-// Based from gls_glTexImage2D_t code
 typedef struct
 {
   uint32_t cmd;

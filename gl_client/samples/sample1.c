@@ -326,15 +326,18 @@ void release_gl(graphics_context_t *gc)
 }
 
 
-void * glclient_thread(void * arg)
+void * glclient_thread( /*v oid * arg */)
 {
-  server_thread_args_t * a = (server_thread_args_t *)arg;
+  // server_thread_args_t * a = (server_thread_args_t *)arg;
   static graphics_context_t gc;
 
   static struct js_event joy;
   int joy_fd;
   static char button[32];
-
+  
+  joy_fd = -1;
+  
+/*
   glclient_context_t *glcc = a->user_context_ptr;
 
   joy_fd = open(glcc->joy_dev, O_RDONLY);
@@ -346,7 +349,7 @@ void * glclient_thread(void * arg)
   {
     fcntl(joy_fd, F_SETFL, O_NONBLOCK);
   }
-  
+*/
   EGLDisplay eglDpy = eglGetCurrentDisplay();
   EGLSurface eglSurf = eglGetCurrentSurface(EGL_DRAW);
 
@@ -504,7 +507,7 @@ void * glclient_thread(void * arg)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     eglSwapBuffers(eglDpy, eglSurf);
     gettimeofday(&timee, NULL);
-    //printf("%d:%f ms ", i, get_diff_time(times, timee) * 1000.0f);
+    // printf("%d:%f ms ", i, get_diff_time(times, timee) * 1000.0f);
   }
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -561,7 +564,19 @@ int main(int argc, char * argv[])
   set_client_user_context(&sc, &glcc);
 */
   // server_run(&sc, glclient_thread);
-  server_run(NULL, glclient_thread);
+  // server_run(NULL, glclient_thread);
 
+  pthread_t threadID;
+  int ret;
+
+  ret = pthread_create(&threadID, NULL, glclient_thread, NULL);
+  
+  if (ret) {
+	  printf("pthread_create() error number=%d\n", ret);
+      return -1;
+  }
+
+  pthread_exit(NULL);
+  
   return 0;
 }

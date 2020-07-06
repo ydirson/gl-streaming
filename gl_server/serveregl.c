@@ -25,9 +25,7 @@ void glse_eglChooseConfig()
   EGLBoolean success = eglChooseConfig(c->dpy, dat->attrib_list, ret->configs, c->config_size, &ret->num_config);
   
   ret->success = success;
-
   // ret->configs = 
-
   // ret->success = EGL_TRUE;
   ret->cmd = GLSC_eglChooseConfig;
   glse_cmd_send_data(0,sizeof(gls_ret_eglChooseConfig_t),(char *)glsec_global.tmp_buf.buf);

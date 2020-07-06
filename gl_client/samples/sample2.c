@@ -274,17 +274,20 @@ void release_gl(graphics_context_t *gc)
 }
 
 
-void * glclient_thread(void * arg)
+void * glclient_thread( /* void * arg */)
 {
-  server_thread_args_t * a = (server_thread_args_t *)arg;
+  // server_thread_args_t * a = (server_thread_args_t *)arg;
   static graphics_context_t gc;
 
   static struct js_event joy;
   int joy_fd;
   static char button[32];
 
-  glclient_context_t *glcc = a->user_context_ptr;
+  // glclient_context_t *glcc = a->user_context_ptr;
 
+  joy_fd = -1;
+  
+ /*
   joy_fd = open(glcc->joy_dev, O_RDONLY);
   if (joy_fd == -1)
   {
@@ -294,7 +297,7 @@ void * glclient_thread(void * arg)
   {
     fcntl(joy_fd, F_SETFL, O_NONBLOCK);
   }
-
+*/
   EGLDisplay eglDpy = eglGetCurrentDisplay();
   EGLSurface eglSurf = eglGetCurrentSurface(EGL_DRAW);
 
@@ -496,7 +499,17 @@ int main(int argc, char * argv[])
   set_client_user_context(&sc, &glcc);
 */
   // server_run(&sc, glclient_thread);
-  server_run(NULL, glclient_thread);
+  pthread_t threadID;
+  int ret;
+
+  ret = pthread_create(&threadID, NULL, glclient_thread, NULL);
+  
+  if (ret) {
+	  printf("pthread_create() error number=%d\n", ret);
+      return -1;
+  }
+
+  pthread_exit(NULL);
 	
   return 0;
 }

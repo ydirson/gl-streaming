@@ -174,6 +174,21 @@ GL_APICALL void GL_APIENTRY glCompileShader (GLuint shader)
 }
 
 
+GL_APICALL void GL_APIENTRY glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	GLS_SET_COMMAND_PTR_BATCH(c, glCopyTexSubImage2D);
+	c->target = target;
+	c->level = level;
+	c->xoffset = xoffset;
+	c->yoffset = yoffset;
+	c->x = x;
+	c->y = y;
+	c->width = width;
+	c->height = height;
+	GLS_PUSH_BATCH(glCopyTexSubImage2D);
+}
+
+
 GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
 {
 	gls_cmd_flush();
@@ -928,52 +943,48 @@ GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint 
 
 GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  uint32_t pixelbytes, linebytes, datasize;
-  switch (type)
-  {
-    case GL_UNSIGNED_BYTE:
-      switch (format)
-      {
-        case GL_ALPHA:
-          pixelbytes = 1;
-          break;
-        case GL_RGB:
-          pixelbytes = 3;
-          break;
-        case GL_RGBA:
-          pixelbytes = 4;
-          break;
-        case GL_LUMINANCE:
-          pixelbytes = 1;
-          break;
-        case GL_LUMINANCE_ALPHA:
-          pixelbytes = 2;
-          break;
-        default:
-          pixelbytes = 4;
-          break;
-      }
-      break;
-    case GL_UNSIGNED_SHORT_5_6_5:
-      pixelbytes = 2;
-      break;
-    case GL_UNSIGNED_SHORT_4_4_4_4:
-      pixelbytes = 2;
-      break;
-    case GL_UNSIGNED_SHORT_5_5_5_1:
-      pixelbytes = 2;
-      break;
-    default:
-      pixelbytes = 4;
-      break;
+	uint32_t pixelbytes, linebytes, datasize;
+	switch (type) {
+		case GL_UNSIGNED_BYTE:
+			switch (format) {
+				case GL_ALPHA:
+					pixelbytes = 1;
+					break;
+				case GL_RGB:
+					pixelbytes = 3;
+					break;
+				case GL_RGBA:
+					pixelbytes = 4;
+					break;
+				case GL_LUMINANCE:
+					pixelbytes = 1;
+					break;
+				case GL_LUMINANCE_ALPHA:
+					pixelbytes = 2;
+					break;
+				default:
+					pixelbytes = 4;
+					break;
+			} break;
+		case GL_UNSIGNED_SHORT_5_6_5:
+			pixelbytes = 2;
+			break;
+		case GL_UNSIGNED_SHORT_4_4_4_4:
+			pixelbytes = 2;
+			break;
+		case GL_UNSIGNED_SHORT_5_5_5_1:
+			pixelbytes = 2;
+			break;
+		default:
+			pixelbytes = 4;
+			break;
   }
   linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
   datasize = linebytes * height;
   GLS_SET_COMMAND_PTR_BATCH(c, glTexImage2D);
   uint32_t cmd_size = (uint32_t)(((char *)c->pixels + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glTexImage2D: buffer overflow") != TRUE)
-  {
-    return;
+  if (check_batch_overflow(cmd_size, "glTexImage2D: buffer overflow") != TRUE) {
+	  return;
   }
   c->cmd_size = cmd_size;
   c->target = target;
