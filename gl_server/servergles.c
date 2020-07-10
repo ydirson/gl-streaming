@@ -553,11 +553,17 @@ void glse_glTexParameteri()
 void glse_glTexImage2D()
 {
   GLSE_SET_COMMAND_PTR(c, glTexImage2D);
+/*
+  int i;
+  int *pixInt = (int *) c->pixels;
+  for (i = 0; i < c->width; i++) {
+	  LOGD("Pixel[%i]=%p", i, pixInt[i]);
+  }
+*/
   glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
 }
 
 
-// Based from glTexImage2D
 void glse_glTexSubImage2D()
 {
   GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
@@ -629,11 +635,7 @@ void glse_glVertexAttribPointer()
 	int ptr_str_len = strnlen(c->ptr, 0xA00000);
 	// LOGD("PTR Str len = %i", ptr_str_len);
 	
-	if (c->ptr_isnull == TRUE) {
-		glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (GLvoid *) c->ptr_uint);
-	} else {
-		glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, (const GLvoid *)c->ptr);
-	}
+	glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, ((const GLvoid *) c->ptr_isnull == TRUE ? c->ptr_uint : c->ptr));
 }
 
 

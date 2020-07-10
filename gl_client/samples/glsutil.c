@@ -85,7 +85,7 @@ void mat_rotate_x(float *a, float angle)
   carr[7] = a[11] * c - a[7]  * s;
 */
   for (int i = 4; i < 12; i++) {
-	  carr[i - 4] = a[i] * c + (i < 8 ? (+a[i+4] : -a[i-4])) * s;
+	  carr[i - 4] = a[i] * c + (i < 8 ? (+a[i+4]) : (-a[i-4])) * s;
   }
 
   for (int i = 4; i < 12; i++) {
@@ -132,24 +132,35 @@ void mat_rotate_z(float *a, float angle)
 
 void mat_translate(float *a, float x, float y, float z)
 {
-  float b12, b13, b14, b15;
+	float b12, b13, b14, b15;
+	float barr[4];
+	for (int i = 0; i < 4; i++) {
+		barr[i] = a[i] * x + a[i + 4] * y + a[i + 8] * z + a[i + 12];
+	}
+	for (int i = 0; i < 4; i++) {
+		a[i + 12] = barr[i];
+	}
+/*
   b12 = a[0] * x + a[4] * y + a[8]  * z + a[12];
   b13 = a[1] * x + a[5] * y + a[9]  * z + a[13];
   b14 = a[2] * x + a[6] * y + a[10] * z + a[14];
   b15 = a[3] * x + a[7] * y + a[11] * z + a[15];
   a[12] = b12; a[13] = b13; a[14] = b14;  a[15] = b15;
+*/
 }
 
 
 void mat_identity(float *m)
 {
 	for (int i = 0; i < 16; i++) {
-		m[i] = 0f;;
+		m[i] = i % 5 == 0 ? 1.0f : 0.0f;
 	}
+/*
   m[0]  = 1.0f; m[1]  = 0.0f; m[2]  = 0.0f; m[3]  = 0.0f;
   m[4]  = 0.0f; m[5]  = 1.0f; m[6]  = 0.0f; m[7]  = 0.0f;
   m[8]  = 0.0f; m[9]  = 0.0f; m[10] = 1.0f; m[11] = 0.0f;
   m[12] = 0.0f; m[13] = 0.0f; m[14] = 0.0f; m[15] = 1.0f;
+*/
 }
 
 

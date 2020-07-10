@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int main(int argc, char * argv[])
 {
   glsurfaceview_width = 600;
-  glsurfaceview_height = 360);
+  glsurfaceview_height = 360;
 	
   static server_context_t sc;
   int opt;
