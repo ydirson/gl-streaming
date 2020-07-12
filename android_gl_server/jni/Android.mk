@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 HERE_PATH := $(LOCAL_PATH)
 
 include $(HERE_PATH)/../../gl_server/Android.mk
-include $(HERE_PATH)/../../gl_client/Android.mk
+# include $(HERE_PATH)/../../gl_client/Android.mk
 
 LOCAL_PATH := $(HERE_PATH)
 include $(CLEAR_VARS)

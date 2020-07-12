@@ -397,7 +397,20 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 	}
 #endif // GLS_EMULATE_VBO
 
+	uint32_t sizeoftype;
+	if (type == GL_UNSIGNED_BYTE) {
+		sizeoftype = sizeof(GLubyte);
+	} else { // GL_UNSIGNED_SHORT
+		sizeoftype = sizeof(GLushort);
+	}
+	
+	uint32_t datasize = count * 4 * sizeoftype;
 	GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
+	uint32_t cmd_size = (uint32_t)(((char *)c->indices + datasize) - (char *)c);
+	if (check_batch_overflow(cmd_size, "glDrawElements: buffer overflow") != TRUE) {
+		return;
+	}
+	c->cmd_size = cmd_size;
 	c->mode = mode;
 	c->count = count;
 	c->type = type;

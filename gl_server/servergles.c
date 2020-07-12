@@ -771,7 +771,7 @@ int gles_flushCommand(gls_command_t *c) {
         break;
       case GLSC_glDrawElements:
         glse_glDrawElements();
-        pop_batch_command(sizeof(gls_glDrawElements_t));
+        pop_batch_command(((gls_glDrawElements_t *)c)->cmd_size);
         break;
       case GLSC_glEnable:
         glse_glEnable();

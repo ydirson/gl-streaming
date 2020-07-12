@@ -766,6 +766,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint32_t cmd_size;
   uint32_t mode;
   int32_t count;
   uint32_t type;
