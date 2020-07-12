@@ -29,8 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdio.h>
+
+#ifdef USE_X11
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#endif
 
 #include "EGL/egl.h"
 #include "GLES2/gl2.h"

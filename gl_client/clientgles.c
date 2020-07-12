@@ -793,7 +793,7 @@ GL_APICALL void GL_APIENTRY glLinkProgram (GLuint program)
 }
 
 
-GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
+GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar*const* string, const GLint* length)
 {
   gls_cmd_flush();
   if (count > 10240) { // 256
@@ -1004,7 +1004,6 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
 }
 
 
-// Based from glTexImage2D code
 GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels)
 {
   uint32_t pixelbytes, linebytes, datasize;

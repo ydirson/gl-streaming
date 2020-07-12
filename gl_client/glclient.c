@@ -170,7 +170,9 @@ void gls_init_library()
 
 int gls_free()
 {
+#ifdef USE_X11
 	XCloseDisplay(xDisplay);
+#endif
    
 	free(glsc_global.out_buf.buf);
 	free(glsc_global.tmp_buf.buf);
