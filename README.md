@@ -1,7 +1,7 @@
 # gl-streaming
 
 
-![logo](https://github.com/khanhduytran0/gl-streaming/raw/master/www/logo.png)
+![GLStreaming](https://github.com/khanhduytran0/gl-streaming/raw/master/www/GLStreaming.png)
 
 Streaming opengl commands over network
 
