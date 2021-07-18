@@ -853,7 +853,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
     dat->data[stroffset + strsize] = '\0';
     stroffset = stroffset + strsize + 1;
 	
-	// printf("gls debug: shader length = %i", strsize);
+	// printf("gls debug: shader length = %i\n", strsize);
 	
 	// printf("%s\n", strptr);
   }

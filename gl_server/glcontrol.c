@@ -82,7 +82,7 @@ const char* glGetErrorString(GLenum err)
 void base_check_egl_err(char* funcname) {
 	int error = eglGetError();
 	if (error != EGL_SUCCESS) {
-		LOGD("eglGetError(%s) return error %s", funcname, eglGetErrorString(error));
+		LOGD("eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
 	}
 #ifdef DEBUG
 	assert(error == 0)
@@ -91,7 +91,7 @@ void base_check_egl_err(char* funcname) {
 void base_check_gl_err(char* funcname) {
 	int error = glGetError();
 	if (error != GL_NO_ERROR) {
-		LOGD("glGetError(%s) return error %s", funcname, glGetErrorString(error));
+		LOGD("glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
 	}
 #ifdef DEBUG
 	assert(error == 0)

@@ -152,7 +152,7 @@ void glse_cmd_flush()
 		}
 		
         if (result == FALSE) {
-			LOGE("Error: Command Flush %i", c->cmd);
+			LOGE("Error: Command Flush %i\n", c->cmd);
 			quit = TRUE;
 		}
 		break;

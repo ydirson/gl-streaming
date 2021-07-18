@@ -156,7 +156,7 @@ void glse_eglQueryString()
   const char *params = eglQueryString(c->dpy, c->name);
   
   ret->cmd = GLSC_eglQueryString;
-  // LOGD("Client asking for %i, return %s", c->name, params);
+  // LOGD("Client asking for %i, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
   strncpy(ret->params, params, GLS_STRING_SIZE);
   glse_cmd_send_data(0,sizeof(gls_ret_eglQueryString_t),(char *)glsec_global.tmp_buf.buf);

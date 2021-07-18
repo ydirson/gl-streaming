@@ -428,7 +428,7 @@ void glse_glGetString()
   gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsec_global.tmp_buf.buf;
   const char *params = glGetString(c->name);
   ret->cmd = GLSC_glGetString;
-  // LOGD("Client asking for %i, return %s", c->name, params);
+  // LOGD("Client asking for %i, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
   strncpy(ret->params, params, GLS_STRING_SIZE);
   glse_cmd_send_data(0,sizeof(gls_ret_glGetString_t),(char *)glsec_global.tmp_buf.buf);
@@ -507,7 +507,7 @@ void glse_glShaderSource()
   
   // Debug: print shader to log
 /*
-  LOGD("\n ----- BEGIN SHADER CONTENT -----");
+  LOGD("\n ----- BEGIN SHADER CONTENT -----\n");
   
   size_t size_all = (size_t)(dat->data - (char *)dat);
   uint32_t stroffset = 0;
@@ -539,8 +539,8 @@ void glse_glShaderSource()
       return;
     }
     stroffset = stroffset + strsize + 1;
-	LOGD("gls debug: shader length = %i", strsize);
-	LOGD("%s", strptr);
+	LOGD("gls debug: shader length = %i\n", strsize);
+	LOGD("%s\n", strptr);
   }
   LOGD(" ----- ENDED SHADER CONTENT -----\n");
 */
@@ -582,7 +582,7 @@ void glse_glTexImage2D()
   int i;
   int *pixInt = (int *) c->pixels;
   for (i = 0; i < c->width; i++) {
-	  LOGD("Pixel[%i]=%p", i, pixInt[i]);
+	  LOGD("Pixel[%i]=%p\n", i, pixInt[i]);
   }
 */
   glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
@@ -658,7 +658,7 @@ void glse_glVertexAttribPointer()
 	GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
 
 	int ptr_str_len = strnlen(c->ptr, 0xA00000);
-	// LOGD("PTR Str len = %i", ptr_str_len);
+	// LOGD("PTR Str len = %i\n", ptr_str_len);
 	
 	glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, ((const GLvoid *) c->ptr_isnull == TRUE ? c->ptr_uint : c->ptr));
 }
