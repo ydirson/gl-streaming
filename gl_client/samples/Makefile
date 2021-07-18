@@ -19,3 +19,5 @@ sample2: sample2.c glsutil.o
 # ../glclient.o ../clientegl.o ../clientgles.o
 	gcc -o sample2 $(CFLAGS) $(INCLUDES) sample2.c $(OBJS) $(LIBS)
 
+clean:
+	rm -f $(EXES) $(OBJS)
