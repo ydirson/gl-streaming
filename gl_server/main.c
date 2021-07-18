@@ -69,6 +69,11 @@ int main(int argc, char * argv[])
         return 0;
     }
   }
+#ifdef USE_X11
+  // FIXME: this is hardcoded in several places
+  glsurfaceview_width = 1280;
+  glsurfaceview_height = 720;
+#endif
   server_init(&sc);
   set_server_address_port(&sc, my_ip, my_port);
   set_client_address_port(&sc, his_ip, his_port);
