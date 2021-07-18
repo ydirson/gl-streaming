@@ -14,13 +14,14 @@ LIBS=-pthread -ldl -lX11
 CFLAGS+= $(LIBS)
 OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
 
-LIB_GLES=libGLESv2.so.2
+LIB_GLES = libGLESv2.so.2
+LIB_EGL = libEGL.so.1
 
 DESTDIR =
 prefix = /usr/local
 GLS_LIB_DIR = $(prefix)/lib/gl-streaming
 
-EXES=$(LIB_GLES)
+EXES = $(LIB_GLES) $(LIB_EGL)
 
 all: $(EXES)
 
@@ -41,6 +42,9 @@ glclient.o: glclient.c glclient.h ../common/gls_command.h server.o
 
 $(LIB_GLES): $(OBJS)
 	gcc -shared -o $(LIB_GLES) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,--no-undefined $(LIBS)
+
+$(LIB_EGL): $(LIB_GLES)
+	ln -sf $(LIB_GLES) $(LIB_EGL)
 
 install:
 	mkdir -p $(DESTDIR)$(GLS_LIB_DIR)
