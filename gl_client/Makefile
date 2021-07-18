@@ -16,7 +16,9 @@ OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
 
 LIB_GLES=libGLESv2.so.2
 
-GLS_LIB_DIR=/usr/local/lib/gl-streaming
+DESTDIR =
+prefix = /usr/local
+GLS_LIB_DIR = $(prefix)/lib/gl-streaming
 
 EXES=$(LIB_GLES)
 
@@ -41,9 +43,9 @@ $(LIB_GLES): $(OBJS)
 	gcc -shared -o $(LIB_GLES) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,--no-undefined $(LIBS)
 
 install:
-	mkdir -p $(GLS_LIB_DIR)
-	cp $(LIB_GLES) $(GLS_LIB_DIR)/
-	ln -s $(GLS_LIB_DIR)/$(LIB_GLES) $(GLS_LIB_DIR)/libEGL.so.1; echo "To use streaming, type: export LD_LIBRARY_PATH=$(GLS_LIB_DIR)\nThen you are ready to get hardware acceleration!"
+	mkdir -p $(DESTDIR)$(GLS_LIB_DIR)
+	cp $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/
+	ln -sf $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/libEGL.so.1
 
 clean:
 	rm -f $(EXES) $(OBJS)
