@@ -1,0 +1,23 @@
+# TODO list for proper Linux and Qubes support
+
+- [ ] work on native 32bit linux
+  - [x] disable server GLES extensions, symbols not exported by standard libs
+  - [x] default window size
+  - [x] proper line endings in logs
+  - [ ] proper server logging, not hardcoded /sdcard/
+  - [ ] sample2 fails with "Error: Command Flush -10256991"
+- [x] readable indentation
+- [ ] work on native 64bit linux
+- [ ] update README
+- [ ] consistent coding style
+- [ ] proper extension implementation, glMapBufferOES etc
+- [ ] regression testing
+- improve code quality
+  - [ ] more readable idioms
+  - [ ] zero-copy when possible
+- improve coverage
+  - [ ] full GLES2
+  - [ ] GLES3
+  - [ ] GLX / desktop GL ?
+- [ ] consider migrating this inside Mesa and upstreaming
+- [ ] consider alternate transports (eg. virtio-based)

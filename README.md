@@ -1,5 +1,14 @@
 # gl-streaming
 
+This gl-streaming repo aims at working on plain modern Linux desktops,
+especially on [QubesOS](https://www.qubes-os.org/) to securely provide
+decent acceleration support to Qubes containers.
+
+This README file is outdated.  Until we fix that...
+* [khanhduytran's fork](https://github.com/khanhduytran0/) added [USAGE.md](USAGE.md)
+* this fork adds [TODO.md](TODO.md)
+
+# original contents
 
 ![GLStreaming](https://github.com/khanhduytran0/gl-streaming/raw/master/www/GLStreaming.png)
 
