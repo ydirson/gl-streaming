@@ -46,4 +46,4 @@ install:
 	ln -s $(GLS_LIB_DIR)/$(LIB_GLES) $(GLS_LIB_DIR)/libEGL.so.1; echo "To use streaming, type: export LD_LIBRARY_PATH=$(GLS_LIB_DIR)\nThen you are ready to get hardware acceleration!"
 
 clean:
-	rm $(EXES) $(OBJS)
+	rm -f $(EXES) $(OBJS)
