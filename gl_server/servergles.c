@@ -680,6 +680,7 @@ void glse_glIsEnabled()
 */
 
 
+#if 0
 /*
  * OES / EXT extension commands
  */
@@ -699,6 +700,7 @@ void glse_glUnmapBufferOES()
   ret->success = success;
   glse_cmd_send_data(0, sizeof(gls_ret_glUnmapBufferOES_t), (char *)glsec_global.tmp_buf.buf);
 }
+#endif
 
 
 /*
@@ -883,10 +885,12 @@ int gles_flushCommand(gls_command_t *c) {
         glse_glLineWidth();
         pop_batch_command(sizeof(gls_glLineWidth_t));
         break;
-	  case GLSC_glMapBufferOES:
+#if 0
+      case GLSC_glMapBufferOES:
         glse_glMapBufferOES();
         pop_batch_command(sizeof(gls_glMapBufferOES_t));
         break;
+#endif
       case GLSC_glPolygonOffset:
         glse_glPolygonOffset();
         pop_batch_command(sizeof(gls_glPolygonOffset_t));
@@ -1050,11 +1054,13 @@ int gles_executeCommand(gls_command_t *c) {
         case GLSC_glGetUniformLocation:
 			glse_glGetUniformLocation();
 			break;
-		case GLSC_glUnmapBufferOES:
+#if 0
+        case GLSC_glUnmapBufferOES:
 			glse_glUnmapBufferOES();
 			break;
-		// glVertexAttrib*f commands combine
-		case GLSC_glVertexAttribFloat:
+#endif
+	// glVertexAttrib*f commands combine
+        case GLSC_glVertexAttribFloat:
 			glse_glVertexAttribFloat();
 			break;
         case GLSC_glReadPixels:
