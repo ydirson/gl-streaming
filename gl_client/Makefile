@@ -1,4 +1,5 @@
 CFLAGS=-O3 -Wall -I../common -I. -I./include -fPIC -g
+CFLAGS += -m32
 
 # Use X11
 CFLAGS+=-DUSE_X11
