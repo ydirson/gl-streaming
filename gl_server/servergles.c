@@ -503,10 +503,8 @@ void glse_glShaderSource()
     dat->string[i] = (uint32_t)(dat->data + dat->string[i]);
   }
   
-  glShaderSource(c->shader, c->count, (const GLchar**)dat->string, dat->length);
-  
   // Debug: print shader to log
-/*
+#if 0
   LOGD("\n ----- BEGIN SHADER CONTENT -----\n");
   
   size_t size_all = (size_t)(dat->data - (char *)dat);
@@ -543,7 +541,9 @@ void glse_glShaderSource()
 	LOGD("%s\n", strptr);
   }
   LOGD(" ----- ENDED SHADER CONTENT -----\n");
-*/
+#endif
+
+  glShaderSource(c->shader, c->count, (const GLchar**)dat->string, dat->length);
 }
 
 
