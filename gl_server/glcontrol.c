@@ -43,58 +43,58 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 const char* eglGetErrorString(EGLint err)
 {
     switch(err) {
-		CASE_STRING( EGL_SUCCESS             )
-		CASE_STRING( EGL_NOT_INITIALIZED     )
-		CASE_STRING( EGL_BAD_ACCESS          )
-		CASE_STRING( EGL_BAD_ALLOC           )
-		CASE_STRING( EGL_BAD_ATTRIBUTE       )
-		CASE_STRING( EGL_BAD_CONTEXT         )
-		CASE_STRING( EGL_BAD_CONFIG          )
-		CASE_STRING( EGL_BAD_CURRENT_SURFACE )
-		CASE_STRING( EGL_BAD_DISPLAY         )
-		CASE_STRING( EGL_BAD_SURFACE         )
-		CASE_STRING( EGL_BAD_MATCH           )
-		CASE_STRING( EGL_BAD_PARAMETER       )
-		CASE_STRING( EGL_BAD_NATIVE_PIXMAP   )
-		CASE_STRING( EGL_BAD_NATIVE_WINDOW   )
-		CASE_STRING( EGL_CONTEXT_LOST        )
-		
-		default: return ("EGL_BAD_ERROR_%p", err);
+        CASE_STRING( EGL_SUCCESS             )
+        CASE_STRING( EGL_NOT_INITIALIZED     )
+        CASE_STRING( EGL_BAD_ACCESS          )
+        CASE_STRING( EGL_BAD_ALLOC           )
+        CASE_STRING( EGL_BAD_ATTRIBUTE       )
+        CASE_STRING( EGL_BAD_CONTEXT         )
+        CASE_STRING( EGL_BAD_CONFIG          )
+        CASE_STRING( EGL_BAD_CURRENT_SURFACE )
+        CASE_STRING( EGL_BAD_DISPLAY         )
+        CASE_STRING( EGL_BAD_SURFACE         )
+        CASE_STRING( EGL_BAD_MATCH           )
+        CASE_STRING( EGL_BAD_PARAMETER       )
+        CASE_STRING( EGL_BAD_NATIVE_PIXMAP   )
+        CASE_STRING( EGL_BAD_NATIVE_WINDOW   )
+        CASE_STRING( EGL_CONTEXT_LOST        )
+        
+        default: return ("EGL_BAD_ERROR_%p", err);
     }
 }
 const char* glGetErrorString(GLenum err)
 {
     switch(err) {
-		CASE_STRING(GL_NO_ERROR)
-		CASE_STRING(GL_INVALID_ENUM)
-		CASE_STRING(GL_INVALID_VALUE)
-		CASE_STRING(GL_INVALID_OPERATION)
-		CASE_STRING(GL_OUT_OF_MEMORY)
-		case 0x8031: /* not core */ return "GL_TABLE_TOO_LARGE_EXT";
-		case 0x8065: /* not core */ return "GL_TEXTURE_TOO_LARGE_EXT";
-		CASE_STRING(GL_INVALID_FRAMEBUFFER_OPERATION)
-		
-		default: return("GL_BAD_ERROR_%p", err);
+        CASE_STRING(GL_NO_ERROR)
+        CASE_STRING(GL_INVALID_ENUM)
+        CASE_STRING(GL_INVALID_VALUE)
+        CASE_STRING(GL_INVALID_OPERATION)
+        CASE_STRING(GL_OUT_OF_MEMORY)
+        case 0x8031: /* not core */ return "GL_TABLE_TOO_LARGE_EXT";
+        case 0x8065: /* not core */ return "GL_TEXTURE_TOO_LARGE_EXT";
+        CASE_STRING(GL_INVALID_FRAMEBUFFER_OPERATION)
+        
+        default: return("GL_BAD_ERROR_%p", err);
     }
 }
 #undef CASE_STRING
 
 void base_check_egl_err(char* funcname) {
-	int error = eglGetError();
-	if (error != EGL_SUCCESS) {
-		LOGD("eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
-	}
+    int error = eglGetError();
+    if (error != EGL_SUCCESS) {
+        LOGD("eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
+    }
 #ifdef DEBUG
-	assert(error == 0)
+    assert(error == 0)
 #endif // DEBUG
 }
 void base_check_gl_err(char* funcname) {
-	int error = glGetError();
-	if (error != GL_NO_ERROR) {
-		LOGD("glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
-	}
+    int error = glGetError();
+    if (error != GL_NO_ERROR) {
+        LOGD("glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
+    }
 #ifdef DEBUG
-	assert(error == 0)
+    assert(error == 0)
 #endif // DEBUG
 }
 
@@ -121,7 +121,7 @@ void init_egl(graphics_context_t *gc)
   if (!xDisplay) {
     printf("Error: couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
-	return;
+    return;
   }
   gc->display = eglGetDisplay(xDisplay);
 #else
@@ -177,7 +177,7 @@ void init_egl(graphics_context_t *gc)
 #endif
 
   if (gc->surface == EGL_NO_SURFACE) {
-	  gc->surface = eglGetCurrentSurface(EGL_DRAW);
+      gc->surface = eglGetCurrentSurface(EGL_DRAW);
   }
   assert(gc->surface != EGL_NO_SURFACE);
   check_gl_err(eglGetCurrentSurface);
@@ -225,7 +225,7 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
       printf("Error: eglInitialize() failed\n");
       return -1;
    }
-	
+    
    static const EGLint attribs[] = {
       EGL_RED_SIZE, 1,
       EGL_GREEN_SIZE, 1,
@@ -273,8 +273,8 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
    win = XCreateWindow( xDisplay, root, 0, 0, width, height,
-		        0, visInfo->depth, InputOutput,
-		        visInfo->visual, mask, &attr );
+                        0, visInfo->depth, InputOutput,
+                        visInfo->visual, mask, &attr );
 
    /* set hints and properties */
    {

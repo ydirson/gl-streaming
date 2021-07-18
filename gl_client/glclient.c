@@ -76,17 +76,17 @@ int gls_init(server_context_t *arg)
   const char* env_isDebugStr = getenv("GLS_DEBUG");
   int env_isDebug;
   if (env_isDebugStr == NULL) {
-	  env_isDebug = FALSE;
+      env_isDebug = FALSE;
   } else {
-	  env_isDebug = atoi(env_isDebugStr);
+      env_isDebug = atoi(env_isDebugStr);
   }
   
   if (env_isDebug == 0 || env_isDebug == 1) {
-	  glsc_global.is_debug = env_isDebug;
+      glsc_global.is_debug = env_isDebug;
   } else {
-	  printf("gls error: GLS_DEBUG variable must be 0 or 1\n");
-	  exit(EXIT_FAILURE);
-	  return FALSE;
+      printf("gls error: GLS_DEBUG variable must be 0 or 1\n");
+      exit(EXIT_FAILURE);
+      return FALSE;
   }
   
   glsc_global.sta = arg;
@@ -112,9 +112,9 @@ int gls_init(server_context_t *arg)
 /*
   xDisplay = XOpenDisplay(NULL);
   if (xDisplay == NULL) {
-	  printf("gls error: could not open X11 display.\n");
-	  exit(EXIT_FAILURE);
-	  return FALSE;
+      printf("gls error: could not open X11 display.\n");
+      exit(EXIT_FAILURE);
+      return FALSE;
   }
   xScreenId = DefaultScreen(xDisplay);
 */
@@ -134,23 +134,23 @@ void gls_init_library()
     char his_ip[30]; // GLS_STRING_SIZE_PLUS
     uint16_t my_port = 18146;
     uint16_t his_port = 18145;
-	
-	const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
-	if (env_serverAddr == NULL) {
-		strncpy(his_ip, "127.0.0.1", 10);
-	} else {
-		printf("GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
-		
-		char* env_serverAddr_search = ":";
-		int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
-		char env_serverAddr_arr[env_serverAddr_length];
-		strncpy(env_serverAddr_arr, env_serverAddr, env_serverAddr_length + 1);
-		
-		char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
-		strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
-		his_port = atoi(strtok(NULL, env_serverAddr_search));
-		
-	}
+    
+    const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
+    if (env_serverAddr == NULL) {
+        strncpy(his_ip, "127.0.0.1", 10);
+    } else {
+        printf("GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
+        
+        char* env_serverAddr_search = ":";
+        int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
+        char env_serverAddr_arr[env_serverAddr_length];
+        strncpy(env_serverAddr_arr, env_serverAddr, env_serverAddr_length + 1);
+        
+        char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
+        strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
+        his_port = atoi(strtok(NULL, env_serverAddr_search));
+        
+    }
 
     strncpy(my_ip, "127.0.0.1", 10);
     server_init(&sc);
@@ -161,9 +161,9 @@ void gls_init_library()
     gls_init(&sc);
     gls_cmd_get_context();
 
-	// xDisplay = XOpenDisplay(NULL);
-	// xScreenId = DefaultScreen(xDisplay);
-	
+    // xDisplay = XOpenDisplay(NULL);
+    // xScreenId = DefaultScreen(xDisplay);
+    
     init = TRUE;
 }
 
@@ -171,13 +171,13 @@ void gls_init_library()
 int gls_free()
 {
 #ifdef USE_X11
-	XCloseDisplay(xDisplay);
+    XCloseDisplay(xDisplay);
 #endif
    
-	free(glsc_global.out_buf.buf);
-	free(glsc_global.tmp_buf.buf);
+    free(glsc_global.out_buf.buf);
+    free(glsc_global.tmp_buf.buf);
   
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -221,7 +221,7 @@ int wait_for_data(char *str)
       if (diff_time > GLS_TIMEOUT_SEC)
       {
         printf("\n%s\n", str);
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
         return FALSE;
       }
       usleep(a->sleep_usec);
@@ -252,7 +252,7 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
   if (data == NULL) {
     return TRUE;
   }
-	
+    
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
 
@@ -295,12 +295,12 @@ int gls_cmd_get_context()
   {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
-	printf("\ngls info: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
-	if (ret->server_version != GLS_VERSION) {
-		printf("\e[31m\e[1mgls error\e[0m: Incompatile version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
-		exit(EXIT_FAILURE);
-		return FALSE;
-	}
+    printf("\ngls info: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
+    if (ret->server_version != GLS_VERSION) {
+        printf("\e[31m\e[1mgls error\e[0m: Incompatile version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
+        exit(EXIT_FAILURE);
+        return FALSE;
+    }
   }
   return TRUE;
 }

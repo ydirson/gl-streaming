@@ -144,19 +144,19 @@ void glse_cmd_flush()
       case GLSC_BREAK:
         quit = TRUE;
         break;
-	  default: {
-	    int result = egl_flushCommand(c);
-		// Attempt to flush EGL first, if fail then attepmt to GLES.
-		if (result == FALSE) {
-			result = gles_flushCommand(c);
-		}
-		
+      default: {
+        int result = egl_flushCommand(c);
+        // Attempt to flush EGL first, if fail then attepmt to GLES.
         if (result == FALSE) {
-			LOGE("Error: Command Flush %i\n", c->cmd);
-			quit = TRUE;
-		}
-		break;
-	  }
+            result = gles_flushCommand(c);
+        }
+        
+        if (result == FALSE) {
+            LOGE("Error: Command Flush %i\n", c->cmd);
+            quit = TRUE;
+        }
+        break;
+      }
     }
   }
 }
@@ -217,22 +217,22 @@ void * glserver_thread(void * arg)
 #endif
           glse_cmd_get_context();
           break;
-		  
-		default: {
-		  int result = egl_executeCommand(c);
-		  // Attempt to execute EGL first, if fail then attepmt to GLES.
-		  if (result == FALSE) {
-			  result = gles_executeCommand(c);
-		  }
-		  
-		  if (result == FALSE) {
+          
+        default: {
+          int result = egl_executeCommand(c);
+          // Attempt to execute EGL first, if fail then attepmt to GLES.
+          if (result == FALSE) {
+              result = gles_executeCommand(c);
+          }
+          
+          if (result == FALSE) {
 #ifdef GL_DEBUG
-          	fprintf(fl,"@Exec: %i : Undefined command\n",c->cmd);
+              fprintf(fl,"@Exec: %i : Undefined command\n",c->cmd);
 #endif
-		  	LOGE("Error: Undefined command %i", c->cmd);
-		  }
+              LOGE("Error: Undefined command %i", c->cmd);
+          }
           break;
-		}
+        }
       }
       fifo_pop_ptr_next(a->fifo);
     }

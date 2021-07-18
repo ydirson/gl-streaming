@@ -142,8 +142,8 @@ void glse_glCompileShader()
 
 void glse_glCopyTexSubImage2D()
 {
-	GLSE_SET_COMMAND_PTR(c, glCopyTexSubImage2D);
-	glCopyTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->x, c->y, c->width, c->height);
+    GLSE_SET_COMMAND_PTR(c, glCopyTexSubImage2D);
+    glCopyTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->x, c->y, c->width, c->height);
 }
 
 
@@ -246,13 +246,13 @@ void glse_glDrawArrays()
 
 void glse_glDrawElements()
 {
-	GLSE_SET_COMMAND_PTR(c, glDrawElements);
-	
-	if (c->indices_isnull == TRUE) {
-		glDrawElements(c->mode, c->count, c->type, (GLvoid *) c->indices_uint);
-	} else {
-		glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
-	}
+    GLSE_SET_COMMAND_PTR(c, glDrawElements);
+    
+    if (c->indices_isnull == TRUE) {
+        glDrawElements(c->mode, c->count, c->type, (GLvoid *) c->indices_uint);
+    } else {
+        glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
+    }
 }
 
 
@@ -385,14 +385,14 @@ void glse_glGetProgramInfoLog()
 
 void glse_glGetProgramiv()
 {
-	GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
-	gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsec_global.tmp_buf.buf;
-	glGetProgramiv(c->program, c->pname, &ret->params);
-	
-	// LOGD("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", c->program, c->pname, &ret->params, ret->params);
-	
-	ret->cmd = GLSC_glGetProgramiv;
-	glse_cmd_send_data(0,sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
+    GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
+    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsec_global.tmp_buf.buf;
+    glGetProgramiv(c->program, c->pname, &ret->params);
+    
+    // LOGD("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", c->program, c->pname, &ret->params, ret->params);
+    
+    ret->cmd = GLSC_glGetProgramiv;
+    glse_cmd_send_data(0,sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -537,8 +537,8 @@ void glse_glShaderSource()
       return;
     }
     stroffset = stroffset + strsize + 1;
-	LOGD("gls debug: shader length = %i\n", strsize);
-	LOGD("%s\n", strptr);
+    LOGD("gls debug: shader length = %i\n", strsize);
+    LOGD("%s\n", strptr);
   }
   LOGD(" ----- ENDED SHADER CONTENT -----\n");
 #endif
@@ -582,7 +582,7 @@ void glse_glTexImage2D()
   int i;
   int *pixInt = (int *) c->pixels;
   for (i = 0; i < c->width; i++) {
-	  LOGD("Pixel[%i]=%p\n", i, pixInt[i]);
+      LOGD("Pixel[%i]=%p\n", i, pixInt[i]);
   }
 */
   glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
@@ -619,8 +619,8 @@ void glse_glUniformMatrix4fv()
 
 void glse_glUseProgram()
 {
-	GLSE_SET_COMMAND_PTR(c, glUseProgram);
-	glUseProgram(c->program);
+    GLSE_SET_COMMAND_PTR(c, glUseProgram);
+    glUseProgram(c->program);
 }
 
 
@@ -628,26 +628,26 @@ void glse_glUseProgram()
 #define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY);
 void glse_glVertexAttribFloat()
 {
-	GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
-	gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsec_global.tmp_buf.buf;
+    GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
+    gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsec_global.tmp_buf.buf;
 
-	if (c->call_arr) {
-		switch (c->num_float) {
-			// FIXME improve this code
-			CASE_VTXATTR_FLOAT_ARR(c->index, 1, dat->arr);
-			CASE_VTXATTR_FLOAT_ARR(c->index, 2, dat->arr);
-			CASE_VTXATTR_FLOAT_ARR(c->index, 3, dat->arr);
-			CASE_VTXATTR_FLOAT_ARR(c->index, 4, dat->arr);
-		}
-	} else {
-		switch (c->num_float) {
-			// FIXME improve this code
-			CASE_VTXATTR_FLOAT(c->index, 1, dat->arr[0]);
-			CASE_VTXATTR_FLOAT(c->index, 2, dat->arr[0], dat->arr[1]);
-			CASE_VTXATTR_FLOAT(c->index, 3, dat->arr[0], dat->arr[1], dat->arr[2]);
-			CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
-		}
-	}
+    if (c->call_arr) {
+        switch (c->num_float) {
+            // FIXME improve this code
+            CASE_VTXATTR_FLOAT_ARR(c->index, 1, dat->arr);
+            CASE_VTXATTR_FLOAT_ARR(c->index, 2, dat->arr);
+            CASE_VTXATTR_FLOAT_ARR(c->index, 3, dat->arr);
+            CASE_VTXATTR_FLOAT_ARR(c->index, 4, dat->arr);
+        }
+    } else {
+        switch (c->num_float) {
+            // FIXME improve this code
+            CASE_VTXATTR_FLOAT(c->index, 1, dat->arr[0]);
+            CASE_VTXATTR_FLOAT(c->index, 2, dat->arr[0], dat->arr[1]);
+            CASE_VTXATTR_FLOAT(c->index, 3, dat->arr[0], dat->arr[1], dat->arr[2]);
+            CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
+        }
+    }
 }
 #undef CASE_VTXATTR_FLOAT
 #undef CASE_VTXATTR_FLOAT_ARR
@@ -655,27 +655,27 @@ void glse_glVertexAttribFloat()
 
 void glse_glVertexAttribPointer()
 {
-	GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
+    GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
 
-	int ptr_str_len = strnlen(c->ptr, 0xA00000);
-	// LOGD("PTR Str len = %i\n", ptr_str_len);
-	
-	glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, ((const GLvoid *) c->ptr_isnull == TRUE ? c->ptr_uint : c->ptr));
+    int ptr_str_len = strnlen(c->ptr, 0xA00000);
+    // LOGD("PTR Str len = %i\n", ptr_str_len);
+    
+    glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, ((const GLvoid *) c->ptr_isnull == TRUE ? c->ptr_uint : c->ptr));
 }
 
 
 void glse_glViewport()
 {
-	GLSE_SET_COMMAND_PTR(c, glViewport);
-	glViewport(c->x, c->y, c->width, c->height);
+    GLSE_SET_COMMAND_PTR(c, glViewport);
+    glViewport(c->x, c->y, c->width, c->height);
 }
 
 /*
 void glse_glIsEnabled()
 {
-	// GLboolean glIsEnabled(	GLenum cap);
-	
-	
+    // GLboolean glIsEnabled(    GLenum cap);
+    
+    
 }
 */
 
@@ -686,8 +686,8 @@ void glse_glIsEnabled()
  */
 void glse_glMapBufferOES()
 {
-	GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
-	glMapBufferOES(c->target, c->access);
+    GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
+    glMapBufferOES(c->target, c->access);
 }
 
 
@@ -718,8 +718,8 @@ void glse_()
 
 
 int gles_flushCommand(gls_command_t *c) {
-	// LOGD("Flushing command %i\n", c->cmd);
-	switch (c->cmd) {
+  // LOGD("Flushing command %i\n", c->cmd);
+  switch (c->cmd) {
       case GLSC_glAttachShader:
         glse_glAttachShader();
         pop_batch_command(sizeof(gls_glAttachShader_t));
@@ -852,7 +852,7 @@ int gles_flushCommand(gls_command_t *c) {
         glse_glViewport();
         pop_batch_command(sizeof(gls_glViewport_t));
         break;
-		
+        
       case GLSC_glBlendFunc:
         glse_glBlendFunc();
         pop_batch_command(sizeof(gls_glBlendFunc_t));
@@ -861,10 +861,10 @@ int gles_flushCommand(gls_command_t *c) {
         glse_glClearDepthf();
         pop_batch_command(sizeof(gls_glClearDepthf_t));
         break;
-	  case GLSC_glCopyTexSubImage2D:
-		glse_glCopyTexSubImage2D();
+      case GLSC_glCopyTexSubImage2D:
+        glse_glCopyTexSubImage2D();
         pop_batch_command(sizeof(gls_glCopyTexSubImage2D_t));
-		break;
+        break;
       case GLSC_glCullFace:
         glse_glCullFace();
         pop_batch_command(sizeof(gls_glCullFace_t));
@@ -907,22 +907,22 @@ int gles_flushCommand(gls_command_t *c) {
         glse_glStencilOp();
         pop_batch_command(sizeof(gls_glStencilOp_t));
         break;
-	  case GLSC_glTexSubImage2D:
-		glse_glTexSubImage2D();
+      case GLSC_glTexSubImage2D:
+        glse_glTexSubImage2D();
         pop_batch_command(((gls_glTexSubImage2D_t *)c)->cmd_size);
-		break;
-		
+        break;
+        
 /*
       case GLSC_glXXX:
         glse_glXXX();
         pop_batch_command(sizeof(gls_glXXX_t));
         break;
 */
-	  default:
-	  	return FALSE;
-	}
-	check_gl_err(c->cmd);
-	return TRUE;
+      default:
+        return FALSE;
+  }
+  check_gl_err(c->cmd);
+  return TRUE;
 }
 
 // FIXME macro below is buggy
@@ -930,61 +930,61 @@ int gles_flushCommand(gls_command_t *c) {
 #define CASE_FLUSH_CMD(FUNCNAME) case GLSC_##FUNCNAME: { glse_##FUNCNAME(); pop_batch_command(sizeof(gls_##FUNCNAME##_t)); break; }
 #define CASE_FLUSH_CMD_SIZE(FUNCNAME) case GLSC_##FUNCNAME: { glse_##FUNCNAME(); pop_batch_command(((gls_##FUNCNAME##_t *)c)->cmd_size); break; }
 int gles_flushCommand(gls_command_t *c) {
-	// LOGD("Flushing command %i\n", c->cmd);
-	switch (c->cmd) {
-		CASE_FLUSH_CMD(glAttachShader);
-		CASE_FLUSH_CMD(glActiveTexture);
-		CASE_FLUSH_CMD(glBindBuffer);
-		CASE_FLUSH_CMD(glBindTexture);
-		CASE_FLUSH_CMD(glBindAttribLocation);
-		CASE_FLUSH_CMD(glBindFramebuffer);
-		CASE_FLUSH_CMD(glBlendFunc);
-		CASE_FLUSH_CMD(glBlendFuncSeparate);
-		CASE_FLUSH_CMD(glBlendEquationSeparate);
-		CASE_FLUSH_CMD(glClear);
-		CASE_FLUSH_CMD(glClearColor);
-		CASE_FLUSH_CMD(glClearDepthf);
-		CASE_FLUSH_CMD(glColorMask);
-		CASE_FLUSH_CMD(glCompileShader);
-		CASE_FLUSH_CMD(glCopyTexSubImage2D);
-		CASE_FLUSH_CMD(glCullFace);
-		CASE_FLUSH_CMD(glDeleteProgram);
-		CASE_FLUSH_CMD(glDeleteShader);
-		CASE_FLUSH_CMD(glDeleteTextures);
-		CASE_FLUSH_CMD(glDepthFunc);
-		CASE_FLUSH_CMD(glDepthMask);
-		CASE_FLUSH_CMD(glDepthRangef);
-		CASE_FLUSH_CMD(glDisable);
-		CASE_FLUSH_CMD(glDisableVertexAttribArray);
-		CASE_FLUSH_CMD(glDrawArrays);
-		CASE_FLUSH_CMD(glDrawElements);
-		CASE_FLUSH_CMD(glEnable);
-		CASE_FLUSH_CMD(glEnableVertexAttribArray);
-		CASE_FLUSH_CMD(glFlush);
-		CASE_FLUSH_CMD(glHint);
-		CASE_FLUSH_CMD(glLineWidth);
-		CASE_FLUSH_CMD(glLinkProgram);
-		CASE_FLUSH_CMD(glPixelStorei);
-		CASE_FLUSH_CMD(glPolygonOffset);
-		CASE_FLUSH_CMD(glStencilFunc);
-		CASE_FLUSH_CMD(glStencilOp);
-		CASE_FLUSH_CMD_SIZE(glTexImage2D);
-		CASE_FLUSH_CMD_SIZE(glTexSubImage2D);
-		CASE_FLUSH_CMD(glTexParameteri);
-		CASE_FLUSH_CMD(glUniform1f);
-		CASE_FLUSH_CMD(glUniform4fv);
-		CASE_FLUSH_CMD(glUniformMatrix4fv);
-		CASE_FLUSH_CMD(glUseProgram);
-		CASE_FLUSH_CMD(glVertexAttribPointer);
-		CASE_FLUSH_CMD(glViewport);
-		CASE_FLUSH_CMD(glMapBufferOES);
-		
-//		CASE_FLUSH_CMD(glCommand);
-	  default:
-	  	return FALSE;
-	}
-	check_gl_err(c->cmd);
-	return TRUE;
+    // LOGD("Flushing command %i\n", c->cmd);
+    switch (c->cmd) {
+        CASE_FLUSH_CMD(glAttachShader);
+        CASE_FLUSH_CMD(glActiveTexture);
+        CASE_FLUSH_CMD(glBindBuffer);
+        CASE_FLUSH_CMD(glBindTexture);
+        CASE_FLUSH_CMD(glBindAttribLocation);
+        CASE_FLUSH_CMD(glBindFramebuffer);
+        CASE_FLUSH_CMD(glBlendFunc);
+        CASE_FLUSH_CMD(glBlendFuncSeparate);
+        CASE_FLUSH_CMD(glBlendEquationSeparate);
+        CASE_FLUSH_CMD(glClear);
+        CASE_FLUSH_CMD(glClearColor);
+        CASE_FLUSH_CMD(glClearDepthf);
+        CASE_FLUSH_CMD(glColorMask);
+        CASE_FLUSH_CMD(glCompileShader);
+        CASE_FLUSH_CMD(glCopyTexSubImage2D);
+        CASE_FLUSH_CMD(glCullFace);
+        CASE_FLUSH_CMD(glDeleteProgram);
+        CASE_FLUSH_CMD(glDeleteShader);
+        CASE_FLUSH_CMD(glDeleteTextures);
+        CASE_FLUSH_CMD(glDepthFunc);
+        CASE_FLUSH_CMD(glDepthMask);
+        CASE_FLUSH_CMD(glDepthRangef);
+        CASE_FLUSH_CMD(glDisable);
+        CASE_FLUSH_CMD(glDisableVertexAttribArray);
+        CASE_FLUSH_CMD(glDrawArrays);
+        CASE_FLUSH_CMD(glDrawElements);
+        CASE_FLUSH_CMD(glEnable);
+        CASE_FLUSH_CMD(glEnableVertexAttribArray);
+        CASE_FLUSH_CMD(glFlush);
+        CASE_FLUSH_CMD(glHint);
+        CASE_FLUSH_CMD(glLineWidth);
+        CASE_FLUSH_CMD(glLinkProgram);
+        CASE_FLUSH_CMD(glPixelStorei);
+        CASE_FLUSH_CMD(glPolygonOffset);
+        CASE_FLUSH_CMD(glStencilFunc);
+        CASE_FLUSH_CMD(glStencilOp);
+        CASE_FLUSH_CMD_SIZE(glTexImage2D);
+        CASE_FLUSH_CMD_SIZE(glTexSubImage2D);
+        CASE_FLUSH_CMD(glTexParameteri);
+        CASE_FLUSH_CMD(glUniform1f);
+        CASE_FLUSH_CMD(glUniform4fv);
+        CASE_FLUSH_CMD(glUniformMatrix4fv);
+        CASE_FLUSH_CMD(glUseProgram);
+        CASE_FLUSH_CMD(glVertexAttribPointer);
+        CASE_FLUSH_CMD(glViewport);
+        CASE_FLUSH_CMD(glMapBufferOES);
+        
+//        CASE_FLUSH_CMD(glCommand);
+      default:
+          return FALSE;
+    }
+    check_gl_err(c->cmd);
+    return TRUE;
 }
 #undef CASE_FLUSH_CMD_SIZE
 #undef CASE_FLUSH_CMD
@@ -992,87 +992,87 @@ int gles_flushCommand(gls_command_t *c) {
 
 
 int gles_executeCommand(gls_command_t *c) {
-	// LOGD("Executing command %i\n", c->cmd);
-	switch (c->cmd) {
-		case GLSC_glBufferData:
-			glse_glBufferData();
-			break;
+    // LOGD("Executing command %i\n", c->cmd);
+    switch (c->cmd) {
+        case GLSC_glBufferData:
+            glse_glBufferData();
+            break;
         case GLSC_glBufferSubData:
-			glse_glBufferSubData();
-			break;
+            glse_glBufferSubData();
+            break;
         case GLSC_glCreateProgram:
-			glse_glCreateProgram();
-			break;
+            glse_glCreateProgram();
+            break;
         case GLSC_glCreateShader:
-			glse_glCreateShader();
-			break;
+            glse_glCreateShader();
+            break;
         case GLSC_glDeleteBuffers:
-			glse_glDeleteBuffers();
-			break;
+            glse_glDeleteBuffers();
+            break;
         case GLSC_glFinish:
-			glse_glFinish();
-			break;
+            glse_glFinish();
+            break;
         case GLSC_glGenBuffers:
-			glse_glGenBuffers();
-			break;
+            glse_glGenBuffers();
+            break;
         case GLSC_glGenTextures:
-			glse_glGenTextures();
-			break;
+            glse_glGenTextures();
+            break;
         case GLSC_glGetActiveAttrib:
-			glse_glGetActiveAttrib();
-			break;
+            glse_glGetActiveAttrib();
+            break;
         case GLSC_glGetActiveUniform:
-			glse_glGetActiveUniform();
-			break;
+            glse_glGetActiveUniform();
+            break;
         case GLSC_glGetAttribLocation:
-			glse_glGetAttribLocation();
-			break;
-		case GLSC_glGetError:
-			glse_glGetError();
-			break;
+            glse_glGetAttribLocation();
+            break;
+        case GLSC_glGetError:
+            glse_glGetError();
+            break;
         case GLSC_glGetFloatv:
-			glse_glGetFloatv();
-			break;
+            glse_glGetFloatv();
+            break;
         case GLSC_glGetIntegerv:
-			glse_glGetIntegerv();
-			break;
+            glse_glGetIntegerv();
+            break;
         case GLSC_glGetProgramInfoLog:
-			glse_glGetProgramInfoLog();
-			break;
+            glse_glGetProgramInfoLog();
+            break;
         case GLSC_glGetProgramiv:
-			glse_glGetProgramiv();
-			break;
+            glse_glGetProgramiv();
+            break;
         case GLSC_glGetShaderInfoLog:
-			glse_glGetShaderInfoLog();
-			break;
+            glse_glGetShaderInfoLog();
+            break;
         case GLSC_glGetShaderiv:
-			glse_glGetShaderiv();
-			break;
+            glse_glGetShaderiv();
+            break;
         case GLSC_glGetString:
-			glse_glGetString();
-			break;
+            glse_glGetString();
+            break;
         case GLSC_glGetUniformLocation:
-			glse_glGetUniformLocation();
-			break;
+            glse_glGetUniformLocation();
+            break;
 #if 0
         case GLSC_glUnmapBufferOES:
-			glse_glUnmapBufferOES();
-			break;
+            glse_glUnmapBufferOES();
+            break;
 #endif
-	// glVertexAttrib*f commands combine
+    // glVertexAttrib*f commands combine
         case GLSC_glVertexAttribFloat:
-			glse_glVertexAttribFloat();
-			break;
+            glse_glVertexAttribFloat();
+            break;
         case GLSC_glReadPixels:
-			glse_glReadPixels();
-			break;
+            glse_glReadPixels();
+            break;
         case GLSC_glShaderSource:
-			glse_glShaderSource();
-			break;
-		default:
-			return FALSE;
-	}
-	check_gl_err(c->cmd);
-	return TRUE;
+            glse_glShaderSource();
+            break;
+    default:
+            return FALSE;
+    }
+    check_gl_err(c->cmd);
+    return TRUE;
 }
 
