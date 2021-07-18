@@ -42,8 +42,8 @@ $(LIB_GLES): $(OBJS)
 
 install:
 	mkdir -p $(GLS_LIB_DIR)
-	cp libGLESv2.so.2 $(GLS_LIB_DIR)/
-	ln -s $(GLS_LIB_DIR)/libGLESv2.so.2 $(GLS_LIB_DIR)/libEGL.so.1; echo "To use streaming, type: export LD_LIBRARY_PATH=$(GLS_LIB_DIR)\nThen you are ready to get hardware acceleration!"
+	cp $(LIB_GLES) $(GLS_LIB_DIR)/
+	ln -s $(GLS_LIB_DIR)/$(LIB_GLES) $(GLS_LIB_DIR)/libEGL.so.1; echo "To use streaming, type: export LD_LIBRARY_PATH=$(GLS_LIB_DIR)\nThen you are ready to get hardware acceleration!"
 
 clean:
 	rm $(EXES) $(OBJS)
