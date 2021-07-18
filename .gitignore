@@ -16,6 +16,8 @@
 *.exe
 *.out
 *.app
+/gl_server/gl_server
+/gl_client/samples/sample[0-9]
 
 # Android app generated files
 android_gl_server/*.s
