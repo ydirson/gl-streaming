@@ -123,10 +123,10 @@ void set_client_user_context(server_context_t *c, void *ptr)
 void set_server_address_port(server_context_t *c, char * addr, uint16_t port)
 {
 #ifdef GLS_SERVER
-	strncpy(c->server_thread_arg.addr, addr, sizeof(c->server_thread_arg.addr));
+	strncpy(c->server_thread_arg.addr, addr, sizeof(c->server_thread_arg.addr) - 1);
 	c->server_thread_arg.port = port;
 #else
-	strncpy(c->addr, addr, sizeof(c->addr));
+	strncpy(c->addr, addr, sizeof(c->addr) - 1);
 	c->port = port;
 #endif
 }
@@ -135,10 +135,10 @@ void set_server_address_port(server_context_t *c, char * addr, uint16_t port)
 void set_client_address_port(server_context_t *c, char * addr, uint16_t port)
 {
 #ifdef GLS_SERVER
-	strncpy(c->popper_thread_arg.addr, addr, sizeof(c->popper_thread_arg.addr));
+	strncpy(c->popper_thread_arg.addr, addr, sizeof(c->popper_thread_arg.addr) - 1);
 	c->popper_thread_arg.port = port;
 #else
-	strncpy(c->bind_addr, addr, sizeof(c->bind_addr));
+	strncpy(c->bind_addr, addr, sizeof(c->bind_addr) - 1);
 	c->bind_port = port;
 #endif
 }
