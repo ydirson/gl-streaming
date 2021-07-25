@@ -118,6 +118,7 @@ int gls_cmd_flip(unsigned int frame);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data);
 int gls_cmd_get_context();
 int gls_cmd_flush();
+int wait_for_data(char *str);
 
 #ifdef __cplusplus
 }
