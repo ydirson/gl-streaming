@@ -5,19 +5,57 @@
   - [x] default window size
   - [x] proper line endings in logs
   - [ ] proper server logging, not hardcoded /sdcard/
-  - [ ] sample2 fails with "Error: Command Flush -10256991"
+  - [ ] enough EGL/GLES2 coverage to use mesa-demos examples
+    - [ ] eglinfo, es2_info support
+    - [ ] egltri support
+    - [ ] es2tri support
+    - [ ] eglgears support
+    - [ ] es2gears support
 - [x] readable indentation
-- [ ] work on native 64bit linux
+- [ ] work on native 64bit platforms
+  - [ ] as a first step include word-size in protocol if needed
+- improve code quality
+  - [ ] take compiler warnings into account
+  - [ ] more readable idioms
+  - [ ] audit string/data-size usages
+  - [ ] replace custom window creation with a standard portable library
+- fixes
+  - [ ] stop passing any kind of pointer over the wire (huge security issue, although
+        we could mitigate that aspect by tracking valid pointer values, but also
+        problematic for 64bit platforms, when casting pointers into 32bit integers...)
+  - [ ] find out which EGL and GLES standard version are precisely covered today
+  - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
+  - [ ] non-stub eglInitialize
+  - [ ] ensure non-modification of output params on error (API compliance)
+  - [ ] don't use GLint in protocol? (specified as platform-dependant, even though
+        Mesa uses 32bit even on 64bit platforms)
+  - [ ] handle window size, create windows on demand, not just a fixed one
+- improve coverage
+  - [ ] full EGL core
+    - [ ] non-stub config handling
+    - [ ] non-default EGLDisplay handling
+    - [ ] non-stub context management
+  - [ ] EGL extension support
+    - [ ] proper GL_OES_mapbuffer implementation
+  - [ ] separate EGL and GLSclient libs out of libGLES2
+  - [ ] full GLES2 core
+  - [ ] GLES2 extension support
+  - [ ] GLES3 ?
+  - [ ] GLX / desktop GL ?
+  - [ ] Vulkan !
 - [ ] update README
 - [ ] consistent coding style
-- [ ] proper extension implementation, glMapBufferOES etc
+
+## medium priority
+
 - [ ] regression testing
-- improve code quality
-  - [ ] more readable idioms
+- performance
+  - [ ] bench
+  - [ ] avoid repeated eglGetCurrentDisplay() calls in serveregl
   - [ ] zero-copy when possible
-- improve coverage
-  - [ ] full GLES2
-  - [ ] GLES3
-  - [ ] GLX / desktop GL ?
 - [ ] consider migrating this inside Mesa and upstreaming
-- [ ] consider alternate transports (eg. virtio-based)
+
+## low priority
+
+- [ ] sample2 causes server to fail with "Error: Command Flush -10256991" when
+      it cannot load its data files (ie. not run from samples dir
