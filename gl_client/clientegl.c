@@ -92,26 +92,21 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
     return ret->error;
 }
 
-EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType display)
+EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 {
-/*
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetDisplay);
-    c->display = display;
+    if (0)
+        // FIXME how should we deal with this?
+        c->native_display = native_display;
+    else
+        c->native_display = EGL_DEFAULT_DISPLAY;
     GLS_SEND_PACKET(eglGetDisplay);
     
     wait_for_data("timeout:eglGetDisplay");
     gls_ret_eglGetDisplay_t *ret = (gls_ret_eglGetDisplay_t *)glsc_global.tmp_buf.buf;
+    fprintf(stderr, "eglGetDisplay: 0x%x\n", ret->display);
     return ret->display;
-*/
-
-#ifdef USE_X11
-    xDisplay = display;
-    xScreenId = DefaultScreen(&xDisplay);
-#endif // USE_X11
-    
-    // Can't getting Android EGL display from Linux Native display?
-    return eglGetCurrentDisplay();
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint *major, EGLint *minor )

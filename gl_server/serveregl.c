@@ -124,6 +124,31 @@ void glse_eglGetError()
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetError_t), (char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglGetDisplay()
+{
+  GLSE_SET_COMMAND_PTR(c, eglGetDisplay);
+  EGLDisplay display;
+  if (c->native_display !=  EGL_DEFAULT_DISPLAY) {
+    fprintf(stderr, "eglGetDisplay: ERROR, only supports EGL_DEFAULT_DISPLAY\n");
+    display = EGL_NO_DISPLAY;
+  } else {
+    if (0)
+      display = eglGetDisplay(c->native_display);
+    else {
+      // FIXME stub to remove when eglInitialize gets unstubbed
+      fprintf(stderr, "eglGetDisplay: faking for single-window mode\n");
+      display = glsec_global.gc->display;
+    }
+  }
+
+  // FIXME should keep track of EGLDisplay values the client is allowed to use
+
+  gls_ret_eglGetDisplay_t *ret = (gls_ret_eglGetDisplay_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglGetDisplay;
+  ret->display = display;
+  glse_cmd_send_data(0,sizeof(gls_ret_eglGetDisplay_t),(char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglInitialize()
 {
   GLSE_SET_COMMAND_PTR(c, eglInitialize);
@@ -211,6 +236,9 @@ int egl_executeCommand(gls_command_t *c) {
             break;
         case GLSC_eglGetError:
             glse_eglGetError();
+            break;
+        case GLSC_eglGetDisplay:
+            glse_eglGetDisplay();
             break;
         case GLSC_eglInitialize:
             glse_eglInitialize();

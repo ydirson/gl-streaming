@@ -365,7 +365,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t display;
+  uint32_t native_display;
 } gls_eglGetDisplay_t;
 
 
