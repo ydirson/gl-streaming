@@ -1,4 +1,4 @@
-CFLAGS=-O3 -Wall -DUSE_X11 -DGLS_SERVER
+CFLAGS=-O3 -Wall -DUSE_X11 -DGLS_SERVER -g
 CFLAGS += -m32
 
 LIBS=-L/opt/vc/lib/ -lX11 -lGLESv2 -lEGL -lpthread -lrt
