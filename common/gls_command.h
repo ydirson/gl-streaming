@@ -432,6 +432,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint32_t is_null;
   char params[GLS_STRING_SIZE_PLUS];
 } gls_ret_eglQueryString_t;
 
