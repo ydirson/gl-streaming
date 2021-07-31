@@ -132,6 +132,7 @@ void glse_eglInitialize()
   
   gls_ret_eglInitialize_t *ret = (gls_ret_eglInitialize_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglInitialize;
+  ret->major = 1; ret->minor = 0; // FIXME stubbed
   ret->success = success;
   glse_cmd_send_data(0,sizeof(gls_ret_eglInitialize_t),(char *)glsec_global.tmp_buf.buf);
 }

@@ -393,14 +393,14 @@ typedef struct
 {
   uint32_t cmd;
   uint32_t dpy;
-  uint32_t major;
-  uint32_t minor;
 } gls_eglInitialize_t;
 
 
 typedef struct
 {
   uint32_t cmd;
+  uint32_t major;
+  uint32_t minor;
   uint32_t success;
 } gls_ret_eglInitialize_t;
 
