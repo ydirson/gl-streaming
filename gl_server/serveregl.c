@@ -42,16 +42,30 @@ void glse_eglBindAPI()
 void glse_eglChooseConfig()
 {
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
-
   gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
-  gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.tmp_buf.buf;
+  EGLint num_config;
+  EGLint* configs = NULL;
+  EGLBoolean success = EGL_TRUE;
+  if (c->config_size) { // our way of passing configs=NULL
+    configs = alloca(c->config_size * sizeof(EGLint));
+    if (!configs) {
+      LOGE("eglChooseConfig: failed to allocate space for %d configs\n", c->config_size);
+      success = EGL_FALSE;
+      num_config = 0;
+    }
+    LOGD("eglChooseConfig: allocated space for %d configs\n", c->config_size);
+  }
+  else LOGD("eglChooseConfig: count only\n");
 
-  // EGLDisplay dpy = eglGetCurrentDisplay();
-  EGLBoolean success = eglChooseConfig(c->dpy, dat->attrib_list, ret->configs, c->config_size, &ret->num_config);
-  
+  if (success)
+    success = eglChooseConfig(c->dpy, dat->attrib_list,
+                              configs, c->config_size, &num_config);
+  LOGD("eglChooseConfig: success=%d, found %d configs\n", success, num_config);
+  gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.tmp_buf.buf;
+  if (success && num_config)
+      memcpy(ret->configs, configs, num_config * sizeof(EGLint));
   ret->success = success;
-  // ret->configs = 
-  // ret->success = EGL_TRUE;
+  ret->num_config = num_config;
   ret->cmd = GLSC_eglChooseConfig;
   glse_cmd_send_data(0,sizeof(gls_ret_eglChooseConfig_t),(char *)glsec_global.tmp_buf.buf);
 }
@@ -61,9 +75,8 @@ void glse_eglGetConfigAttrib()
   GLSE_SET_COMMAND_PTR(c, eglGetConfigAttrib);
   gls_ret_eglGetConfigAttrib_t *ret = (gls_ret_eglGetConfigAttrib_t *)glsec_global.tmp_buf.buf;
   
-  // EGLDisplay dpy = eglGetCurrentDisplay();
   EGLBoolean success = eglGetConfigAttrib(c->dpy, c->config, c->attribute, &ret->value);
-  
+
   ret->cmd = GLSC_eglGetConfigAttrib;
   ret->success = success;
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetConfigAttrib_t),(char *)glsec_global.tmp_buf.buf);
@@ -74,7 +87,6 @@ void glse_eglGetConfigs()
   GLSE_SET_COMMAND_PTR(c, eglGetConfigs);
   gls_ret_eglGetConfigs_t *ret = (gls_ret_eglGetConfigs_t *)glsec_global.tmp_buf.buf;
   
-  // EGLDisplay dpy = eglGetCurrentDisplay();
   EGLBoolean success = eglGetConfigs(c->dpy, ret->configs, c->config_size, &ret->num_config);
   
   ret->cmd = GLSC_eglGetConfigs;

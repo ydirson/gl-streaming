@@ -99,9 +99,6 @@ struct attrib_ptr_s {
 #endif // GLS_EMUL
 
 uint32_t client_egl_error;
-uint32_t client_config_size;
-uint32_t client_config_keys[GLS_DATA_SIZE];
-uint32_t client_config_values[GLS_DATA_SIZE];
 
 float get_diff_time(struct timeval start, struct timeval end);
 int check_batch_overflow(size_t size, const char *msg);

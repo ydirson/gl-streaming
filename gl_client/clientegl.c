@@ -1,6 +1,7 @@
 // This file declare EGL methods for stubs or streaming
 
 #include <dlfcn.h>
+#include <assert.h>
 
 #include "glclient.h"
 
@@ -18,21 +19,6 @@ EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
 
 EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value )
 {
-#ifdef USE_X11
-    if (xDisplay != NULL && attribute == EGL_NATIVE_VISUAL_ID) {
-        *value = XVisualIDFromVisual(XDefaultVisual(xDisplay, xScreenId));
-        return EGL_TRUE;
-    }
-#endif
-    
-    for (int i = 0; i < client_config_size; i+=2) {
-        if (client_config_keys[i] == attribute) {
-            *value = client_config_values[i];
-            return EGL_TRUE;
-        }
-    }
-
-/*
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetConfigAttrib);
     c->dpy = dpy;
@@ -42,15 +28,13 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig conf
     
     wait_for_data("timeout:eglGetConfigAttrib");
     gls_ret_eglGetConfigAttrib_t *ret = (gls_ret_eglGetConfigAttrib_t *)glsc_global.tmp_buf.buf;
-    *value = value;
+    *value = ret->value;
     
     return ret->success;
-*/
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs, EGLint config_size, EGLint *num_config )
 {
-/*
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetConfigs);
     c->dpy = dpy;
@@ -60,19 +44,11 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs,
     wait_for_data("timeout:eglGetConfigs");
     gls_ret_eglGetConfigs_t *ret = (gls_ret_eglGetConfigs_t *)glsc_global.tmp_buf.buf;
     *num_config = ret->num_config;
-    configs = ret->configs;
-    return ret->success;
-*/
-
-    // Build a fake local config
-    if (client_config_size > 0) {
-        *num_config = client_config_size / 2;
-        for (int i = 0; i < client_config_size; i+=2) {
-            configs[i] = &client_config_values[i+1];
-        }
+    if (configs) {
+        assert(*num_config <= config_size);
+        memcpy(configs, ret->configs, *num_config * sizeof(EGLint));
     }
-    
-    return EGL_TRUE;
+    return ret->success;
 }
 
 EGLAPI EGLint EGLAPIENTRY eglGetError( void )
@@ -179,15 +155,24 @@ EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( c
 
 EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config )
 {
-/*
+    unsigned num_attribs;
+    unsigned data_size;
     gls_cmd_flush();
+    // send attrib_list as data packet
     gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsc_global.tmp_buf.buf;
-    memcpy(dat->attrib_list, attrib_list, GLS_DATA_SIZE);
-    gls_cmd_send_data(0, GLS_STRING_SIZE_PLUS, glsc_global.tmp_buf.buf);
+    for (num_attribs = 0; attrib_list[2*num_attribs] != EGL_NONE; num_attribs++);
+    fprintf(stderr, "eglChooseConfig: %d attribs\n", num_attribs);
+    data_size = (num_attribs * 2 + 1) * sizeof(EGLint);
+    assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));
+    memcpy(dat->attrib_list, attrib_list, data_size);
+    gls_cmd_send_data(0, data_size, glsc_global.tmp_buf.buf);
     
     GLS_SET_COMMAND_PTR(c, eglChooseConfig);
     c->dpy = dpy;
-    c->config_size = config_size;
+    if (configs)
+        c->config_size = config_size;
+    else
+        c->config_size = 0;
     GLS_SEND_PACKET(eglChooseConfig);
     
     wait_for_data("timeout:eglChooseConfig");
@@ -196,34 +181,12 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
     
     // printf("eglChooseConfig()=%p. config_size=%i,num_config=%i\n", ret->success, config_size, ret->num_config);
     
-    if (configs != NULL) {
-        *configs = ret->configs;
+    if (configs) {
+        assert(*num_config <= config_size);
+        memcpy(configs, ret->configs, ret->num_config * sizeof(EGLint));
     }
     
     return ret->success;
-*/
-
-    // Build a fake local config
-    size_t config_arr_size = sizeof(attrib_list)/sizeof(attrib_list[0]);
-    if (config_arr_size > 0) {
-        client_config_size = config_arr_size;
-        // Skip the last one if it is EGL_NONE
-        if (attrib_list[client_config_size - 1] == EGL_NONE) {
-            client_config_size -= 1;
-        }
-        
-        // printf("client_config_size=%i\n", client_config_size);
-        *num_config = client_config_size / 2;
-        for (int i = 0; i < client_config_size; i+=2) {
-            if (configs != NULL) configs[i] = &attrib_list[i];
-            client_config_keys[i] = attrib_list[i];
-            client_config_values[i] = attrib_list[i+1];
-        }
-    }
-    
-    return EGL_TRUE;
-    
-    // return eglGetConfigs(dpy, configs, config_size, num_config);
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )

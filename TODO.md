@@ -6,11 +6,11 @@
   - [x] proper line endings in logs
   - [ ] proper server logging, not hardcoded /sdcard/
   - [ ] enough EGL/GLES2 coverage to use mesa-demos examples
-    - [ ] eglinfo, es2_info support
+    - [x] eglinfo, es2_info support
     - [ ] egltri support
     - [ ] es2tri support
     - [ ] eglgears support
-    - [ ] es2gears support
+    - [x] es2gears support
 - [x] readable indentation
 - [ ] work on native 64bit platforms
   - [ ] as a first step include word-size in protocol if needed
@@ -32,7 +32,7 @@
   - [ ] handle window size, create windows on demand, not just a fixed one
 - improve coverage
   - [ ] full EGL core
-    - [ ] non-stub config handling
+    - [x] non-stub config handling
     - [ ] non-default EGLDisplay handling
     - [ ] non-stub context management
   - [ ] EGL extension support
