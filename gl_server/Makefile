@@ -30,4 +30,4 @@ gl_server: main.c glserver.o
 	gcc -o gl_server $(CFLAGS) $(INCLUDES) main.c $(OBJS) $(LIBS)
 
 clean:
-	rm gl_server $(OBJS)
+	rm -f gl_server $(OBJS)
