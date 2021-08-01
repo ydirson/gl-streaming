@@ -62,7 +62,7 @@ void glse_eglChooseConfig()
                               configs, c->config_size, &num_config);
   LOGD("eglChooseConfig: success=%d, found %d configs\n", success, num_config);
   gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.tmp_buf.buf;
-  if (success && num_config)
+  if (success && c->config_size)
       memcpy(ret->configs, configs, num_config * sizeof(EGLint));
   ret->success = success;
   ret->num_config = num_config;
