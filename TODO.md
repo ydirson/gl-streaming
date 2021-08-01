@@ -19,6 +19,12 @@
   - [ ] more readable idioms
   - [ ] audit string/data-size usages
   - [ ] replace custom window creation with a standard portable library
+- improve performance
+  - [ ] make the fifo poll()able instead of using usleep-based active polling
+  - [ ] zero-copy when possible
+    - [ ] replace 2-buffers design by a buffer pool instead of memcpy'ing between
+          network layer and queue layer
+  - [ ] reduce malloc/free
 - fixes
   - [ ] stop passing any kind of pointer over the wire (huge security issue, although
         we could mitigate that aspect by tracking valid pointer values, but also
@@ -52,7 +58,6 @@
 - performance
   - [ ] bench
   - [ ] avoid repeated eglGetCurrentDisplay() calls in serveregl
-  - [ ] zero-copy when possible
 - [ ] consider migrating this inside Mesa and upstreaming
 
 ## low priority
