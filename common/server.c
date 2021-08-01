@@ -49,7 +49,6 @@ void server_init(server_context_t *c)
   c->fifo_packet_size_in_bits = FIFO_PACKET_SIZE_IN_BITS;
   c->fifo_size_in_bits = FIFO_SIZE_IN_BITS;
   c->sleep_usec = SLEEP_USEC;
-  c->max_mbps = MAX_MBPS;
 }
 
 
@@ -104,12 +103,6 @@ void set_fifo_size_in_bits(server_context_t *c, unsigned int bits)
 void set_sleep_time(server_context_t *c, unsigned int usec)
 {
   c->sleep_usec = usec;
-}
-
-
-void set_max_mbps(server_context_t *c, unsigned int mbps)
-{
-  c->max_mbps = mbps;
 }
 
 
@@ -238,8 +231,6 @@ void server_run(server_context_t *ctx, void *(*popper_thread)(void *))
   c->popper_thread_arg.max_packet_size = 1 << c->fifo_packet_size_in_bits;
   c->server_thread_arg.sleep_usec = c->sleep_usec;
   c->popper_thread_arg.sleep_usec = c->sleep_usec;
-  c->server_thread_arg.max_mbps = c->max_mbps;
-  c->popper_thread_arg.max_mbps = c->max_mbps;
   socket_open(c);
   pthread_create(&c->server_th, NULL, (void* (*)(void*))server_thread, &c->server_thread_arg);
   pthread_create(&c->popper_th, NULL, popper_thread, &c->popper_thread_arg);

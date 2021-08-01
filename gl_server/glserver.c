@@ -58,7 +58,6 @@ int send_packet(size_t size)
   {
     return FALSE;
   }
-  gls_sleep(a->max_mbps, size);
   return TRUE;
 }
 

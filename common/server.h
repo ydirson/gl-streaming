@@ -38,7 +38,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SLEEP_USEC 1000
 #define FIFO_SIZE_IN_BITS 10
 #define FIFO_PACKET_SIZE_IN_BITS 11
-#define MAX_MBPS 100
 
 
 // GL_SERVER
@@ -51,7 +50,6 @@ typedef struct
   fifo_t * fifo;
   size_t max_packet_size;
   useconds_t sleep_usec;
-  int max_mbps;
   void * user_context_ptr;
 } server_thread_args_t;
 
@@ -66,7 +64,6 @@ typedef struct
   unsigned int fifo_packet_size_in_bits;
   unsigned int fifo_size_in_bits;
   unsigned int sleep_usec;
-  unsigned int max_mbps;
   
   // GL_SERVER
   server_thread_args_t server_thread_arg, popper_thread_arg;
@@ -89,7 +86,6 @@ extern "C" {
   void set_fifo_packet_size_in_bits(server_context_t *c, unsigned int bits);
   void set_fifo_size_in_bits(server_context_t *c, unsigned int bits);
   void set_sleep_time(server_context_t *c, unsigned int usec);
-  void set_max_mbps(server_context_t *c, unsigned int mbps);
   void set_server_address_port(server_context_t *c, char * addr, uint16_t port);
   void set_client_address_port(server_context_t *c, char * addr, uint16_t port);
   

@@ -1292,11 +1292,3 @@ static inline uint32_t next_ptr(uint32_t ptr, uint32_t size, uint32_t alignment_
 }
 
 
-static inline void gls_sleep(unsigned int max_mbps, unsigned int size)
-{
-  //unsigned int sleeptime = (1.0f / (a->max_mbps * 1024.0f * 1024.0f / 8.0f / (float)(size)) * 1000000.0f) + 1;
-  unsigned int sleeptime = (float)1500.0f * 7.62939453125f / max_mbps + 1.0f;
-  usleep((useconds_t)sleeptime);
-}
-
-
