@@ -198,9 +198,9 @@ void glse_eglQueryString()
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
   if (params) {
     strncpy(ret->params, params, GLS_STRING_SIZE);
-    ret->is_null = 0;
+    ret->success = TRUE;
   } else
-    ret->is_null = 1;
+    ret->success = FALSE;
   glse_cmd_send_data(0,sizeof(gls_ret_eglQueryString_t),(char *)glsec_global.tmp_buf.buf);
 }
 

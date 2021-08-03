@@ -124,12 +124,12 @@ EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
         // we don't support any right now
         // FIXME later will need to query and filter those we support
         strcpy(ret->params, "");
-        ret->is_null = 0;
+        ret->success = TRUE;
         break;
     case EGL_CLIENT_APIS:
         // FIXME would rather query and filter those we support
         strcpy(ret->params, "OpenGL_ES");
-        ret->is_null = 0;
+        ret->success = TRUE;
         break;
     default:
         // EGL_VENDOR, EGL_VERSION: query
@@ -140,7 +140,7 @@ EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
         GLS_SEND_PACKET(eglQueryString);
     
         wait_for_data("timeout:eglQueryString");
-        if (ret->is_null)
+        if (!ret->success)
             return NULL;
     }
     return &ret->params[0];
