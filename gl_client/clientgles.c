@@ -741,17 +741,11 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
 
 GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
 {
-    if (name == GL_VENDOR) {
-        // Change vendor name to gl-streaming.
-        // If want to get hardware vendor, comment out below
-        // return "gl-streaming wrapper";
-    }
-
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetString);
     c->name = name;
     GLS_SEND_PACKET(glGetString);
-    
+
     wait_for_data("timeout:glGetString");
     gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsc_global.tmp_buf.buf;
     // printf("glGetString(%i) return %s\n", name, &ret->params[0]);

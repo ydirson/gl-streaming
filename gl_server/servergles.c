@@ -426,11 +426,31 @@ void glse_glGetString()
 {
   GLSE_SET_COMMAND_PTR(c, glGetString);
   gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsec_global.tmp_buf.buf;
-  const char *params = glGetString(c->name);
+  switch (c->name) {
+  case GL_EXTENSIONS:
+    // we don't support any right now
+    // FIXME later will need to query and filter those we support
+    strcpy(ret->params, "");
+    ret->success = TRUE;
+    break;
+  case GL_VENDOR:
+    // Change vendor name to gl-streaming.
+    // If want to get hardware vendor, comment out below
+    // return "gl-streaming wrapper";
+    // break;
+  default:
+    {
+      const char *params = glGetString(c->name);
+      if (params) {
+        strncpy(ret->params, params, GLS_STRING_SIZE);
+        ret->success = TRUE;
+      } else
+        ret->success = FALSE;
+    }
+  }
   ret->cmd = GLSC_glGetString;
   // LOGD("Client asking for %i, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  strncpy(ret->params, params, GLS_STRING_SIZE);
   glse_cmd_send_data(0,sizeof(gls_ret_glGetString_t),(char *)glsec_global.tmp_buf.buf);
 }
 
