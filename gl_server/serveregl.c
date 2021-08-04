@@ -53,14 +53,11 @@ void glse_eglChooseConfig()
       success = EGL_FALSE;
       num_config = 0;
     }
-    LOGD("eglChooseConfig: allocated space for %d configs\n", c->config_size);
   }
-  else LOGD("eglChooseConfig: count only\n");
 
   if (success)
     success = eglChooseConfig(c->dpy, dat->attrib_list,
                               configs, c->config_size, &num_config);
-  LOGD("eglChooseConfig: success=%d, found %d configs\n", success, num_config);
   gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.tmp_buf.buf;
   if (success && c->config_size)
       memcpy(ret->configs, configs, num_config * sizeof(EGLint));

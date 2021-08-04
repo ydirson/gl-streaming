@@ -161,7 +161,6 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
     // send attrib_list as data packet
     gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsc_global.tmp_buf.buf;
     for (num_attribs = 0; attrib_list[2*num_attribs] != EGL_NONE; num_attribs++);
-    fprintf(stderr, "eglChooseConfig: %d attribs\n", num_attribs);
     data_size = (num_attribs * 2 + 1) * sizeof(EGLint);
     assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));
     memcpy(dat->attrib_list, attrib_list, data_size);
