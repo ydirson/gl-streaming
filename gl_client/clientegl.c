@@ -118,32 +118,17 @@ EGLAPI EGLBoolean EGLAPIENTRY eglTerminate( EGLDisplay dpy )
 
 EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
 {
-    gls_ret_eglQueryString_t *ret = (gls_ret_eglQueryString_t *)glsc_global.tmp_buf.buf;
-    switch (name) {
-    case EGL_EXTENSIONS:
-        // we don't support any right now
-        // FIXME later will need to query and filter those we support
-        strcpy(ret->params, "");
-        ret->success = TRUE;
-        break;
-    case EGL_CLIENT_APIS:
-        // FIXME would rather query and filter those we support
-        strcpy(ret->params, "OpenGL_ES");
-        ret->success = TRUE;
-        break;
-    default:
-        // EGL_VENDOR, EGL_VERSION: query
-        gls_cmd_flush();
-        GLS_SET_COMMAND_PTR(c, eglQueryString);
-        c->dpy = dpy;
-        c->name = name;
-        GLS_SEND_PACKET(eglQueryString);
+    gls_cmd_flush();
+    GLS_SET_COMMAND_PTR(c, eglQueryString);
+    c->dpy = dpy;
+    c->name = name;
+    GLS_SEND_PACKET(eglQueryString);
     
-        wait_for_data("timeout:eglQueryString");
-        if (!ret->success)
-            return NULL;
-    }
-    return &ret->params[0];
+    wait_for_data("timeout:eglQueryString");
+    gls_ret_eglQueryString_t *ret = (gls_ret_eglQueryString_t *)glsc_global.tmp_buf.buf;
+    if (!ret->success)
+        return NULL;
+    return ret->params;
 }
 
 

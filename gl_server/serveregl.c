@@ -188,16 +188,33 @@ void glse_eglQueryString()
   GLSE_SET_COMMAND_PTR(c, eglQueryString);
   gls_ret_eglQueryString_t *ret = (gls_ret_eglQueryString_t *)glsec_global.tmp_buf.buf;
   
-  const char *params = eglQueryString(c->dpy, c->name);
-  
+  switch (c->name) {
+  case EGL_EXTENSIONS:
+    // we don't support any right now
+    // FIXME later will need to query and filter those we support
+    strcpy(ret->params, "");
+    ret->success = TRUE;
+    break;
+  case EGL_CLIENT_APIS:
+    // FIXME would rather query and filter those we support
+    strcpy(ret->params, "OpenGL_ES");
+    ret->success = TRUE;
+    break;
+  default:
+    // EGL_VENDOR, EGL_VERSION: query
+    {
+      const char *params = eglQueryString(c->dpy, c->name);
+      if (params) {
+        strncpy(ret->params, params, GLS_STRING_SIZE);
+        ret->success = TRUE;
+      } else
+        ret->success = FALSE;
+    }
+  }
+
   ret->cmd = GLSC_eglQueryString;
   // LOGD("Client asking for 0x%04x, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  if (params) {
-    strncpy(ret->params, params, GLS_STRING_SIZE);
-    ret->success = TRUE;
-  } else
-    ret->success = FALSE;
   glse_cmd_send_data(0,sizeof(gls_ret_eglQueryString_t),(char *)glsec_global.tmp_buf.buf);
 }
 
