@@ -39,6 +39,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glcontrol.h"
 
+#ifdef USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+Display *xDisplay;
+int xScreenId;
+#endif // USE_X11
+
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value; 
 const char* eglGetErrorString(EGLint err)

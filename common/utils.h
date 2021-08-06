@@ -8,18 +8,6 @@ ANativeWindow* glsurfaceview_window;
 
 #endif // __ANDROID__
 
-#ifdef USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
-Display *xDisplay;
-int xScreenId;
-#if defined(GLS_SERVER) || !defined(USE_SERVER_SIZE)
-Window xWindow;
-#endif // GLS_SERVER || !USE_SERVER_SIZE
-
-#endif // USE_X11
-
 #ifdef GLS_SERVER
 int glsurfaceview_width;
 int glsurfaceview_height;

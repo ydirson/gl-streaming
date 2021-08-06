@@ -6,6 +6,10 @@
 
 #include "glclient.h"
 
+#if defined(USE_X11) && !defined(USE_SERVER_SIZE)
+Window xWindow;
+#endif
+
 EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
 {
     gls_cmd_flush();
