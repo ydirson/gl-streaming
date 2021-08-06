@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <assert.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "glcontrol.h"
 

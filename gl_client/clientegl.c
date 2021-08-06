@@ -2,6 +2,7 @@
 
 #include <dlfcn.h>
 #include <assert.h>
+#include <string.h>
 
 #include "glclient.h"
 

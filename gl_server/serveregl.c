@@ -26,7 +26,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This file declare EGL methods on server side
 
 #include "glserver.h"
-
+#include <string.h>
+#include <alloca.h>
 
 void glse_eglBindAPI()
 {
