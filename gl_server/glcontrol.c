@@ -335,7 +335,8 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
 #endif
 
    if (!*surfRet) {
-      printf("Error: eglCreateWindowSurface failed: %p\n", eglGetError());
+      printf("Error: eglCreateWindowSurface failed: %s\n",
+             eglGetErrorString(eglGetError()));
       exit(1);
    }
 
