@@ -6,6 +6,9 @@
 #include "glclient.h"
 #include "GLES2/gl2.h"
 
+#ifdef GLS_EMULATE_VBO
+static struct vbo_state vbo;
+#endif
 
 GL_APICALL void GL_APIENTRY glActiveTexture (GLenum texture)
 {

@@ -83,10 +83,10 @@ extern "C" {
 gls_context_t glsc_global;
 
 #ifdef GLS_EMULATE_VBO
-static struct vbo_state
+struct vbo_state
 {
     GLuint vbo, ibo, ibo_emu;
-} vbo;
+};
 struct attrib_ptr_s {
     GLboolean   isenabled;
     GLint       size;
