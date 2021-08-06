@@ -431,7 +431,7 @@ void glse_glGetString()
   case GL_EXTENSIONS:
     // we don't support any right now
     // FIXME later will need to query and filter those we support
-    strcpy(ret->params, "");
+    strcpy((char*)ret->params, "");
     ret->success = TRUE;
     break;
   case GL_VENDOR:
@@ -441,9 +441,9 @@ void glse_glGetString()
     // break;
   default:
     {
-      const char *params = glGetString(c->name);
+      const unsigned char *params = glGetString(c->name);
       if (params) {
-        strncpy(ret->params, params, GLS_STRING_SIZE);
+        strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
         ret->success = TRUE;
       } else
         ret->success = FALSE;
