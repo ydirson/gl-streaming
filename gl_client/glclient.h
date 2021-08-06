@@ -36,8 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/Xlib.h>
 #endif
 
-#include "EGL/egl.h"
-#include "GLES2/gl2.h"
 #include "gls_command.h"
 #include "server.h"
 

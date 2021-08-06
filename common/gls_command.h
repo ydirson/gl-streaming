@@ -32,6 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <stdint.h>
 
+#include "EGL/egl.h"
+#include "GLES2/gl2.h"
 
 #define GLS_TMP_BUFFER_SIZE 2097152
 #define GLS_DATA_SIZE 356
