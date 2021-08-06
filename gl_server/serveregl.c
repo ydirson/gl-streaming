@@ -161,8 +161,8 @@ void glse_eglGetDisplay()
 
 void glse_eglInitialize()
 {
-  GLSE_SET_COMMAND_PTR(c, eglInitialize);
   EGLBoolean success = EGL_TRUE; // Current stub instead of real init
+  // GLSE_SET_COMMAND_PTR(c, eglInitialize);
   // eglInitialize(c->dpy, c->major, c->minor);
   
   gls_ret_eglInitialize_t *ret = (gls_ret_eglInitialize_t *)glsec_global.tmp_buf.buf;
@@ -233,10 +233,10 @@ void glse_eglQuerySurface()
 
 void glse_eglTerminate()
 {
-  GLSE_SET_COMMAND_PTR(c, eglTerminate);
   gls_ret_eglTerminate_t *ret = (gls_ret_eglTerminate_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglTerminate;
   ret->success = EGL_TRUE; // Current stub instead of real init
+  // GLSE_SET_COMMAND_PTR(c, eglTerminate);
   // eglTerminate(c->dpy);
   
   glse_cmd_send_data(0,sizeof(gls_ret_eglTerminate_t),(char *)glsec_global.tmp_buf.buf);
