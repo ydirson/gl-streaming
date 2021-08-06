@@ -339,7 +339,7 @@ static void wes_vertex_attrib_pointer(int i, int count)
     {
         // reuse existing array
         glBindBuffer( GL_ARRAY_BUFFER, vt_attrib_pointer[0].webgl_vbo_id );
-        glVertexAttribPointer(i, vt_attrib_pointer[i].size, vt_attrib_pointer[i].type, vt_attrib_pointer[i].normalized, vt_attrib_pointer[i].stride, ptrdiff);
+        glVertexAttribPointer(i, vt_attrib_pointer[i].size, vt_attrib_pointer[i].type, vt_attrib_pointer[i].normalized, vt_attrib_pointer[i].stride, (void*)ptrdiff);
     }
     else
     {
