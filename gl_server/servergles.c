@@ -645,8 +645,8 @@ void glse_glUseProgram()
 }
 
 
-#define CASE_VTXATTR_FLOAT(INDEX, FLOAT_INDX, ...) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##f(INDEX, __VA_ARGS__); break;
-#define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY);
+#define CASE_VTXATTR_FLOAT(INDEX, FLOAT_INDX, ...) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##f(INDEX, __VA_ARGS__); break
+#define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY); break
 void glse_glVertexAttribFloat()
 {
     GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
