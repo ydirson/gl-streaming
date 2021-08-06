@@ -60,6 +60,8 @@ extern glse_context_t glsec_global;
 void pop_batch_command(size_t size);
 void * glserver_thread(void * arg);
 
+int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data);
+
 int egl_executeCommand(gls_command_t *c);
 int egl_flushCommand(gls_command_t *c);
 
