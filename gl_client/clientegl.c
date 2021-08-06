@@ -206,7 +206,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 {
     // This fix size assert in `es2gears` and `es2tri`.
 #if !defined(GLS_USE_SRVSIZE) && defined(USE_X11)
-    if (xDisplay != NULL && xWindow != NULL && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
+    if (xDisplay != NULL && xWindow != 0 && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
         XWindowAttributes xWindowAttrs;
         if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
             printf("Warning: XGetWindowAttributes failed!");
