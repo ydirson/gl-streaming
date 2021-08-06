@@ -507,7 +507,7 @@ void glse_glReadPixels()
   GLSE_SET_COMMAND_PTR(c, glReadPixels);
   gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsec_global.tmp_buf.buf;
   glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
-  ret->cmd = glReadPixels;
+  ret->cmd = GLSC_glReadPixels;
   glse_cmd_send_data(0, sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.tmp_buf.buf);
   
   // gls_cmd_send_data(0, (uint32_t) (c->width * c->height) /* correct??? */ , (void *)ret->pixels);
