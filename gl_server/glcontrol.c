@@ -231,7 +231,7 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
 {
    if (!eglInitialize(egl_dpy, NULL, NULL)) {
       printf("Error: eglInitialize() failed\n");
-      return -1;
+      exit(1);
    }
     
    static const EGLint attribs[] = {
