@@ -110,7 +110,6 @@ void base_check_gl_err(char* funcname) {
 void init_egl(graphics_context_t *gc)
 {
   EGLBoolean r;
-  EGLint num_config;
 
 #ifdef RASPBERRY_PI
   VC_RECT_T dst_rect;

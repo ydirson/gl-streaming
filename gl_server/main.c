@@ -86,7 +86,6 @@ int main(int argc, char * argv[])
 void init_android_main()
 {
   static server_context_t sc;
-  int opt;
   char server_ip[GLS_STRING_SIZE_PLUS];
   char client_ip[GLS_STRING_SIZE_PLUS];
   uint16_t server_port = var_server_port;
