@@ -30,10 +30,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include "fastlog.h"
+#include "utils.h"
+
 #include "GLES2/gl2.h"
 #include "EGL/egl.h"
-#include "EGL/eglext.h"
-#include "utils.h"
+//#include "EGL/eglext.h"
 
 typedef struct
 {

@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This file declare OpenGL ES methods on server side
 
 #include "glserver.h"
+#include <string.h>
 
 
 void glse_glActiveTexture()
@@ -430,7 +431,7 @@ void glse_glGetString()
   case GL_EXTENSIONS:
     // we don't support any right now
     // FIXME later will need to query and filter those we support
-    strcpy(ret->params, "");
+    strcpy((char*)ret->params, "");
     ret->success = TRUE;
     break;
   case GL_VENDOR:
@@ -440,9 +441,9 @@ void glse_glGetString()
     // break;
   default:
     {
-      const char *params = glGetString(c->name);
+      const unsigned char *params = glGetString(c->name);
       if (params) {
-        strncpy(ret->params, params, GLS_STRING_SIZE);
+        strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
         ret->success = TRUE;
       } else
         ret->success = FALSE;
@@ -506,7 +507,7 @@ void glse_glReadPixels()
   GLSE_SET_COMMAND_PTR(c, glReadPixels);
   gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsec_global.tmp_buf.buf;
   glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
-  ret->cmd = glReadPixels;
+  ret->cmd = GLSC_glReadPixels;
   glse_cmd_send_data(0, sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.tmp_buf.buf);
   
   // gls_cmd_send_data(0, (uint32_t) (c->width * c->height) /* correct??? */ , (void *)ret->pixels);
@@ -644,8 +645,8 @@ void glse_glUseProgram()
 }
 
 
-#define CASE_VTXATTR_FLOAT(INDEX, FLOAT_INDX, ...) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##f(INDEX, __VA_ARGS__); break;
-#define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY);
+#define CASE_VTXATTR_FLOAT(INDEX, FLOAT_INDX, ...) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##f(INDEX, __VA_ARGS__); break
+#define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY); break
 void glse_glVertexAttribFloat()
 {
     GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
@@ -677,10 +678,11 @@ void glse_glVertexAttribPointer()
 {
     GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
 
-    int ptr_str_len = strnlen(c->ptr, 0xA00000);
+    // int ptr_str_len = strnlen(c->ptr, 0xA00000);
     // LOGD("PTR Str len = %i\n", ptr_str_len);
     
-    glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride, ((const GLvoid *) c->ptr_isnull == TRUE ? c->ptr_uint : c->ptr));
+    glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride,
+                          ((const GLvoid *) (c->ptr_isnull == TRUE ? (void*)c->ptr_uint : c->ptr)));
 }
 
 

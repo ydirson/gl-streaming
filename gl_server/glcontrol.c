@@ -35,8 +35,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <assert.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "glcontrol.h"
+
+#ifdef USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+Display *xDisplay;
+int xScreenId;
+#endif // USE_X11
 
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value; 
@@ -59,7 +68,7 @@ const char* eglGetErrorString(EGLint err)
         CASE_STRING( EGL_BAD_NATIVE_WINDOW   )
         CASE_STRING( EGL_CONTEXT_LOST        )
         
-        default: return ("EGL_BAD_ERROR_%p", err);
+        default: return ("UNKNOWN EGL ERROR");
     }
 }
 const char* glGetErrorString(GLenum err)
@@ -74,7 +83,7 @@ const char* glGetErrorString(GLenum err)
         case 0x8065: /* not core */ return "GL_TEXTURE_TOO_LARGE_EXT";
         CASE_STRING(GL_INVALID_FRAMEBUFFER_OPERATION)
         
-        default: return("GL_BAD_ERROR_%p", err);
+        default: return ("UNKNOWN GL ERROR");
     }
 }
 #undef CASE_STRING
@@ -101,7 +110,6 @@ void base_check_gl_err(char* funcname) {
 void init_egl(graphics_context_t *gc)
 {
   EGLBoolean r;
-  EGLint num_config;
 
 #ifdef RASPBERRY_PI
   VC_RECT_T dst_rect;
@@ -223,7 +231,7 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
 {
    if (!eglInitialize(egl_dpy, NULL, NULL)) {
       printf("Error: eglInitialize() failed\n");
-      return -1;
+      exit(1);
    }
     
    static const EGLint attribs[] = {
@@ -327,7 +335,8 @@ void make_egl_base(EGLDisplay egl_dpy, EGLContext *ctxRet, EGLSurface *surfRet)
 #endif
 
    if (!*surfRet) {
-      printf("Error: eglCreateWindowSurface failed: %p\n", eglGetError());
+      printf("Error: eglCreateWindowSurface failed: %s\n",
+             eglGetErrorString(eglGetError()));
       exit(1);
    }
 

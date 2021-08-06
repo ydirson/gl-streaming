@@ -1,4 +1,4 @@
-CFLAGS=-O3 -Wall -I../common -I. -I./include -fPIC -g
+CFLAGS=-O3 -Wall -I../common -I. -I./include -fPIC -g -Werror
 CFLAGS += -m32
 
 # Use X11

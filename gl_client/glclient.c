@@ -35,6 +35,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glclient.h"
 
+#ifdef USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+Display *xDisplay;
+int xScreenId;
+#endif
+
 
 float get_diff_time(struct timeval start, struct timeval end)
 {

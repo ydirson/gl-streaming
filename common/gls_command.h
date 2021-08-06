@@ -32,6 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <stdint.h>
 
+#include "EGL/egl.h"
+#include "GLES2/gl2.h"
 
 #define GLS_TMP_BUFFER_SIZE 2097152
 #define GLS_DATA_SIZE 356
@@ -235,10 +237,17 @@ typedef struct
 // EGL command data
 typedef struct
 {
-  uint32_t attrib_list[GLS_DATA_SIZE];
+  int32_t attrib_list[GLS_DATA_SIZE];
 } gls_data_egl_attriblist_t;
  
 // EGL commands
+
+_Static_assert(sizeof(EGLDisplay) == sizeof(uint32_t), "wrong EGLDisplay size");
+_Static_assert(sizeof(NativeDisplayType) == sizeof(uint32_t), "wrong NativeDisplayType size");
+_Static_assert(sizeof(EGLConfig) == sizeof(uint32_t), "wrong EGLConfig size");
+_Static_assert(sizeof(EGLContext) == sizeof(uint32_t), "wrong EGLContext size");
+_Static_assert(sizeof(EGLSurface) == sizeof(uint32_t), "wrong EGLSurface size");
+
 typedef struct
 {
   uint32_t cmd;
@@ -291,14 +300,14 @@ typedef struct
   uint32_t cmd;
   uint32_t dpy;
   uint32_t config;
-  uint32_t attribute;
+  int32_t attribute;
 } gls_eglGetConfigAttrib_t;
 
 
 typedef struct
 {
   uint32_t cmd;
-  uint32_t value;
+  int32_t value;
   uint32_t success;
 } gls_ret_eglGetConfigAttrib_t;
 
@@ -315,7 +324,7 @@ typedef struct
 {
   uint32_t cmd;
   uint32_t configs[GLS_DATA_SIZE];
-  uint32_t num_config;
+  int32_t num_config;
   uint32_t success;
 } gls_ret_eglGetConfigs_t;
 
@@ -414,7 +423,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t value;
+  int32_t value;
   uint32_t success;
 } gls_ret_eglQueryContext_t;
 
@@ -447,7 +456,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t value;
+  int32_t value;
   uint32_t success;
 } gls_ret_eglQuerySurface_t;
 
@@ -925,7 +934,7 @@ typedef struct
 {
   uint32_t cmd;
   uint32_t success;
-  char params[GLS_STRING_SIZE_PLUS];
+  unsigned char params[GLS_STRING_SIZE_PLUS];
 } gls_ret_glGetString_t;
 
 

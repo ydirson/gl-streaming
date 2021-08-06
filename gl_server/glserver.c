@@ -174,7 +174,7 @@ void * glserver_thread(void * arg)
 #ifdef __ANDROID__
   assert (glsurfaceview_window != NULL);
   gc.d_window = glsurfaceview_window;
-#endif __ANDROID__
+#endif
   init_egl(&gc);
 
   glsec_global.sta = a;

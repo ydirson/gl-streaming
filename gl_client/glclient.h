@@ -34,10 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef USE_X11
 #include <X11/X.h>
 #include <X11/Xlib.h>
+
+extern Display *xDisplay;
+extern int xScreenId;
 #endif
 
-#include "EGL/egl.h"
-#include "GLES2/gl2.h"
 #include "gls_command.h"
 #include "server.h"
 
@@ -83,10 +84,10 @@ extern "C" {
 gls_context_t glsc_global;
 
 #ifdef GLS_EMULATE_VBO
-static struct vbo_state
+struct vbo_state
 {
     GLuint vbo, ibo, ibo_emu;
-} vbo;
+};
 struct attrib_ptr_s {
     GLboolean   isenabled;
     GLint       size;

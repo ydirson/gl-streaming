@@ -26,7 +26,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This file declare EGL methods on server side
 
 #include "glserver.h"
-
+#include <string.h>
+#include <alloca.h>
 
 void glse_eglBindAPI()
 {
@@ -44,10 +45,10 @@ void glse_eglChooseConfig()
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
   gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
   EGLint num_config;
-  EGLint* configs = NULL;
+  EGLConfig* configs = NULL;
   EGLBoolean success = EGL_TRUE;
   if (c->config_size) { // our way of passing configs=NULL
-    configs = alloca(c->config_size * sizeof(EGLint));
+    configs = alloca(c->config_size * sizeof(EGLConfig));
     if (!configs) {
       LOGE("eglChooseConfig: failed to allocate space for %d configs\n", c->config_size);
       success = EGL_FALSE;
@@ -56,7 +57,7 @@ void glse_eglChooseConfig()
   }
 
   if (success)
-    success = eglChooseConfig(c->dpy, dat->attrib_list,
+    success = eglChooseConfig((EGLDisplay)c->dpy, dat->attrib_list,
                               configs, c->config_size, &num_config);
   gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.tmp_buf.buf;
   if (success && c->config_size)
@@ -72,7 +73,8 @@ void glse_eglGetConfigAttrib()
   GLSE_SET_COMMAND_PTR(c, eglGetConfigAttrib);
   gls_ret_eglGetConfigAttrib_t *ret = (gls_ret_eglGetConfigAttrib_t *)glsec_global.tmp_buf.buf;
   
-  EGLBoolean success = eglGetConfigAttrib(c->dpy, c->config, c->attribute, &ret->value);
+  EGLBoolean success = eglGetConfigAttrib((EGLDisplay)c->dpy, (EGLConfig)c->config,
+                                          c->attribute, &ret->value);
 
   ret->cmd = GLSC_eglGetConfigAttrib;
   ret->success = success;
@@ -84,7 +86,7 @@ void glse_eglGetConfigs()
   GLSE_SET_COMMAND_PTR(c, eglGetConfigs);
   gls_ret_eglGetConfigs_t *ret = (gls_ret_eglGetConfigs_t *)glsec_global.tmp_buf.buf;
   
-  EGLBoolean success = eglGetConfigs(c->dpy, ret->configs, c->config_size, &ret->num_config);
+  EGLBoolean success = eglGetConfigs((EGLDisplay)c->dpy, (EGLConfig*)ret->configs, c->config_size, &ret->num_config);
   
   ret->cmd = GLSC_eglGetConfigs;
   ret->success = success;
@@ -97,7 +99,7 @@ void glse_eglGetCurrentContext()
   
   gls_ret_eglGetCurrentContext_t *ret = (gls_ret_eglGetCurrentContext_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetCurrentContext;
-  ret->context = context;
+  ret->context = (uint32_t)context;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentContext_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -107,7 +109,7 @@ void glse_eglGetCurrentDisplay()
   
   gls_ret_eglGetCurrentDisplay_t *ret = (gls_ret_eglGetCurrentDisplay_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetCurrentDisplay;
-  ret->display = display;
+  ret->display = (uint32_t)display;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentDisplay_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -118,7 +120,7 @@ void glse_eglGetCurrentSurface()
   
   gls_ret_eglGetCurrentSurface_t *ret = (gls_ret_eglGetCurrentSurface_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetCurrentSurface;
-  ret->surface = surface;
+  ret->surface = (uint32_t)surface;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentSurface_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -137,12 +139,12 @@ void glse_eglGetDisplay()
 {
   GLSE_SET_COMMAND_PTR(c, eglGetDisplay);
   EGLDisplay display;
-  if (c->native_display !=  EGL_DEFAULT_DISPLAY) {
+  if (c->native_display != (uint32_t)EGL_DEFAULT_DISPLAY) {
     fprintf(stderr, "eglGetDisplay: ERROR, only supports EGL_DEFAULT_DISPLAY\n");
     display = EGL_NO_DISPLAY;
   } else {
     if (0)
-      display = eglGetDisplay(c->native_display);
+      display = eglGetDisplay((EGLNativeDisplayType)c->native_display);
     else {
       // FIXME stub to remove when eglInitialize gets unstubbed
       fprintf(stderr, "eglGetDisplay: faking for single-window mode\n");
@@ -154,15 +156,15 @@ void glse_eglGetDisplay()
 
   gls_ret_eglGetDisplay_t *ret = (gls_ret_eglGetDisplay_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetDisplay;
-  ret->display = display;
+  ret->display = (uint32_t)display;
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetDisplay_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 void glse_eglInitialize()
 {
-  GLSE_SET_COMMAND_PTR(c, eglInitialize);
   EGLBoolean success = EGL_TRUE; // Current stub instead of real init
-  // eglInitialize(c->dpy, c->major, c->minor);
+  // GLSE_SET_COMMAND_PTR(c, eglInitialize);
+  // eglInitialize((EGLDisplay)c->dpy, c->major, c->minor);
   
   gls_ret_eglInitialize_t *ret = (gls_ret_eglInitialize_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglInitialize;
@@ -176,7 +178,8 @@ void glse_eglQueryContext()
   GLSE_SET_COMMAND_PTR(c, eglQueryContext);
   gls_ret_eglQueryContext_t *ret = (gls_ret_eglQueryContext_t *)glsec_global.tmp_buf.buf;
   
-  EGLBoolean success = eglQueryContext(c->dpy, c->ctx, c->attribute, &ret->value);
+  EGLBoolean success = eglQueryContext((EGLDisplay)c->dpy, (EGLContext)c->ctx,
+                                       c->attribute, &ret->value);
   
   ret->cmd = GLSC_eglQueryContext;
   ret->success = success;
@@ -203,7 +206,7 @@ void glse_eglQueryString()
   default:
     // EGL_VENDOR, EGL_VERSION: query
     {
-      const char *params = eglQueryString(c->dpy, c->name);
+      const char *params = eglQueryString((EGLDisplay)c->dpy, c->name);
       if (params) {
         strncpy(ret->params, params, GLS_STRING_SIZE);
         ret->success = TRUE;
@@ -223,7 +226,8 @@ void glse_eglQuerySurface()
   GLSE_SET_COMMAND_PTR(c, eglQuerySurface);
   gls_ret_eglQuerySurface_t *ret = (gls_ret_eglQuerySurface_t *)glsec_global.tmp_buf.buf;
   
-  EGLBoolean success = eglQuerySurface(c->dpy, c->surface, c->attribute, &ret->value);
+  EGLBoolean success = eglQuerySurface((EGLDisplay)c->dpy, (EGLSurface)c->surface,
+                                       c->attribute, &ret->value);
   
   ret->cmd = GLSC_eglQuerySurface;
   ret->success = success;
@@ -232,11 +236,11 @@ void glse_eglQuerySurface()
 
 void glse_eglTerminate()
 {
-  GLSE_SET_COMMAND_PTR(c, eglTerminate);
   gls_ret_eglTerminate_t *ret = (gls_ret_eglTerminate_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglTerminate;
   ret->success = EGL_TRUE; // Current stub instead of real init
-  // eglTerminate(c->dpy);
+  // GLSE_SET_COMMAND_PTR(c, eglTerminate);
+  // eglTerminate((EGLDisplay)c->dpy);
   
   glse_cmd_send_data(0,sizeof(gls_ret_eglTerminate_t),(char *)glsec_global.tmp_buf.buf);
 }
