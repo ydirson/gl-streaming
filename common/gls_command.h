@@ -237,7 +237,7 @@ typedef struct
 // EGL command data
 typedef struct
 {
-  uint32_t attrib_list[GLS_DATA_SIZE];
+  int32_t attrib_list[GLS_DATA_SIZE];
 } gls_data_egl_attriblist_t;
  
 // EGL commands
@@ -300,14 +300,14 @@ typedef struct
   uint32_t cmd;
   uint32_t dpy;
   uint32_t config;
-  uint32_t attribute;
+  int32_t attribute;
 } gls_eglGetConfigAttrib_t;
 
 
 typedef struct
 {
   uint32_t cmd;
-  uint32_t value;
+  int32_t value;
   uint32_t success;
 } gls_ret_eglGetConfigAttrib_t;
 
@@ -324,7 +324,7 @@ typedef struct
 {
   uint32_t cmd;
   uint32_t configs[GLS_DATA_SIZE];
-  uint32_t num_config;
+  int32_t num_config;
   uint32_t success;
 } gls_ret_eglGetConfigs_t;
 
@@ -423,7 +423,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t value;
+  int32_t value;
   uint32_t success;
 } gls_ret_eglQueryContext_t;
 
@@ -456,7 +456,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t value;
+  int32_t value;
   uint32_t success;
 } gls_ret_eglQuerySurface_t;
 
