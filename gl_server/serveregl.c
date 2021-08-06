@@ -45,10 +45,10 @@ void glse_eglChooseConfig()
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
   gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
   EGLint num_config;
-  EGLint* configs = NULL;
+  EGLConfig* configs = NULL;
   EGLBoolean success = EGL_TRUE;
   if (c->config_size) { // our way of passing configs=NULL
-    configs = alloca(c->config_size * sizeof(EGLint));
+    configs = alloca(c->config_size * sizeof(EGLConfig));
     if (!configs) {
       LOGE("eglChooseConfig: failed to allocate space for %d configs\n", c->config_size);
       success = EGL_FALSE;
