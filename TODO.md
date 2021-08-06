@@ -15,7 +15,7 @@
 - [ ] work on native 64bit platforms
   - [ ] as a first step include word-size in protocol if needed
 - improve code quality
-  - [ ] take compiler warnings into account
+  - [.] take compiler warnings into account
   - [ ] more readable idioms
   - [ ] audit string/data-size usages
   - [ ] replace custom window creation with a standard portable library
