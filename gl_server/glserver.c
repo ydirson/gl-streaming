@@ -194,7 +194,8 @@ void * glserver_thread(void * arg)
       gls_command_t *c = (gls_command_t *)popptr;
       glsec_global.cmd_data = c;
 #ifdef GL_DEBUG
-      fprintf(fl,"@MainLoop: Attempting to execute command %i \n",c->cmd);
+      fprintf(fl, "@MainLoop: Attempting to execute command %d (%s)\n",
+              c->cmd, GLSC_tostring(c->cmd));
 #endif
 
       switch (c->cmd) {

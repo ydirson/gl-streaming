@@ -718,7 +718,9 @@ void glse_()
 
 
 int gles_flushCommand(gls_command_t *c) {
-  // LOGD("Flushing command %i\n", c->cmd);
+#ifdef DEBUG
+  LOGD("Flushing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+#endif
   switch (c->cmd) {
       case GLSC_glAttachShader:
         glse_glAttachShader();
@@ -992,7 +994,10 @@ int gles_flushCommand(gls_command_t *c) {
 
 
 int gles_executeCommand(gls_command_t *c) {
-    // LOGD("Executing command %i\n", c->cmd);
+#ifdef DEBUG
+    LOGD("gles_executeCommand: Executing command %d (%s)\n",
+         c->cmd, GLSC_tostring(c->cmd));
+#endif
     switch (c->cmd) {
         case GLSC_glBufferData:
             glse_glBufferData();
