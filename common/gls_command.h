@@ -1094,7 +1094,7 @@ typedef struct
 
 typedef struct
 {
-  uint32_t string[GLS_STRING_SIZE_PLUS];
+  uint32_t offsets[GLS_STRING_SIZE_PLUS];
   int32_t length[GLS_STRING_SIZE_PLUS];
   char data[4];
 } gls_data_glShaderSource_t;

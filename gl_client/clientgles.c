@@ -828,7 +828,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
       printf("gls error: shader buffer size overflow!\n");
       return;
     }
-    dat->string[i] = stroffset;
+    dat->offsets[i] = stroffset;
     dat->length[i] = strsize;
     memcpy(&dat->data[stroffset], strptr, strsize + 1);
     dat->data[stroffset + strsize] = '\0';

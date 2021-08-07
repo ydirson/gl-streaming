@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glserver.h"
 #include <string.h>
+#include <alloca.h>
 
 
 void glse_glActiveTexture()
@@ -519,52 +520,29 @@ void glse_glShaderSource()
   GLSE_SET_COMMAND_PTR(c, glShaderSource);
   gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsec_global.tmp_buf.buf;
   unsigned int i;
-  for (i = 0; i < c->count; i++)
-  {
-    dat->string[i] = (uint32_t)(dat->data + dat->string[i]);
+  const GLchar** strings = alloca(c->count * sizeof(GLchar*));
+  if (!strings) {
+    LOGE("gls error: failed to allocate shader length array for %d items\n", c->count);
+    return;
   }
-  
-  // Debug: print shader to log
-#if 0
-  LOGD("\n ----- BEGIN SHADER CONTENT -----\n");
-  
-  size_t size_all = (size_t)(dat->data - (char *)dat);
-  uint32_t stroffset = 0;
-  
-  // unsigned int i;
-  for (i = 0; i < c->count; i++)
-  {
-    char *strptr = (char *)dat->string[i];
-    size_t strsize;
-    if (dat->length == NULL)
-    {
-      strsize = 0;
-    }
-    else
-    {
-      strsize = dat->length[i];
-    }
-    if (strsize == 0)
-    {
-      strsize = strnlen(strptr, 0xA00000);
-    }
-    if (strsize > 0x100000)
-    {
-      return;
-    }
-    size_all += strsize + 1;
-    if (size_all > GLS_TMP_BUFFER_SIZE)
-    {
-      return;
-    }
-    stroffset = stroffset + strsize + 1;
-    LOGD("gls debug: shader length = %i\n", strsize);
-    LOGD("%s\n", strptr);
-  }
-  LOGD(" ----- ENDED SHADER CONTENT -----\n");
-#endif
 
-  glShaderSource(c->shader, c->count, (const GLchar**)dat->string, dat->length);
+  for (i = 0; i < c->count; i++)
+    strings[i] = dat->data + dat->offsets[i];
+  
+  if (0) { // Debug: print shader to log
+    LOGD("\n ----- BEGIN SHADER CONTENT -----\n");
+  
+    for (i = 0; i < c->count; i++) {
+      size_t strsize = dat->length ? dat->length[i] : 0;
+      if (strsize == 0)
+        strsize = strlen(strings[i]);
+      LOGD("gls debug: shader length = %i\n", strsize);
+      LOGD("%s\n", strings[i]);
+    }
+    LOGD(" ----- ENDED SHADER CONTENT -----\n");
+  }
+
+  glShaderSource(c->shader, c->count, strings, dat->length);
 }
 
 
