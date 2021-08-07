@@ -260,6 +260,7 @@ int wait_for_data(char *str)
 
 int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 {
+  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   if (data == NULL) {
     return TRUE;
   }
@@ -292,7 +293,9 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 
 int gls_cmd_get_context()
 {
+  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
+  if (glsc_global.is_debug) fprintf(stderr, "%s sending\n", __FUNCTION__);
   gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_get_context;
   if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE)
@@ -319,7 +322,9 @@ int gls_cmd_get_context()
 
 int gls_cmd_flip(unsigned int frame)
 {
+  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
+  if (glsc_global.is_debug) fprintf(stderr, "%s sending\n", __FUNCTION__);
   gls_cmd_flip_t *c = (gls_cmd_flip_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_FLIP;
   c->frame = frame;
@@ -334,10 +339,12 @@ int gls_cmd_flip(unsigned int frame)
 
 int gls_cmd_flush()
 {
+  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   if (glsc_global.tmp_buf.ptr == 0)
   {
     return FALSE;
   }
+  if (glsc_global.is_debug) fprintf(stderr, "%s sending\n", __FUNCTION__);
   gls_command_t *c = (gls_command_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
   c->cmd = GLSC_BREAK;
   glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, sizeof(gls_command_t), GLS_ALIGNMENT_BITS);
