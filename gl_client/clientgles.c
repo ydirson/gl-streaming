@@ -807,7 +807,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
 {
   gls_cmd_flush();
   if (count > 10240) { // 256
-    printf("gls warning: shader too large, over 10kb, ignoring.\n");
+    printf("gls warning: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
     return;
   }
   gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsc_global.tmp_buf.buf;
@@ -816,31 +816,15 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
   // printf("\n ----- BEGIN SHADER CONTENT -----\n");
   uint32_t stroffset = 0;
   unsigned int i;
-  
-  for (i = 0; i < count; i++)
-  {
-    char *strptr = (char *)string[i];
-    size_t strsize;
-    if (length == NULL)
-    {
-      strsize = 0;
-    }
-    else
-    {
-      strsize = length[i];
-    }
+
+  // FIXME we're sending both a full length-array *and* NUL terminators
+  for (i = 0; i < count; i++) {
+    const GLchar *strptr = string[i];
+    size_t strsize = length ? length[i] : 0;
     if (strsize == 0)
-    {
-      strsize = strnlen(strptr, 0xA00000);
-    }
-    if (strsize > 0x100000)
-    {
-      printf("gls error: shader strsize more than 0x100000!\n");
-      return;
-    }
+      strsize = strlen(strptr);
     size_all += strsize + 1;
-    if (size_all > GLS_TMP_BUFFER_SIZE)
-    {
+    if (size_all > GLS_TMP_BUFFER_SIZE) {
       printf("gls error: shader buffer size overflow!\n");
       return;
     }
@@ -848,7 +832,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
     dat->length[i] = strsize;
     memcpy(&dat->data[stroffset], strptr, strsize + 1);
     dat->data[stroffset + strsize] = '\0';
-    stroffset = stroffset + strsize + 1;
+    stroffset += strsize + 1;
     
     // printf("gls debug: shader length = %i\n", strsize);
     
