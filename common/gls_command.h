@@ -51,125 +51,142 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // #define GL_MAJOR_VERSION 1
 // #define GL_MINOR_VERSION 2
 
+// FIXME: hack for emacs26 to consistently indent the rest, because of
+// lack of separator in the lists
+#define EMPTY()
 
+#define GLS_COMMANDS()                          \
+  EMPTY()                                       \
+    X(BREAK)                                    \
+    X(FLIP)                                     \
+    X(SEND_DATA)                                \
+    X(FLUSH)                                    \
+    X(get_context)                              \
+    GLS_EGL_COMMANDS()                          \
+    GLS_GLES2_COMMANDS()                        \
+    GLS_GLES2_EXT_COMMANDS()                    \
+  //
+
+#define GLS_EGL_COMMANDS()                      \
+  EMPTY()                                       \
+    X(eglBindAPI)                               \
+    X(eglBindTexImage)                          \
+    X(eglChooseConfig)                          \
+    X(eglCopyBuffers)                           \
+    X(eglCreateContext)                         \
+    X(eglCreatePbufferSurface)                  \
+    X(eglCreatePixmapSurface)                   \
+    X(eglCreateWindowSurface)                   \
+    X(eglDestroyContext)                        \
+    X(eglDestroySurface)                        \
+    X(eglGetConfigAttrib)                       \
+    X(eglGetConfigs)                            \
+    X(eglGetCurrentContext)                     \
+    X(eglGetCurrentDisplay)                     \
+    X(eglGetCurrentSurface)                     \
+    X(eglGetDisplay)                            \
+    X(eglGetError)                              \
+    X(eglGetProcAddress)                        \
+    X(eglInitialize)                            \
+    X(eglMakeCurrent)                           \
+    X(eglQueryContext)                          \
+    X(eglQueryString)                           \
+    X(eglQuerySurface)                          \
+    X(eglReleaseTexImage)                       \
+    X(eglSurfaceAttrib)                         \
+    X(eglSwapBuffers)                           \
+    X(eglTerminate)                             \
+    X(eglWaitGL)                                \
+    X(eglWaitNative)                            \
+  //
+
+#define GLS_GLES2_COMMANDS()                    \
+  EMPTY()                                       \
+    X(glActiveTexture)                          \
+    X(glAttachShader)                           \
+    X(glBindAttribLocation)                     \
+    X(glBindBuffer)                             \
+    X(glBindFramebuffer)                        \
+    X(glBindTexture)                            \
+    X(glBlendEquationSeparate)                  \
+    X(glBlendFuncSeparate)                      \
+    X(glBlendFunc)                              \
+    X(glBufferData)                             \
+    X(glBufferSubData)                          \
+    X(glClear)                                  \
+    X(glClearColor)                             \
+    X(glClearDepthf)                            \
+    X(glClearStencil)                           \
+    X(glColorMask)                              \
+    X(glCompileShader)                          \
+    X(glCopyTexSubImage2D)                      \
+    X(glCreateProgram)                          \
+    X(glCreateShader)                           \
+    X(glCullFace)                               \
+    X(glDeleteBuffers)                          \
+    X(glDeleteProgram)                          \
+    X(glDeleteShader)                           \
+    X(glDeleteTextures)                         \
+    X(glDepthFunc)                              \
+    X(glDepthMask)                              \
+    X(glDepthRangef)                            \
+    X(glDisable)                                \
+    X(glDisableVertexAttribArray)               \
+    X(glDrawArrays)                             \
+    X(glDrawElements)                           \
+    X(glEnable)                                 \
+    X(glEnableVertexAttribArray)                \
+    X(glFinish)                                 \
+    X(glFlush)                                  \
+    X(glGenBuffers)                             \
+    X(glGenTextures)                            \
+    X(glGetActiveAttrib)                        \
+    X(glGetActiveUniform)                       \
+    X(glGetAttribLocation)                      \
+    X(glGetError)                               \
+    X(glGetFloatv)                              \
+    X(glGetProgramiv)                           \
+    X(glGetIntegerv)                            \
+    X(glGetProgramInfoLog)                      \
+    X(glGetShaderInfoLog)                       \
+    X(glGetShaderiv)                            \
+    X(glGetString)                              \
+    X(glGetUniformLocation)                     \
+    X(glHint)                                   \
+    X(glLineWidth)                              \
+    X(glLinkProgram)                            \
+                                                \
+    X(glPixelStorei)                            \
+    X(glPolygonOffset)                          \
+    X(glReadPixels)                             \
+    X(glShaderSource)                           \
+    X(glStencilFunc)                            \
+    X(glStencilMask)                            \
+    X(glStencilOp)                              \
+    X(glTexImage2D)                             \
+    X(glTexParameteri)                          \
+    X(glTexSubImage2D)                          \
+    X(glUniform1f)                              \
+    X(glUniform4fv)                             \
+    X(glUniformMatrix4fv)                       \
+    X(glUseProgram)                             \
+    X(glVertexAttribFloat)                      \
+    X(glVertexAttribPointer)                    \
+    X(glViewport)                               \
+  //
+
+#define GLS_GLES2_EXT_COMMANDS()                \
+  EMPTY()                                       \
+    X(glMapBufferOES)                           \
+    X(glUnmapBufferOES)                         \
+  //
+
+#define X(func) GLSC_##func,
 enum GL_Server_Command
 {
-  GLSC_BREAK,
-  GLSC_FLIP,
-  GLSC_SEND_DATA,
-  GLSC_FLUSH,
-  GLSC_get_context,
-  
-  // EGL commands
-  GLSC_eglBindAPI,
-  GLSC_eglBindTexImage,
-  GLSC_eglChooseConfig,
-  GLSC_eglCopyBuffers,
-  GLSC_eglCreateContext,
-  GLSC_eglCreatePbufferSurface,
-  GLSC_eglCreatePixmapSurface,
-  GLSC_eglCreateWindowSurface,
-  GLSC_eglDestroyContext,
-  GLSC_eglDestroySurface,
-  GLSC_eglGetConfigAttrib,
-  GLSC_eglGetConfigs,
-  GLSC_eglGetCurrentContext,
-  GLSC_eglGetCurrentDisplay,
-  GLSC_eglGetCurrentSurface,
-  GLSC_eglGetDisplay,
-  GLSC_eglGetError,
-// This will never get streamed. Proc address is different.
-  // GLSC_eglGetProcAddress,
-  GLSC_eglInitialize,
-  GLSC_eglMakeCurrent,
-  GLSC_eglQueryContext,
-  GLSC_eglQueryString,
-  GLSC_eglQuerySurface,
-  GLSC_eglReleaseTexImage,
-  GLSC_eglSurfaceAttrib,
-  GLSC_eglSwapBuffers,
-  GLSC_eglTerminate,
-  GLSC_eglWaitGL,
-  GLSC_eglWaitNative,
-  
-  // GLES 2 commands
-  GLSC_glActiveTexture,
-  GLSC_glAttachShader,
-  GLSC_glBindAttribLocation,
-  GLSC_glBindBuffer,
-  GLSC_glBindFramebuffer,
-  GLSC_glBindTexture,
-  GLSC_glBlendEquationSeparate,
-  GLSC_glBlendFuncSeparate,
-  GLSC_glBlendFunc,
-  GLSC_glBufferData,
-  GLSC_glBufferSubData,
-  GLSC_glClear,
-  GLSC_glClearColor,
-  GLSC_glClearDepthf,
-  GLSC_glClearStencil,
-  GLSC_glColorMask,
-  GLSC_glCompileShader,
-  GLSC_glCopyTexSubImage2D,
-  GLSC_glCreateProgram,
-  GLSC_glCreateShader,
-  GLSC_glCullFace,
-  GLSC_glDeleteBuffers,
-  GLSC_glDeleteProgram,
-  GLSC_glDeleteShader,
-  GLSC_glDeleteTextures,
-  GLSC_glDepthFunc,
-  GLSC_glDepthMask,
-  GLSC_glDepthRangef,
-  GLSC_glDisable,
-  GLSC_glDisableVertexAttribArray,
-  GLSC_glDrawArrays,
-  GLSC_glDrawElements,
-  GLSC_glEnable,
-  GLSC_glEnableVertexAttribArray,
-  GLSC_glFinish,
-  GLSC_glFlush,
-  GLSC_glGenBuffers,
-  GLSC_glGenTextures,
-  GLSC_glGetActiveAttrib,
-  GLSC_glGetActiveUniform,
-  GLSC_glGetAttribLocation,
-  GLSC_glGetError,
-  GLSC_glGetFloatv,
-  GLSC_glGetProgramiv,
-  GLSC_glGetIntegerv,
-  GLSC_glGetProgramInfoLog,
-  GLSC_glGetShaderInfoLog,
-  GLSC_glGetShaderiv,
-  GLSC_glGetString,
-  GLSC_glGetUniformLocation,
-  GLSC_glHint,
-  GLSC_glLineWidth,
-  GLSC_glLinkProgram,
-
-  GLSC_glPixelStorei,
-  GLSC_glPolygonOffset,
-  GLSC_glReadPixels,
-  GLSC_glShaderSource,
-  GLSC_glStencilFunc,
-  GLSC_glStencilMask,
-  GLSC_glStencilOp,
-  GLSC_glTexImage2D,
-  GLSC_glTexParameteri,
-  GLSC_glTexSubImage2D,
-  GLSC_glUniform1f,
-  GLSC_glUniform4fv,
-  GLSC_glUniformMatrix4fv,
-  GLSC_glUseProgram,
-  GLSC_glVertexAttribFloat,
-  GLSC_glVertexAttribPointer,
-  GLSC_glViewport,
-  
-// OES / EXT extension commands
-  GLSC_glMapBufferOES,
-  GLSC_glUnmapBufferOES
+ GLS_COMMANDS()
 };
-
+#undef X
 
 typedef struct
 {
