@@ -1,5 +1,4 @@
 CFLAGS=-O3 -Wall -g
-CFLAGS += -m32
 
 INCLUDES=-I.. -I../include -I../../common
 LIBS=-lpthread -lm -ldl -lGLESv2 -lEGL
