@@ -26,8 +26,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig conf
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetConfigAttrib);
-    c->dpy = (uint32_t)dpy;
-    c->config = (uint32_t)config;
+    c->dpy = (uint64_t)dpy;
+    c->config = (uint64_t)config;
     c->attribute = attribute;
     GLS_SEND_PACKET(eglGetConfigAttrib);
     
@@ -42,7 +42,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs,
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetConfigs);
-    c->dpy = (uint32_t)dpy;
+    c->dpy = (uint64_t)dpy;
     c->config_size = config_size;
     GLS_SEND_PACKET(eglGetConfigs);
     
@@ -79,14 +79,14 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
     GLS_SET_COMMAND_PTR(c, eglGetDisplay);
     if (0)
         // FIXME how should we deal with this?
-        c->native_display = (uint32_t)native_display;
+        c->native_display = (uint64_t)native_display;
     else
-      c->native_display = (uint32_t)EGL_DEFAULT_DISPLAY;
+      c->native_display = (uint64_t)EGL_DEFAULT_DISPLAY;
     GLS_SEND_PACKET(eglGetDisplay);
     
     wait_for_data("timeout:eglGetDisplay");
     gls_ret_eglGetDisplay_t *ret = (gls_ret_eglGetDisplay_t *)glsc_global.tmp_buf.buf;
-    fprintf(stderr, "eglGetDisplay: 0x%x\n", ret->display);
+    fprintf(stderr, "eglGetDisplay: 0x%lx\n", ret->display);
     return (EGLDisplay)ret->display;
 }
 
@@ -94,7 +94,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint *major, EGLi
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglInitialize);
-    c->dpy = (uint32_t)dpy;
+    c->dpy = (uint64_t)dpy;
 //    c->major = 0; // unused
 //    c->minor = 0; // unused
     GLS_SEND_PACKET(eglInitialize);
@@ -112,7 +112,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglTerminate( EGLDisplay dpy )
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglTerminate);
-    c->dpy = (uint32_t)dpy;
+    c->dpy = (uint64_t)dpy;
     GLS_SEND_PACKET(eglTerminate);
     
     wait_for_data("timeout:eglTerminate");
@@ -125,7 +125,7 @@ EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglQueryString);
-    c->dpy = (uint32_t)dpy;
+    c->dpy = (uint64_t)dpy;
     c->name = name;
     GLS_SEND_PACKET(eglQueryString);
     
@@ -157,7 +157,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
     gls_cmd_send_data(0, data_size, glsc_global.tmp_buf.buf);
     
     GLS_SET_COMMAND_PTR(c, eglChooseConfig);
-    c->dpy = (uint32_t)dpy;
+    c->dpy = (uint64_t)dpy;
     if (configs)
         c->config_size = config_size;
     else
@@ -241,8 +241,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
     
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglQuerySurface);
-    c->dpy = (uint32_t)dpy;
-    c->surface = (uint32_t)surface;
+    c->dpy = (uint64_t)dpy;
+    c->surface = (uint64_t)surface;
     c->attribute = attribute;
     GLS_SEND_PACKET(eglQuerySurface);
     
@@ -263,8 +263,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surfac
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglSurfaceAttrib);
-    c->dpy = (uint32_t)dpy;
-    c->surface = (uint32_t)surface;
+    c->dpy = (uint64_t)dpy;
+    c->surface = (uint64_t)surface;
     c->attribute = attribute;
     c->value = value;
     GLS_SEND_PACKET(eglSurfaceAttrib);
@@ -278,8 +278,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglBindTexImage(EGLDisplay dpy, EGLSurface surface
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglBindTexImage);
-    c->dpy = (uint32_t)dpy;
-    c->surface = (uint32_t)surface;
+    c->dpy = (uint64_t)dpy;
+    c->surface = (uint64_t)surface;
     c->buffer = buffer;
     GLS_SEND_PACKET(eglBindTexImage);
     
@@ -292,8 +292,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglReleaseTexImage( EGLDisplay dpy, EGLSurface sur
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglReleaseTexImage);
-    c->dpy = (uint32_t)dpy;
-    c->surface = (uint32_t)surface;
+    c->dpy = (uint64_t)dpy;
+    c->surface = (uint64_t)surface;
     c->buffer = buffer;
     GLS_SEND_PACKET(eglReleaseTexImage);
     
@@ -372,8 +372,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext( EGLDisplay dpy, EGLContext ctx, E
 {
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglQueryContext);
-    c->dpy = (uint32_t)dpy;
-    c->ctx = (uint32_t)ctx;
+    c->dpy = (uint64_t)dpy;
+    c->ctx = (uint64_t)ctx;
     c->attribute = attribute;
     GLS_SEND_PACKET(eglQueryContext);
     
@@ -411,4 +411,3 @@ EGLAPI EGLBoolean EGLAPIENTRY eglCopyBuffers( EGLDisplay dpy, EGLSurface surface
     WARN_STUBBED();
     return EGL_TRUE;
 }
-

@@ -536,7 +536,7 @@ void glse_glShaderSource()
       size_t strsize = dat->length[i];
       if (strsize == 0)
         strsize = strlen(strings[i]);
-      LOGD("gls debug: shader length = %i\n", strsize);
+      LOGD("gls debug: shader length = %zd\n", strsize);
       LOGD("%s\n", strings[i]);
     }
     LOGD(" ----- ENDED SHADER CONTENT -----\n");

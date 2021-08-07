@@ -398,8 +398,8 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
-  uint32_t surface;
+  uint64_t dpy;
+  uint64_t surface;
   uint32_t buffer;
 } gls_eglBindTexImage_t;
 
@@ -414,7 +414,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
+  uint64_t dpy;
   uint32_t config_size;
 } gls_eglChooseConfig_t;
 
@@ -422,7 +422,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  char configs[GLS_DATA_SIZE];
+  uint64_t configs[GLS_DATA_SIZE];
   uint32_t num_config;
   uint32_t success;
 } gls_ret_eglChooseConfig_t;
@@ -431,8 +431,8 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
-  uint32_t config;
+  uint64_t dpy;
+  uint64_t config;
   int32_t attribute;
 } gls_eglGetConfigAttrib_t;
 
@@ -448,7 +448,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
+  uint64_t dpy;
   uint32_t config_size;
 } gls_eglGetConfigs_t;
 
@@ -456,7 +456,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t configs[GLS_DATA_SIZE];
+  uint64_t configs[GLS_DATA_SIZE];
   int32_t num_config;
   uint32_t success;
 } gls_ret_eglGetConfigs_t;
@@ -471,7 +471,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t context;
+  uint64_t context;
 } gls_ret_eglGetCurrentContext_t;
 
 
@@ -484,7 +484,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t display;
+  uint64_t display;
 } gls_ret_eglGetCurrentDisplay_t;
 
 
@@ -498,21 +498,21 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t surface;
+  uint64_t surface;
 } gls_ret_eglGetCurrentSurface_t;
 
 
 typedef struct
 {
   uint32_t cmd;
-  uint32_t native_display;
+  uint64_t native_display;
 } gls_eglGetDisplay_t;
 
 
 typedef struct
 {
   uint32_t cmd;
-  uint32_t display;
+  uint64_t display;
 } gls_ret_eglGetDisplay_t;
 
 
@@ -532,7 +532,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
+  uint64_t dpy;
 } gls_eglInitialize_t;
 
 
@@ -547,8 +547,8 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
-  uint32_t ctx;
+  uint64_t dpy;
+  uint64_t ctx;
   uint32_t attribute;
 } gls_eglQueryContext_t;
 
@@ -564,7 +564,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
+  uint64_t dpy;
   uint32_t name;
 } gls_eglQueryString_t;
 
@@ -580,8 +580,8 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
-  uint32_t surface;
+  uint64_t dpy;
+  uint64_t surface;
   uint32_t attribute;
 } gls_eglQuerySurface_t;
 
@@ -597,8 +597,8 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
-  uint32_t surface;
+  uint64_t dpy;
+  uint64_t surface;
   uint32_t buffer;
 } gls_eglReleaseTexImage_t;
 
@@ -613,8 +613,8 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
-  uint32_t surface;
+  uint64_t dpy;
+  uint64_t surface;
   uint32_t attribute;
   uint32_t value;
 } gls_eglSurfaceAttrib_t;
@@ -630,7 +630,7 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t dpy;
+  uint64_t dpy;
 } gls_eglTerminate_t;
 
 
@@ -914,7 +914,7 @@ typedef struct
   // uint32_t indices;
   char indices[GLS_STRING_SIZE_PLUS];
   uint32_t indices_isnull;
-  uint32_t indices_uint;
+  uint64_t indices_uint;
 } gls_glDrawElements_t;
 
 
@@ -1369,7 +1369,7 @@ typedef struct
   uint32_t type;
   uint32_t normalized;
   int32_t stride;
-  uint32_t ptr_uint;
+  uint64_t ptr_uint;
 } gls_glVertexAttribPointer_t;
 
 

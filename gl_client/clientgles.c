@@ -386,7 +386,7 @@ static void _send_glVertexAttribPointer(
     c->normalized = normalized;
     c->stride = stride;
 
-    c->ptr_uint = (uint32_t)ptr;
+    c->ptr_uint = (uint64_t)ptr;
     GLS_PUSH_BATCH(glVertexAttribPointer);
 }
 

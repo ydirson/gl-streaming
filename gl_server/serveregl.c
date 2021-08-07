@@ -99,7 +99,7 @@ void glse_eglGetCurrentContext()
   
   gls_ret_eglGetCurrentContext_t *ret = (gls_ret_eglGetCurrentContext_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetCurrentContext;
-  ret->context = (uint32_t)context;
+  ret->context = (uint64_t)context;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentContext_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -109,7 +109,7 @@ void glse_eglGetCurrentDisplay()
   
   gls_ret_eglGetCurrentDisplay_t *ret = (gls_ret_eglGetCurrentDisplay_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetCurrentDisplay;
-  ret->display = (uint32_t)display;
+  ret->display = (uint64_t)display;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentDisplay_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -120,7 +120,7 @@ void glse_eglGetCurrentSurface()
   
   gls_ret_eglGetCurrentSurface_t *ret = (gls_ret_eglGetCurrentSurface_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetCurrentSurface;
-  ret->surface = (uint32_t)surface;
+  ret->surface = (uint64_t)surface;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentSurface_t), (char *)glsec_global.tmp_buf.buf);
 }
 
@@ -139,7 +139,7 @@ void glse_eglGetDisplay()
 {
   GLSE_SET_COMMAND_PTR(c, eglGetDisplay);
   EGLDisplay display;
-  if (c->native_display != (uint32_t)EGL_DEFAULT_DISPLAY) {
+  if (c->native_display != (uint64_t)EGL_DEFAULT_DISPLAY) {
     fprintf(stderr, "eglGetDisplay: ERROR, only supports EGL_DEFAULT_DISPLAY\n");
     display = EGL_NO_DISPLAY;
   } else {
@@ -156,7 +156,7 @@ void glse_eglGetDisplay()
 
   gls_ret_eglGetDisplay_t *ret = (gls_ret_eglGetDisplay_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglGetDisplay;
-  ret->display = (uint32_t)display;
+  ret->display = (uint64_t)display;
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetDisplay_t),(char *)glsec_global.tmp_buf.buf);
 }
 
