@@ -51,12 +51,16 @@ typedef struct
 #define check_egl_err(FUNCNAME) base_check_egl_err(#FUNCNAME);
 #define check_gl_err(FUNCNAME) base_check_gl_err(#FUNCNAME);
 
+#define check_egl_err_cmd(cmd) base_check_egl_err(GLSC_tostring(cmd));
+#define check_gl_err_cmd(cmd) base_check_gl_err(GLSC_tostring(cmd));
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void base_check_egl_err(char* funcname);
-void base_check_gl_err(char* funcname);
+extern uint32_t last_cmd;
+void base_check_egl_err(const char* funcname);
+void base_check_gl_err(const char* funcname);
 
 EGLConfig config;
 #ifdef USE_X11

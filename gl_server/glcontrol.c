@@ -88,7 +88,7 @@ const char* glGetErrorString(GLenum err)
 }
 #undef CASE_STRING
 
-void base_check_egl_err(char* funcname) {
+void base_check_egl_err(const char* funcname) {
     int error = eglGetError();
     if (error != EGL_SUCCESS) {
         LOGD("eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
@@ -97,7 +97,7 @@ void base_check_egl_err(char* funcname) {
     assert(error == 0)
 #endif // DEBUG
 }
-void base_check_gl_err(char* funcname) {
+void base_check_gl_err(const char* funcname) {
     int error = glGetError();
     if (error != GL_NO_ERROR) {
         LOGD("glGetError(%s) return error %s\n", funcname, glGetErrorString(error));

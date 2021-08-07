@@ -919,7 +919,7 @@ int gles_flushCommand(gls_command_t *c) {
       default:
         return FALSE;
   }
-  check_gl_err(c->cmd);
+  check_gl_err_cmd(c->cmd);
   return TRUE;
 }
 
@@ -981,7 +981,7 @@ int gles_flushCommand(gls_command_t *c) {
       default:
           return FALSE;
     }
-    check_gl_err(c->cmd);
+    check_gl_err_cmd(c->cmd);
     return TRUE;
 }
 #undef CASE_FLUSH_CMD_SIZE
@@ -1073,7 +1073,7 @@ int gles_executeCommand(gls_command_t *c) {
     default:
             return FALSE;
     }
-    check_gl_err(c->cmd);
+    check_gl_err_cmd(c->cmd);
     return TRUE;
 }
 
