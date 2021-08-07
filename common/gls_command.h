@@ -188,6 +188,17 @@ enum GL_Server_Command
 };
 #undef X
 
+#define X(func) case GLSC_##func: return #func;
+static inline const char* GLSC_tostring(enum GL_Server_Command e)
+{
+  switch(e) {
+    GLS_COMMANDS()
+  default:
+    return "unknown command";
+  }
+}
+#undef X
+
 typedef struct
 {
   char *buf;
