@@ -381,12 +381,6 @@ typedef struct
  
 // EGL commands
 
-_Static_assert(sizeof(EGLDisplay) == sizeof(uint32_t), "wrong EGLDisplay size");
-_Static_assert(sizeof(NativeDisplayType) == sizeof(uint32_t), "wrong NativeDisplayType size");
-_Static_assert(sizeof(EGLConfig) == sizeof(uint32_t), "wrong EGLConfig size");
-_Static_assert(sizeof(EGLContext) == sizeof(uint32_t), "wrong EGLContext size");
-_Static_assert(sizeof(EGLSurface) == sizeof(uint32_t), "wrong EGLSurface size");
-
 typedef struct
 {
   uint32_t cmd;
