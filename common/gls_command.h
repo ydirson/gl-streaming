@@ -42,8 +42,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLS_ALIGNMENT_BITS 3
 
 
-// To prevent incompatible version, change every
-#define GLS_VERSION 9
+// Even versions are stable, should not change a single bit or
+// semantic of protocol without bumping version.
+// Odd versions are development ones to prepare the next even version,
+// change at dev's whim, deploy at your own risk.
+#define GLS_VERSION 11
+
 // #define GL_MAJOR_VERSION 1
 // #define GL_MINOR_VERSION 2
 

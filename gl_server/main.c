@@ -45,6 +45,11 @@ int main(int argc, char * argv[])
 {
   static server_context_t sc;
   int opt;
+
+  if (GLS_VERSION & 1)
+    fprintf(stderr, "WARNING: this is a development GLS protocol, "
+            "make sure client and server match\n");
+
   char my_ip[GLS_STRING_SIZE_PLUS];
   char his_ip[GLS_STRING_SIZE_PLUS];
   uint16_t my_port = 18145;

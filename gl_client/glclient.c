@@ -81,6 +81,10 @@ int gls_init(server_context_t *arg)
 {
   memset(&glsc_global, 0, sizeof(glsc_global));
   
+  if (GLS_VERSION & 1)
+    fprintf(stderr, "WARNING: this is a development GLS protocol, "
+            "make sure client and server match\n");
+
   const char* env_isDebugStr = getenv("GLS_DEBUG");
   int env_isDebug;
   if (env_isDebugStr == NULL) {
