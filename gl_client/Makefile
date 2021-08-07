@@ -11,7 +11,6 @@ CFLAGS+=-DUSE_X11
 CFLAGS+=-DGLS_EMULATE_VBO
 
 LIBS=-pthread -ldl -lX11
-CFLAGS+= $(LIBS)
 OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
 
 LIB_GLES = libGLESv2.so.2
