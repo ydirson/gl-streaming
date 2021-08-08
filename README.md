@@ -1,9 +1,13 @@
 # OpenGL streaming
 
 This software provides an implementation of the EGL and GLES2 APIs,
-which forwards the calls to a remote EGL/GLES2 implementation, which
-typically renders using a GPU.  It is expected to be extended to
-support more graphics APIs (eg. desktop OpenGL, GLX, Vulkan).
+which forwards an application's (client-side) graphics calls to a
+remote (server-side) EGL/GLES2 implementation, which typically renders
+using a GPU.  Any display operations are done by the server, on its
+own screen.
+
+It is expected to get extended in the future to support more graphics
+APIs (eg. desktop OpenGL, GLX, Vulkan).
 
 The motivation for this project is to provide GPU acceleration to
 virtual machines, with rendering on their host, especially to be
@@ -22,6 +26,9 @@ This is still a work in progress, notably:
   present but only as stubs, some are known to have bugs -- some can
   cause the client or the server to crash.
 
+* the server creates a fixed-size window at startup, used for all
+  client rendering.
+
 * there are security concerns about the usage of pointer types in the
   protocol.
 
@@ -33,7 +40,10 @@ This is still a work in progress, notably:
   despite the large amount of work to be done, things are really
   progressing.
 
-* Android support does not get tested or updated, patches welcomed.
+* Essentially tested both client and server sides on GNU/Linux.  In
+  particular, Android server support does not get tested or updated,
+  patches welcomed, and did not follow the protocol evolutions, and as
+  such is not even expected to compile.
 
 
 # Performance and conformance information
@@ -49,7 +59,7 @@ reasonable.
   Android builds
 * [An overview of inner workings](INTERNALS.md)
 * [Historical information](README.shodruky-rhyammer.md) from author of
-  the original project, including a nice visaul explanation
+  the original project, including a nice visual explanation
 
 
 # Thanks
