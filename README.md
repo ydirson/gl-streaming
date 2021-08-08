@@ -22,9 +22,13 @@ This is still a work in progress, notably:
 * only 32bit builds can work at all (addressing this is top priority).
 
 * despite all the work previously done, only very simple applications
-  work (eg. es2gears, some glmark2 benchmarks).  A number of APIs are
-  present but only as stubs, some are known to have bugs -- some can
-  cause the client or the server to crash.
+  work (eg. es2gears, some glmark2 benchmarks).
+
+  A number of APIs are present but only as stubs, some are known to
+  have bugs -- some can cause the client or the server to crash.
+
+  APIs for EGL 1.4 are present, though some 1.1 and 1.2 APIs are not
+  even stubbed.  Many GLES2 APIs are not even stubbed either.
 
 * the server creates a fixed-size window at startup, used for all
   client rendering.

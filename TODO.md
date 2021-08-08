@@ -29,7 +29,7 @@
   - [ ] stop passing any kind of pointer over the wire (huge security issue, although
         we could mitigate that aspect by tracking valid pointer values, but also
         problematic for 64bit platforms, when casting pointers into 32bit integers...)
-  - [ ] find out which EGL and GLES standard version are precisely covered today
+  - [x] find out which EGL and GLES standard version are precisely covered today
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
   - [ ] non-stub eglInitialize
   - [ ] ensure non-modification of output params on error (API compliance)
