@@ -447,7 +447,8 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 #endif // GLS_EMULATE_VBO
 }
 
-#ifdef GLS_EMULATE_VBO
+#if 0
+// this is GLES3
 GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices )
 {
     int vbo_bkp = vbo.vbo;
@@ -496,7 +497,7 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
        glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 }
-#endif // GLS_EMULATE_VBO
+#endif
 
 
 GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
