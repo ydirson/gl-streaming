@@ -73,6 +73,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     GLS_EGL11_COMMANDS()                        \
     GLS_EGL12_COMMANDS()                        \
     GLS_EGL14_COMMANDS()                        \
+    GLS_EGL15_COMMANDS()                        \
   //
 
 #define GLS_EGL10_COMMANDS()                    \
@@ -125,6 +126,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLS_EGL14_COMMANDS()                    \
   EMPTY()                                       \
     X(eglGetCurrentContext)                     \
+  //
+
+#define GLS_EGL15_COMMANDS()                    \
+  EMPTY()                                       \
+    X(eglCreateSync)                            \
+    X(eglDestroySync)                           \
+    X(eglClientWaitSync)                        \
+    X(eglGetSyncAttrib)                         \
+    X(eglCreateImage)                           \
+    X(eglDestroyImage)                          \
+    X(eglGetPlatformDisplay)                    \
+    X(eglCreatePlatformPixmapSurface)           \
+    X(eglCreatePlatformWindowSurface)           \
+    X(eglWaitSync)                              \
   //
 
 #define GLS_GLES2_COMMANDS()                    \
