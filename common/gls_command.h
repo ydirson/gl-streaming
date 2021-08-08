@@ -69,8 +69,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLS_EGL_COMMANDS()                      \
   EMPTY()                                       \
-    X(eglBindAPI)                               \
-    X(eglBindTexImage)                          \
+    GLS_EGL10_COMMANDS()                        \
+    GLS_EGL11_COMMANDS()                        \
+    GLS_EGL12_COMMANDS()                        \
+    GLS_EGL14_COMMANDS()                        \
+  //
+
+#define GLS_EGL10_COMMANDS()                    \
+  EMPTY()                                       \
     X(eglChooseConfig)                          \
     X(eglCopyBuffers)                           \
     X(eglCreateContext)                         \
@@ -81,7 +87,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(eglDestroySurface)                        \
     X(eglGetConfigAttrib)                       \
     X(eglGetConfigs)                            \
-    X(eglGetCurrentContext)                     \
     X(eglGetCurrentDisplay)                     \
     X(eglGetCurrentSurface)                     \
     X(eglGetDisplay)                            \
@@ -92,12 +97,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(eglQueryContext)                          \
     X(eglQueryString)                           \
     X(eglQuerySurface)                          \
-    X(eglReleaseTexImage)                       \
-    X(eglSurfaceAttrib)                         \
     X(eglSwapBuffers)                           \
     X(eglTerminate)                             \
     X(eglWaitGL)                                \
     X(eglWaitNative)                            \
+  //
+
+#define GLS_EGL11_COMMANDS()                    \
+  EMPTY()                                       \
+    X(eglBindTexImage)                          \
+    X(eglReleaseTexImage)                       \
+    X(eglSurfaceAttrib)                         \
+  //
+
+#define GLS_EGL12_COMMANDS()                    \
+  EMPTY()                                       \
+    X(eglBindAPI)                               \
+  //
+
+// no new commands in EGL 1.3
+
+#define GLS_EGL14_COMMANDS()                    \
+  EMPTY()                                       \
+    X(eglGetCurrentContext)                     \
   //
 
 #define GLS_GLES2_COMMANDS()                    \
