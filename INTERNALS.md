@@ -69,6 +69,25 @@ sent as `SEND_DATA`, and a `FLUSH` message is sent to trigger their
 execution.
 
 
+## special client work
+
+On client side, we try to keep the code minimal, just piping data to
+the server.  However, not all API calls are simple enough for this to
+be possible.  Some exceptions are:
+
+### VBO emulation
+
+Some calls (eg. glVertexAttribPointer) interpret differently their
+`pointer` parameter, depending whether a VBO is active (in which case
+it is an offset into the VBO) or not (in which case it is a pointer to
+client array).  The `GLS_EMULATE_VBO` define tries to emulate the
+client-array behaviour with a VBO, and was described by its author as
+"May be removed later. It may slower than 2x when enabled", though it
+has been made the default because non-emulated client-array support is
+broken (non existent?).  OTOH the emulated version is broken too,
+as shown by es2tri not working.
+
+
 # other things to be documented
 
 * other GLS internal messages: `FLIP`, `get_context`
