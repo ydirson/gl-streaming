@@ -108,11 +108,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(eglBindTexImage)                          \
     X(eglReleaseTexImage)                       \
     X(eglSurfaceAttrib)                         \
+    X(eglSwapInterval)                          \
   //
 
 #define GLS_EGL12_COMMANDS()                    \
   EMPTY()                                       \
     X(eglBindAPI)                               \
+    X(eglQueryAPI)                              \
+    X(eglCreatePbufferFromClientBuffer)         \
+    X(eglReleaseThread)                         \
+    X(eglWaitClient)                            \
   //
 
 // no new commands in EGL 1.3
