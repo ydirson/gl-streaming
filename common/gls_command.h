@@ -149,29 +149,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glBindAttribLocation)                     \
     X(glBindBuffer)                             \
     X(glBindFramebuffer)                        \
+    X(glBindRenderbuffer)                       \
     X(glBindTexture)                            \
+    X(glBlendColor)                             \
+    X(glBlendEquation)                          \
     X(glBlendEquationSeparate)                  \
-    X(glBlendFuncSeparate)                      \
     X(glBlendFunc)                              \
+    X(glBlendFuncSeparate)                      \
     X(glBufferData)                             \
     X(glBufferSubData)                          \
+    X(glCheckFramebufferStatus)                 \
     X(glClear)                                  \
     X(glClearColor)                             \
     X(glClearDepthf)                            \
     X(glClearStencil)                           \
     X(glColorMask)                              \
     X(glCompileShader)                          \
+    X(glCompressedTexImage2D)                   \
+    X(glCompressedTexSubImage2D)                \
+    X(glCopyTexImage2D)                         \
     X(glCopyTexSubImage2D)                      \
     X(glCreateProgram)                          \
     X(glCreateShader)                           \
     X(glCullFace)                               \
     X(glDeleteBuffers)                          \
+    X(glDeleteFramebuffers)                     \
     X(glDeleteProgram)                          \
+    X(glDeleteRenderbuffers)                    \
     X(glDeleteShader)                           \
     X(glDeleteTextures)                         \
     X(glDepthFunc)                              \
     X(glDepthMask)                              \
     X(glDepthRangef)                            \
+    X(glDetachShader)                           \
     X(glDisable)                                \
     X(glDisableVertexAttribArray)               \
     X(glDrawArrays)                             \
@@ -180,38 +190,93 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glEnableVertexAttribArray)                \
     X(glFinish)                                 \
     X(glFlush)                                  \
+    X(glFramebufferRenderbuffer)                \
+    X(glFramebufferTexture2D)                   \
+    X(glFrontFace)                              \
     X(glGenBuffers)                             \
+    X(glGenerateMipmap)                         \
+    X(glGenFramebuffers)                        \
+    X(glGenRenderbuffers)                       \
     X(glGenTextures)                            \
     X(glGetActiveAttrib)                        \
     X(glGetActiveUniform)                       \
+    X(glGetAttachedShaders)                     \
     X(glGetAttribLocation)                      \
+    X(glGetBooleanv)                            \
+    X(glGetBufferParameteriv)                   \
     X(glGetError)                               \
     X(glGetFloatv)                              \
-    X(glGetProgramiv)                           \
+    X(glGetFramebufferAttachmentParameteriv)    \
     X(glGetIntegerv)                            \
+    X(glGetProgramiv)                           \
     X(glGetProgramInfoLog)                      \
-    X(glGetShaderInfoLog)                       \
+    X(glGetRenderbufferParameteriv)             \
     X(glGetShaderiv)                            \
+    X(glGetShaderInfoLog)                       \
+    X(glGetShaderPrecisionFormat)               \
+    X(glGetShaderSource)                        \
     X(glGetString)                              \
+    X(glGetTexParameterfv)                      \
+    X(glGetTexParameteriv)                      \
+    X(glGetUniformfv)                           \
+    X(glGetUniformiv)                           \
     X(glGetUniformLocation)                     \
+    X(glGetVertexAttribfv)                      \
+    X(glGetVertexAttribiv)                      \
+    X(glGetVertexAttribPointerv)                \
     X(glHint)                                   \
+    X(glIsBuffer)                               \
+    X(glIsEnabled)                              \
+    X(glIsFramebuffer)                          \
+    X(glIsProgram)                              \
+    X(glIsRenderbuffer)                         \
+    X(glIsShader)                               \
+    X(glIsTexture)                              \
     X(glLineWidth)                              \
     X(glLinkProgram)                            \
                                                 \
     X(glPixelStorei)                            \
     X(glPolygonOffset)                          \
     X(glReadPixels)                             \
+    X(glReleaseShaderCompiler)                  \
+    X(glRenderbufferStorage)                    \
+    X(glSampleCoverage)                         \
+    X(glScissor)                                \
+    X(glShaderBinary)                           \
     X(glShaderSource)                           \
     X(glStencilFunc)                            \
+    X(glStencilFuncSeparate)                    \
     X(glStencilMask)                            \
+    X(glStencilMaskSeparate)                    \
     X(glStencilOp)                              \
+    X(glStencilOpSeparate)                      \
     X(glTexImage2D)                             \
+    X(glTexParameterf)                          \
+    X(glTexParameterfv)                         \
     X(glTexParameteri)                          \
+    X(glTexParameteriv)                         \
     X(glTexSubImage2D)                          \
     X(glUniform1f)                              \
+    X(glUniform1fv)                             \
+    X(glUniform1i)                              \
+    X(glUniform1iv)                             \
+    X(glUniform2f)                              \
+    X(glUniform2fv)                             \
+    X(glUniform2i)                              \
+    X(glUniform2iv)                             \
+    X(glUniform3f)                              \
+    X(glUniform3fv)                             \
+    X(glUniform3i)                              \
+    X(glUniform3iv)                             \
+    X(glUniform4f)                              \
     X(glUniform4fv)                             \
+    X(glUniform4i)                              \
+    X(glUniform4iv)                             \
+    X(glUniformMatrix2fv)                       \
+    X(glUniformMatrix3fv)                       \
     X(glUniformMatrix4fv)                       \
     X(glUseProgram)                             \
+    X(glValidateProgram)                        \
     X(glVertexAttribFloat)                      \
     X(glVertexAttribPointer)                    \
     X(glViewport)                               \
