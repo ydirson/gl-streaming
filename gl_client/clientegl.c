@@ -180,6 +180,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )
 {
+    (void)dpy; (void)config; (void)attrib_list; // FIXME stub
+    WARN_STUBBED();
     if (sizeof(void*) != sizeof(window)) {
         client_egl_error = EGL_BAD_NATIVE_WINDOW;
         return EGL_NO_SURFACE;
@@ -193,16 +195,22 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig config, NativePixmapType pixmap, const EGLint *attrib_list )
 {
+    (void)dpy; (void)config; (void)pixmap; (void)attrib_list; // FIXME stub
+    WARN_STUBBED();
     return eglGetCurrentSurface(EGL_DRAW);
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list )
 {
+    (void)dpy; (void)config; (void)attrib_list; // FIXME stub
+    WARN_STUBBED();
     return eglGetCurrentSurface(EGL_DRAW);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surface )
 {
+    (void)dpy; (void)surface; // FIXME stub
+    WARN_STUBBED();
     return EGL_TRUE;
 }
 
@@ -246,7 +254,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 
 EGLAPI EGLBoolean EGLAPIENTRY eglReleaseThread(void)
 {
-    // Current stub
+    WARN_STUBBED();
     return EGL_TRUE;
 }
 
@@ -297,11 +305,15 @@ EGLAPI EGLBoolean EGLAPIENTRY eglReleaseTexImage( EGLDisplay dpy, EGLSurface sur
 /* EGL 1.1 swap control API */
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapInterval( EGLDisplay dpy, EGLint interval )
 {
+    (void)dpy; (void)interval; // FIXME stub
+    WARN_STUBBED();
     return EGL_FALSE;
 }
 
 EGLAPI EGLContext EGLAPIENTRY eglCreateContext( EGLDisplay dpy, EGLConfig config, EGLContext share_list, const EGLint *attrib_list )
 {
+    (void)dpy; (void)config; (void)share_list; (void)attrib_list; // FIXME stub
+    WARN_STUBBED();
     // return 1;
     
     // Stub: current
@@ -310,11 +322,15 @@ EGLAPI EGLContext EGLAPIENTRY eglCreateContext( EGLDisplay dpy, EGLConfig config
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroyContext( EGLDisplay dpy, EGLContext ctx )
 {
+    (void)dpy; (void)ctx; // FIXME stub
+    WARN_STUBBED();
     return EGL_TRUE;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent( EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx )
 {
+    (void)dpy; (void)draw; (void)read; (void)ctx; // FIXME stub
+    WARN_STUBBED();
     return EGL_TRUE;
 }
 
@@ -369,23 +385,30 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext( EGLDisplay dpy, EGLContext ctx, E
 
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitGL( void )
 {
+    WARN_STUBBED();
     return // EGL_TRUE;
     EGL_FALSE;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitNative( EGLint engine )
 {
+    (void)engine; // FIXME stub
+    WARN_STUBBED();
     return EGL_FALSE;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers( EGLDisplay dpy, EGLSurface draw )
 {
+    (void)dpy; (void)draw; // FIXME stub
+    WARN_STUBBED();
     static int frame;
     return gls_cmd_flip(frame++);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglCopyBuffers( EGLDisplay dpy, EGLSurface surface, NativePixmapType target )
 {
+    (void)dpy; (void)surface; (void)target; // FIXME stub
+    WARN_STUBBED();
     return EGL_TRUE;
 }
 
