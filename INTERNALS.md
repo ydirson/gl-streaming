@@ -75,17 +75,47 @@ On client side, we try to keep the code minimal, just piping data to
 the server.  However, not all API calls are simple enough for this to
 be possible.  Some exceptions are:
 
-### VBO emulation
+### `glVertexAttribPointer` client-array case
 
-Some calls (eg. glVertexAttribPointer) interpret differently their
-`pointer` parameter, depending whether a VBO is active (in which case
-it is an offset into the VBO) or not (in which case it is a pointer to
-client array).  The `GLS_EMULATE_VBO` define tries to emulate the
-client-array behaviour with a VBO, and was described by its author as
-"May be removed later. It may slower than 2x when enabled", though it
-has been made the default because non-emulated client-array support is
-broken (non existent?).  OTOH the emulated version is broken too,
-as shown by es2tri not working.
+`glVertexAttribPointer` interprets differently its `pointer` parameter,
+depending whether a VBO is active (in which case it is an offset into
+the VBO) or not (in which case it is a pointer to client array).
+
+The problem is that the client-array call does not specify the array
+size, so the client cannot easily transfer the data at this point.
+The vertex attributes set this way are used later, eg. by
+`glDrawArrays`, and those calls are the ones getting the number of
+vertices for which attributes are given... so the data can only be
+transferred to the server at that time.  Then we cannot know either,
+if the data will be reused and should be kept in server memory for a
+later call, so to avoid leaking the server's memory we basically have
+to retransfer the data every time it is used (we could also come with
+other solutions, like implementing a fixed-sized server cache for
+those arrays; it seems unreasonably difficult to find out by ourselves
+and give hints to the server, without app's cooperation).
+
+Thus this implementation defers the `glVertexAttribPointer` calls
+pointing to client-data, and additionally creates a VBO to hold the
+attribute data (this is what upstream calls `GLS_EMULATE_VBO`, has
+been cleaned up and is unconditionally activated for lack of an
+alternative, though we could implement a no-VBO version).
+
+Some optimisations could be done, eg. send data block only once in the
+case of interleaved attributes in the same client array.  Upstream
+code did this to some extent (only if attribute 0 was active and with
+dubious array-bounds handling), but this has been discarded as
+premature optimisation.
+
+
+Note: the `glBindBuffer` doc says the buffer "name" is "local to the
+shared object space of the current GL rendering context".  Since we're
+not tracking any context we can assume this will break when more than
+one shared object space gets used.
+
+### `glDrawElements` client-array case
+
+This case has yet to be properly handled, and is protected by an
+`assert(0)` in the meantime.
 
 
 # other things to be documented
