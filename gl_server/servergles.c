@@ -373,7 +373,7 @@ void glse_glGetProgramInfoLog()
 {
   GLSE_SET_COMMAND_PTR(c, glGetProgramInfoLog);
   gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsec_global.tmp_buf.buf;
-  uint32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
+  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
   if (c->bufsize > maxsize)
   {
     c->bufsize = maxsize;
@@ -402,7 +402,7 @@ void glse_glGetShaderInfoLog()
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
   gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsec_global.tmp_buf.buf;
-  uint32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
+  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
   if (c->bufsize > maxsize)
   {
     c->bufsize = maxsize;
@@ -519,7 +519,7 @@ void glse_glShaderSource()
 {
   GLSE_SET_COMMAND_PTR(c, glShaderSource);
   gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsec_global.tmp_buf.buf;
-  unsigned int i;
+  int i;
   const GLchar** strings = alloca(c->count * sizeof(GLchar*));
   if (!strings) {
     LOGE("gls error: failed to allocate shader length array for %d items\n", c->count);

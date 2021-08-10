@@ -816,7 +816,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
   
   // printf("\n ----- BEGIN SHADER CONTENT -----\n");
   uint32_t stroffset = 0;
-  unsigned int i;
+  int i;
 
   // FIXME we're sending both a full length-array *and* NUL terminators
   for (i = 0; i < count; i++) {
