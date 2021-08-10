@@ -924,8 +924,10 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
     
     wait_for_data("timeout:glReadPixels");
     gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsc_global.tmp_buf.buf;
-    pixels = ret->pixels;
-    // memcpy(pixels, ret->pixels, width * height); // width * height = size correct???
+    uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
+    uint32_t linebytes = ((pixelbytes * width + glsc_global.pack_alignment - 1) &
+                          (~ (glsc_global.pack_alignment - 1)));
+    memcpy(pixels, ret->pixels, linebytes * height);
 }
 
 
