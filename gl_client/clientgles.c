@@ -10,7 +10,7 @@
 static struct
 {
     GLuint vbo, ibo, ibo_emu;
-} vbo;
+} buffer_objs;
 static struct {
     GLboolean   isenabled;
     GLint       size;
@@ -88,9 +88,9 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
   c->buffer = buffer;
 #ifdef GLS_EMULATE_VBO
   if(target == GL_ARRAY_BUFFER) {
-      vbo.vbo = buffer;
+      buffer_objs.vbo = buffer;
   } else if(target == GL_ELEMENT_ARRAY_BUFFER) {
-      vbo.ibo = buffer;
+      buffer_objs.ibo = buffer;
   } else printf("gls error: unsupported buffer type!\n");
 #endif // GLS_EMULATE_VBO
   GLS_PUSH_BATCH(glBindBuffer);
@@ -402,7 +402,7 @@ static void wes_vertex_attrib_pointer(int i, int count)
 GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count)
 {
 #ifdef GLS_EMULATE_VBO
-    int vbo_bkp = vbo.vbo;
+    int vbo_bkp = buffer_objs.vbo;
     int i;
     for( i = 0;i < 16; i++ )
     {
@@ -424,19 +424,19 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
 GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
 #ifdef GLS_EMULATE_VBO
-    int vbo_bkp = vbo.vbo;
-    int ibo_bkp = vbo.ibo;
+    int vbo_bkp = buffer_objs.vbo;
+    int ibo_bkp = buffer_objs.ibo;
     int i;
     for (i = 0; i < 16; i++) {
         if( vt_attrib_pointer[i].isenabled ) {
             wes_vertex_attrib_pointer(i, 65536);
         }
     }
-    if( !vbo.ibo ) {
-        if( !vbo.ibo_emu ) {
-            glGenBuffers(1, &vbo.ibo_emu);
+    if( !buffer_objs.ibo ) {
+        if( !buffer_objs.ibo_emu ) {
+            glGenBuffers(1, &buffer_objs.ibo_emu);
         }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
       
         // why?
@@ -495,17 +495,17 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 // this is GLES3
 GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices )
 {
-    int vbo_bkp = vbo.vbo;
-    int ibo_bkp = vbo.ibo;
+    int vbo_bkp = buffer_objs.vbo;
+    int ibo_bkp = buffer_objs.ibo;
     int i;
     for (i = 0; i < 16; i++) {
         wes_vertex_attrib_pointer(i, end);
     }
-    if (!vbo.ibo) {
-        if (!vbo.ibo_emu) {
-            glGenBuffers(1, &vbo.ibo_emu);
+    if (!buffer_objs.ibo) {
+        if (!buffer_objs.ibo_emu) {
+            glGenBuffers(1, &buffer_objs.ibo_emu);
         }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * (type == GL_UNSIGNED_SHORT ? 2 : 4), indices, GL_STREAM_DRAW);
         indices = 0;
     }
@@ -1169,7 +1169,7 @@ void glVertexAttribPointer_vbo (GLuint indx, GLint size, GLenum type, GLboolean 
     vt_attrib_pointer[indx].stride = stride;
     vt_attrib_pointer[indx].normalized = normalized;
     vt_attrib_pointer[indx].ptr = ptr;
-    vt_attrib_pointer[indx].vbo_id = vbo.vbo;
+    vt_attrib_pointer[indx].vbo_id = buffer_objs.vbo;
 }
 #endif // GLS_EMULATE_VBO
 
@@ -1177,11 +1177,11 @@ void glVertexAttribPointer_vbo (GLuint indx, GLint size, GLenum type, GLboolean 
 GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)
 {
 #ifdef GLS_EMULATE_VBO
-    if(!vbo.vbo) {// ignore non-vbo
+    if(!buffer_objs.vbo) {// ignore non-vbo
         glVertexAttribPointer_vbo(indx, size, type, normalized, stride, ptr);
         return;
     }
-    vt_attrib_pointer[indx].vbo_id = vbo.vbo;
+    vt_attrib_pointer[indx].vbo_id = buffer_objs.vbo;
 #endif // GLS_EMULATE_VBO
 
     gls_cmd_flush();
