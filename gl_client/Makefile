@@ -8,7 +8,7 @@ CFLAGS+=-DUSE_X11
 # Use screen size from server.
 # CFLAGS+=-DGLS_USE_SRVSIZE
 
-# Try to emulate client arrays with VBO.
+# FIXME required for now
 CFLAGS+=-DGLS_EMULATE_VBO
 
 LIBS=-pthread -ldl -lX11

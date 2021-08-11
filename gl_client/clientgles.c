@@ -6,10 +6,10 @@
 #include "glclient.h"
 #include "GLES2/gl2.h"
 
-#ifdef GLS_EMULATE_VBO
 static struct
 {
     GLuint vbo, ibo, ibo_emu;
+#ifdef GLS_EMULATE_VBO
     struct {
         GLboolean   isenabled;
         GLint       size;
@@ -20,8 +20,8 @@ static struct
         GLuint vbo_id;
         GLuint webgl_vbo_id;
     } attrib_pointer[16]; // FIXME: GL_MAX_VERTEX_ATTRIBS has no upper limit
-} buffer_objs;
 #endif
+} buffer_objs;
 
 static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
 {
@@ -86,14 +86,14 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
   GLS_SET_COMMAND_PTR_BATCH(c, glBindBuffer);
   c->target = target;
   c->buffer = buffer;
-#ifdef GLS_EMULATE_VBO
+  GLS_PUSH_BATCH(glBindBuffer);
+
+  // FIXME: should we wait and check for error ?
   if(target == GL_ARRAY_BUFFER) {
       buffer_objs.vbo = buffer;
   } else if(target == GL_ELEMENT_ARRAY_BUFFER) {
       buffer_objs.ibo = buffer;
   } else printf("gls error: unsupported buffer type!\n");
-#endif // GLS_EMULATE_VBO
-  GLS_PUSH_BATCH(glBindBuffer);
 }
 
 
@@ -315,12 +315,12 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
 
 GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
 {
-#ifdef GLS_EMULATE_VBO
-  buffer_objs.attrib_pointer[index].isenabled = GL_FALSE;
-#endif // GLS_EMULATE_VBO
   GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
   c->index = index;
   GLS_PUSH_BATCH(glDisableVertexAttribArray);
+
+  // FIXME: should we wait and check for error ?
+  buffer_objs.attrib_pointer[index].isenabled = GL_FALSE;
 }
 
 
@@ -465,14 +465,6 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 #ifdef GLS_EMULATE_VBO
     c->indices_isnull = 1;
     c->indices[0] = '\0';
-#else // !GLS_EMULATE_VBO
-    c->indices_isnull = (indices == NULL);
-    if (c->indices_isnull == FALSE) {
-        const GLchar *indices_str = (const GLchar *)indices;
-        memcpy(c->indices, indices_str, GLS_STRING_SIZE);
-    } else {
-        c->indices[0] = '\0';
-    }
 #endif // !GLS_EMULATE_VBO
 
 #if __WORDSIZE == 64
@@ -519,14 +511,6 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
 #ifdef GLS_EMULATE_VBO
     c->indices_isnull = 1;
     c->indices[0] = '\0';
-#else // !GLS_EMULATE_VBO
-    c->indices_isnull = (indices == NULL);
-    if (c->indices_isnull == FALSE) {
-        const GLchar *indices_str = (const GLchar *)indices;
-        memcpy(c->indices, indices_str, GLS_STRING_SIZE);
-    } else {
-        c->indices[0] = '\0';
-    }
 #endif // !GLS_EMULATE_VBO
 
 #if __WORDSIZE == 64
@@ -546,12 +530,12 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
 
 GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 {
-#ifdef GLS_EMULATE_VBO
-    buffer_objs.attrib_pointer[index].isenabled = GL_TRUE;
-#endif // GLS_EMULATE_VBO
     GLS_SET_COMMAND_PTR_BATCH(c, glEnableVertexAttribArray);
     c->index = index;
     GLS_PUSH_BATCH(glEnableVertexAttribArray);
+
+    // FIXME: should we wait and check for error ?
+    buffer_objs.attrib_pointer[index].isenabled = GL_TRUE;
 }
 
 
@@ -1194,24 +1178,6 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLen
 #ifdef GLS_EMULATE_VBO
     c->ptr_isnull = 1;
     c->ptr[0] = '\0';
-#else // !GLS_EMULATE_VBO
-    // 0xA0 glxgears crash?
-    c->ptr_isnull = (ptr == NULL || ptr == 0xc || ptr == 0x2A0 || ptr == 0xA20);
-    // printf("gls glVertexAttribPointer: type=%p, ptr=%p, unptr_null=%p\n", type, ptr, *&ptr);
-    if (c->ptr_isnull == FALSE) {
-        const GLchar *ptr_str = (const GLchar *)ptr;
-        
-        // FIXME it may wrong!
-        // c->ptr_isnull = ptr_str[0] == NULL;
-        
-        // int ptr_str_len = strnlen(ptr_str, 0xA00000) + 1;
-        if (c->ptr_isnull == FALSE) {
-            memcpy(c->ptr, ptr_str, GLS_STRING_SIZE);
-            // ptr_str_len);
-        }
-    } else {
-        c->ptr[0] = '\0';
-    }
 #endif // !GLS_EMULATE_VBO
 
 /*
