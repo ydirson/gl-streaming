@@ -1373,12 +1373,9 @@ typedef struct
   uint32_t indx;
   int32_t size;
   uint32_t type;
-  int32_t stride;
-  // Should it be huge?
-  char ptr[GLS_STRING_SIZE];
-  uint32_t ptr_uint;
-  uint32_t ptr_isnull;
   uint32_t normalized;
+  int32_t stride;
+  uint32_t ptr_uint;
 } gls_glVertexAttribPointer_t;
 
 
