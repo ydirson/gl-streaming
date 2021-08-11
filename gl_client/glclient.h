@@ -91,23 +91,6 @@ extern "C" {
 
 gls_context_t glsc_global;
 
-#ifdef GLS_EMULATE_VBO
-struct vbo_state
-{
-    GLuint vbo, ibo, ibo_emu;
-};
-struct attrib_ptr_s {
-    GLboolean   isenabled;
-    GLint       size;
-    GLenum      type;
-    GLsizei     stride;
-    GLboolean   normalized;
-    const GLvoid *ptr;
-    GLuint vbo_id;
-    GLuint webgl_vbo_id;
-} vt_attrib_pointer[16];
-#endif // GLS_EMUL
-
 uint32_t client_egl_error;
 
 float get_diff_time(struct timeval start, struct timeval end);

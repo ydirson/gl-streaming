@@ -2,13 +2,41 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "glclient.h"
 #include "GLES2/gl2.h"
 
-#ifdef GLS_EMULATE_VBO
-static struct vbo_state vbo;
-#endif
+static struct
+{
+    GLuint vbo, ibo, ibo_emu;
+    struct attrib_pointer_t {
+        GLboolean   isenabled;
+        GLint       size;
+        GLenum      type;
+        GLsizei     stride;
+        GLboolean   normalized;
+        const GLvoid *ptr;
+        GLuint vbo_id;
+        GLuint emul_vbo_id;
+    } attrib_pointer[16]; // FIXME: GL_MAX_VERTEX_ATTRIBS has no upper limit
+} buffer_objs;
+
+static unsigned _type_bytesize(GLenum type)
+{
+    switch(type) {
+    case GL_BOOL: return sizeof(GLboolean);
+    case GL_UNSIGNED_BYTE: return sizeof(GLubyte);
+    case GL_BYTE: return sizeof(GLbyte);
+    case GL_SHORT: return sizeof(GLshort);
+    case GL_UNSIGNED_SHORT: return sizeof(GLushort);
+    case GL_FIXED: return sizeof(GLfixed);
+    case GL_FLOAT: return sizeof(GLfloat);
+    default:
+        fprintf(stderr, "%s: unhandled data type %x\n", __FUNCTION__, type);
+        assert(0);
+    }
+}
 
 static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
 {
@@ -73,14 +101,14 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
   GLS_SET_COMMAND_PTR_BATCH(c, glBindBuffer);
   c->target = target;
   c->buffer = buffer;
-#ifdef GLS_EMULATE_VBO
-  if(target == GL_ARRAY_BUFFER) {
-      vbo.vbo = buffer;
-  } else if(target == GL_ELEMENT_ARRAY_BUFFER) {
-      vbo.ibo = buffer;
-  } else printf("gls error: unsupported buffer type!\n");
-#endif // GLS_EMULATE_VBO
   GLS_PUSH_BATCH(glBindBuffer);
+
+  // FIXME: should we wait and check for error ?
+  if(target == GL_ARRAY_BUFFER) {
+      buffer_objs.vbo = buffer;
+  } else if(target == GL_ELEMENT_ARRAY_BUFFER) {
+      buffer_objs.ibo = buffer;
+  } else printf("gls error: unsupported buffer type!\n");
 }
 
 
@@ -302,12 +330,12 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
 
 GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
 {
-#ifdef GLS_EMULATE_VBO
-  vt_attrib_pointer[index].isenabled = GL_FALSE;
-#endif // GLS_EMULATE_VBO
   GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
   c->index = index;
   GLS_PUSH_BATCH(glDisableVertexAttribArray);
+
+  // FIXME: should we wait and check for error ?
+  buffer_objs.attrib_pointer[index].isenabled = GL_FALSE;
 }
 
 
@@ -344,61 +372,55 @@ GL_APICALL void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar)
 }
 
 
-#ifdef GLS_EMULATE_VBO
-static void wes_vertex_attrib_pointer(int i, int count)
+/*
+ * Send defered glVertexAttribPointer after we set up a VBO
+ */
+static void _send_glVertexAttribPointer(
+    GLuint indx, GLint size, GLenum type, GLboolean normalized,
+    GLsizei stride, const GLvoid* ptr)
 {
-    long ptrdiff;
+    GLS_SET_COMMAND_PTR_BATCH(c, glVertexAttribPointer);
+    c->indx = indx;
+    c->size = size;
+    c->type = type;
+    c->normalized = normalized;
+    c->stride = stride;
+
+    c->ptr_uint = (uint32_t)ptr;
+    GLS_PUSH_BATCH(glVertexAttribPointer);
+}
+
+static void defered_vertex_attrib_pointer(int i, int count)
+{
     int stride;
-    
-    if( !vt_attrib_pointer[i].isenabled || vt_attrib_pointer[i].vbo_id )
+    struct attrib_pointer_t* const attrib = &buffer_objs.attrib_pointer[i];
+
+    if (!attrib->isenabled)
+        return;
+    if (attrib->vbo_id)
+        // uses a VBO, already sent
         return;
 
-    if( !vt_attrib_pointer[i].webgl_vbo_id )
-        glGenBuffers(1, &vt_attrib_pointer[i].webgl_vbo_id );
+    if (!attrib->emul_vbo_id)
+        glGenBuffers(1, &attrib->emul_vbo_id);
 
-    // detect if we can fit multiple arrays to single VBO
-    ptrdiff = (char *)vt_attrib_pointer[i].ptr - (char *)vt_attrib_pointer[0].ptr;
-    stride = vt_attrib_pointer[i].stride;
+    stride = attrib->stride;
+    if (stride == 0)
+        stride = attrib->size * _type_bytesize(attrib->type);
 
-    // detect stride by type
-    if( stride == 0 )
-    {
-        if( vt_attrib_pointer[i].type == GL_UNSIGNED_BYTE )
-            stride = vt_attrib_pointer[i].size;
-        else
-            stride = vt_attrib_pointer[i].size * 4;
-    }
-
-    if( i && vt_attrib_pointer[0].isenabled && !vt_attrib_pointer[0].vbo_id && ptrdiff > 0 && ptrdiff < stride )
-    {
-        // reuse existing array
-        glBindBuffer( GL_ARRAY_BUFFER, vt_attrib_pointer[0].webgl_vbo_id );
-        glVertexAttribPointer(i, vt_attrib_pointer[i].size, vt_attrib_pointer[i].type, vt_attrib_pointer[i].normalized, vt_attrib_pointer[i].stride, (void*)ptrdiff);
-    }
-    else
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, vt_attrib_pointer[i].webgl_vbo_id );
-        //printf("BufferData %d %d\n",vt_attrib_pointer[i].webgl_vbo_id, (count + 4) * stride );
-        glBufferData( GL_ARRAY_BUFFER, (count + 4) * stride, (void*)vt_attrib_pointer[i].ptr, GL_STREAM_DRAW);
-        glVertexAttribPointer(i, vt_attrib_pointer[i].size, vt_attrib_pointer[i].type, vt_attrib_pointer[i].normalized, vt_attrib_pointer[i].stride, 0);
-    }
+    glBindBuffer(GL_ARRAY_BUFFER, attrib->emul_vbo_id);
+    glBufferData(GL_ARRAY_BUFFER, count * stride, (void*)attrib->ptr, GL_STREAM_DRAW);
+    _send_glVertexAttribPointer(i, attrib->size, attrib->type, attrib->normalized, attrib->stride, 0);
 }
-#endif // GLS_EMULATE_VBO
 
 
 GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count)
 {
-#ifdef GLS_EMULATE_VBO
-    int vbo_bkp = vbo.vbo;
-    int i;
-    for( i = 0;i < 16; i++ )
-    {
-        if( vt_attrib_pointer[i].isenabled )
-            wes_vertex_attrib_pointer(i, first + count);
-        // else printf("Vertex attrib pointer %i was not enabled\n", i);
-    }
-    glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
-#endif // GLS_EMULATE_VBO
+  int vbo_bkp = buffer_objs.vbo;
+  int i;
+  for (i = 0;i < 16; i++)
+    defered_vertex_attrib_pointer(i, first + count);
+  glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 
   GLS_SET_COMMAND_PTR_BATCH(c, glDrawArrays);
   c->mode = mode;
@@ -411,19 +433,18 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
 GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
 #ifdef GLS_EMULATE_VBO
-    int vbo_bkp = vbo.vbo;
-    int ibo_bkp = vbo.ibo;
+    int vbo_bkp = buffer_objs.vbo;
+    int ibo_bkp = buffer_objs.ibo;
     int i;
     for (i = 0; i < 16; i++) {
-        if( vt_attrib_pointer[i].isenabled ) {
-            wes_vertex_attrib_pointer(i, 65536);
-        }
+        assert(0);
+        defered_vertex_attrib_pointer(i, 65536);
     }
-    if( !vbo.ibo ) {
-        if( !vbo.ibo_emu ) {
-            glGenBuffers(1, &vbo.ibo_emu);
+    if( !buffer_objs.ibo ) {
+        if( !buffer_objs.ibo_emu ) {
+            glGenBuffers(1, &buffer_objs.ibo_emu);
         }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, type == GL_UNSIGNED_SHORT?count * 2:count*4, indices, GL_STREAM_DRAW);
       
         // why?
@@ -452,14 +473,6 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 #ifdef GLS_EMULATE_VBO
     c->indices_isnull = 1;
     c->indices[0] = '\0';
-#else // !GLS_EMULATE_VBO
-    c->indices_isnull = (indices == NULL);
-    if (c->indices_isnull == FALSE) {
-        const GLchar *indices_str = (const GLchar *)indices;
-        memcpy(c->indices, indices_str, GLS_STRING_SIZE);
-    } else {
-        c->indices[0] = '\0';
-    }
 #endif // !GLS_EMULATE_VBO
 
 #if __WORDSIZE == 64
@@ -482,17 +495,16 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 // this is GLES3
 GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices )
 {
-    int vbo_bkp = vbo.vbo;
-    int ibo_bkp = vbo.ibo;
+    int vbo_bkp = buffer_objs.vbo;
+    int ibo_bkp = buffer_objs.ibo;
     int i;
-    for (i = 0; i < 16; i++) {
-        wes_vertex_attrib_pointer(i, end);
-    }
-    if (!vbo.ibo) {
-        if (!vbo.ibo_emu) {
-            glGenBuffers(1, &vbo.ibo_emu);
+    for (i = 0; i < 16; i++)
+        defered_vertex_attrib_pointer(i, end);
+    if (!buffer_objs.ibo) {
+        if (!buffer_objs.ibo_emu) {
+            glGenBuffers(1, &buffer_objs.ibo_emu);
         }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.ibo_emu);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * (type == GL_UNSIGNED_SHORT ? 2 : 4), indices, GL_STREAM_DRAW);
         indices = 0;
     }
@@ -506,14 +518,6 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
 #ifdef GLS_EMULATE_VBO
     c->indices_isnull = 1;
     c->indices[0] = '\0';
-#else // !GLS_EMULATE_VBO
-    c->indices_isnull = (indices == NULL);
-    if (c->indices_isnull == FALSE) {
-        const GLchar *indices_str = (const GLchar *)indices;
-        memcpy(c->indices, indices_str, GLS_STRING_SIZE);
-    } else {
-        c->indices[0] = '\0';
-    }
 #endif // !GLS_EMULATE_VBO
 
 #if __WORDSIZE == 64
@@ -533,12 +537,12 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
 
 GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 {
-#ifdef GLS_EMULATE_VBO
-    vt_attrib_pointer[index].isenabled = GL_TRUE;
-#endif // GLS_EMULATE_VBO
     GLS_SET_COMMAND_PTR_BATCH(c, glEnableVertexAttribArray);
     c->index = index;
     GLS_PUSH_BATCH(glEnableVertexAttribArray);
+
+    // FIXME: should we wait and check for error ?
+    buffer_objs.attrib_pointer[index].isenabled = GL_TRUE;
 }
 
 
@@ -1148,72 +1152,28 @@ GL_APICALL void GL_APIENTRY glVertexAttrib4fv(GLuint index, const GLfloat *v)
 }
 
 
-#ifdef GLS_EMULATE_VBO
-void glVertexAttribPointer_vbo (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)
+GL_APICALL void GL_APIENTRY glVertexAttribPointer(
+    GLuint indx, GLint size, GLenum type, GLboolean normalized,
+    GLsizei stride, const GLvoid* ptr)
 {
-    vt_attrib_pointer[indx].size = size;
-    vt_attrib_pointer[indx].type = type;
-    vt_attrib_pointer[indx].stride = stride;
-    vt_attrib_pointer[indx].normalized = normalized;
-    vt_attrib_pointer[indx].ptr = ptr;
-    vt_attrib_pointer[indx].vbo_id = vbo.vbo;
-}
-#endif // GLS_EMULATE_VBO
-
-
-GL_APICALL void GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)
-{
-#ifdef GLS_EMULATE_VBO
-    if(!vbo.vbo) {// ignore non-vbo
-        glVertexAttribPointer_vbo(indx, size, type, normalized, stride, ptr);
+    if (buffer_objs.vbo) {
+        // VBO: send now
+        _send_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+        // declare as VBO so it is not sent twice - FIXME use a bool?
+        buffer_objs.attrib_pointer[indx].vbo_id = buffer_objs.vbo;
         return;
     }
-    vt_attrib_pointer[indx].vbo_id = vbo.vbo;
-#endif // GLS_EMULATE_VBO
 
-    gls_cmd_flush();
-    GLS_SET_COMMAND_PTR_BATCH(c, glVertexAttribPointer);
-    c->indx = indx;
-    c->size = size;
-    c->type = type;
-    c->stride = stride;
-
-#ifdef GLS_EMULATE_VBO
-    c->ptr_isnull = 1;
-    c->ptr[0] = '\0';
-#else // !GLS_EMULATE_VBO
-    // 0xA0 glxgears crash?
-    c->ptr_isnull = (ptr == NULL || ptr == 0xc || ptr == 0x2A0 || ptr == 0xA20);
-    // printf("gls glVertexAttribPointer: type=%p, ptr=%p, unptr_null=%p\n", type, ptr, *&ptr);
-    if (c->ptr_isnull == FALSE) {
-        const GLchar *ptr_str = (const GLchar *)ptr;
-        
-        // FIXME it may wrong!
-        // c->ptr_isnull = ptr_str[0] == NULL;
-        
-        // int ptr_str_len = strnlen(ptr_str, 0xA00000) + 1;
-        if (c->ptr_isnull == FALSE) {
-            memcpy(c->ptr, ptr_str, GLS_STRING_SIZE);
-            // ptr_str_len);
-        }
-    } else {
-        c->ptr[0] = '\0';
-    }
-#endif // !GLS_EMULATE_VBO
-
-/*
-    c->ptr_isnull = 1;
-    c->ptr[0] = '\0';
-*/
-
-#if __WORDSIZE == 64
-    c->ptr_uint = (uint32_t)(uint64_t)ptr;
-#else // __WORDSIZE == 32
-    c->ptr_uint = (uint32_t)ptr;
-#endif // __WORDSIZE == 32
-
-    c->normalized = normalized;
-    GLS_PUSH_BATCH(glVertexAttribPointer);
+    /*
+     * Defered Vertex Client Array: will upload at glDrawArrays time
+     * when data size is known.
+     */
+    buffer_objs.attrib_pointer[indx].size = size;
+    buffer_objs.attrib_pointer[indx].type = type;
+    buffer_objs.attrib_pointer[indx].stride = stride;
+    buffer_objs.attrib_pointer[indx].normalized = normalized;
+    buffer_objs.attrib_pointer[indx].ptr = ptr;
+    buffer_objs.attrib_pointer[indx].vbo_id = 0;
 }
 
 

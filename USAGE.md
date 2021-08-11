@@ -47,14 +47,6 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - This is enabled if USE_X11 is not enabled.
 - May useful for fixing draw size bugs.
 
-### • GLS_EMULATE_VBO
-- Try to emulate client arrays with VBO.
-- Enabled by default.
-- This is experimental, disable may make:
- + `es2tri` or some programs show blank screen.
- + `glxheads` show a rotating triange around surface instead of middle.
- + `glxgears` jump to invalid address and segmentation fault.
-
 # Environment variable on launch
 ## Server
 - Nothing yet.

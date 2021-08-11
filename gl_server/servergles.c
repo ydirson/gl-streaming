@@ -655,12 +655,8 @@ void glse_glVertexAttribFloat()
 void glse_glVertexAttribPointer()
 {
     GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
-
-    // int ptr_str_len = strnlen(c->ptr, 0xA00000);
-    // LOGD("PTR Str len = %i\n", ptr_str_len);
-    
     glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride,
-                          ((const GLvoid *) (c->ptr_isnull == TRUE ? (void*)c->ptr_uint : c->ptr)));
+                          (void*)c->ptr_uint);
 }
 
 
