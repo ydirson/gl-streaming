@@ -533,7 +533,7 @@ void glse_glShaderSource()
     LOGD("\n ----- BEGIN SHADER CONTENT -----\n");
   
     for (i = 0; i < c->count; i++) {
-      size_t strsize = dat->length ? dat->length[i] : 0;
+      size_t strsize = dat->length[i];
       if (strsize == 0)
         strsize = strlen(strings[i]);
       LOGD("gls debug: shader length = %i\n", strsize);
