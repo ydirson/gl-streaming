@@ -7,7 +7,20 @@
 #include "GLES2/gl2.h"
 
 #ifdef GLS_EMULATE_VBO
-static struct vbo_state vbo;
+static struct
+{
+    GLuint vbo, ibo, ibo_emu;
+} vbo;
+static struct {
+    GLboolean   isenabled;
+    GLint       size;
+    GLenum      type;
+    GLsizei     stride;
+    GLboolean   normalized;
+    const GLvoid *ptr;
+    GLuint vbo_id;
+    GLuint webgl_vbo_id;
+} vt_attrib_pointer[16];
 #endif
 
 static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
