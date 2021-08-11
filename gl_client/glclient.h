@@ -78,6 +78,14 @@ extern "C" {
 // send_packet(sizeof(gls_glFunctionName_t));
 #define GLS_SEND_PACKET(FUNCNAME) send_packet(sizeof(gls_##FUNCNAME##_t))
 
+#define WARN_STUBBED() do {                                             \
+    static int shown = 0;                                               \
+    if (!shown) {                                                       \
+      fprintf(stderr, "WARNING: %s is stubbed\n", __FUNCTION__);        \
+      shown = 1;                                                        \
+    }                                                                   \
+  } while(0);
+
 #define TRUE 1
 #define FALSE 0
 

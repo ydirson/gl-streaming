@@ -10,6 +10,37 @@
 static struct vbo_state vbo;
 #endif
 
+static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
+{
+    switch (type) {
+    case GL_UNSIGNED_BYTE:
+        switch (format) {
+        case GL_ALPHA:
+            return 1;
+        case GL_RGB:
+            return 3;
+        case GL_RGBA:
+            return 4;
+        case GL_LUMINANCE:
+            return 1;
+        case GL_LUMINANCE_ALPHA:
+            return 2;
+        default:
+            fprintf(stderr, "WARNING: unhandled pixel format %x\n", format);
+            return 4;
+        }
+    case GL_UNSIGNED_SHORT_5_6_5:
+        return 2;
+    case GL_UNSIGNED_SHORT_4_4_4_4:
+        return 2;
+    case GL_UNSIGNED_SHORT_5_5_5_1:
+        return 2;
+    default:
+        fprintf(stderr, "WARNING: unhandled pixel type %x\n", type);
+        return 4;
+    }
+}
+
 GL_APICALL void GL_APIENTRY glActiveTexture (GLenum texture)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glActiveTexture);
@@ -816,7 +847,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
   
   // printf("\n ----- BEGIN SHADER CONTENT -----\n");
   uint32_t stroffset = 0;
-  unsigned int i;
+  int i;
 
   // FIXME we're sending both a full length-array *and* NUL terminators
   for (i = 0; i < count; i++) {
@@ -893,8 +924,10 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
     
     wait_for_data("timeout:glReadPixels");
     gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsc_global.tmp_buf.buf;
-    pixels = ret->pixels;
-    // memcpy(pixels, ret->pixels, width * height); // width * height = size correct???
+    uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
+    uint32_t linebytes = ((pixelbytes * width + glsc_global.pack_alignment - 1) &
+                          (~ (glsc_global.pack_alignment - 1)));
+    memcpy(pixels, ret->pixels, linebytes * height);
 }
 
 
@@ -938,42 +971,8 @@ GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint 
 
 GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
 {
-    uint32_t pixelbytes, linebytes, datasize;
-    switch (type) {
-        case GL_UNSIGNED_BYTE:
-            switch (format) {
-                case GL_ALPHA:
-                    pixelbytes = 1;
-                    break;
-                case GL_RGB:
-                    pixelbytes = 3;
-                    break;
-                case GL_RGBA:
-                    pixelbytes = 4;
-                    break;
-                case GL_LUMINANCE:
-                    pixelbytes = 1;
-                    break;
-                case GL_LUMINANCE_ALPHA:
-                    pixelbytes = 2;
-                    break;
-                default:
-                    pixelbytes = 4;
-                    break;
-            } break;
-        case GL_UNSIGNED_SHORT_5_6_5:
-            pixelbytes = 2;
-            break;
-        case GL_UNSIGNED_SHORT_4_4_4_4:
-            pixelbytes = 2;
-            break;
-        case GL_UNSIGNED_SHORT_5_5_5_1:
-            pixelbytes = 2;
-            break;
-        default:
-            pixelbytes = 4;
-            break;
-  }
+  uint32_t pixelbytes, linebytes, datasize;
+  pixelbytes = _pixelformat_to_bytes(format, type);
   linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
   datasize = linebytes * height;
   GLS_SET_COMMAND_PTR_BATCH(c, glTexImage2D);
@@ -1002,44 +1001,7 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
 GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels)
 {
   uint32_t pixelbytes, linebytes, datasize;
-  switch (type)
-  {
-    case GL_UNSIGNED_BYTE:
-      switch (format)
-      {
-        case GL_ALPHA:
-          pixelbytes = 1;
-          break;
-        case GL_RGB:
-          pixelbytes = 3;
-          break;
-        case GL_RGBA:
-          pixelbytes = 4;
-          break;
-        case GL_LUMINANCE:
-          pixelbytes = 1;
-          break;
-        case GL_LUMINANCE_ALPHA:
-          pixelbytes = 2;
-          break;
-        default:
-          pixelbytes = 4;
-          break;
-      }
-      break;
-    case GL_UNSIGNED_SHORT_5_6_5:
-      pixelbytes = 2;
-      break;
-    case GL_UNSIGNED_SHORT_4_4_4_4:
-      pixelbytes = 2;
-      break;
-    case GL_UNSIGNED_SHORT_5_5_5_1:
-      pixelbytes = 2;
-      break;
-    default:
-      pixelbytes = 4;
-      break;
-  }
+  pixelbytes = _pixelformat_to_bytes(format, type);
   linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
   datasize = linebytes * height;
   GLS_SET_COMMAND_PTR_BATCH(c, glTexSubImage2D);
