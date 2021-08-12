@@ -19,8 +19,6 @@ decent GPU acceleration to Qubes containers.
 
 This is still a work in progress, notably:
 
-* only 32bit builds can work at all (addressing this is top priority).
-
 * despite all the work previously done, only very simple applications
   work (eg. es2gears, some glmark2 benchmarks).
 
@@ -35,6 +33,10 @@ This is still a work in progress, notably:
 
 * there are security concerns about the usage of pointer types in the
   protocol.
+
+* usage of pointer types in the protocol also implies that only 64bit
+  builds can work now.  We should not only be able to build 32bit
+  versions to, but to have them interoperate.
 
 * no protocol extension is supported yet, until proper generic
   extension support gets implemented.
