@@ -1,6 +1,6 @@
 # TODO list for proper Linux and Qubes support
 
-- [ ] work on native 32bit linux
+- [ ] work on native linux
   - [x] disable server GLES extensions, symbols not exported by standard libs
   - [x] default window size
   - [x] proper line endings in logs
@@ -11,8 +11,10 @@
     - [ ] es2tri support
     - [ ] eglgears support
     - [x] es2gears support
+    - [ ] acceptable glmark2 coverage
 - [x] readable indentation
-- [ ] work on native 64bit platforms
+- [ ] work on native 32bit linux (now broken by hacking in 64bit support)
+- [x] work on native 64bit platforms
   - [ ] as a first step include word-size in protocol if needed
 - improve code quality
   - [x] take compiler warnings into account
