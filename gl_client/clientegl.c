@@ -172,7 +172,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
     
     if (configs) {
         assert(*num_config <= config_size);
-        memcpy(configs, ret->configs, ret->num_config * sizeof(EGLint));
+        memcpy(configs, ret->configs, ret->num_config * sizeof(EGLConfig));
     }
     
     return ret->success;
