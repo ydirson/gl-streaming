@@ -51,7 +51,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs,
     *num_config = ret->num_config;
     if (configs) {
         assert(*num_config <= config_size);
-        memcpy(configs, ret->configs, *num_config * sizeof(EGLint));
+        memcpy(configs, ret->configs, *num_config * sizeof(EGLConfig));
     }
     return ret->success;
 }
