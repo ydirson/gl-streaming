@@ -227,9 +227,9 @@ void * glserver_thread(void * arg)
           
           if (result == FALSE) {
 #ifdef GL_DEBUG
-              fprintf(fl,"@Exec: %i : Undefined command\n",c->cmd);
+            fprintf(fl,"@Exec: %d : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
-              LOGE("Error: Undefined command %i", c->cmd);
+            LOGE("Error: Undefined command %d (%s)", c->cmd, GLSC_tostring(c->cmd));
           }
           break;
         }
