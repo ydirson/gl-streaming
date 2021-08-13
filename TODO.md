@@ -8,7 +8,7 @@
   - [ ] enough EGL/GLES2 coverage to use mesa-demos examples
     - [x] eglinfo, es2_info support
     - [ ] egltri support
-    - [ ] es2tri support
+    - [x] es2tri support
     - [ ] eglgears support
     - [x] es2gears support
     - [ ] acceptable glmark2 coverage
@@ -32,6 +32,8 @@
         we could mitigate that aspect by tracking valid pointer values, but also
         problematic for 64bit platforms, when casting pointers into 32bit integers...)
   - [x] find out which EGL and GLES standard version are precisely covered today
+  - [ ] let eglQuerySurface do all size queries except for the window one, don't stub
+        all of them
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
   - [ ] non-stub eglInitialize
   - [ ] ensure non-modification of output params on error (API compliance)

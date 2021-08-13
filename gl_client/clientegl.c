@@ -6,8 +6,11 @@
 
 #include "glclient.h"
 
-#if defined(USE_X11) && !defined(USE_SERVER_SIZE)
+#if defined(USE_X11)
+Display *xDisplay;
+# if !defined(USE_SERVER_SIZE)
 Window xWindow;
+# endif
 #endif
 
 EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
@@ -75,6 +78,11 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 {
+#ifdef USE_X11
+    if (xDisplay && xDisplay != native_display)
+        fprintf(stderr, "GLS warning: eglGetDisplay: changing X11 Display\n");
+    xDisplay = native_display;
+#endif
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetDisplay);
     if (0)
@@ -216,9 +224,13 @@ EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surf
 
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value )
 {
-    // This fix size assert in `es2gears` and `es2tri`.
 #if !defined(GLS_USE_SRVSIZE) && defined(USE_X11)
+    // Take the size of client-side window instead of server-side surface.
+    // Avoids assertion on size-checking (and unwanted scaling if commenting out
+    // assertion) eg. in `es2tri`
     if (xDisplay != NULL && xWindow != 0 && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
+        // FIXME this kludge should only be done for the window surface!
+        fprintf(stderr, "GLS: eglQuerySurface: querying client window\n");
         XWindowAttributes xWindowAttrs;
         if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
             printf("Warning: XGetWindowAttributes failed!");
@@ -233,12 +245,10 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
                     return EGL_TRUE;
             }
         }
-        
-        // *value = 300;
-        // return EGL_TRUE;
     }
 #endif // ndef GLS_USE_SRVSIZE && def USE_X11
     
+    fprintf(stderr, "GLS: eglQuerySurface: querying server window\n");
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglQuerySurface);
     c->dpy = (uint64_t)dpy;

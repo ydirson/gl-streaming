@@ -31,14 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <stdio.h>
 
-#ifdef USE_X11
-#include <X11/X.h>
-#include <X11/Xlib.h>
-
-extern Display *xDisplay;
-extern int xScreenId;
-#endif
-
 #include "gls_command.h"
 #include "server.h"
 

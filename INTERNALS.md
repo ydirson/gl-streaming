@@ -117,6 +117,16 @@ one shared object space gets used.
 This case has yet to be properly handled, and is protected by an
 `assert(0)` in the meantime.
 
+### `eglQuerySurface` and size attributes
+
+Currently we use a single (fixed-size) window on server side, created
+when launching the server.  This usually does not match the size of
+the window created by client apps.  When an app queries the width or
+height of the window surface to fit rendering to this size, querying
+the server for the real EGLSurface size gives unintended results (and
+in the case where a demo app like `es2tri` checks the size matches its
+expectations, can result in early abort).
+
 
 # other things to be documented
 

@@ -44,8 +44,8 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 ### GLS_USE_SRVSIZE
 - Use server window size instead of X Window size.
 - Disabled by default.
-- This is enabled if USE_X11 is not enabled.
-- May useful for fixing draw size bugs.
+- Only meaningful if USE_X11 is enabled.
+- May be useful to disable scaling of rendering to server window size.
 
 # Environment variable on launch
 ## Server

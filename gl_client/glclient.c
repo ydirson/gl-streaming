@@ -35,14 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glclient.h"
 
-#ifdef USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
-Display *xDisplay;
-int xScreenId;
-#endif
-
 
 float get_diff_time(struct timeval start, struct timeval end)
 {
@@ -121,15 +113,6 @@ int gls_init(server_context_t *arg)
   glsc_global.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
   glsc_global.out_buf.ptr = 0;
   glsc_global.tmp_buf.ptr = 0;
-/*
-  xDisplay = XOpenDisplay(NULL);
-  if (xDisplay == NULL) {
-      printf("gls error: could not open X11 display.\n");
-      exit(EXIT_FAILURE);
-      return FALSE;
-  }
-  xScreenId = DefaultScreen(xDisplay);
-*/
   client_egl_error = EGL_SUCCESS;
   
   return TRUE;
@@ -172,9 +155,6 @@ void gls_init_library()
     server_start(&sc);
     gls_init(&sc);
     gls_cmd_get_context();
-
-    // xDisplay = XOpenDisplay(NULL);
-    // xScreenId = DefaultScreen(xDisplay);
     
     init = TRUE;
 }
@@ -182,10 +162,6 @@ void gls_init_library()
 
 int gls_free()
 {
-#ifdef USE_X11
-    XCloseDisplay(xDisplay);
-#endif
-   
     free(glsc_global.out_buf.buf);
     free(glsc_global.tmp_buf.buf);
   
