@@ -34,6 +34,7 @@
         we could mitigate that aspect by tracking valid pointer values, but also
         problematic for 64bit platforms, when casting pointers into 32bit integers...)
   - [x] find out which EGL and GLES standard version are precisely covered today
+  - [x] fix texture support
   - [ ] funky issues around glCullFace: GL_BACK rejected as GL_INVALID_ENUM
   - [ ] server leaks non-freed resources (caused by lack of context management ?)
   - [ ] let eglQuerySurface do all size queries except for the window one, don't stub

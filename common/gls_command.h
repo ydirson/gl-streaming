@@ -1266,8 +1266,8 @@ typedef struct
   int32_t border;
   uint32_t format;
   uint32_t type;
-  char pixels[4];
   uint32_t pixels_isnull;
+  char pixels[4];
 } gls_glTexImage2D_t;
 
 
@@ -1292,8 +1292,8 @@ typedef struct
   int32_t height;
   uint32_t format;
   uint32_t type;
-  char pixels[4];
   uint32_t pixels_isnull;
+  char pixels[4];
 } gls_glTexSubImage2D_t;
 
 
