@@ -1159,6 +1159,32 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint32_t buffer;
+} gls_glIsBuffer_t;
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t isbuffer;
+} gls_ret_glIsBuffer_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t cap;
+} gls_glIsEnabled_t;
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t isenabled;
+} gls_ret_glIsEnabled_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
   float width;
 } gls_glLineWidth_t;
 

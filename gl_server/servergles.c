@@ -475,6 +475,24 @@ void glse_glHint()
 }
 
 
+void glse_glIsBuffer()
+{
+  GLSE_SET_COMMAND_PTR(c, glIsBuffer);
+  gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsec_global.tmp_buf.buf;
+  ret->isbuffer = glIsBuffer(c->buffer);
+  glse_cmd_send_data(0, sizeof(gls_ret_glIsBuffer_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+
+void glse_glIsEnabled()
+{
+  GLSE_SET_COMMAND_PTR(c, glIsEnabled);
+  gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsec_global.tmp_buf.buf;
+  ret->isenabled = glIsEnabled(c->cap);
+  glse_cmd_send_data(0, sizeof(gls_ret_glIsEnabled_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+
 void glse_glLineWidth()
 {
   GLSE_SET_COMMAND_PTR(c, glLineWidth);
@@ -665,15 +683,6 @@ void glse_glViewport()
     GLSE_SET_COMMAND_PTR(c, glViewport);
     glViewport(c->x, c->y, c->width, c->height);
 }
-
-/*
-void glse_glIsEnabled()
-{
-    // GLboolean glIsEnabled(    GLenum cap);
-    
-    
-}
-*/
 
 
 #if 0
@@ -1054,6 +1063,12 @@ int gles_executeCommand(gls_command_t *c) {
             break;
         case GLSC_glGetUniformLocation:
             glse_glGetUniformLocation();
+            break;
+        case GLSC_glIsBuffer:
+            glse_glIsBuffer();
+            break;
+        case GLSC_glIsEnabled:
+            glse_glIsEnabled();
             break;
 #if 0
         case GLSC_glUnmapBufferOES:

@@ -823,6 +823,30 @@ GL_APICALL void GL_APIENTRY glHint (GLenum target, GLenum mode)
 }
 
 
+GL_APICALL GLboolean GL_APIENTRY glIsBuffer (GLuint buffer)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glIsBuffer);
+  c->buffer = buffer;
+  GLS_SEND_PACKET(glIsBuffer);
+  wait_for_data("timeout:glIsBuffer");
+  gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsc_global.tmp_buf.buf;
+  return ret->isbuffer;
+}
+
+
+GL_APICALL GLboolean GL_APIENTRY glIsEnabled (GLenum cap)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glIsEnabled);
+  c->cap = cap;
+  GLS_SEND_PACKET(glIsEnabled);
+  wait_for_data("timeout:glIsEnabled");
+  gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsc_global.tmp_buf.buf;
+  return ret->isenabled;
+}
+
+
 GL_APICALL void GL_APIENTRY glLineWidth (GLfloat width)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glLineWidth);
