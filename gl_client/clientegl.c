@@ -194,9 +194,9 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
         client_egl_error = EGL_BAD_NATIVE_WINDOW;
         return EGL_NO_SURFACE;
     }
-#if !defined(GLS_USE_SRVSIZE) && defined(USE_X11)
+#if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
     xWindow = window;
-#endif // GLS_USE_SRVSIZE
+#endif
     
     return eglGetCurrentSurface(EGL_DRAW);
 }
@@ -224,7 +224,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surf
 
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value )
 {
-#if !defined(GLS_USE_SRVSIZE) && defined(USE_X11)
+#if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
     // Take the size of client-side window instead of server-side surface.
     // Avoids assertion on size-checking (and unwanted scaling if commenting out
     // assertion) eg. in `es2tri`
@@ -246,7 +246,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
             }
         }
     }
-#endif // ndef GLS_USE_SRVSIZE && def USE_X11
+#endif
     
     fprintf(stderr, "GLS: eglQuerySurface: querying server window\n");
     gls_cmd_flush();

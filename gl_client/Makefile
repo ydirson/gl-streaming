@@ -4,8 +4,8 @@ CFLAGS = $(WARNINGS) -O3 -I../common -I. -I./include -fPIC -g
 # Use X11
 CFLAGS+=-DUSE_X11
 
-# Use screen size from server.
-# CFLAGS+=-DGLS_USE_SRVSIZE
+# Fake surface size from client-side window
+CFLAGS+=-DGLS_USE_CLTSIZE
 
 # FIXME required for now
 CFLAGS+=-DGLS_EMULATE_VBO

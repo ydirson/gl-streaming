@@ -41,10 +41,11 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Enabled by default.
 - Sample side doesn't use X11 so not enabled.
 
-### GLS_USE_SRVSIZE
-- Use server window size instead of X Window size.
-- Disabled by default.
+### GLS_USE_CLTSIZE
+- Use client X11 window size as surface size (instead of querying server
+  and getting the fixed window size we currently have)
 - Only meaningful if USE_X11 is enabled.
+- Enabled by default.
 - May be useful to disable scaling of rendering to server window size.
 
 # Environment variable on launch
