@@ -31,7 +31,7 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 
 # Variables on compile
 ## Sever
-### • GL_DEBUG
+### GL_DEBUG
 - Enable debug log write to `/sdard/mthr_log.txt`.
 - Disabled by default.
 
@@ -41,7 +41,7 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Enabled by default.
 - Sample side doesn't use X11 so not enabled.
 
-### • GLS_USE_SRVSIZE
+### GLS_USE_SRVSIZE
 - Use server window size instead of X Window size.
 - Disabled by default.
 - This is enabled if USE_X11 is not enabled.
@@ -52,12 +52,12 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Nothing yet.
 
 ## Client
-### • GLS_DEBUG
+### GLS_DEBUG
 - Log executing/flushing command to the console. Disabled by default.
 - 0: Disable command logging (default).
 - 1: Enable command logging.
 
-### • GLS_SERVER_ADDR
+### GLS_SERVER_ADDR
 - Set server IP address and port.
 - Default value: `127.0.0.1:18145`.
 
