@@ -28,10 +28,14 @@
           network layer and queue layer
   - [ ] reduce malloc/free
 - fixes
+  - [ ] non-implemented functions (eg. glIsEnabled) cause client to segfault because
+        symbol is NULL, core functions must all be provided
   - [ ] stop passing any kind of pointer over the wire (huge security issue, although
         we could mitigate that aspect by tracking valid pointer values, but also
         problematic for 64bit platforms, when casting pointers into 32bit integers...)
   - [x] find out which EGL and GLES standard version are precisely covered today
+  - [ ] funky issues around glCullFace: GL_BACK rejected as GL_INVALID_ENUM
+  - [ ] server leaks non-freed resources (caused by lack of context management ?)
   - [ ] let eglQuerySurface do all size queries except for the window one, don't stub
         all of them
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
@@ -40,6 +44,7 @@
   - [ ] don't use GLint in protocol? (specified as platform-dependant, even though
         Mesa uses 32bit even on 64bit platforms)
   - [ ] handle window size, create windows on demand, not just a fixed one
+  - [ ] apitrace fails with __eglMustCastToProperFunctionPointerType
 - improve coverage
   - [ ] full EGL core
     - [x] non-stub config handling
