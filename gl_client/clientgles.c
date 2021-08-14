@@ -69,6 +69,7 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
     }
 }
 
+
 GL_APICALL void GL_APIENTRY glActiveTexture (GLenum texture)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glActiveTexture);
@@ -95,6 +96,7 @@ GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, 
   strncpy(c->name, name, GLS_STRING_SIZE);
   GLS_PUSH_BATCH(glBindAttribLocation);
 }
+
 
 GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
 {
@@ -130,17 +132,6 @@ GL_APICALL void GL_APIENTRY glBindTexture (GLenum target, GLuint texture)
 }
 
 
-GL_APICALL void GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glBlendFuncSeparate);
-  c->srcRGB = srcRGB;
-  c->dstRGB = dstRGB;
-  c->srcAlpha = srcAlpha;
-  c->dstAlpha = dstAlpha;
-  GLS_PUSH_BATCH(glBlendFuncSeparate);
-}
-
-
 GL_APICALL void GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glBlendEquationSeparate);
@@ -156,6 +147,17 @@ GL_APICALL void GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor)
   c->sfactor = sfactor;
   c->dfactor = dfactor;
   GLS_PUSH_BATCH(glBlendFunc);
+}
+
+
+GL_APICALL void GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glBlendFuncSeparate);
+  c->srcRGB = srcRGB;
+  c->dstRGB = dstRGB;
+  c->srcAlpha = srcAlpha;
+  c->dstAlpha = dstAlpha;
+  GLS_PUSH_BATCH(glBlendFuncSeparate);
 }
 
 
@@ -296,19 +298,19 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 }
 
 
-GL_APICALL void GL_APIENTRY glDeleteShader (GLuint shader)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteShader);
-  c->shader = shader;
-  GLS_PUSH_BATCH(glDeleteShader);
-}
-
-
 GL_APICALL void GL_APIENTRY glDeleteProgram (GLuint program)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glDeleteProgram);
   c->program = program;
   GLS_PUSH_BATCH(glDeleteProgram);
+}
+
+
+GL_APICALL void GL_APIENTRY glDeleteShader (GLuint shader)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteShader);
+  c->shader = shader;
+  GLS_PUSH_BATCH(glDeleteShader);
 }
 
 
@@ -325,25 +327,6 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
   memcpy(c->textures, textures, datasize);
   push_batch_command(cmd_size);
   gls_cmd_flush();
-}
-
-
-GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
-  c->index = index;
-  GLS_PUSH_BATCH(glDisableVertexAttribArray);
-
-  // FIXME: should we wait and check for error ?
-  buffer_objs.attrib_pointer[index].isenabled = GL_FALSE;
-}
-
-
-GL_APICALL void GL_APIENTRY glDisable (GLenum cap)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glDisable);
-  c->cap = cap;
-  GLS_PUSH_BATCH(glDisable);
 }
 
 
@@ -369,6 +352,25 @@ GL_APICALL void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar)
   c->zNear = zNear;
   c->zFar = zFar;
   GLS_PUSH_BATCH(glDepthRangef);
+}
+
+
+GL_APICALL void GL_APIENTRY glDisable (GLenum cap)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDisable);
+  c->cap = cap;
+  GLS_PUSH_BATCH(glDisable);
+}
+
+
+GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
+  c->index = index;
+  GLS_PUSH_BATCH(glDisableVertexAttribArray);
+
+  // FIXME: should we wait and check for error ?
+  buffer_objs.attrib_pointer[index].isenabled = GL_FALSE;
 }
 
 
@@ -535,6 +537,14 @@ GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count
 #endif
 
 
+GL_APICALL void GL_APIENTRY glEnable (GLenum cap)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glEnable);
+  c->cap = cap;
+  GLS_PUSH_BATCH(glEnable);
+}
+
+
 GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 {
     GLS_SET_COMMAND_PTR_BATCH(c, glEnableVertexAttribArray);
@@ -543,14 +553,6 @@ GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 
     // FIXME: should we wait and check for error ?
     buffer_objs.attrib_pointer[index].isenabled = GL_TRUE;
-}
-
-
-GL_APICALL void GL_APIENTRY glEnable (GLenum cap)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glEnable);
-  c->cap = cap;
-  GLS_PUSH_BATCH(glEnable);
 }
 
 
@@ -705,6 +707,23 @@ GL_APICALL void GL_APIENTRY glGetIntegerv(GLenum name, GLint *params)
 }
 
 
+GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)
+{
+    gls_cmd_flush();
+    GLS_SET_COMMAND_PTR(c, glGetProgramiv);
+    c->program = program;
+    c->pname = pname;
+    GLS_SEND_PACKET(glGetProgramiv);
+
+    wait_for_data("timeout:glGetProgramiv");
+    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.tmp_buf.buf;
+
+    *params = ret->params;
+
+    // printf("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", program, pname, params, *params);
+}
+
+
 GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)
 {
   gls_cmd_flush();
@@ -722,23 +741,6 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
     ret->infolog[0] = '\0';
   }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
-}
-
-
-GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)
-{
-    gls_cmd_flush();
-    GLS_SET_COMMAND_PTR(c, glGetProgramiv);
-    c->program = program;
-    c->pname = pname;
-    GLS_SEND_PACKET(glGetProgramiv);
-
-    wait_for_data("timeout:glGetProgramiv");
-    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.tmp_buf.buf;
-    
-    *params = ret->params;
-    
-    // printf("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", program, pname, params, *params);
 }
 
 
@@ -863,52 +865,6 @@ GL_APICALL void GL_APIENTRY glLinkProgram (GLuint program)
 }
 
 
-GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar*const* string, const GLint* length)
-{
-  gls_cmd_flush();
-  if (count > 10240) { // 256
-    printf("gls warning: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
-    return;
-  }
-  gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsc_global.tmp_buf.buf;
-  size_t size_all = (size_t)(dat->data - (char *)dat);
-  
-  // printf("\n ----- BEGIN SHADER CONTENT -----\n");
-  uint32_t stroffset = 0;
-  int i;
-
-  // FIXME we're sending both a full length-array *and* NUL terminators
-  for (i = 0; i < count; i++) {
-    const GLchar *strptr = string[i];
-    size_t strsize = length ? length[i] : 0;
-    if (strsize == 0)
-      strsize = strlen(strptr);
-    size_all += strsize + 1;
-    if (size_all > GLS_TMP_BUFFER_SIZE) {
-      printf("gls error: shader buffer size overflow!\n");
-      return;
-    }
-    dat->offsets[i] = stroffset;
-    dat->length[i] = strsize;
-    memcpy(&dat->data[stroffset], strptr, strsize + 1);
-    dat->data[stroffset + strsize] = '\0';
-    stroffset += strsize + 1;
-    
-    // printf("gls debug: shader length = %i\n", strsize);
-    
-    // printf("%s\n", strptr);
-  }
-
-  // printf(" ----- ENDED SHADER CONTENT -----\n\n");
-  
-  gls_cmd_send_data(0, size_all, glsc_global.tmp_buf.buf);
-  GLS_SET_COMMAND_PTR(c, glShaderSource);
-  c->shader = shader;
-  c->count = count;
-  GLS_SEND_PACKET(glShaderSource);
-}
-
-
 GL_APICALL void GL_APIENTRY glPixelStorei (GLenum pname, GLint param)
 {
   switch (pname)
@@ -959,6 +915,52 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
 }
 
 
+GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar*const* string, const GLint* length)
+{
+  gls_cmd_flush();
+  if (count > 10240) { // 256
+    printf("gls warning: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
+    return;
+  }
+  gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsc_global.tmp_buf.buf;
+  size_t size_all = (size_t)(dat->data - (char *)dat);
+  
+  // printf("\n ----- BEGIN SHADER CONTENT -----\n");
+  uint32_t stroffset = 0;
+  int i;
+
+  // FIXME we're sending both a full length-array *and* NUL terminators
+  for (i = 0; i < count; i++) {
+    const GLchar *strptr = string[i];
+    size_t strsize = length ? length[i] : 0;
+    if (strsize == 0)
+      strsize = strlen(strptr);
+    size_all += strsize + 1;
+    if (size_all > GLS_TMP_BUFFER_SIZE) {
+      printf("gls error: shader buffer size overflow!\n");
+      return;
+    }
+    dat->offsets[i] = stroffset;
+    dat->length[i] = strsize;
+    memcpy(&dat->data[stroffset], strptr, strsize + 1);
+    dat->data[stroffset + strsize] = '\0';
+    stroffset += strsize + 1;
+    
+    // printf("gls debug: shader length = %i\n", strsize);
+    
+    // printf("%s\n", strptr);
+  }
+
+  // printf(" ----- ENDED SHADER CONTENT -----\n\n");
+  
+  gls_cmd_send_data(0, size_all, glsc_global.tmp_buf.buf);
+  GLS_SET_COMMAND_PTR(c, glShaderSource);
+  c->shader = shader;
+  c->count = count;
+  GLS_SEND_PACKET(glShaderSource);
+}
+
+
 GL_APICALL void GL_APIENTRY glStencilFunc(GLenum func, GLint r, GLuint m)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glStencilFunc);
@@ -984,16 +986,6 @@ GL_APICALL void GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass
   c->zfail = zfail;
   c->zpass = zpass;
   GLS_PUSH_BATCH(glStencilOp);
-}
-
-
-GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glTexParameteri);
-  c->target = target;
-  c->pname = pname;
-  c->param = param;
-  GLS_PUSH_BATCH(glTexParameteri);
 }
 
 
@@ -1023,6 +1015,16 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
   }
   push_batch_command(cmd_size);
   gls_cmd_flush();
+}
+
+
+GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param)
+{
+  GLS_SET_COMMAND_PTR_BATCH(c, glTexParameteri);
+  c->target = target;
+  c->pname = pname;
+  c->param = param;
+  GLS_PUSH_BATCH(glTexParameteri);
 }
 
 
