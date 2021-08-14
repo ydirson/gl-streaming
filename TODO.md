@@ -28,7 +28,7 @@
           network layer and queue layer
   - [ ] reduce malloc/free
 - fixes
-  - [ ] non-implemented functions (eg. glIsEnabled) cause client to segfault because
+  - [x] non-implemented functions (eg. glIsEnabled) cause client to segfault because
         symbol is NULL, core functions must all be provided
   - [ ] stop passing any kind of pointer over the wire (huge security issue, although
         we could mitigate that aspect by tracking valid pointer values, but also

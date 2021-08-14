@@ -132,6 +132,20 @@ GL_APICALL void GL_APIENTRY glBindTexture (GLenum target, GLuint texture)
 }
 
 
+GL_APICALL void GL_APIENTRY glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+{
+  (void)red; (void)green; (void)blue; (void)alpha;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glBlendEquation ( GLenum mode )
+{
+  (void)mode;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glBlendEquationSeparate);
@@ -187,6 +201,14 @@ GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLs
 }
 
 
+GL_APICALL GLenum GL_APIENTRY glCheckFramebufferStatus (GLenum target)
+{
+  (void)target;
+  WARN_STUBBED();
+  return 0;
+}
+
+
 GL_APICALL void GL_APIENTRY glClear (GLbitfield mask)
 {
     GLS_SET_COMMAND_PTR_BATCH(c, glClear);
@@ -220,6 +242,7 @@ GL_APICALL void GL_APIENTRY glClearStencil (GLint s)
     GLS_PUSH_BATCH(glClearStencil);
 }
 
+
 GL_APICALL void GL_APIENTRY glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
     GLS_SET_COMMAND_PTR_BATCH(c, glColorMask);
@@ -230,11 +253,35 @@ GL_APICALL void GL_APIENTRY glColorMask(GLboolean red, GLboolean green, GLboolea
     GLS_PUSH_BATCH(glColorMask);
 }
 
+
 GL_APICALL void GL_APIENTRY glCompileShader (GLuint shader)
 {
     GLS_SET_COMMAND_PTR_BATCH(c, glCompileShader);
     c->shader = shader;
     GLS_PUSH_BATCH(glCompileShader);
+}
+
+
+GL_APICALL void GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid* data)
+{
+  (void) target; (void) level; (void) internalformat; (void) width; (void) height;
+  (void) border; (void) imageSize; (void) data;
+  WARN_STUBBED();
+}
+
+GL_APICALL void GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data)
+{
+  (void) target; (void) level; (void) xoffset; (void)yoffset; (void) width; (void) height;
+  (void) format; (void) imageSize; (void) data;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
+{
+  (void) target; (void) level; (void) internalformat; (void) x; (void) y;
+  (void) width; (void) height; (void) border;
+  WARN_STUBBED();
 }
 
 
@@ -298,11 +345,25 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 }
 
 
+GL_APICALL void GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)
+{
+  (void)n; (void)framebuffers;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glDeleteProgram (GLuint program)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glDeleteProgram);
   c->program = program;
   GLS_PUSH_BATCH(glDeleteProgram);
+}
+
+
+GL_APICALL void GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)
+{
+  (void)n; (void)renderbuffers;
+  WARN_STUBBED();
 }
 
 
@@ -352,6 +413,13 @@ GL_APICALL void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar)
   c->zNear = zNear;
   c->zFar = zFar;
   GLS_PUSH_BATCH(glDepthRangef);
+}
+
+
+GL_APICALL void GL_APIENTRY glDetachShader (GLuint program, GLuint shader)
+{
+  (void)program; (void)shader;
+  WARN_STUBBED();
 }
 
 
@@ -434,6 +502,7 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
 
 GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
+  WARN_STUBBED(); // not really but not reviewed/fixed like glDrawArrays was
 #ifdef GLS_EMULATE_VBO
     int vbo_bkp = buffer_objs.vbo;
     int ibo_bkp = buffer_objs.ibo;
@@ -571,6 +640,26 @@ GL_APICALL void GL_APIENTRY glFlush (void)
   GLS_PUSH_BATCH(glFlush);
 }
 
+GL_APICALL void GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+{
+  (void)target; (void)attachment; (void)renderbuffertarget; (void)renderbuffer;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+{
+  (void)target; (void)attachment; (void)textarget; (void)texture; (void)level;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glFrontFace (GLenum mode)
+{
+  (void)mode;
+  WARN_STUBBED();
+}
+
 
 GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
 {
@@ -581,6 +670,27 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
 
   wait_for_data("timeout:glGenBuffers");
   memcpy(buffers, glsc_global.tmp_buf.buf, c->n * sizeof(uint32_t));
+}
+
+
+GL_APICALL void GL_APIENTRY glGenerateMipmap (GLenum target)
+{
+  (void)target;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
+{
+  (void)n; (void)framebuffers;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGenRenderbuffers (GLsizei n, GLuint* renderbuffers)
+{
+  (void)n; (void)renderbuffers;
+  WARN_STUBBED();
 }
 
 
@@ -647,6 +757,13 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
 }
 
 
+GL_APICALL void GL_APIENTRY glGetAttachedShaders (GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)
+{
+  (void)program; (void)maxcount; (void)count; (void)shaders;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)
 {
     gls_cmd_flush();
@@ -666,6 +783,19 @@ GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* 
     wait_for_data("timeout:glGetAttribLocation");
     gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.tmp_buf.buf;
     return ret->index;
+}
+
+GL_APICALL void GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean* params)
+{
+  (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params)
+{
+  (void)target; (void)pname; (void)params;
+  WARN_STUBBED();
 }
 
 
@@ -691,6 +821,13 @@ GL_APICALL void GL_APIENTRY glGetFloatv(GLenum name, GLfloat *params)
     wait_for_data("timeout:glGetFloatv");
     gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsc_global.tmp_buf.buf;
     *params = ret->params;
+}
+
+
+GL_APICALL void GL_APIENTRY glGetFramebufferAttachmentParameteriv (GLenum target, GLenum attachment, GLenum pname, GLint* params)
+{
+  (void)target; (void)attachment; (void)pname; (void)params;
+  WARN_STUBBED();
 }
 
 
@@ -744,6 +881,13 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
 }
 
 
+GL_APICALL void GL_APIENTRY glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params)
+{
+  (void)target; (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)
 {
   gls_cmd_flush();
@@ -780,6 +924,20 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
 }
 
 
+GL_APICALL void GL_APIENTRY glGetShaderPrecisionFormat (GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)
+{
+  (void)shadertype; (void)precisiontype; (void)range; (void)precision;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* source)
+{
+  (void)shader; (void)bufsize; (void)length; (void)source;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
 {
     gls_cmd_flush();
@@ -791,6 +949,34 @@ GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
     gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsc_global.tmp_buf.buf;
     // printf("glGetString(%i) return %s\n", name, &ret->params[0]);
     return ret->params;
+}
+
+
+GL_APICALL void GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params)
+{
+  (void)target; (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint* params)
+{
+  (void)target; (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetUniformfv (GLuint program, GLint location, GLfloat* params)
+{
+  (void)program; (void)location; (void)params;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLint* params)
+{
+  (void)program; (void)location; (void)params;
+  WARN_STUBBED();
 }
 
 
@@ -813,6 +999,27 @@ GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* n
   wait_for_data("timeout:glGetUniformLocation");
   gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsc_global.tmp_buf.buf;
   return ret->location;
+}
+
+
+GL_APICALL void GL_APIENTRY glGetVertexAttribfv (GLuint index, GLenum pname, GLfloat* params)
+{
+  (void)index; (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint* params)
+{
+  (void)index; (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, GLvoid** pointer)
+{
+  (void)index; (void)pname; (void)pointer;
+  WARN_STUBBED();
 }
 
 
@@ -846,6 +1053,46 @@ GL_APICALL GLboolean GL_APIENTRY glIsEnabled (GLenum cap)
   wait_for_data("timeout:glIsEnabled");
   gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsc_global.tmp_buf.buf;
   return ret->isenabled;
+}
+
+
+GL_APICALL GLboolean GL_APIENTRY glIsFramebuffer (GLuint framebuffer)
+{
+  (void)framebuffer;
+  WARN_STUBBED();
+  return FALSE;
+}
+
+
+GL_APICALL GLboolean GL_APIENTRY glIsProgram (GLuint program)
+{
+  (void)program;
+  WARN_STUBBED();
+  return FALSE;
+}
+
+
+GL_APICALL GLboolean GL_APIENTRY glIsRenderbuffer (GLuint renderbuffer)
+{
+  (void)renderbuffer;
+  WARN_STUBBED();
+  return FALSE;
+}
+
+
+GL_APICALL GLboolean GL_APIENTRY glIsShader (GLuint shader)
+{
+  (void)shader;
+  WARN_STUBBED();
+  return FALSE;
+}
+
+
+GL_APICALL GLboolean GL_APIENTRY glIsTexture (GLuint texture)
+{
+  (void)texture;
+  WARN_STUBBED();
+  return FALSE;
 }
 
 
@@ -915,6 +1162,40 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
 }
 
 
+GL_APICALL void GL_APIENTRY glReleaseShaderCompiler (void)
+{
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+{
+  (void)target; (void)internalformat; (void)width; (void)height;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert)
+{
+  (void)value; (void)invert;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height)
+{
+  (void)x; (void)y; (void)width; (void)height;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glShaderBinary (GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length)
+{
+  (void)n; (void)shaders; (void)binaryformat; (void)binary; (void)length;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar*const* string, const GLint* length)
 {
   gls_cmd_flush();
@@ -971,11 +1252,25 @@ GL_APICALL void GL_APIENTRY glStencilFunc(GLenum func, GLint r, GLuint m)
 }
 
 
+GL_APICALL void GL_APIENTRY glStencilFuncSeparate (GLenum face, GLenum func, GLint ref, GLuint mask)
+{
+  (void)face; (void)func; (void)ref; (void)mask;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glStencilMask (GLuint mask)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glStencilMask);
   c->mask = mask;
   GLS_PUSH_BATCH(glStencilMask);
+}
+
+
+GL_APICALL void GL_APIENTRY glStencilMaskSeparate (GLenum face, GLuint mask)
+{
+  (void)face; (void)mask;
+  WARN_STUBBED();
 }
 
 
@@ -986,6 +1281,13 @@ GL_APICALL void GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass
   c->zfail = zfail;
   c->zpass = zpass;
   GLS_PUSH_BATCH(glStencilOp);
+}
+
+
+GL_APICALL void GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
+{
+  (void)face; (void)fail; (void)zfail; (void)zpass;
+  WARN_STUBBED();
 }
 
 
@@ -1018,6 +1320,20 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
 }
 
 
+GL_APICALL void GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param)
+{
+  (void)target; (void)pname; (void)param;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat* params)
+{
+  (void)target; (void)pname; (void)params;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glTexParameteri);
@@ -1025,6 +1341,13 @@ GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint 
   c->pname = pname;
   c->param = param;
   GLS_PUSH_BATCH(glTexParameteri);
+}
+
+
+GL_APICALL void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint* params)
+{
+  (void)target; (void)pname; (void)params;
+  WARN_STUBBED();
 }
 
 
@@ -1066,6 +1389,90 @@ GL_APICALL void GL_APIENTRY glUniform1f (GLint location, GLfloat x)
 }
 
 
+GL_APICALL void GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform1i (GLint location, GLint x)
+{
+  (void)location; (void)x;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const GLint* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform2f (GLint location, GLfloat x, GLfloat y)
+{
+  (void)location; (void)x; (void)y;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform2i (GLint location, GLint x, GLint y)
+{
+  (void)location; (void)x; (void)y;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const GLint* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z)
+{
+  (void)location; (void)x; (void)y; (void)z;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform3i (GLint location, GLint x, GLint y, GLint z)
+{
+  (void)location; (void)x; (void)y; (void)z;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+  (void)location; (void)x; (void)y; (void)z; (void)w;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const GLfloat* v)
 {
   uint32_t datasize = count * 4 * sizeof(GLfloat);
@@ -1080,6 +1487,34 @@ GL_APICALL void GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const G
   c->count = count;
   memcpy(c->v, v, datasize);
   push_batch_command(cmd_size);
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w)
+{
+  (void)location; (void)x; (void)y; (void)z; (void)w;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const GLint* v)
+{
+  (void)location; (void)count; (void)v;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+  (void)location; (void)count; (void)transpose; (void)value;
+  WARN_STUBBED();
+}
+
+
+GL_APICALL void GL_APIENTRY glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+  (void)location; (void)count; (void)transpose; (void)value;
+  WARN_STUBBED();
 }
 
 
@@ -1241,6 +1676,10 @@ GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
 
 // Used for return void commands
 /*
+GL_APICALL void GL_APIENTRY glCommand (GLparam param)
+{
+  WARN_STUBBED();
+}
 GL_APICALL void GL_APIENTRY glCommand (GLparam param)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glCommand);
