@@ -11,7 +11,53 @@
     - [x] es2tri support
     - [ ] eglgears support
     - [x] es2gears support
-    - [ ] acceptable glmark2 coverage
+    - glmark2 coverage
+      - build
+        - [x] use-vbo=false
+        - [ ] use-vbo=true
+      - texture
+        - [x] texture-filter=nearest
+        - [x] texture-filter=linear
+        - [ ] texture-filter=mipmap
+      - shading
+        - [x] shading=gouraud
+        - [x] shading=blinn-phong-inf
+        - [x] shading=phong
+        - [x] shading=cel
+      - bump
+        - [x] bump-render=high-poly
+        - [ ] bump-render=normals
+        - [ ] bump-render=height
+      - effect2d
+        - [x] kernel=0,1,0;1,-4,1;0,1,0;
+        - [x] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;
+      - pulsar
+        - [x] light=false:quads=5:texture=false
+      - desktop
+        - [ ] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
+        - [ ] effect=shadow:windows=4
+      - buffer
+        - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
+        - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata (timeout:glGetAttribLocation)
+        - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
+      - ideas (needs glDrawElements)
+        - [ ] speed=duration
+      - [ ] jellyfish (needs glDrawElements)
+      - [ ] terrain (segfault)
+      - [ ] shadow (needs "depth texture extension")
+      - [ ] refract ("Unsupported")
+      - conditionals
+        - [x] fragment-steps=0:vertex-steps=0
+        - [x] fragment-steps=5:vertex-steps=0
+        - [x] fragment-steps=0:vertex-steps=5
+      - function
+        - [x] fragment-complexity=low:fragment-steps=5
+        - [x] fragment-complexity=medium:fragment-steps=5
+      - loop
+        - [x] fragment-loop=false:fragment-steps=5:vertex-steps=5
+        - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
+        - [ ] fragment-steps=5:fragment-uniform=true:vertex-steps=5
+
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - [x] work on native 64bit platforms

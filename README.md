@@ -20,7 +20,7 @@ decent GPU acceleration to Qubes containers.
 This is still a work in progress, notably:
 
 * despite all the work previously done, only very simple applications
-  work (eg. es2gears, some glmark2 benchmarks).
+  work (eg. es2gears, es2tri, some glmark2 benchmarks).
 
   A number of APIs are present but only as stubs, some are known to
   have bugs -- some can cause the client or the server to crash.
