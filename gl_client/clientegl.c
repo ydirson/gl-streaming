@@ -86,6 +86,8 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
     (void)dpy; (void)config; (void)attrib_list; // FIXME stub
     WARN_STUBBED();
 #if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
+    if (xWindow && xWindow != window)
+        fprintf(stderr, "GLS WARNING: eglCreateWindowSurface: changing X11 Window\n");
     xWindow = window;
 #endif
     
@@ -167,16 +169,14 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 {
 #ifdef USE_X11
     if (xDisplay && xDisplay != native_display)
-        fprintf(stderr, "GLS warning: eglGetDisplay: changing X11 Display\n");
+        fprintf(stderr, "GLS WARNING: eglGetDisplay: changing X11 Display\n");
     xDisplay = native_display;
 #endif
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetDisplay);
-    if (0)
-        // FIXME how should we deal with this?
-        c->native_display = (uint64_t)native_display;
-    else
-      c->native_display = (uint64_t)EGL_DEFAULT_DISPLAY;
+    if (native_display != EGL_DEFAULT_DISPLAY)
+        fprintf(stderr, "GLS WARNING: eglGetDisplay: native_display != EGL_DEFAULT_DISPLAY, forcing EGL_DEFAULT_DISPLAY\n");
+    c->native_display = (uint64_t)EGL_DEFAULT_DISPLAY;
     GLS_SEND_PACKET(eglGetDisplay);
     
     wait_for_data("timeout:eglGetDisplay");
@@ -204,7 +204,8 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
 
 EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char *procname )
 {
-    // Do not implement streaming
+    // Do not stream this command
+    // FIXME: should query and return NULL when the server does
     return dlsym(dlopen(NULL, RTLD_LOCAL), procname);
 }
 
