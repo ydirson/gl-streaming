@@ -85,10 +85,6 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 {
     (void)dpy; (void)config; (void)attrib_list; // FIXME stub
     WARN_STUBBED();
-    if (sizeof(void*) != sizeof(window)) {
-        client_egl_error = EGL_BAD_NATIVE_WINDOW;
-        return EGL_NO_SURFACE;
-    }
 #if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
     xWindow = window;
 #endif
