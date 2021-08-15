@@ -255,62 +255,68 @@ void glse_eglGetCurrentContext()
 
 //
 
+#define CASE_EXEC_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(); break
+
 int egl_executeCommand(gls_command_t *c) {
     switch (c->cmd) {
-        case GLSC_eglBindAPI:
-            glse_eglBindAPI();
-            break;
-        case GLSC_eglChooseConfig:
-            glse_eglChooseConfig();
-            break;
-        case GLSC_eglGetConfigAttrib:
-            glse_eglGetConfigAttrib();
-            break;
-        case GLSC_eglGetConfigs:
-            glse_eglGetConfigs();
-            break;
-        case GLSC_eglGetCurrentContext:
-            glse_eglGetCurrentContext();
-            break;
-        case GLSC_eglGetCurrentDisplay:
-            glse_eglGetCurrentDisplay();
-            break;
-        case GLSC_eglGetCurrentSurface:
-            glse_eglGetCurrentSurface();
-            break;
-        case GLSC_eglGetError:
-            glse_eglGetError();
-            break;
-        case GLSC_eglGetDisplay:
-            glse_eglGetDisplay();
-            break;
-        case GLSC_eglInitialize:
-            glse_eglInitialize();
-            break;
-        case GLSC_eglQueryContext:
-            glse_eglQueryContext();
-            break;
-        case GLSC_eglQueryString:
-            glse_eglQueryString();
-            break;
-        case GLSC_eglQuerySurface:
-            glse_eglQuerySurface();
-            break;
-        case GLSC_eglTerminate:
-            glse_eglTerminate();
-            break;
-/*
-        case GLSC_eglXXX:
-            glse_eglXXX();
-            break:
-*/
-        default:
-            return FALSE;
+// EGL 1.0
+        CASE_EXEC_CMD(eglChooseConfig);
+        //CASE_EXEC_CMD(eglCopyBuffers);
+        //CASE_EXEC_CMD(eglCreateContext);
+        //CASE_EXEC_CMD(eglCreatePbufferSurface);
+        //CASE_EXEC_CMD(eglCreatePixmapSurface);
+        //CASE_EXEC_CMD(eglCreateWindowSurface);
+        //CASE_EXEC_CMD(eglDestroyContext);
+        //CASE_EXEC_CMD(eglDestroySurface);
+        CASE_EXEC_CMD(eglGetConfigAttrib);
+        CASE_EXEC_CMD(eglGetConfigs);
+        CASE_EXEC_CMD(eglGetCurrentDisplay);
+        CASE_EXEC_CMD(eglGetCurrentSurface);
+        CASE_EXEC_CMD(eglGetDisplay);
+        CASE_EXEC_CMD(eglGetError);
+        //CASE_EXEC_CMD(eglGetProcAddress);
+        CASE_EXEC_CMD(eglInitialize);
+        //CASE_EXEC_CMD(eglMakeCurrent);
+        CASE_EXEC_CMD(eglQueryContext);
+        CASE_EXEC_CMD(eglQueryString);
+        CASE_EXEC_CMD(eglQuerySurface);
+        //CASE_EXEC_CMD(eglSwapBuffers);
+        CASE_EXEC_CMD(eglTerminate);
+        //CASE_EXEC_CMD(eglWaitGL);
+        //CASE_EXEC_CMD(eglWaitNative);
+// EGL 1.1
+        //CASE_EXEC_CMD(eglBindTexImage);
+        //CASE_EXEC_CMD(eglReleaseTexImage);
+        //CASE_EXEC_CMD(eglSurfaceAttrib);
+        //CASE_EXEC_CMD(eglSwapInterval);
+// EGL 1.2
+        CASE_EXEC_CMD(eglBindAPI);
+        //CASE_EXEC_CMD(eglQueryAPI);
+        //CASE_EXEC_CMD(eglCreatePbufferFromClientBuffer);
+        //CASE_EXEC_CMD(eglReleaseThread);
+        //CASE_EXEC_CMD(eglWaitClient);
+// EGL 1.4
+        CASE_EXEC_CMD(eglGetCurrentContext);
+// EGL 1.5
+        //CASE_EXEC_CMD(eglCreateSync);
+        //CASE_EXEC_CMD(eglDestroySync);
+        //CASE_EXEC_CMD(eglClientWaitSync);
+        //CASE_EXEC_CMD(eglGetSyncAttrib);
+        //CASE_EXEC_CMD(eglCreateImage);
+        //CASE_EXEC_CMD(eglDestroyImage);
+        //CASE_EXEC_CMD(eglGetPlatformDisplay);
+        //CASE_EXEC_CMD(eglCreatePlatformPixmapSurface);
+        //CASE_EXEC_CMD(eglCreatePlatformWindowSurface);
+        //CASE_EXEC_CMD(eglWaitSync);
+    default:
+        return FALSE;
     }
     
     check_egl_err_cmd(c->cmd);
     return TRUE;
 }
+
+#undef CASE_EXEC_CMD
 
 int egl_flushCommand(gls_command_t *c) {
     switch (c->cmd) {
