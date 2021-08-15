@@ -407,17 +407,31 @@ EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
     return ret->success;
 }
 
-// eglQueryAPI
+EGLAPI EGLenum EGLAPIENTRY eglQueryAPI (void)
+{
+    WARN_STUBBED();
+    return 0;
+}
 
-// eglCreatePbufferFromClientBuffer
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferFromClientBuffer (EGLDisplay dpy, EGLenum buftype, EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list)
+{
+    (void)dpy; (void)buftype; (void)buffer; (void)config; (void)attrib_list;
+    WARN_STUBBED();
+    return 0;
+}
 
 EGLAPI EGLBoolean EGLAPIENTRY eglReleaseThread(void)
 {
     WARN_STUBBED();
-    return EGL_TRUE;
+    return EGL_FALSE;
 }
 
-// eglWaitClient
+EGLAPI EGLBoolean EGLAPIENTRY eglWaitClient (void)
+{
+    WARN_STUBBED();
+    return EGL_FALSE;
+}
+
 
 // EGL 1.4
 
