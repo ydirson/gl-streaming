@@ -997,6 +997,7 @@ int gles_flushCommand(gls_command_t *c) {
 #undef CASE_FLUSH_CMD
 */
 
+#define CASE_EXEC_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(); break
 
 int gles_executeCommand(gls_command_t *c) {
 #ifdef DEBUG
@@ -1004,87 +1005,32 @@ int gles_executeCommand(gls_command_t *c) {
          c->cmd, GLSC_tostring(c->cmd));
 #endif
     switch (c->cmd) {
-        case GLSC_glBufferData:
-            glse_glBufferData();
-            break;
-        case GLSC_glBufferSubData:
-            glse_glBufferSubData();
-            break;
-        case GLSC_glCreateProgram:
-            glse_glCreateProgram();
-            break;
-        case GLSC_glCreateShader:
-            glse_glCreateShader();
-            break;
-        case GLSC_glDeleteBuffers:
-            glse_glDeleteBuffers();
-            break;
-        case GLSC_glFinish:
-            glse_glFinish();
-            break;
-        case GLSC_glGenBuffers:
-            glse_glGenBuffers();
-            break;
-        case GLSC_glGenTextures:
-            glse_glGenTextures();
-            break;
-        case GLSC_glGetActiveAttrib:
-            glse_glGetActiveAttrib();
-            break;
-        case GLSC_glGetActiveUniform:
-            glse_glGetActiveUniform();
-            break;
-        case GLSC_glGetAttribLocation:
-            glse_glGetAttribLocation();
-            break;
-        case GLSC_glGetError:
-            glse_glGetError();
-            break;
-        case GLSC_glGetFloatv:
-            glse_glGetFloatv();
-            break;
-        case GLSC_glGetIntegerv:
-            glse_glGetIntegerv();
-            break;
-        case GLSC_glGetProgramInfoLog:
-            glse_glGetProgramInfoLog();
-            break;
-        case GLSC_glGetProgramiv:
-            glse_glGetProgramiv();
-            break;
-        case GLSC_glGetShaderInfoLog:
-            glse_glGetShaderInfoLog();
-            break;
-        case GLSC_glGetShaderiv:
-            glse_glGetShaderiv();
-            break;
-        case GLSC_glGetString:
-            glse_glGetString();
-            break;
-        case GLSC_glGetUniformLocation:
-            glse_glGetUniformLocation();
-            break;
-        case GLSC_glIsBuffer:
-            glse_glIsBuffer();
-            break;
-        case GLSC_glIsEnabled:
-            glse_glIsEnabled();
-            break;
-#if 0
-        case GLSC_glUnmapBufferOES:
-            glse_glUnmapBufferOES();
-            break;
-#endif
-    // glVertexAttrib*f commands combine
-        case GLSC_glVertexAttribFloat:
-            glse_glVertexAttribFloat();
-            break;
-        case GLSC_glReadPixels:
-            glse_glReadPixels();
-            break;
-        case GLSC_glShaderSource:
-            glse_glShaderSource();
-            break;
+        CASE_EXEC_CMD(glBufferData);
+        CASE_EXEC_CMD(glBufferSubData);
+        CASE_EXEC_CMD(glCreateProgram);
+        CASE_EXEC_CMD(glCreateShader);
+        CASE_EXEC_CMD(glDeleteBuffers);
+        CASE_EXEC_CMD(glFinish);
+        CASE_EXEC_CMD(glGenBuffers);
+        CASE_EXEC_CMD(glGenTextures);
+        CASE_EXEC_CMD(glGetActiveAttrib);
+        CASE_EXEC_CMD(glGetActiveUniform);
+        CASE_EXEC_CMD(glGetAttribLocation);
+        CASE_EXEC_CMD(glGetError);
+        CASE_EXEC_CMD(glGetFloatv);
+        CASE_EXEC_CMD(glGetIntegerv);
+        CASE_EXEC_CMD(glGetProgramInfoLog);
+        CASE_EXEC_CMD(glGetProgramiv);
+        CASE_EXEC_CMD(glGetShaderInfoLog);
+        CASE_EXEC_CMD(glGetShaderiv);
+        CASE_EXEC_CMD(glGetString);
+        CASE_EXEC_CMD(glGetUniformLocation);
+        CASE_EXEC_CMD(glIsBuffer);
+        CASE_EXEC_CMD(glIsEnabled);
+        CASE_EXEC_CMD(glVertexAttribFloat);
+        CASE_EXEC_CMD(glReadPixels);
+        CASE_EXEC_CMD(glShaderSource);
+
     default:
             return FALSE;
     }
@@ -1092,3 +1038,4 @@ int gles_executeCommand(gls_command_t *c) {
     return TRUE;
 }
 
+#undef CASE_EXEC_CMD
