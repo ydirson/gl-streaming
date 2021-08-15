@@ -29,16 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <alloca.h>
 
-void glse_eglBindAPI()
-{
-  GLSE_SET_COMMAND_PTR(c, eglBindAPI);
-  EGLBoolean success = eglBindAPI(c->api);
-  
-  gls_ret_eglBindAPI_t *ret = (gls_ret_eglBindAPI_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = GLSC_eglBindAPI;
-  ret->success = success;
-  glse_cmd_send_data(0,sizeof(gls_ret_eglBindAPI_t),(char *)glsec_global.tmp_buf.buf);
-}
+// EGL 1.0
 
 void glse_eglChooseConfig()
 {
@@ -93,16 +84,6 @@ void glse_eglGetConfigs()
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetConfigs_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetCurrentContext()
-{
-  EGLContext context = eglGetCurrentContext();
-  
-  gls_ret_eglGetCurrentContext_t *ret = (gls_ret_eglGetCurrentContext_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = GLSC_eglGetCurrentContext;
-  ret->context = (uint64_t)context;
-  glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentContext_t), (char *)glsec_global.tmp_buf.buf);
-}
-
 void glse_eglGetCurrentDisplay()
 {
   EGLDisplay display = eglGetCurrentDisplay();
@@ -122,17 +103,6 @@ void glse_eglGetCurrentSurface()
   ret->cmd = GLSC_eglGetCurrentSurface;
   ret->surface = (uint64_t)surface;
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentSurface_t), (char *)glsec_global.tmp_buf.buf);
-}
-
-void glse_eglGetError()
-{
-  GLuint error = eglGetError();
-  // Should check gl error inside eglGetError() ???
-  
-  gls_ret_eglGetError_t *ret = (gls_ret_eglGetError_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = GLSC_eglGetError;
-  ret->error = error;
-  glse_cmd_send_data(0, sizeof(gls_ret_eglGetError_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 void glse_eglGetDisplay()
@@ -160,6 +130,17 @@ void glse_eglGetDisplay()
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetDisplay_t),(char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglGetError()
+{
+  GLuint error = eglGetError();
+  // Should check gl error inside eglGetError() ???
+  
+  gls_ret_eglGetError_t *ret = (gls_ret_eglGetError_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglGetError;
+  ret->error = error;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglGetError_t), (char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglInitialize()
 {
   EGLBoolean success = EGL_TRUE; // Current stub instead of real init
@@ -168,7 +149,7 @@ void glse_eglInitialize()
   
   gls_ret_eglInitialize_t *ret = (gls_ret_eglInitialize_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglInitialize;
-  ret->major = 1; ret->minor = 0; // FIXME stubbed
+  ret->major = 1; ret->minor = 0; // FIXME partially reflects amount of stubbing
   ret->success = success;
   glse_cmd_send_data(0,sizeof(gls_ret_eglInitialize_t),(char *)glsec_global.tmp_buf.buf);
 }
@@ -244,6 +225,35 @@ void glse_eglTerminate()
   
   glse_cmd_send_data(0,sizeof(gls_ret_eglTerminate_t),(char *)glsec_global.tmp_buf.buf);
 }
+
+// EGL 1.1
+
+// EGL 1.2
+
+void glse_eglBindAPI()
+{
+  GLSE_SET_COMMAND_PTR(c, eglBindAPI);
+  EGLBoolean success = eglBindAPI(c->api);
+  
+  gls_ret_eglBindAPI_t *ret = (gls_ret_eglBindAPI_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglBindAPI;
+  ret->success = success;
+  glse_cmd_send_data(0,sizeof(gls_ret_eglBindAPI_t),(char *)glsec_global.tmp_buf.buf);
+}
+
+// EGL 1.4
+
+void glse_eglGetCurrentContext()
+{
+  EGLContext context = eglGetCurrentContext();
+  
+  gls_ret_eglGetCurrentContext_t *ret = (gls_ret_eglGetCurrentContext_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglGetCurrentContext;
+  ret->context = (uint64_t)context;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentContext_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+//
 
 int egl_executeCommand(gls_command_t *c) {
     switch (c->cmd) {
