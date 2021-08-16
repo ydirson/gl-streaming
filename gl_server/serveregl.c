@@ -180,7 +180,7 @@ void glse_eglQueryString()
   case EGL_EXTENSIONS:
     // we don't support any right now
     // FIXME later will need to query and filter those we support
-    strcpy(ret->params, "");
+    strcpy(ret->params, "EGL_GLS_dummy");
     ret->success = TRUE;
     break;
   case EGL_CLIENT_APIS:
