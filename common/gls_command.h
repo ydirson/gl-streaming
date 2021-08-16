@@ -449,6 +449,21 @@ typedef struct
 {
   uint32_t cmd;
   uint64_t dpy;
+  uint64_t surface;
+} gls_eglDestroySurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglDestroySurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
   uint64_t config;
   int32_t attribute;
 } gls_eglGetConfigAttrib_t;

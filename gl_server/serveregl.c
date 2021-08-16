@@ -83,6 +83,17 @@ void glse_eglCreateWindowSurface()
   glse_cmd_send_data(0, sizeof(gls_ret_eglCreateWindowSurface_t), (char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglDestroySurface()
+{
+  GLSE_SET_COMMAND_PTR(c, eglDestroySurface);
+  EGLBoolean success = eglDestroySurface((EGLDisplay)c->dpy, (EGLSurface)c->surface);
+
+  gls_ret_eglDestroySurface_t *ret = (gls_ret_eglDestroySurface_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglDestroySurface;
+  ret->success = success;
+  glse_cmd_send_data(0,sizeof(gls_ret_eglDestroySurface_t),(char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglGetConfigAttrib()
 {
   GLSE_SET_COMMAND_PTR(c, eglGetConfigAttrib);
@@ -313,7 +324,7 @@ int egl_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(eglCreatePixmapSurface);
         CASE_EXEC_CMD(eglCreateWindowSurface);
         //CASE_EXEC_CMD(eglDestroyContext);
-        //CASE_EXEC_CMD(eglDestroySurface);
+        CASE_EXEC_CMD(eglDestroySurface);
         CASE_EXEC_CMD(eglGetConfigAttrib);
         CASE_EXEC_CMD(eglGetConfigs);
         CASE_EXEC_CMD(eglGetCurrentDisplay);
