@@ -234,6 +234,8 @@ void server_run(server_context_t *ctx, void *(*popper_thread)(void *))
   socket_open(c);
   pthread_create(&c->server_th, NULL, (void* (*)(void*))server_thread, &c->server_thread_arg);
   pthread_setname_np(c->server_th, "gls-recver");
+
+  // FIXME why do we need a thread at all here ?
   pthread_create(&c->popper_th, NULL, popper_thread, &c->popper_thread_arg);
   pthread_setname_np(c->popper_th, "gls-popper");
   pthread_join(c->popper_th, NULL);
