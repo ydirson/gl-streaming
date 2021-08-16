@@ -54,7 +54,7 @@ const char* var_file_vertex_shader;
 EGLConfig config;
 
 #ifdef USE_X11
-static void make_egl_base(graphics_context_t *gc, const char *name, int x, int y, int width, int height, Window *winRet);
+static void make_egl_base(graphics_context_t *gc, const char *name, int x, int y, int width, int height);
 #else
 static void make_egl_base(graphics_context_t *gc);
 #endif
@@ -128,10 +128,6 @@ void init_egl(graphics_context_t *gc)
   VC_RECT_T src_rect;
 #endif
 
-#ifdef USE_X11
-  Window win;
-#endif
-
 #ifdef RASPBERRY_PI
   bcm_host_init();
 #endif
@@ -189,9 +185,9 @@ void init_egl(graphics_context_t *gc)
 */
 
 #ifdef USE_X11
-  make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height, &win);
-  XMapWindow(gc->x.display, win);
-  // gc->surface = eglCreateWindowSurface(gc->surface, config, win, NULL);
+  make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
+  XMapWindow(gc->x.display, gc->x.window);
+  // gc->surface = eglCreateWindowSurface(gc->surface, config, gc->x.window, NULL);
 #else
   make_egl_base(gc);
 #endif
@@ -236,7 +232,7 @@ void release_egl(graphics_context_t *gc)
  */
  
 #ifdef USE_X11
-static void make_egl_base(graphics_context_t *gc, const char *name, int x, int y, int width, int height, Window *winRet)
+static void make_egl_base(graphics_context_t *gc, const char *name, int x, int y, int width, int height)
 #else
 static void make_egl_base(graphics_context_t *gc)
 #endif
@@ -263,7 +259,6 @@ static void make_egl_base(graphics_context_t *gc)
    XSetWindowAttributes attr;
    unsigned long mask;
    Window root;
-   Window win;
    XVisualInfo *visInfo, visTemplate;
    int num_visuals;
 #endif // USE_X11
@@ -292,7 +287,7 @@ static void make_egl_base(graphics_context_t *gc)
    attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
-   win = XCreateWindow( gc->x.display, root, 0, 0, width, height,
+   gc->x.window = XCreateWindow( gc->x.display, root, 0, 0, width, height,
                         0, visInfo->depth, InputOutput,
                         visInfo->visual, mask, &attr );
 
@@ -304,8 +299,8 @@ static void make_egl_base(graphics_context_t *gc)
       sizehints.width  = width;
       sizehints.height = height;
       sizehints.flags = USSize | USPosition;
-      XSetNormalHints(gc->x.display, win, &sizehints);
-      XSetStandardProperties(gc->x.display, win, name, name,
+      XSetNormalHints(gc->x.display, gc->x.window, &sizehints);
+      XSetStandardProperties(gc->x.display, gc->x.window, name, name,
                               None, (char **)NULL, 0, &sizehints);
    }
 #endif // USE_X11
@@ -338,7 +333,7 @@ static void make_egl_base(graphics_context_t *gc)
    }
    
 #ifdef USE_X11
-   gc->surface = eglCreateWindowSurface(gc->display, config, win, NULL);
+   gc->surface = eglCreateWindowSurface(gc->display, config, gc->x.window, NULL);
 #elif defined(__ANDROID__)
    gc->surface(gc->display, config, glsurfaceview_window, NULL);
 #else
@@ -361,7 +356,6 @@ static void make_egl_base(graphics_context_t *gc)
    
 #ifdef USE_X11
    XFree(visInfo);
-   *winRet = win;
 #endif // USE_X11
 
    gc->context = ctx;

@@ -60,6 +60,7 @@ typedef struct
 #ifdef USE_X11
   struct {
     Display* display;
+    Window window;
   } x;
 #endif
 } graphics_context_t;
