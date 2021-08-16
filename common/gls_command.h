@@ -68,7 +68,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLS_GLS_COMMANDS()                      \
   EMPTY()                                       \
     X(BREAK)                                    \
-    X(FLIP)                                     \
     X(SEND_DATA)                                \
     X(FLUSH)                                    \
     X(get_context)                              \
@@ -332,20 +331,6 @@ typedef struct
 {
   uint32_t cmd;
 } gls_command_t;
-
-
-typedef struct
-{
-  uint32_t cmd;
-  uint32_t frame;
-} gls_cmd_flip_t;
-
-
-typedef struct
-{
-  uint32_t cmd;
-  uint32_t frame;
-} gls_ret_flip_t;
 
 
 typedef struct
@@ -640,6 +625,21 @@ typedef struct
   uint32_t cmd;
   uint32_t success;
 } gls_ret_eglSurfaceAttrib_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t draw;
+} gls_eglSwapBuffers_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglSwapBuffers_t;
 
 
 typedef struct

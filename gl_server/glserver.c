@@ -109,20 +109,6 @@ void glse_cmd_get_context()
 }
 
 
-void glse_cmd_flip()
-{
-  gls_cmd_flip_t *c = (gls_cmd_flip_t *)glsec_global.cmd_data;
-  graphics_context_t *gc = glsec_global.gc;
-  eglSwapBuffers(gc->display, gc->surface);
-  check_gl_err(eglSwapBuffers);
-  gls_ret_flip_t *ret = (gls_ret_flip_t *)glsec_global.tmp_buf.buf;
-  ret->cmd = c->cmd;
-  ret->frame = c->frame;
-  size_t size = sizeof(gls_ret_flip_t);
-  glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
-}
-
-
 int glse_cmd_recv_data()
 {
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.cmd_data;
@@ -201,9 +187,6 @@ void * glserver_thread(void * arg)
 #endif
 
       switch (c->cmd) {
-        case GLSC_FLIP:
-          glse_cmd_flip();
-          break;
         case GLSC_SEND_DATA:
           glse_cmd_recv_data();
           break;

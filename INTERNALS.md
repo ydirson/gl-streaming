@@ -163,10 +163,6 @@ API call (which makes pixmap surfaces and pbuffer surfaces mostly
 unusable, and usually makes their usage break the in-window
 rendering).
 
-`eglSwapBuffers()` is hacked to act on that single surface, using
-custom GLSC_FLIP, which brings and sends back a "frame number",
-incremented with each call. (why so ?!)
-
 ### EGL contexts
 
 Currently a single EGL context is used, as returned from

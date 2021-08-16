@@ -307,23 +307,6 @@ void gls_cleanup_library()
   gls_free();
 }
 
-int gls_cmd_flip(unsigned int frame)
-{
-  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  gls_cmd_flush();
-  if (glsc_global.is_debug) fprintf(stderr, "%s sending\n", __FUNCTION__);
-  gls_cmd_flip_t *c = (gls_cmd_flip_t *)glsc_global.out_buf.buf;
-  c->cmd = GLSC_FLIP;
-  c->frame = frame;
-  if (send_packet(sizeof(gls_cmd_flip_t)) == FALSE) {
-    printf("GLS ERROR: %s failed.\n", __FUNCTION__);
-    return FALSE;
-  }
-
-  wait_for_data("timeout:gls_cmd_flip");
-  return TRUE;
-}
-
 int gls_cmd_flush()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);

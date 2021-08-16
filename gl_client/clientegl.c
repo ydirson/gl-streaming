@@ -309,10 +309,15 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers( EGLDisplay dpy, EGLSurface draw )
 {
-    (void)dpy; (void)draw; // FIXME stub
-    WARN_STUBBED();
-    static int frame;
-    return gls_cmd_flip(frame++);
+    gls_cmd_flush();
+    GLS_SET_COMMAND_PTR(c, eglSwapBuffers);
+    c->dpy = (uint64_t)dpy;
+    c->draw = (uint64_t)draw;
+    GLS_SEND_PACKET(eglSwapBuffers);
+
+    wait_for_data("timeout:eglSwapBuffers");
+    gls_ret_eglSwapBuffers_t *ret = (gls_ret_eglSwapBuffers_t *)glsc_global.tmp_buf.buf;
+    return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglTerminate( EGLDisplay dpy )

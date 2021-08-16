@@ -231,6 +231,15 @@ void glse_eglQuerySurface()
   glse_cmd_send_data(0,sizeof(gls_ret_eglQuerySurface_t),(char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglSwapBuffers()
+{
+  GLSE_SET_COMMAND_PTR(c, eglSwapBuffers);
+  gls_ret_eglSwapBuffers_t *ret = (gls_ret_eglSwapBuffers_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglSwapBuffers;
+  ret->success = eglSwapBuffers((EGLDisplay)c->dpy, (EGLSurface)c->draw);
+  glse_cmd_send_data(0,sizeof(gls_ret_eglSwapBuffers_t),(char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglTerminate()
 {
   gls_ret_eglTerminate_t *ret = (gls_ret_eglTerminate_t *)glsec_global.tmp_buf.buf;
@@ -299,7 +308,7 @@ int egl_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(eglQueryContext);
         CASE_EXEC_CMD(eglQueryString);
         CASE_EXEC_CMD(eglQuerySurface);
-        //CASE_EXEC_CMD(eglSwapBuffers);
+        CASE_EXEC_CMD(eglSwapBuffers);
         CASE_EXEC_CMD(eglTerminate);
         //CASE_EXEC_CMD(eglWaitGL);
         //CASE_EXEC_CMD(eglWaitNative);

@@ -93,7 +93,6 @@ void gls_cleanup_library();
 
 extern gls_context_t glsc_global;
 int send_packet(size_t size);
-int gls_cmd_flip(unsigned int frame);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data);
 int gls_cmd_flush();
 int wait_for_data(char *str);
