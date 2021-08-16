@@ -173,7 +173,7 @@ void glse_glCreateShader()
 void glse_glCullFace()
 {
   GLSE_SET_COMMAND_PTR(c, glCullFace);
-  glActiveTexture(c->mode);
+  glCullFace(c->mode);
 }
 
 
