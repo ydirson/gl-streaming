@@ -187,7 +187,6 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
     
     wait_for_data("timeout:eglGetDisplay");
     gls_ret_eglGetDisplay_t *ret = (gls_ret_eglGetDisplay_t *)glsc_global.tmp_buf.buf;
-    fprintf(stderr, "eglGetDisplay: 0x%lx\n", ret->display);
     return (EGLDisplay)ret->display;
 }
 
