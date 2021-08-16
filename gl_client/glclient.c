@@ -234,11 +234,10 @@ static int gls_cmd_get_context()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
-  if (glsc_global.is_debug) fprintf(stderr, "%s sending\n", __FUNCTION__);
   gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_get_context;
-  if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE)
-  {
+  if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE) {
+    printf("GLS ERROR: failed to send handshake packet.\n");
     return FALSE;
   }
 
@@ -250,9 +249,8 @@ static int gls_cmd_get_context()
     glsc_global.screen_height = ret->screen_height;
     printf("GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
     if (ret->server_version != GLS_VERSION) {
-        printf("GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
-        exit(EXIT_FAILURE);
-        return FALSE;
+      printf("GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
+      return FALSE;
     }
   }
   return TRUE;
@@ -293,8 +291,9 @@ void gls_init_library()
 
     server_start(&sc);
     gls_init(&sc);
-    gls_cmd_get_context();
-    
+    if (!gls_cmd_get_context())
+        exit(EXIT_FAILURE);
+
     init = TRUE;
 }
 
