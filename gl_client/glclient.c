@@ -246,9 +246,9 @@ static int gls_cmd_get_context()
   {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
-    printf("\ngls info: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
+    printf("GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
     if (ret->server_version != GLS_VERSION) {
-        printf("\e[31m\e[1mgls error\e[0m: Incompatile version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
+        printf("GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
         exit(EXIT_FAILURE);
         return FALSE;
     }
