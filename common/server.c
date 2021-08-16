@@ -28,7 +28,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -233,7 +233,9 @@ void server_run(server_context_t *ctx, void *(*popper_thread)(void *))
   c->popper_thread_arg.sleep_usec = c->sleep_usec;
   socket_open(c);
   pthread_create(&c->server_th, NULL, (void* (*)(void*))server_thread, &c->server_thread_arg);
+  pthread_setname_np(c->server_th, "gls-recver");
   pthread_create(&c->popper_th, NULL, popper_thread, &c->popper_thread_arg);
+  pthread_setname_np(c->popper_th, "gls-popper");
   pthread_join(c->popper_th, NULL);
   
   // From https://github.com/tinmaniac/gl-streaming/blob/master/gl_server/server.c#L188
@@ -261,6 +263,7 @@ void *server_start(server_context_t *c)
   socket_open(c);
 
   pthread_create(&c->server_th, NULL, (void* (*)(void*))server_thread, c);
+  pthread_setname_np(c->server_th, "gls-recver");
   return c;
 }
 
