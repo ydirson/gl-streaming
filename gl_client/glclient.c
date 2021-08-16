@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 gls_context_t glsc_global;
 uint32_t client_egl_error;
 
-float get_diff_time(struct timeval start, struct timeval end)
+static float get_diff_time(struct timeval start, struct timeval end)
 {
   float dt = (float)(end.tv_sec - start.tv_sec) + (float)(end.tv_usec - start.tv_usec) * 0.000001f;
   return dt;
@@ -71,7 +71,7 @@ void push_batch_command(size_t size)
 }
 
 
-int gls_init(server_context_t *arg)
+static int gls_init(server_context_t *arg)
 {
   memset(&glsc_global, 0, sizeof(glsc_global));
   
@@ -121,7 +121,7 @@ int gls_init(server_context_t *arg)
 }
 
 
-int gls_free()
+static int gls_free()
 {
     free(glsc_global.out_buf.buf);
     free(glsc_global.tmp_buf.buf);
@@ -141,7 +141,7 @@ int send_packet(size_t size)
 }
 
 
-int gls_cmd_recv_data()
+static int gls_cmd_recv_data()
 {
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.cmd_data;
   if ((c->offset + c->size > glsc_global.tmp_buf.size) || (glsc_global.tmp_buf.size == 0))
@@ -228,7 +228,7 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 }
 
 
-int gls_cmd_get_context()
+static int gls_cmd_get_context()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();

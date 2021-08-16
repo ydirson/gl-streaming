@@ -84,7 +84,6 @@ extern "C" {
 extern gls_context_t glsc_global;
 extern uint32_t client_egl_error;
 
-float get_diff_time(struct timeval start, struct timeval end);
 int check_batch_overflow(size_t size, const char *msg);
 void push_batch_command(size_t size);
 int gls_cmd_flush();
@@ -93,12 +92,9 @@ void gls_init_library();
 void gls_cleanup_library();
 
 extern gls_context_t glsc_global;
-int gls_init(server_context_t *arg);
-int gls_free();
 int send_packet(size_t size);
 int gls_cmd_flip(unsigned int frame);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data);
-int gls_cmd_get_context();
 int gls_cmd_flush();
 int wait_for_data(char *str);
 
