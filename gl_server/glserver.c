@@ -64,6 +64,9 @@ int send_packet(size_t size)
 
 int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 {
+#ifdef GL_DEBUG
+  fprintf(stderr, "glse_cmd_send_data sending data back\n");
+#endif
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
 
