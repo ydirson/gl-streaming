@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <alloca.h>
 
+//#define DEBUG
+
 // EGL 1.0
 
 void glse_eglChooseConfig()
@@ -273,7 +275,7 @@ void glse_eglGetCurrentContext()
 
 int egl_executeCommand(gls_command_t *c) {
 #ifdef DEBUG
-    LOGD("egl_executeCommand: Executing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+    LOGD("egl_executeCommand: Executing command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
     switch (c->cmd) {
 // EGL 1.0
