@@ -117,7 +117,6 @@ static int gls_init(server_context_t *arg)
   glsc_global.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
   glsc_global.out_buf.ptr = 0;
   glsc_global.tmp_buf.ptr = 0;
-  client_egl_error = EGL_SUCCESS;
   
   return TRUE;
 }
@@ -134,6 +133,7 @@ static int gls_free()
 
 int send_packet(size_t size)
 {
+  client_egl_error = EGL_SUCCESS;
   server_context_t *a = glsc_global.sta;
   if (sendto(a->sock_fd, glsc_global.out_buf.buf, size, 0, (struct sockaddr *)&a->sai, sizeof(struct sockaddr_in)) == -1)
   {
