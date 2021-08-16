@@ -219,8 +219,6 @@ EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint *major, EGLi
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglInitialize);
     c->dpy = (uint64_t)dpy;
-//    c->major = 0; // unused
-//    c->minor = 0; // unused
     GLS_SEND_PACKET(eglInitialize);
     
     wait_for_data("timeout:eglInitialize");
