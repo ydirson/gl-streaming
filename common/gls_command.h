@@ -57,14 +57,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLS_COMMANDS()                          \
   EMPTY()                                       \
+    GLS_GLS_COMMANDS()                          \
+    GLS_EGL_COMMANDS()                          \
+    GLS_GLES2_COMMANDS()                        \
+    GLS_GLES2_EXT_COMMANDS()                    \
+  //
+
+#define GLS_GLS_COMMANDS()                      \
+  EMPTY()                                       \
     X(BREAK)                                    \
     X(FLIP)                                     \
     X(SEND_DATA)                                \
     X(FLUSH)                                    \
     X(get_context)                              \
-    GLS_EGL_COMMANDS()                          \
-    GLS_GLES2_COMMANDS()                        \
-    GLS_GLES2_EXT_COMMANDS()                    \
   //
 
 #define GLS_EGL_COMMANDS()                      \
@@ -291,7 +296,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define X(func) GLSC_##func,
 enum GL_Server_Command
 {
- GLS_COMMANDS()
+ GLSC_GLS_UNDEF = 0,
+ GLS_GLS_COMMANDS()
+ GLSC_GLS_LASTCMD = 0x0000ffff,
+ GLS_EGL_COMMANDS()
+ GLSC_EGL_LASTCMD = 0x0001ffff,
+ GLS_GLES2_COMMANDS()
+ GLSC_GLES2_LASTCMD = 0x0002ffff,
+ GLS_GLES2_EXT_COMMANDS()
 };
 #undef X
 
