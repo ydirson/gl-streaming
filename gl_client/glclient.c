@@ -28,6 +28,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -135,8 +136,10 @@ int send_packet(size_t size)
 {
   client_egl_error = EGL_SUCCESS;
   server_context_t *a = glsc_global.sta;
-  if (sendto(a->sock_fd, glsc_global.out_buf.buf, size, 0, (struct sockaddr *)&a->sai, sizeof(struct sockaddr_in)) == -1)
-  {
+  if (sendto(a->sock_fd, glsc_global.out_buf.buf, size, 0,
+             (struct sockaddr *)&a->sai, sizeof(struct sockaddr_in)) == -1) {
+    fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
+    client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
   }
   return TRUE;
@@ -220,9 +223,10 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
     size_t sendbytes = (size_t)(&c->data.data_char[size1] - (char *)c);
     c->offset = offset + offset1;
     c->size = size1;
-    if (send_packet(sendbytes) == FALSE)
-    {
+    if (send_packet(sendbytes) == FALSE) {
+      printf("GLS ERROR: %s failed.\n", __FUNCTION__);
       success = FALSE;
+      break;
     }
     data1 += glssize;
   }
@@ -237,7 +241,7 @@ static int gls_cmd_get_context()
   gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_get_context;
   if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE) {
-    printf("GLS ERROR: failed to send handshake packet.\n");
+    printf("GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
   }
 
@@ -311,8 +315,8 @@ int gls_cmd_flip(unsigned int frame)
   gls_cmd_flip_t *c = (gls_cmd_flip_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_FLIP;
   c->frame = frame;
-  if (send_packet(sizeof(gls_cmd_flip_t)) == FALSE)
-  {
+  if (send_packet(sizeof(gls_cmd_flip_t)) == FALSE) {
+    printf("GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
   }
 
@@ -336,6 +340,9 @@ int gls_cmd_flush()
 
   c = (gls_command_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_FLUSH;
-  send_packet(sizeof(gls_command_t));
+  if (send_packet(sizeof(gls_command_t)) == FALSE) {
+    printf("GLS ERROR: %s failed.\n", __FUNCTION__);
+    return FALSE;
+  }
   return TRUE;
 }
