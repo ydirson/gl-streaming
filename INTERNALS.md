@@ -174,5 +174,4 @@ server side.
 
 # other things to be documented
 
-* other GLS internal messages: `FLIP`, `get_context`
 * more protocol details

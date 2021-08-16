@@ -23,20 +23,22 @@ This is still a work in progress, notably:
   work (eg. es2gears, es2tri, some glmark2 benchmarks).
 
   A number of APIs are present but only as stubs, some are known to
-  have bugs -- some can cause the client or the server to crash.
+  have bugs.
 
   APIs for EGL 1.4 are present, though some 1.1 and 1.2 APIs are not
-  even stubbed.  Many GLES2 APIs are not even stubbed either.
+  even stubbed.
 
 * the server creates a fixed-size window at startup, used for all
-  client rendering.
+  client rendering.  The client still creates a window on its own,
+  which is used for interaction with the app (input events, window
+  resize, etc), which is quite awkward.
 
 * there are security concerns about the usage of pointer types in the
   protocol.
 
 * usage of pointer types in the protocol also implies that only 64bit
   builds can work now.  We should not only be able to build 32bit
-  versions to, but to have them interoperate.
+  versions too, but to have them interoperate.
 
 * no protocol extension is supported yet, until proper generic
   extension support gets implemented.
