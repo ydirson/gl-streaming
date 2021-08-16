@@ -123,15 +123,6 @@ void init_egl(graphics_context_t *gc)
 {
   EGLBoolean r;
 
-#ifdef RASPBERRY_PI
-  VC_RECT_T dst_rect;
-  VC_RECT_T src_rect;
-#endif
-
-#ifdef RASPBERRY_PI
-  bcm_host_init();
-#endif
-
 #ifdef USE_X11
   gc->x.display = XOpenDisplay(NULL);
   if (!gc->x.display) {
@@ -146,33 +137,7 @@ void init_egl(graphics_context_t *gc)
   assert(gc->display != EGL_NO_DISPLAY);
   check_gl_err(eglGetDisplay);
 
-#ifdef RASPBERRY_PI
-  int32_t ri = graphics_get_display_size(0, &gc->screen_width, &gc->screen_height);
-  assert(ri >= 0);
-
-  dst_rect.x = 0;
-  dst_rect.y = 0;
-  dst_rect.width = gc->screen_width;
-  dst_rect.height = gc->screen_height;
-
-  src_rect.x = 0;
-  src_rect.y = 0;
-  src_rect.width = gc->screen_width << 16;
-  src_rect.height = gc->screen_height << 16;
-
-  gc->d_display = vc_dispmanx_display_open(0);
-  gc->d_update = vc_dispmanx_update_start(0);
-  gc->d_element = vc_dispmanx_element_add(
-    gc->d_update, gc->d_display,
-    0, &dst_rect, 0,
-    &src_rect, DISPMANX_PROTECTION_NONE, 0 , 0, (DISPMANX_TRANSFORM_T)0);
-  gc->d_window.element = gc->d_element;
-  gc->d_window.width = gc->screen_width;
-  gc->d_window.height = gc->screen_height;
-  vc_dispmanx_update_submit_sync(gc->d_update);
-  check_gl_err();
-  gc->surface = eglCreateWindowSurface(gc->display, config, &gc->d_window, NULL);
-#elif defined(GLS_SERVER)
+#if defined(GLS_SERVER)
   gc->screen_width = glsurfaceview_width; // (gc->d_rect.right - gc->d_rect.left);
   gc->screen_height = glsurfaceview_height; // (gc->d_rect.bottom - gc->d_rect.top);
   // gc->d_window = glsurfaceview_window;
@@ -206,11 +171,6 @@ void init_egl(graphics_context_t *gc)
 
 void release_egl(graphics_context_t *gc)
 {
-#ifdef RASPBERRY_PI
-  vc_dispmanx_element_remove(gc->d_update, gc->d_element);
-  vc_dispmanx_display_close(gc->d_display);
-#endif
-
   eglMakeCurrent(gc->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
   eglDestroySurface(gc->display, gc->surface);
   eglDestroyContext(gc->display, gc->context);
