@@ -59,6 +59,8 @@ const char* var_file_fragment_shader;
 const char* var_file_vertex_shader;
 */
 
+EGLConfig config;
+
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value; 
 const char* eglGetErrorString(EGLint err)

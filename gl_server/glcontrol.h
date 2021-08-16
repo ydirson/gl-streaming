@@ -73,7 +73,8 @@ extern uint32_t last_cmd;
 void base_check_egl_err(const char* funcname);
 void base_check_gl_err(const char* funcname);
 
-EGLConfig config;
+extern EGLConfig config;
+
 #ifdef USE_X11
 void make_egl_base(EGLDisplay egl_dpy, const char *name, int x, int y, int width, int height, Window *winRet, EGLContext *ctxRet, EGLSurface *surfRet);
 #else
