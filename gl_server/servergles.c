@@ -446,8 +446,10 @@ void glse_glGetString()
       if (params) {
         strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
         ret->success = TRUE;
-      } else
+      } else {
+        ret->params[0] = '\0';
         ret->success = FALSE;
+      }
     }
   }
   ret->cmd = GLSC_glGetString;
