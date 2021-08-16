@@ -38,6 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 gls_context_t glsc_global;
 uint32_t client_egl_error;
 
+static server_context_t sc;
+
 static float get_diff_time(struct timeval start, struct timeval end)
 {
   float dt = (float)(end.tv_sec - start.tv_sec) + (float)(end.tv_usec - start.tv_usec) * 0.000001f;
@@ -259,7 +261,6 @@ static int gls_cmd_get_context()
 
 void gls_init_library()
 {
-    static server_context_t sc;
     static int init = FALSE;
     if(init)
         return;
@@ -299,6 +300,7 @@ void gls_init_library()
 
 void gls_cleanup_library()
 {
+  server_stop(&sc);
   gls_free();
 }
 

@@ -94,6 +94,7 @@ extern "C" {
 
   // GL_CLIENT
   void *server_start(server_context_t *c);
+  void server_stop(server_context_t *c);
   void socket_open(server_context_t *c);
   void socket_close(server_context_t *c);
 
