@@ -153,7 +153,7 @@ void glse_eglInitialize()
   
   gls_ret_eglInitialize_t *ret = (gls_ret_eglInitialize_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglInitialize;
-  ret->major = 1; ret->minor = 0; // FIXME partially reflects amount of stubbing
+  ret->major = 1; ret->minor = 4; // matches EGL_VERSION
   ret->success = success;
   glse_cmd_send_data(0,sizeof(gls_ret_eglInitialize_t),(char *)glsec_global.tmp_buf.buf);
 }
@@ -188,16 +188,26 @@ void glse_eglQueryString()
     strcpy(ret->params, "OpenGL_ES");
     ret->success = TRUE;
     break;
-  default:
-    // EGL_VENDOR, EGL_VERSION: query
+  case EGL_VERSION:
+    // wrong but glmark2 wont work without 1.4
+    strcpy(ret->params, "1.4 GLS"); // matches eglInitialize
+    ret->success = TRUE;
+    break;
+  case EGL_VENDOR:
     {
       const char *params = eglQueryString((EGLDisplay)c->dpy, c->name);
+      const char prefix[] = "GLS + ";
       if (params) {
-        strncpy(ret->params, params, GLS_STRING_SIZE);
+        strcpy(ret->params, prefix);
+        strncpy(ret->params + sizeof(prefix) - 1, params, GLS_STRING_SIZE - sizeof(prefix));
         ret->success = TRUE;
       } else
         ret->success = FALSE;
     }
+    break;
+  default:
+    fprintf(stderr, "GLS WARNING: eglQueryString: unsupported string name 0x%x\n", c->name);
+    ret->success = FALSE;
   }
 
   ret->cmd = GLSC_eglQueryString;
