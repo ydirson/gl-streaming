@@ -39,14 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glcontrol.h"
 
-#ifdef USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
-Display *xDisplay;
-int xScreenId;
-#endif // USE_X11
-
 int glsurfaceview_width;
 int glsurfaceview_height;
 
@@ -145,13 +137,13 @@ void init_egl(graphics_context_t *gc)
 #endif
 
 #ifdef USE_X11
-  xDisplay = XOpenDisplay(NULL);
-  if (!xDisplay) {
+  gc->x.display = XOpenDisplay(NULL);
+  if (!gc->x.display) {
     printf("Error: couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
     return;
   }
-  gc->display = eglGetDisplay(xDisplay);
+  gc->display = eglGetDisplay(gc->x.display);
 #else
   gc->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
@@ -198,7 +190,7 @@ void init_egl(graphics_context_t *gc)
 
 #ifdef USE_X11
   make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height, &win);
-  XMapWindow(xDisplay, win);
+  XMapWindow(gc->x.display, win);
   // gc->surface = eglCreateWindowSurface(gc->surface, config, win, NULL);
 #else
   make_egl_base(gc);
@@ -282,12 +274,12 @@ static void make_egl_base(graphics_context_t *gc)
    EGLint vid;
 
 #ifdef USE_X11
-   xScreenId = DefaultScreen(xDisplay);
-   root = RootWindow( xDisplay, xScreenId );
+   int xScreenId = DefaultScreen(gc->x.display);
+   root = RootWindow( gc->x.display, xScreenId );
 
    /* The X window visual must match the EGL config */
-   visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(xDisplay, xScreenId));
-   visInfo = XGetVisualInfo(xDisplay, VisualIDMask, &visTemplate, &num_visuals);
+   visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(gc->x.display, xScreenId));
+   visInfo = XGetVisualInfo(gc->x.display, VisualIDMask, &visTemplate, &num_visuals);
    if (!visInfo) {
       printf("Error: couldn't get X visual\n");
       exit(1);
@@ -296,11 +288,11 @@ static void make_egl_base(graphics_context_t *gc)
    /* window attributes */
    attr.background_pixel = 0;
    attr.border_pixel = 0;
-   attr.colormap = XCreateColormap( xDisplay, root, visInfo->visual, AllocNone);
+   attr.colormap = XCreateColormap( gc->x.display, root, visInfo->visual, AllocNone);
    attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
-   win = XCreateWindow( xDisplay, root, 0, 0, width, height,
+   win = XCreateWindow( gc->x.display, root, 0, 0, width, height,
                         0, visInfo->depth, InputOutput,
                         visInfo->visual, mask, &attr );
 
@@ -312,8 +304,8 @@ static void make_egl_base(graphics_context_t *gc)
       sizehints.width  = width;
       sizehints.height = height;
       sizehints.flags = USSize | USPosition;
-      XSetNormalHints(xDisplay, win, &sizehints);
-      XSetStandardProperties(xDisplay, win, name, name,
+      XSetNormalHints(gc->x.display, win, &sizehints);
+      XSetStandardProperties(gc->x.display, win, name, name,
                               None, (char **)NULL, 0, &sizehints);
    }
 #endif // USE_X11

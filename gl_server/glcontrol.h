@@ -56,7 +56,12 @@ typedef struct
   EGLContext context;
 #ifdef __ANDROID__
   ANativeWindow* d_window;
-#endif // __ANDROID__
+#endif
+#ifdef USE_X11
+  struct {
+    Display* display;
+  } x;
+#endif
 } graphics_context_t;
 
 #define check_egl_err(FUNCNAME) base_check_egl_err(#FUNCNAME);
