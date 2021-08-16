@@ -40,9 +40,9 @@ better.
 
 The networking code uses 2 buffers:
 
-* `out_buf` to compose an outgoing fixed-size message
+* `out_buf` to compose an outgoing messages, whether fixed-size or large
+  variable-length data
 * `tmp_buf` to:
-  * send large variable-length data
   * receive results from server
   * batch simpler calls which do not need tmp_buf for any usage listed
     above
