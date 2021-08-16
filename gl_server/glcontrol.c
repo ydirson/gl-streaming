@@ -47,6 +47,18 @@ Display *xDisplay;
 int xScreenId;
 #endif // USE_X11
 
+int glsurfaceview_width;
+int glsurfaceview_height;
+
+int   var_server_port;
+int   var_client_port;
+const char* var_client_addr;
+/*
+const char* var_path_shadercache;
+const char* var_file_fragment_shader;
+const char* var_file_vertex_shader;
+*/
+
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value; 
 const char* eglGetErrorString(EGLint err)

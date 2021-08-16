@@ -30,11 +30,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include "fastlog.h"
-#include "utils.h"
 
 #include "GLES2/gl2.h"
 #include "EGL/egl.h"
 //#include "EGL/eglext.h"
+
+extern int glsurfaceview_width;
+extern int glsurfaceview_height;
+
+extern int   var_server_port;
+extern int   var_client_port;
+extern const char* var_client_addr;
+/*
+extern const char* var_path_shadercache;
+extern const char* var_file_fragment_shader;
+extern const char* var_file_vertex_shader;
+*/
 
 typedef struct
 {
