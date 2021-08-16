@@ -729,15 +729,15 @@ int gles_flushCommand(gls_command_t *c) {
     LOGD("Flushing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
     switch (c->cmd) {
-        CASE_FLUSH_CMD(glAttachShader);
         CASE_FLUSH_CMD(glActiveTexture);
-        CASE_FLUSH_CMD(glBindBuffer);
-        CASE_FLUSH_CMD(glBindTexture);
+        CASE_FLUSH_CMD(glAttachShader);
         CASE_FLUSH_CMD(glBindAttribLocation);
+        CASE_FLUSH_CMD(glBindBuffer);
         CASE_FLUSH_CMD(glBindFramebuffer);
+        CASE_FLUSH_CMD(glBindTexture);
+        CASE_FLUSH_CMD(glBlendEquationSeparate);
         CASE_FLUSH_CMD(glBlendFunc);
         CASE_FLUSH_CMD(glBlendFuncSeparate);
-        CASE_FLUSH_CMD(glBlendEquationSeparate);
         CASE_FLUSH_CMD(glClear);
         CASE_FLUSH_CMD(glClearColor);
         CASE_FLUSH_CMD(glClearDepthf);
@@ -806,8 +806,8 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glGetError);
         CASE_EXEC_CMD(glGetFloatv);
         CASE_EXEC_CMD(glGetIntegerv);
-        CASE_EXEC_CMD(glGetProgramInfoLog);
         CASE_EXEC_CMD(glGetProgramiv);
+        CASE_EXEC_CMD(glGetProgramInfoLog);
         CASE_EXEC_CMD(glGetShaderInfoLog);
         CASE_EXEC_CMD(glGetShaderiv);
         CASE_EXEC_CMD(glGetString);
