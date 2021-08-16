@@ -13,8 +13,9 @@ Window xWindow;
 # endif
 #endif
 
-static inline void SEND_ATTRIB_DATA(const EGLint *attrib_list)
+static inline unsigned SEND_ATTRIB_DATA(const EGLint *attrib_list)
 {
+  if (!attrib_list || attrib_list[0] == EGL_NONE) return 0;
   unsigned num_attribs;
   unsigned data_size;
   gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsc_global.tmp_buf.buf;
@@ -23,6 +24,7 @@ static inline void SEND_ATTRIB_DATA(const EGLint *attrib_list)
   assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));
   memcpy(dat->attrib_list, attrib_list, data_size);
   gls_cmd_send_data(0, data_size, glsc_global.tmp_buf.buf);
+  return num_attribs;
 }
 
 // EGL 1.0
@@ -30,8 +32,9 @@ static inline void SEND_ATTRIB_DATA(const EGLint *attrib_list)
 EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config )
 {
     gls_cmd_flush();
-    SEND_ATTRIB_DATA(attrib_list);
+    uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
     GLS_SET_COMMAND_PTR(c, eglChooseConfig);
+    c->has_attribs = has_attribs;
     c->dpy = (uint64_t)dpy;
     if (configs)
         c->config_size = config_size;

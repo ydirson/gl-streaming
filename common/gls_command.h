@@ -428,6 +428,7 @@ typedef struct
   uint32_t cmd;
   uint64_t dpy;
   uint32_t config_size;
+  uint32_t has_attribs;
 } gls_eglChooseConfig_t;
 
 

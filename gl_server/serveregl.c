@@ -34,7 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void glse_eglChooseConfig()
 {
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
-  gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
+  EGLint *attrib_list = NULL;
+  if (c->has_attribs) {
+    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
+    attrib_list = dat->attrib_list;
+  }
   EGLint num_config;
   EGLConfig* configs = NULL;
   EGLBoolean success = EGL_TRUE;
@@ -48,7 +52,7 @@ void glse_eglChooseConfig()
   }
 
   if (success)
-    success = eglChooseConfig((EGLDisplay)c->dpy, dat->attrib_list,
+    success = eglChooseConfig((EGLDisplay)c->dpy, attrib_list,
                               configs, c->config_size, &num_config);
   gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.tmp_buf.buf;
   if (success && c->config_size)
