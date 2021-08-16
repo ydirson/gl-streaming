@@ -163,12 +163,6 @@ API call (which makes pixmap surfaces and pbuffer surfaces mostly
 unusable, and usually makes their usage break the in-window
 rendering).
 
-### EGL contexts
-
-Currently a single EGL context is used, as returned from
-eglGetCurrentContext.  This naturally assumes EGL 1.4 support on
-server side.
-
 
 # other things to be documented
 
