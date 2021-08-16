@@ -65,6 +65,24 @@ void glse_eglChooseConfig()
   glse_cmd_send_data(0,sizeof(gls_ret_eglChooseConfig_t),(char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglCreateWindowSurface()
+{
+  GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
+  EGLint *attrib_list = NULL;
+  if (c->has_attribs) {
+    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
+    attrib_list = dat->attrib_list;
+  }
+  fprintf(stderr, "GLS WARNING: eglCreateWindowSurface ignoring window parameter\n");
+  EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
+                                              glsec_global.gc->x.window, // FIXME
+                                              attrib_list);
+  gls_ret_eglCreateWindowSurface_t *ret = (gls_ret_eglCreateWindowSurface_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglCreateWindowSurface;
+  ret->surface = (uint64_t)surface;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglCreateWindowSurface_t), (char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglGetConfigAttrib()
 {
   GLSE_SET_COMMAND_PTR(c, eglGetConfigAttrib);
@@ -293,7 +311,7 @@ int egl_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(eglCreateContext);
         //CASE_EXEC_CMD(eglCreatePbufferSurface);
         //CASE_EXEC_CMD(eglCreatePixmapSurface);
-        //CASE_EXEC_CMD(eglCreateWindowSurface);
+        CASE_EXEC_CMD(eglCreateWindowSurface);
         //CASE_EXEC_CMD(eglDestroyContext);
         //CASE_EXEC_CMD(eglDestroySurface);
         CASE_EXEC_CMD(eglGetConfigAttrib);

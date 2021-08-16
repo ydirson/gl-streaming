@@ -89,15 +89,24 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig 
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )
 {
-    (void)dpy; (void)config; (void)attrib_list; // FIXME stub
-    WARN_STUBBED();
 #if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
     if (xWindow && xWindow != window)
         fprintf(stderr, "GLS WARNING: eglCreateWindowSurface: changing X11 Window\n");
     xWindow = window;
 #endif
-    
-    return eglGetCurrentSurface(EGL_DRAW);
+
+    gls_cmd_flush();
+    uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+    GLS_SET_COMMAND_PTR(c, eglCreateWindowSurface);
+    c->has_attribs = has_attribs;
+    c->dpy = (uint64_t)dpy;
+    c->config = (uint64_t)config;
+    c->window = 0; // window; FIXME
+    GLS_SEND_PACKET(eglCreateWindowSurface);
+
+    wait_for_data("timeout:eglCreateWindowSurface");
+    gls_ret_eglCreateWindowSurface_t *ret = (gls_ret_eglCreateWindowSurface_t *)glsc_global.tmp_buf.buf;
+    return (EGLSurface)ret->surface;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroyContext( EGLDisplay dpy, EGLContext ctx )
