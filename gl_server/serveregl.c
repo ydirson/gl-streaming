@@ -258,6 +258,9 @@ void glse_eglGetCurrentContext()
 #define CASE_EXEC_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(); break
 
 int egl_executeCommand(gls_command_t *c) {
+#ifdef DEBUG
+    LOGD("egl_executeCommand: Executing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+#endif
     switch (c->cmd) {
 // EGL 1.0
         CASE_EXEC_CMD(eglChooseConfig);

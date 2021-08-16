@@ -725,7 +725,9 @@ void glse_()
 #define CASE_FLUSH_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(); pop_batch_command(sizeof(gls_##FUNCNAME##_t)); break
 #define CASE_FLUSH_CMD_SIZE(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(); pop_batch_command(((gls_##FUNCNAME##_t *)c)->cmd_size); break
 int gles_flushCommand(gls_command_t *c) {
+#ifdef DEBUG
     LOGD("Flushing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+#endif
     switch (c->cmd) {
         CASE_FLUSH_CMD(glAttachShader);
         CASE_FLUSH_CMD(glActiveTexture);
@@ -787,8 +789,7 @@ int gles_flushCommand(gls_command_t *c) {
 
 int gles_executeCommand(gls_command_t *c) {
 #ifdef DEBUG
-    LOGD("gles_executeCommand: Executing command %d (%s)\n",
-         c->cmd, GLSC_tostring(c->cmd));
+    LOGD("gles_executeCommand: Executing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
     switch (c->cmd) {
         CASE_EXEC_CMD(glBufferData);
