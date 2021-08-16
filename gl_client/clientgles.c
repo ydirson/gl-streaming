@@ -336,6 +336,7 @@ GL_APICALL void GL_APIENTRY glCullFace (GLenum mode)
 GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 {
   gls_cmd_flush();
+  _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
   uint32_t size = n * sizeof(uint32_t);
   gls_cmd_send_data(0, size, (void *)buffers);
 
