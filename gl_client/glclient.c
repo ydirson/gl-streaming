@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glclient.h"
 
+gls_context_t glsc_global;
+uint32_t client_egl_error;
 
 float get_diff_time(struct timeval start, struct timeval end)
 {

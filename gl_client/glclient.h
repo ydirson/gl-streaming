@@ -81,9 +81,8 @@ extern "C" {
 #define TRUE 1
 #define FALSE 0
 
-gls_context_t glsc_global;
-
-uint32_t client_egl_error;
+extern gls_context_t glsc_global;
+extern uint32_t client_egl_error;
 
 float get_diff_time(struct timeval start, struct timeval end);
 int check_batch_overflow(size_t size, const char *msg);
