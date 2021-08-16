@@ -424,6 +424,23 @@ typedef struct
   uint32_t cmd;
   uint64_t dpy;
   uint64_t config;
+  uint64_t share_list;
+  uint32_t has_attribs;
+} gls_eglCreateContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t context;
+} gls_ret_eglCreateContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
   uint32_t window;
   uint32_t has_attribs;
 } gls_eglCreateWindowSurface_t;

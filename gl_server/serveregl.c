@@ -65,6 +65,23 @@ void glse_eglChooseConfig()
   glse_cmd_send_data(0,sizeof(gls_ret_eglChooseConfig_t),(char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglCreateContext()
+{
+  GLSE_SET_COMMAND_PTR(c, eglCreateContext);
+  EGLint *attrib_list = NULL;
+  if (c->has_attribs) {
+    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
+    attrib_list = dat->attrib_list;
+  }
+  EGLContext context = eglCreateContext((EGLDisplay)c->dpy, (EGLConfig)c->config,
+                                        (EGLContext)c->share_list, attrib_list);
+
+  gls_ret_eglCreateContext_t *ret = (gls_ret_eglCreateContext_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglCreateContext;
+  ret->context = (uint64_t)context;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglCreateContext_t), (char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglCreateWindowSurface()
 {
   GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
@@ -319,7 +336,7 @@ int egl_executeCommand(gls_command_t *c) {
 // EGL 1.0
         CASE_EXEC_CMD(eglChooseConfig);
         //CASE_EXEC_CMD(eglCopyBuffers);
-        //CASE_EXEC_CMD(eglCreateContext);
+        CASE_EXEC_CMD(eglCreateContext);
         //CASE_EXEC_CMD(eglCreatePbufferSurface);
         //CASE_EXEC_CMD(eglCreatePixmapSurface);
         CASE_EXEC_CMD(eglCreateWindowSurface);
