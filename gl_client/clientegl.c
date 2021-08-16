@@ -257,11 +257,19 @@ EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint *major, EGLi
     return ret->success;
 }
 
-EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent( EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx )
+EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)
 {
-    (void)dpy; (void)draw; (void)read; (void)ctx; // FIXME stub
-    WARN_STUBBED();
-    return EGL_TRUE;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglMakeCurrent);
+  c->dpy = (uint64_t)dpy;
+  c->draw = (uint64_t)draw;
+  c->read = (uint64_t)read;
+  c->ctx = (uint64_t)ctx;
+  GLS_SEND_PACKET(eglMakeCurrent);
+
+  wait_for_data("timeout:eglMakeCurrent");
+  gls_ret_eglMakeCurrent_t *ret = (gls_ret_eglMakeCurrent_t *)glsc_global.tmp_buf.buf;
+  return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext( EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *value )

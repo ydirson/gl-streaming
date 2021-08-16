@@ -217,6 +217,18 @@ void glse_eglInitialize()
   glse_cmd_send_data(0,sizeof(gls_ret_eglInitialize_t),(char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglMakeCurrent()
+{
+  GLSE_SET_COMMAND_PTR(c, eglMakeCurrent);
+  EGLBoolean success = eglMakeCurrent((EGLDisplay)c->dpy, (EGLSurface)c->draw,
+                                      (EGLSurface)c->read, (EGLContext)c->ctx);
+
+  gls_ret_eglMakeCurrent_t *ret = (gls_ret_eglMakeCurrent_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglMakeCurrent;
+  ret->success = success;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglMakeCurrent_t), (char *)glsec_global.tmp_buf.buf);
+}
+
 void glse_eglQueryContext()
 {
   GLSE_SET_COMMAND_PTR(c, eglQueryContext);
@@ -361,7 +373,7 @@ int egl_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(eglGetError);
         //CASE_EXEC_CMD(eglGetProcAddress);
         CASE_EXEC_CMD(eglInitialize);
-        //CASE_EXEC_CMD(eglMakeCurrent);
+        CASE_EXEC_CMD(eglMakeCurrent);
         CASE_EXEC_CMD(eglQueryContext);
         CASE_EXEC_CMD(eglQueryString);
         CASE_EXEC_CMD(eglQuerySurface);

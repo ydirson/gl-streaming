@@ -608,6 +608,24 @@ typedef struct
   uint32_t success;
 } gls_ret_eglInitialize_t;
 
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t draw;
+  uint64_t read;
+  uint64_t ctx;
+} gls_eglMakeCurrent_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglMakeCurrent_t;
+
+
 typedef struct
 {
   uint32_t cmd;
