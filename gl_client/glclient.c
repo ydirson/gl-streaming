@@ -121,47 +121,6 @@ int gls_init(server_context_t *arg)
 }
 
 
-void gls_init_library()
-{
-    static server_context_t sc;
-    static int init = FALSE;
-    if(init)
-        return;
-    char my_ip[30]; // GLS_STRING_SIZE_PLUS
-    char his_ip[30]; // GLS_STRING_SIZE_PLUS
-    uint16_t my_port = 18146;
-    uint16_t his_port = 18145;
-    
-    const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
-    if (env_serverAddr == NULL) {
-        strncpy(his_ip, "127.0.0.1", 10);
-    } else {
-        printf("GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
-        
-        char* env_serverAddr_search = ":";
-        int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
-        char env_serverAddr_arr[env_serverAddr_length];
-        strncpy(env_serverAddr_arr, env_serverAddr, env_serverAddr_length + 1);
-        
-        char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
-        strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
-        his_port = atoi(strtok(NULL, env_serverAddr_search));
-        
-    }
-
-    strncpy(my_ip, "127.0.0.1", 10);
-    server_init(&sc);
-    set_client_address_port(&sc, my_ip, my_port);
-    set_server_address_port(&sc, his_ip, his_port);
-
-    server_start(&sc);
-    gls_init(&sc);
-    gls_cmd_get_context();
-    
-    init = TRUE;
-}
-
-
 int gls_free()
 {
     free(glsc_global.out_buf.buf);
@@ -298,6 +257,46 @@ int gls_cmd_get_context()
 }
 
 
+void gls_init_library()
+{
+    static server_context_t sc;
+    static int init = FALSE;
+    if(init)
+        return;
+    char my_ip[30]; // GLS_STRING_SIZE_PLUS
+    char his_ip[30]; // GLS_STRING_SIZE_PLUS
+    uint16_t my_port = 18146;
+    uint16_t his_port = 18145;
+    
+    const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
+    if (env_serverAddr == NULL) {
+        strncpy(his_ip, "127.0.0.1", 10);
+    } else {
+        printf("GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
+        
+        char* env_serverAddr_search = ":";
+        int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
+        char env_serverAddr_arr[env_serverAddr_length];
+        strncpy(env_serverAddr_arr, env_serverAddr, env_serverAddr_length + 1);
+        
+        char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
+        strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
+        his_port = atoi(strtok(NULL, env_serverAddr_search));
+        
+    }
+
+    strncpy(my_ip, "127.0.0.1", 10);
+    server_init(&sc);
+    set_client_address_port(&sc, my_ip, my_port);
+    set_server_address_port(&sc, his_ip, his_port);
+
+    server_start(&sc);
+    gls_init(&sc);
+    gls_cmd_get_context();
+    
+    init = TRUE;
+}
+
 int gls_cmd_flip(unsigned int frame)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
@@ -334,4 +333,3 @@ int gls_cmd_flush()
   send_packet(sizeof(gls_command_t));
   return TRUE;
 }
-
