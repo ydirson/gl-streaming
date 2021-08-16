@@ -47,7 +47,7 @@ The networking code uses 2 buffers:
   * batch simpler calls which do not need tmp_buf for any usage listed
     above
 
-A message with variable-length data gets sent as 2 messages:
+A message with large variable-length data gets sent as 2 messages:
 
 * first the data in a `SEND_DATA` message, using `gls_cmd_send_data`
 * then the command with its fixed arguments in a command-specific
@@ -56,6 +56,12 @@ A message with variable-length data gets sent as 2 messages:
 
 A message with output parameters uses `wait_for_data`, and
 subsequently finds those results in `tmp_buf`.
+
+When a client starts, it sends a handshake `get_context` message to
+check the server's protocol version, and get the size of the
+server-created window.
+
+### batched commands
 
 A message that does not need `tmp_buf` for those usages is accumulated
 into `tmp_buf` using `GLS_PUSH_BATCH`, until one of those conditions
@@ -74,6 +80,14 @@ execution.
 On client side, we try to keep the code minimal, just piping data to
 the server.  However, not all API calls are simple enough for this to
 be possible.  Some exceptions are:
+
+### `eglGetError`, `glGetError` and GLS-level errors
+
+Sometimes we can report at GLS client level an error before even
+sending a command to the server.  This is currently implemented for
+EGL through the `client_egl_error` variable.  It can be set by any
+`egl*` function, and gets reset by `send_packet` to avoid hiding later
+errors.
 
 ### `glVertexAttribPointer` client-array case
 
@@ -126,6 +140,36 @@ height of the window surface to fit rendering to this size, querying
 the server for the real EGLSurface size gives unintended results (and
 in the case where a demo app like `es2tri` checks the size matches its
 expectations, can result in early abort).
+
+
+## current implementation shortcuts
+
+### displays, windows
+
+Currently a single window on a single display is supported.  Since the
+window creation by cient app is out of the EGL scope, it is today not
+intercepted, and gets shown with a background that will stay black.
+
+On server side, a fixed-sized window (today hardcoded with size
+1280x720) is created at server startup.
+
+### EGL surfaces
+
+Currently only a single surface is supported, which is the window
+surface for the single window.  Only this one is ever returned by any
+API call (which makes pixmap surfaces and pbuffer surfaces mostly
+unusable, and usually makes their usage break the in-window
+rendering).
+
+`eglSwapBuffers()` is hacked to act on that single surface, using
+custom GLSC_FLIP, which brings and sends back a "frame number",
+incremented with each call. (why so ?!)
+
+### EGL contexts
+
+Currently a single EGL context is used, as returned from
+eglGetCurrentContext.  This naturally assumes EGL 1.4 support on
+server side.
 
 
 # other things to be documented
