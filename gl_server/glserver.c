@@ -163,8 +163,7 @@ void glse_cmd_flush()
 void * glserver_thread(void * arg)
 {
 #ifdef GL_DEBUG
-  FILE *fl;
-  fl = fopen("/sdcard/mthr_log.txt", "w");
+  FILE *fl = stderr;
 #endif
   int quit = FALSE;
   server_thread_args_t * a = (server_thread_args_t *)arg;

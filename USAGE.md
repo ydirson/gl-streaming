@@ -30,9 +30,9 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Run an program requires OpenGL or OpenGL ES (many: Xvfb, x-window-manager, etc...).
 
 # Variables on compile
-## Sever
+## Server
 ### GL_DEBUG
-- Enable debug log write to `/sdard/mthr_log.txt`.
+- Enable debug log write to stderr.
 - Disabled by default.
 
 ## Client
