@@ -90,6 +90,7 @@ void push_batch_command(size_t size);
 int gls_cmd_flush();
 
 void gls_init_library();
+void gls_cleanup_library();
 
 extern gls_context_t glsc_global;
 int gls_init(server_context_t *arg);

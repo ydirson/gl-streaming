@@ -297,6 +297,11 @@ void gls_init_library()
     init = TRUE;
 }
 
+void gls_cleanup_library()
+{
+  gls_free();
+}
+
 int gls_cmd_flip(unsigned int frame)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);

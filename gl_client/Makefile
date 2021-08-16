@@ -40,7 +40,7 @@ glclient.o: glclient.c glclient.h ../common/gls_command.h server.o
 	$(CC) -c -o glclient.o $(CFLAGS) glclient.c
 
 $(LIB_GLES): $(OBJS)
-	$(CC) -shared -o $(LIB_GLES) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,--no-undefined $(LIBS)
+	$(CC) -shared -o $(LIB_GLES) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library,--no-undefined $(LIBS)
 
 $(LIB_EGL): $(LIB_GLES)
 	ln -sf $(LIB_GLES) $(LIB_EGL)
