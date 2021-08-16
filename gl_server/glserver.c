@@ -194,7 +194,7 @@ void * glserver_thread(void * arg)
       gls_command_t *c = (gls_command_t *)popptr;
       glsec_global.cmd_data = c;
 #ifdef GL_DEBUG
-      fprintf(fl, "@MainLoop: Attempting to execute command %d (%s)\n",
+      fprintf(fl, "@MainLoop: Attempting to execute command 0x%x (%s)\n",
               c->cmd, GLSC_tostring(c->cmd));
 #endif
 
@@ -220,16 +220,16 @@ void * glserver_thread(void * arg)
           
         default: {
           int result = egl_executeCommand(c);
-          // Attempt to execute EGL first, if fail then attepmt to GLES.
+          // Attempt to execute EGL first, if fail then attempt to GLES.
           if (result == FALSE) {
               result = gles_executeCommand(c);
           }
           
           if (result == FALSE) {
 #ifdef GL_DEBUG
-            fprintf(fl,"@Exec: %d : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+            fprintf(fl,"@Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
-            LOGE("Error: Undefined command %d (%s)", c->cmd, GLSC_tostring(c->cmd));
+            LOGE("Error: Undefined command 0x%x (%s)", c->cmd, GLSC_tostring(c->cmd));
           }
           break;
         }
