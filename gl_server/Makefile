@@ -6,6 +6,10 @@ LIBS=-L/opt/vc/lib/ -lX11 -lGLESv2 -lEGL -lpthread -lrt
 INCLUDES=-I/opt/vc/include/ -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -I../common -I. -I./include
 OBJS=fifo.o glcontrol.o server.o serveregl.o servergles.o glserver.o
 
+DESTDIR =
+prefix = /usr/local
+bindir = $(prefix)/bin
+
 all: $(OBJS) gl_server
 
 fifo.o: ../common/fifo.c ../common/fifo.h
@@ -28,6 +32,10 @@ glserver.o: glserver.c glserver.h ../common/gls_command.h glcontrol.o server.o
 
 gl_server: main.c glserver.o
 	$(CC) -o gl_server $(CFLAGS) $(INCLUDES) main.c $(OBJS) $(LIBS)
+
+install:
+	mkdir -p $(DESTDIR)$(bindir)
+	cp gl_server $(DESTDIR)$(bindir)/
 
 clean:
 	rm -f gl_server $(OBJS)
