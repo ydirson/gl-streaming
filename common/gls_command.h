@@ -1078,7 +1078,6 @@ typedef struct
 {
   uint32_t cmd;
   int32_t n;
-  uint32_t buffers;
 } gls_glGenBuffers_t;
 
 
