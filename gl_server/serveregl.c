@@ -288,17 +288,18 @@ void glse_eglQueryString()
     strcpy(ret->params, "EGL_GLS_dummy");
     ret->success = TRUE;
     break;
-  case EGL_CLIENT_APIS:
-    // FIXME would rather query and filter those we support
-    strcpy(ret->params, "OpenGL_ES");
-    ret->success = TRUE;
-    break;
+//  case EGL_CLIENT_APIS:
+//    // FIXME would rather query and filter those we support
+//    strcpy(ret->params, "OpenGL_ES");
+//    ret->success = TRUE;
+//    break;
   case EGL_VERSION:
     // wrong but glmark2 wont work without 1.4
     strcpy(ret->params, "1.4 GLS"); // matches eglInitialize
     ret->success = TRUE;
     break;
   case EGL_VENDOR:
+  case EGL_CLIENT_APIS:
     {
       const char *params = eglQueryString((EGLDisplay)c->dpy, c->name);
       const char prefix[] = "GLS + ";

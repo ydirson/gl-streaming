@@ -15,12 +15,13 @@ OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
 
 LIB_GLES = libGLESv2.so.2
 LIB_EGL = libEGL.so.1
+LIB_GL = libGL.so.1
 
 DESTDIR =
 prefix = /usr/local
 GLS_LIB_DIR = $(prefix)/lib/gl-streaming
 
-EXES = $(LIB_GLES) $(LIB_EGL)
+EXES = $(LIB_GLES) $(LIB_EGL) $(LIB_GL)
 
 all: $(EXES)
 
@@ -45,10 +46,14 @@ $(LIB_GLES): $(OBJS)
 $(LIB_EGL): $(LIB_GLES)
 	ln -sf $(LIB_GLES) $(LIB_EGL)
 
+$(LIB_GL): $(LIB_GLES)
+	ln -sf $(LIB_GLES) $(LIB_GL)
+
 install:
 	mkdir -p $(DESTDIR)$(GLS_LIB_DIR)
 	cp $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/
 	ln -sf $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/$(LIB_EGL)
+	ln -sf $(LIB_GL) $(DESTDIR)$(GLS_LIB_DIR)/$(LIB_GL)
 
 clean:
 	rm -f $(EXES) $(OBJS)
