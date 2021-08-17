@@ -456,6 +456,21 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint64_t dpy;
+  uint64_t ctx;
+} gls_eglDestroyContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglDestroyContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
   uint64_t configs[GLS_DATA_SIZE];
   uint32_t num_config;
   uint32_t success;

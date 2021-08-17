@@ -117,9 +117,15 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroyContext( EGLDisplay dpy, EGLContext ctx )
 {
-    (void)dpy; (void)ctx; // FIXME stub
-    WARN_STUBBED();
-    return EGL_TRUE;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglDestroyContext);
+  c->dpy = (uint64_t)dpy;
+  c->ctx = (uint64_t)ctx;
+  GLS_SEND_PACKET(eglDestroyContext);
+
+  wait_for_data("timeout:eglDestroyContext");
+  gls_ret_eglDestroyContext_t *ret = (gls_ret_eglDestroyContext_t *)glsc_global.tmp_buf.buf;
+  return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surface )
