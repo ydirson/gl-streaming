@@ -140,7 +140,7 @@ void glse_cmd_flush()
         }
         
         if (result == FALSE) {
-            LOGE("Error: Command Flush %i\n", c->cmd);
+            LOGE("Error: Command Flush 0x%x\n", c->cmd);
             quit = TRUE;
         }
         break;
@@ -214,7 +214,7 @@ void * glserver_thread(void * arg)
 #ifdef GL_DEBUG
             fprintf(fl,"@Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
-            LOGE("Error: Undefined command 0x%x (%s)", c->cmd, GLSC_tostring(c->cmd));
+            LOGE("Error: Undefined command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
           }
           break;
         }
