@@ -65,7 +65,7 @@ int send_packet(size_t size)
 int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 {
 #ifdef GL_DEBUG
-  fprintf(stderr, "glse_cmd_send_data sending data back\n");
+  fprintf(stderr, "GLS: glse_cmd_send_data sending data back\n");
 #endif
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
@@ -140,7 +140,7 @@ void glse_cmd_flush()
         }
         
         if (result == FALSE) {
-            LOGE("Error: Command Flush 0x%x\n", c->cmd);
+            LOGE("GLS ERROR: Command Flush 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
             quit = TRUE;
         }
         break;
@@ -151,9 +151,6 @@ void glse_cmd_flush()
 
 void * glserver_thread(void * arg)
 {
-#ifdef GL_DEBUG
-  FILE *fl = stderr;
-#endif
   int quit = FALSE;
   server_thread_args_t * a = (server_thread_args_t *)arg;
   static graphics_context_t gc;
@@ -182,7 +179,7 @@ void * glserver_thread(void * arg)
       gls_command_t *c = (gls_command_t *)popptr;
       glsec_global.cmd_data = c;
 #ifdef GL_DEBUG
-      fprintf(fl, "@MainLoop: Attempting to execute command 0x%x (%s)\n",
+      fprintf(stderr, "GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
               c->cmd, GLSC_tostring(c->cmd));
 #endif
 
@@ -192,13 +189,13 @@ void * glserver_thread(void * arg)
           break;
         case GLSC_FLUSH:
 #ifdef GL_DEBUG
-          fprintf(fl,"@Exec: Flushing command buffer...\n");
+          fprintf(stderr, "GLS Exec: Flushing command buffer...\n");
 #endif
           glse_cmd_flush();
           break;
         case GLSC_get_context:
 #ifdef GL_DEBUG
-          fprintf(fl,"@Exec: Feeding context to client...\n");
+          fprintf(stderr, "GLS Exec: Feeding context to client...\n");
 #endif
           glse_cmd_get_context();
           break;
@@ -212,9 +209,9 @@ void * glserver_thread(void * arg)
           
           if (result == FALSE) {
 #ifdef GL_DEBUG
-            fprintf(fl,"@Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+            fprintf(stderr, "GLS ERROR: Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
-            LOGE("Error: Undefined command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+            LOGE("GLS ERROR: Undefined command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
           }
           break;
         }
