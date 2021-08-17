@@ -303,6 +303,16 @@ void glse_glGenBuffers(gls_command_t* buf)
 }
 
 
+void glse_glGenFramebuffers(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glGenFramebuffers);
+  GLuint *ret = (GLuint*)glsec_global.pool.tmp_buf.buf;
+  glGenFramebuffers(c->n, ret);
+  uint32_t size = c->n * sizeof(uint32_t);
+  glse_cmd_send_data(size, ret);
+}
+
+
 void glse_glGenTextures(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenTextures);
@@ -812,7 +822,7 @@ int gles_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(glFrontFace);
         CASE_EXEC_CMD(glGenBuffers);
         //CASE_EXEC_CMD(glGenerateMipmap);
-        //CASE_EXEC_CMD(glGenFramebuffers);
+        CASE_EXEC_CMD(glGenFramebuffers);
         //CASE_EXEC_CMD(glGenRenderbuffers);
         CASE_EXEC_CMD(glGenTextures);
         CASE_EXEC_CMD(glGetActiveAttrib);

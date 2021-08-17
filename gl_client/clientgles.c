@@ -624,8 +624,13 @@ GL_APICALL void GL_APIENTRY glGenerateMipmap (GLenum target)
 
 GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
 {
-  (void)n; (void)framebuffers;
-  WARN_STUBBED();
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glGenFramebuffers);
+  c->n = n;
+  GLS_SEND_PACKET(glGenFramebuffers);
+
+  wait_for_data("timeout:glGenFramebuffers");
+  memcpy(framebuffers, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
 }
 
 

@@ -344,6 +344,13 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   int32_t n;
+} gls_glGenFramebuffers_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t n;
 } gls_glGenTextures_t;
 
 
