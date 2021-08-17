@@ -293,6 +293,13 @@ void glse_glFlush(gls_command_t* buf)
 }
 
 
+void glse_glFramebufferTexture2D(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glFramebufferTexture2D);
+  glFramebufferTexture2D(c->target, c->attachment, c->textarget, c->texture, c->level);
+}
+
+
 void glse_glGenBuffers(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenBuffers);
@@ -818,7 +825,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glFinish);
         CASE_BATCH_CMD(glFlush);
         //CASE_EXEC_CMD(glFramebufferRenderbuffer);
-        //CASE_EXEC_CMD(glFramebufferTexture2D);
+        CASE_EXEC_CMD(glFramebufferTexture2D);
         //CASE_EXEC_CMD(glFrontFace);
         CASE_EXEC_CMD(glGenBuffers);
         //CASE_EXEC_CMD(glGenerateMipmap);

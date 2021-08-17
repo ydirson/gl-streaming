@@ -336,6 +336,17 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  uint32_t target;
+  uint32_t attachment;
+  uint32_t textarget;
+  uint32_t texture;
+  uint32_t level;
+} gls_glFramebufferTexture2D_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   int32_t n;
 } gls_glGenBuffers_t;
 

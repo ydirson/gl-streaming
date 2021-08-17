@@ -591,8 +591,13 @@ GL_APICALL void GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum att
 
 GL_APICALL void GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
-  (void)target; (void)attachment; (void)textarget; (void)texture; (void)level;
-  WARN_STUBBED();
+  GLS_SET_COMMAND_PTR_BATCH(c, glFramebufferTexture2D);
+  c->target = target;
+  c->attachment = attachment;
+  c->textarget = textarget;
+  c->texture = texture;
+  c->level = level;
+  GLS_PUSH_BATCH(glFramebufferTexture2D);
 }
 
 
