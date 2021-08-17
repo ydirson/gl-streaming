@@ -5,58 +5,64 @@
   - [x] default window size
   - [x] proper line endings in logs
   - [ ] proper server logging, not hardcoded /sdcard/
-  - [ ] enough EGL/GLES2 coverage to use mesa-demos examples
-    - [x] eglinfo, es2_info support
-    - [ ] egltri support
-    - [x] es2tri support
-    - [ ] eglgears support
-    - [x] es2gears support
-    - glmark2 coverage
-      - build
-        - [ ] use-vbo=false
-        - [x] use-vbo=true
-      - texture
-        - [x] texture-filter=nearest
-        - [x] texture-filter=linear
-        - [ ] texture-filter=mipmap
-      - shading
-        - [x] shading=gouraud
-        - [x] shading=blinn-phong-inf
-        - [x] shading=phong
-        - [x] shading=cel
-      - bump
-        - [x] bump-render=high-poly
-        - [ ] bump-render=normals
-        - [ ] bump-render=height
-      - effect2d
-        - [x] kernel=0,1,0;1,-4,1;0,1,0;
-        - [x] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;
-      - pulsar
-        - [x] light=false:quads=5:texture=false
-      - desktop (needs glGenFramebuffers)
-        - [ ] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
-        - [ ] effect=shadow:windows=4
-      - buffer
-        - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
-        - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata (timeout:glGetAttribLocation)
-        - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
-      - ideas (needs glDrawElements)
-        - [ ] speed=duration
-      - [ ] jellyfish (needs glDrawElements)
-      - [ ] terrain (needs glUniform2fv, glGenFramebuffers, glFramebufferTexture2D, glUniform1i)
-      - [ ] shadow (needs "depth texture extension")
-      - [ ] refract ("Unsupported")
-      - conditionals
-        - [x] fragment-steps=0:vertex-steps=0
-        - [x] fragment-steps=5:vertex-steps=0
-        - [x] fragment-steps=0:vertex-steps=5
-      - function
-        - [x] fragment-complexity=low:fragment-steps=5
-        - [x] fragment-complexity=medium:fragment-steps=5
-      - loop
-        - [x] fragment-loop=false:fragment-steps=5:vertex-steps=5
-        - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
-        - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
+  - mesa-demos coverage
+    - EGL/GLES2
+      - [x] eglinfo, es2_info support
+      - [x] es2tri support
+      - [x] es2gears support
+    - EGL/OpenGL
+      - [ ] egltri support (needs glMatrixMode)
+      - [ ] eglgears support (needs glLightfv)
+      - [ ] xeglgears support (needs eglCreateImageKHR)
+      - xeglthreads support
+        - [ ] `xeglthreads -n 1` (needs glMatrixMode)
+        - [ ] `xeglthreads` (needs multiple contexts)
+  - glmark2 coverage
+    - build
+      - [ ] use-vbo=false
+      - [x] use-vbo=true
+    - texture
+      - [x] texture-filter=nearest
+      - [x] texture-filter=linear
+      - [ ] texture-filter=mipmap
+    - shading
+      - [x] shading=gouraud
+      - [x] shading=blinn-phong-inf
+      - [x] shading=phong
+      - [x] shading=cel
+    - bump
+      - [x] bump-render=high-poly
+      - [ ] bump-render=normals
+      - [ ] bump-render=height
+    - effect2d
+      - [x] kernel=0,1,0;1,-4,1;0,1,0;
+      - [x] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;
+    - pulsar
+      - [x] light=false:quads=5:texture=false
+    - desktop (needs glGenFramebuffers)
+      - [ ] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
+      - [ ] effect=shadow:windows=4
+    - buffer
+      - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
+      - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata (timeout:glGetAttribLocation)
+      - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
+    - ideas (needs glDrawElements)
+      - [ ] speed=duration
+    - [ ] jellyfish (needs glDrawElements)
+    - [ ] terrain (needs glUniform2fv, glGenFramebuffers, glFramebufferTexture2D, glUniform1i)
+    - [ ] shadow (needs "depth texture extension")
+    - [ ] refract ("Unsupported")
+    - conditionals
+      - [x] fragment-steps=0:vertex-steps=0
+      - [x] fragment-steps=5:vertex-steps=0
+      - [x] fragment-steps=0:vertex-steps=5
+    - function
+      - [x] fragment-complexity=low:fragment-steps=5
+      - [x] fragment-complexity=medium:fragment-steps=5
+    - loop
+      - [x] fragment-loop=false:fragment-steps=5:vertex-steps=5
+      - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
+      - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
 
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
