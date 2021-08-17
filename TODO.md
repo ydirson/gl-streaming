@@ -33,7 +33,7 @@
         - [x] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;
       - pulsar
         - [x] light=false:quads=5:texture=false
-      - desktop
+      - desktop (needs glGenFramebuffers)
         - [ ] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
         - [ ] effect=shadow:windows=4
       - buffer
@@ -43,7 +43,7 @@
       - ideas (needs glDrawElements)
         - [ ] speed=duration
       - [ ] jellyfish (needs glDrawElements)
-      - [ ] terrain (segfault)
+      - [ ] terrain (needs glUniform2fv, glGenFramebuffers, glFramebufferTexture2D, glUniform1i)
       - [ ] shadow (needs "depth texture extension")
       - [ ] refract ("Unsupported")
       - conditionals
@@ -56,7 +56,7 @@
       - loop
         - [x] fragment-loop=false:fragment-steps=5:vertex-steps=5
         - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
-        - [ ] fragment-steps=5:fragment-uniform=true:vertex-steps=5
+        - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
 
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
