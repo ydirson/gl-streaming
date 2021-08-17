@@ -76,12 +76,17 @@ This work builds on previous efforts:
 
 [Shodruky Rhyammer](https://github.com/shodruky-rhyammer/gl-streaming)
 wrote the original PoC, client-side requiring patching apps to use
-streaming, and server-side rendering on a Raspberry Pi GPU.
+streaming, and server-side rendering on a Raspberry Pi GPU.  Cites
+[meaningful help](contributors.txt) from OpenGL forum.
 
 [ArtDev](https://github.com/artdeell/gl-streaming) implemented
 server-side rendering on Android devices (abandonning support for
 proprietary RPi-specific APIs), and started support for a rendering on
 a Linux-based server.
+
+[Mittorn](https://github.com/mittorn/gl-streaming.git) implemented
+emulation of client arrays with VBO's (later apparently reused by Duy
+Tran Khanh without mentionning author of original code).
 
 [Duy Tran
 Khanh](https://github.com/khanhduytran0/android-gl-streaming) greatly
