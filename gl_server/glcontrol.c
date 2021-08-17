@@ -103,7 +103,7 @@ const char* glGetErrorString(GLenum err)
 void base_check_egl_err(const char* funcname) {
     int error = eglGetError();
     if (error != EGL_SUCCESS) {
-        LOGD("eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
+        LOGD("GLS ERROR: eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
     }
 #ifdef DEBUG
     assert(error == 0)
@@ -112,7 +112,7 @@ void base_check_egl_err(const char* funcname) {
 void base_check_gl_err(const char* funcname) {
     int error = glGetError();
     if (error != GL_NO_ERROR) {
-        LOGD("glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
+        LOGD("GLS ERROR: glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
     }
 #ifdef DEBUG
     assert(error == 0)
@@ -124,7 +124,7 @@ void init_egl(graphics_context_t *gc)
 #ifdef USE_X11
   gc->x.display = XOpenDisplay(NULL);
   if (!gc->x.display) {
-    printf("Error: couldn't open display %s\n", getenv("DISPLAY"));
+    fprintf(stderr, "GLS ERROR: couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
     return;
   }
@@ -183,8 +183,8 @@ static void make_egl_base(graphics_context_t *gc, const char *name, int x, int y
 static void make_egl_base(graphics_context_t *gc)
 #endif
 {
-  if (!eglInitialize(gc->display, NULL, NULL)) {
-      printf("Error: eglInitialize() failed\n");
+   if (!eglInitialize(gc->display, NULL, NULL)) {
+      fprintf(stderr, "Error: eglInitialize() failed\n");
       exit(1);
    }
 
@@ -201,7 +201,7 @@ static void make_egl_base(graphics_context_t *gc)
    visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(gc->x.display, xScreenId));
    visInfo = XGetVisualInfo(gc->x.display, VisualIDMask, &visTemplate, &num_visuals);
    if (!visInfo) {
-      printf("Error: couldn't get X visual\n");
+      fprintf(stderr, "GLS ERROR: couldn't get X visual\n");
       exit(1);
    }
 
@@ -233,7 +233,7 @@ static void make_egl_base(graphics_context_t *gc)
 #elif defined(__ANDROID__)
    gc->surface(gc->display, config, glsurfaceview_window, NULL);
 #else
-   printf("FIXME!!! on platform without X11 or Android? Windows?\n");
+   fprintf(stderr, "GLS FIXME!!! on platform without X11 or Android? Windows?\n");
    exit(1);
 #endif
 }
