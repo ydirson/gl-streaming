@@ -1,35 +1,61 @@
 # Setup streaming environment
+
+No installation is required to test the software.
+
 ## Server setup
+
+### Linux
+
+```
+make -C gl_server
+```
+
+### Android (code probably not uptodate, may not build)
 - Build Server app using Android Studio with NDK installed.
 - Install server APK. 
 
 ## Client setup
+
 ```
-cd /path/to/android-gl-streaming/gl_client
-
-# Make the client
-make
-
-# Install gl-streaming client
-make install
-
-# Copy GL4ES into (optional)
-cp /path/to/gl4es/lib/libGL.so.1 /usr/local/lib/gl-streaming
-
-# Override system libGLESv2.so.2, libEGL.so.1 and libGL.so.1
-export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
+make -C gl_client
 ```
 
-# Launch streaming!
-## Launch server
-- Do as title: Launch server.
-- Enter server port and client address, or leave empty for default values.
+# Launch server
 
-## Launch client
-- Test: run `es2_info, es2gears, es2tri, glxinfo, glxgears, glxdemo or glxheads`
-- Run an program requires OpenGL or OpenGL ES (many: Xvfb, x-window-manager, etc...).
+```
+gl_server
+```
 
-# Variables on compile
+Optionally, use `-s` and `-c` flags to specify non-default server and
+client `ip:port` (defaults `127.0.0.1:18145` and `127.0.0.1:18146`
+respectively).
+
+# Launch client
+
+- Override system libraries
+  ```
+  export LD_LIBRARY_PATH=/path/to/gl-streaming/gl_client:$LD_LIBRARY_PATH
+  ```
+- Use test programs: run `eglinfo`, `es2_info`, `es2gears`, `es2tri`, `glmark2`, etc.
+- Run a real program using OpenGL ES
+
+## Environment variables
+
+### `GLS_DEBUG` -- log executing/flushing command to the console
+
+Disabled by default.  Valid values:
+- 0: Disable command logging (default).
+- 1: Enable command logging.
+
+### `GLS_SERVER_ADDR` -- set server IP address and port
+
+Default value: `127.0.0.1:18145`.
+
+
+# C preprocessor contionnals
+
+This will likely only be useful to developers.
+
 ## Server
 ### GL_DEBUG
 - Enable debug log write to stderr.
@@ -47,18 +73,4 @@ export LD_LIBRARY_PATH=/usr/local/lib/gl-streaming:$LD_LIBRARY_PATH
 - Only meaningful if USE_X11 is enabled.
 - Enabled by default.
 - May be useful to disable scaling of rendering to server window size.
-
-# Environment variable on launch
-## Server
-- Nothing yet.
-
-## Client
-### GLS_DEBUG
-- Log executing/flushing command to the console. Disabled by default.
-- 0: Disable command logging (default).
-- 1: Enable command logging.
-
-### GLS_SERVER_ADDR
-- Set server IP address and port.
-- Default value: `127.0.0.1:18145`.
 
