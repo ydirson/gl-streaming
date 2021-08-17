@@ -155,14 +155,79 @@ or shared memory.
 
 ## current implementation shortcuts
 
+### single GL session
+
+The server app does the allocations on behalf of all clients.  Some
+consequences are:
+
+- GPU resources not released explicitly by the client (eg. after a
+  crash, or simply relying on process exiting to release) stay
+  allocated until the server terminates
+- resources allocated by previous clients can be seen by later ones,
+  causing reproducibility issues
+
+This can be addressed by forking a dedicated server process for each
+client connecting, to replicate the client lifetime on the server-side
+GL client.  Additionally this will bring a more traditionnal design
+where several clients can connect at the same time.
+
+### large buffers
+
+Large data buffers cause problems to the fixed-size tmp_buf.
+Currently the code drops data that does not fit in the buffer, and the
+commands suffering this loss probably don't know and use undefined
+memory following the buffer instead.
+
+Also, usage of oversized buffers "just to be sure we don't miss
+something" is just too common today.
+
+### transport reliability
+
+Transport is done with UDP today.  This has nice properties for a
+packet-based protocol, but does not provide any reliability features,
+which are supposed to be added at application level.  Currently we
+don't add any such reliability feature, and are bound to suffer from
+packet loss.
+
+Some options:
+
+- add reliability features (tracking packets to get lost ones resent,
+  congestion control to limit occurences of losses, etc): this would
+  be good if we could drop packets to resync (eg. video), but here we
+  do need reliability foremost, and will have no benefit implementing
+  that atop UDP
+- use a reliable packet transport -- SCTP would work but may be overkill
+  just to get reliability, esp. given its relatively low deployment
+- implement a packet protocol inside TCP: this will be the easiest and
+  most portable
+
+### shared memory
+
+Some calls are complicated by the server lacking direct memory access
+to the client's.  Examples include `glVertexAttribPointer` as
+mentionned above, or `eglCreatePixmapSurface`, which can be emulated
+at a cost.  Explicit memory mapping like the `GL_OES_mapbuffer`
+extension bring this to another level, which can probably not be
+efficiently implemented by a network transport.
+
+However, in the case of a virtual machine, we can study the
+implications of establishing real memory sharing.
+
 ### displays, windows
 
 Currently a single window on a single display is supported.  Since the
-window creation by cient app is out of the EGL scope, it is today not
+window creation by client app is out of the EGL scope, it is today not
 intercepted, and gets shown with a background that will stay black.
 
 On server side, a fixed-sized window (today hardcoded with size
 1280x720) is created at server startup.
+
+For transparent usage, we will need to intercept the window creation
+to prevent it to happen locally and get the events on the server
+window propagated back.  This seems hardly reasonable for
+manually-created X11 windows, but can be studied for common
+window-handling frameworks like GLFW and SDL2, which would then be
+taught a new backend alongside X11.
 
 
 # other things to be documented
