@@ -55,6 +55,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // lack of separator in the lists
 #define EMPTY()
 
+// FIXME: commands should be further split between batchable and non-batchable
+
 #define GLS_COMMANDS()                          \
   EMPTY()                                       \
     GLS_GLS_COMMANDS()                          \
@@ -66,7 +68,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLS_GLS_COMMANDS()                      \
   EMPTY()                                       \
     X(BREAK)                                    \
-    X(FLIP)                                     \
     X(SEND_DATA)                                \
     X(FLUSH)                                    \
     X(get_context)                              \
@@ -335,20 +336,6 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t frame;
-} gls_cmd_flip_t;
-
-
-typedef struct
-{
-  uint32_t cmd;
-  uint32_t frame;
-} gls_ret_flip_t;
-
-
-typedef struct
-{
-  uint32_t cmd;
 } gls_cmd_get_context_t;
 
 
@@ -435,10 +422,107 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
+  uint64_t share_list;
+  uint32_t has_attribs;
+} gls_eglCreateContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t context;
+} gls_ret_eglCreateContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
+  uint32_t has_attribs;
+} gls_eglCreatePbufferSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t surface;
+} gls_ret_eglCreatePbufferSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
+  //uint32_t pixmap; // FIXME
+  uint32_t has_attribs;
+} gls_eglCreatePixmapSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t surface;
+} gls_ret_eglCreatePixmapSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
+  uint32_t window;
+  uint32_t has_attribs;
+} gls_eglCreateWindowSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t surface;
+} gls_ret_eglCreateWindowSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t ctx;
+} gls_eglDestroyContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglDestroyContext_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
   uint64_t configs[GLS_DATA_SIZE];
   uint32_t num_config;
   uint32_t success;
 } gls_ret_eglChooseConfig_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t surface;
+} gls_eglDestroySurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglDestroySurface_t;
 
 
 typedef struct
@@ -557,6 +641,24 @@ typedef struct
   uint32_t success;
 } gls_ret_eglInitialize_t;
 
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t draw;
+  uint64_t read;
+  uint64_t ctx;
+} gls_eglMakeCurrent_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglMakeCurrent_t;
+
+
 typedef struct
 {
   uint32_t cmd;
@@ -638,6 +740,21 @@ typedef struct
   uint32_t cmd;
   uint32_t success;
 } gls_ret_eglSurfaceAttrib_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t draw;
+} gls_eglSwapBuffers_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t success;
+} gls_ret_eglSwapBuffers_t;
 
 
 typedef struct

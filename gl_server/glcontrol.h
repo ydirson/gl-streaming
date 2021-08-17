@@ -52,7 +52,6 @@ typedef struct
   uint32_t screen_width;
   uint32_t screen_height;
   EGLDisplay display;
-  EGLSurface surface;
   EGLContext context;
 #ifdef __ANDROID__
   ANativeWindow* d_window;

@@ -65,53 +65,104 @@ EGLAPI EGLBoolean EGLAPIENTRY eglCopyBuffers( EGLDisplay dpy, EGLSurface surface
 
 EGLAPI EGLContext EGLAPIENTRY eglCreateContext( EGLDisplay dpy, EGLConfig config, EGLContext share_list, const EGLint *attrib_list )
 {
-    (void)dpy; (void)config; (void)share_list; (void)attrib_list; // FIXME stub
-    WARN_STUBBED();
-    // return 1;
-    
-    // Stub: current
-    return eglGetCurrentContext();
+    gls_cmd_flush();
+    uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+    GLS_SET_COMMAND_PTR(c, eglCreateContext);
+    c->has_attribs = has_attribs;
+    c->dpy = (uint64_t)dpy;
+    c->config = (uint64_t)config;
+    c->share_list = (uint64_t)share_list;
+    GLS_SEND_PACKET(eglCreateContext);
+
+    wait_for_data("timeout:eglCreateContext");
+    gls_ret_eglCreateContext_t *ret = (gls_ret_eglCreateContext_t *)glsc_global.tmp_buf.buf;
+    return (EGLContext)ret->context;
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list )
 {
-    (void)dpy; (void)config; (void)attrib_list; // FIXME stub
-    WARN_STUBBED();
-    return eglGetCurrentSurface(EGL_DRAW);
+  gls_cmd_flush();
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
+  c->has_attribs = has_attribs;
+  c->dpy = (uint64_t)dpy;
+  c->config = (uint64_t)config;
+  GLS_SEND_PACKET(eglCreatePbufferSurface);
+
+  wait_for_data("timeout:eglCreatePbufferSurface");
+  gls_ret_eglCreatePbufferSurface_t *ret = (gls_ret_eglCreatePbufferSurface_t *)glsc_global.tmp_buf.buf;
+  return (EGLSurface)ret->surface;
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig config, NativePixmapType pixmap, const EGLint *attrib_list )
 {
+#if 0
+  gls_cmd_flush();
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
+  c->has_attribs = has_attribs;
+  c->dpy = (uint64_t)dpy;
+  c->config = (uint64_t)config;
+  //c->pixmap = pixmap; // FIXME must transfer Pixmap first
+  GLS_SEND_PACKET(eglCreatePixmapSurface);
+
+  wait_for_data("timeout:eglCreatePixmapSurface");
+  gls_ret_eglCreatePixmapSurface_t *ret = (gls_ret_eglCreatePixmapSurface_t *)glsc_global.tmp_buf.buf;
+  return (EGLSurface)ret->surface;
+#else
     (void)dpy; (void)config; (void)pixmap; (void)attrib_list; // FIXME stub
     WARN_STUBBED();
-    return eglGetCurrentSurface(EGL_DRAW);
+    client_egl_error = EGL_BAD_MATCH; // "config does not support rendering to pixmaps"
+    return EGL_NO_SURFACE;
+#endif
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )
 {
-    (void)dpy; (void)config; (void)attrib_list; // FIXME stub
-    WARN_STUBBED();
 #if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
     if (xWindow && xWindow != window)
         fprintf(stderr, "GLS WARNING: eglCreateWindowSurface: changing X11 Window\n");
     xWindow = window;
 #endif
-    
-    return eglGetCurrentSurface(EGL_DRAW);
+
+    gls_cmd_flush();
+    uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+    GLS_SET_COMMAND_PTR(c, eglCreateWindowSurface);
+    c->has_attribs = has_attribs;
+    c->dpy = (uint64_t)dpy;
+    c->config = (uint64_t)config;
+    c->window = 0; // window; FIXME
+    GLS_SEND_PACKET(eglCreateWindowSurface);
+
+    wait_for_data("timeout:eglCreateWindowSurface");
+    gls_ret_eglCreateWindowSurface_t *ret = (gls_ret_eglCreateWindowSurface_t *)glsc_global.tmp_buf.buf;
+    return (EGLSurface)ret->surface;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroyContext( EGLDisplay dpy, EGLContext ctx )
 {
-    (void)dpy; (void)ctx; // FIXME stub
-    WARN_STUBBED();
-    return EGL_TRUE;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglDestroyContext);
+  c->dpy = (uint64_t)dpy;
+  c->ctx = (uint64_t)ctx;
+  GLS_SEND_PACKET(eglDestroyContext);
+
+  wait_for_data("timeout:eglDestroyContext");
+  gls_ret_eglDestroyContext_t *ret = (gls_ret_eglDestroyContext_t *)glsc_global.tmp_buf.buf;
+  return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surface )
 {
-    (void)dpy; (void)surface; // FIXME stub
-    WARN_STUBBED();
-    return EGL_TRUE;
+    gls_cmd_flush();
+    GLS_SET_COMMAND_PTR(c, eglDestroySurface);
+    c->dpy = (uint64_t)dpy;
+    c->surface = (uint64_t)surface;
+    GLS_SEND_PACKET(eglDestroySurface);
+
+    wait_for_data("timeout:eglDestroySurface");
+    gls_ret_eglDestroySurface_t *ret = (gls_ret_eglDestroySurface_t *)glsc_global.tmp_buf.buf;
+    return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value )
@@ -230,11 +281,19 @@ EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint *major, EGLi
     return ret->success;
 }
 
-EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent( EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx )
+EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)
 {
-    (void)dpy; (void)draw; (void)read; (void)ctx; // FIXME stub
-    WARN_STUBBED();
-    return EGL_TRUE;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglMakeCurrent);
+  c->dpy = (uint64_t)dpy;
+  c->draw = (uint64_t)draw;
+  c->read = (uint64_t)read;
+  c->ctx = (uint64_t)ctx;
+  GLS_SEND_PACKET(eglMakeCurrent);
+
+  wait_for_data("timeout:eglMakeCurrent");
+  gls_ret_eglMakeCurrent_t *ret = (gls_ret_eglMakeCurrent_t *)glsc_global.tmp_buf.buf;
+  return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext( EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *value )
@@ -309,10 +368,15 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
 
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers( EGLDisplay dpy, EGLSurface draw )
 {
-    (void)dpy; (void)draw; // FIXME stub
-    WARN_STUBBED();
-    static int frame;
-    return gls_cmd_flip(frame++);
+    gls_cmd_flush();
+    GLS_SET_COMMAND_PTR(c, eglSwapBuffers);
+    c->dpy = (uint64_t)dpy;
+    c->draw = (uint64_t)draw;
+    GLS_SEND_PACKET(eglSwapBuffers);
+
+    wait_for_data("timeout:eglSwapBuffers");
+    gls_ret_eglSwapBuffers_t *ret = (gls_ret_eglSwapBuffers_t *)glsc_global.tmp_buf.buf;
+    return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglTerminate( EGLDisplay dpy )
