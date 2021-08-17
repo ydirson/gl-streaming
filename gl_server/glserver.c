@@ -114,6 +114,8 @@ int glse_cmd_recv_data()
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.cmd_data;
   if ((c->offset + c->size > glsec_global.tmp_buf.size) || (glsec_global.tmp_buf.size == 0))
   {
+    fprintf(stderr, "GLS ERROR: data too large for buffer, dropping packet with offset %d\n",
+            c->offset);
     return FALSE;
   }
   memcpy(&glsec_global.tmp_buf.buf[c->offset], c->data.data_char, c->size);
