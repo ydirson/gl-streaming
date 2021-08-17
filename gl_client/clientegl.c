@@ -81,16 +81,40 @@ EGLAPI EGLContext EGLAPIENTRY eglCreateContext( EGLDisplay dpy, EGLConfig config
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list )
 {
-    (void)dpy; (void)config; (void)attrib_list; // FIXME stub
-    WARN_STUBBED();
-    return eglGetCurrentSurface(EGL_DRAW);
+  gls_cmd_flush();
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
+  c->has_attribs = has_attribs;
+  c->dpy = (uint64_t)dpy;
+  c->config = (uint64_t)config;
+  GLS_SEND_PACKET(eglCreatePbufferSurface);
+
+  wait_for_data("timeout:eglCreatePbufferSurface");
+  gls_ret_eglCreatePbufferSurface_t *ret = (gls_ret_eglCreatePbufferSurface_t *)glsc_global.tmp_buf.buf;
+  return (EGLSurface)ret->surface;
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig config, NativePixmapType pixmap, const EGLint *attrib_list )
 {
+#if 0
+  gls_cmd_flush();
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
+  c->has_attribs = has_attribs;
+  c->dpy = (uint64_t)dpy;
+  c->config = (uint64_t)config;
+  //c->pixmap = pixmap; // FIXME must transfer Pixmap first
+  GLS_SEND_PACKET(eglCreatePixmapSurface);
+
+  wait_for_data("timeout:eglCreatePixmapSurface");
+  gls_ret_eglCreatePixmapSurface_t *ret = (gls_ret_eglCreatePixmapSurface_t *)glsc_global.tmp_buf.buf;
+  return (EGLSurface)ret->surface;
+#else
     (void)dpy; (void)config; (void)pixmap; (void)attrib_list; // FIXME stub
     WARN_STUBBED();
-    return eglGetCurrentSurface(EGL_DRAW);
+    client_egl_error = EGL_BAD_MATCH; // "config does not support rendering to pixmaps"
+    return EGL_NO_SURFACE;
+#endif
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint *attrib_list )

@@ -144,6 +144,15 @@ in the case where a demo app like `es2tri` checks the size matches its
 expectations, can result in early abort).
 
 
+## special client work still to be done
+
+### `eglCreatePixmapSurface`
+
+This gets a client-side Pixmap and, which needs to be transfered ot
+the server first.  Needs a custom data struct and a WARN_INEFFICIENT,
+or shared memory.
+
+
 ## current implementation shortcuts
 
 ### displays, windows
@@ -154,14 +163,6 @@ intercepted, and gets shown with a background that will stay black.
 
 On server side, a fixed-sized window (today hardcoded with size
 1280x720) is created at server startup.
-
-### EGL surfaces
-
-Currently only a single surface is supported, which is the window
-surface for the single window.  Only this one is ever returned by any
-API call (which makes pixmap surfaces and pbuffer surfaces mostly
-unusable, and usually makes their usage break the in-window
-rendering).
 
 
 # other things to be documented

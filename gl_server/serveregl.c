@@ -82,6 +82,40 @@ void glse_eglCreateContext()
   glse_cmd_send_data(0, sizeof(gls_ret_eglCreateContext_t), (char *)glsec_global.tmp_buf.buf);
 }
 
+void glse_eglCreatePbufferSurface()
+{
+  GLSE_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
+  EGLint *attrib_list = NULL;
+  if (c->has_attribs) {
+    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
+    attrib_list = dat->attrib_list;
+  }
+  EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, attrib_list);
+  gls_ret_eglCreatePbufferSurface_t *ret = (gls_ret_eglCreatePbufferSurface_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglCreatePbufferSurface;
+  ret->surface = (uint64_t)surface;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglCreatePbufferSurface_t), (char *)glsec_global.tmp_buf.buf);
+}
+
+#if 0
+void glse_eglCreatePixmapSurface()
+{
+  GLSE_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
+  EGLint *attrib_list = NULL;
+  if (c->has_attribs) {
+    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.tmp_buf.buf;
+    attrib_list = dat->attrib_list;
+  }
+  // FIXME must transfer Pixmap first
+  EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, attrib_list);
+  EGLSurface surface = eglGetCurrentSurface(EGL_DRAW); // Stub: current
+  gls_ret_eglCreatePixmapSurface_t *ret = (gls_ret_eglCreatePixmapSurface_t *)glsec_global.tmp_buf.buf;
+  ret->cmd = GLSC_eglCreatePixmapSurface;
+  ret->surface = surface;
+  glse_cmd_send_data(0, sizeof(gls_ret_eglCreatePixmapSurface_t), (char *)glsec_global.tmp_buf.buf);
+}
+#endif
+
 void glse_eglCreateWindowSurface()
 {
   GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
@@ -360,7 +394,7 @@ int egl_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(eglChooseConfig);
         //CASE_EXEC_CMD(eglCopyBuffers);
         CASE_EXEC_CMD(eglCreateContext);
-        //CASE_EXEC_CMD(eglCreatePbufferSurface);
+        CASE_EXEC_CMD(eglCreatePbufferSurface);
         //CASE_EXEC_CMD(eglCreatePixmapSurface);
         CASE_EXEC_CMD(eglCreateWindowSurface);
         CASE_EXEC_CMD(eglDestroyContext);

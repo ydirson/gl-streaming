@@ -441,6 +441,39 @@ typedef struct
   uint32_t cmd;
   uint64_t dpy;
   uint64_t config;
+  uint32_t has_attribs;
+} gls_eglCreatePbufferSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t surface;
+} gls_ret_eglCreatePbufferSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
+  //uint32_t pixmap; // FIXME
+  uint32_t has_attribs;
+} gls_eglCreatePixmapSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t surface;
+} gls_ret_eglCreatePixmapSurface_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint64_t dpy;
+  uint64_t config;
   uint32_t window;
   uint32_t has_attribs;
 } gls_eglCreateWindowSurface_t;
