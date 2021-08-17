@@ -4,7 +4,7 @@
   - [x] disable server GLES extensions, symbols not exported by standard libs
   - [x] default window size
   - [x] proper line endings in logs
-  - [ ] proper server logging, not hardcoded /sdcard/
+  - [x] proper server logging, not hardcoded /sdcard/
   - mesa-demos coverage
     - EGL/GLES2
       - [x] eglinfo, es2_info support
@@ -104,16 +104,17 @@
   - [ ] full EGL core
     - [x] non-stub config handling
     - [ ] non-default EGLDisplay handling
-    - [ ] non-stub context management
+    - [x] non-stub context management
   - [ ] EGL extension support
     - [ ] proper GL_OES_mapbuffer implementation
   - [ ] separate EGL and GLSclient libs out of libGLES2
   - [ ] full GLES2 core
   - [ ] GLES2 extension support
   - [ ] GLES3 ?
-  - [ ] GLX / desktop GL ?
+  - [ ] desktop GL with EGL ?
+  - [ ] GLX ?
   - [ ] Vulkan !
-- [ ] update README
+- [x] update README
 - [ ] consistent coding style
 
 ## medium priority
