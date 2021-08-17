@@ -89,6 +89,8 @@ EGL through the `client_egl_error` variable.  It can be set by any
 `egl*` function, and gets reset by `send_packet` to avoid hiding later
 errors.
 
+For lack of a generic error code, we often use EGL_BAD_ACCESS.
+
 ### `glVertexAttribPointer` client-array case
 
 `glVertexAttribPointer` interprets differently its `pointer` parameter,
