@@ -13,8 +13,8 @@
     - [x] es2gears support
     - glmark2 coverage
       - build
-        - [x] use-vbo=false
-        - [ ] use-vbo=true
+        - [ ] use-vbo=false
+        - [x] use-vbo=true
       - texture
         - [x] texture-filter=nearest
         - [x] texture-filter=linear
