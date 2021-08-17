@@ -93,7 +93,7 @@ static int gls_init(server_context_t *arg)
   if (env_isDebug == 0 || env_isDebug == 1) {
       glsc_global.is_debug = env_isDebug;
   } else {
-      printf("gls error: GLS_DEBUG variable must be 0 or 1\n");
+      fprintf(stderr, "gls error: GLS_DEBUG variable must be 0 or 1\n");
       exit(EXIT_FAILURE);
       return FALSE;
   }
@@ -173,7 +173,7 @@ int wait_for_data(char *str)
       float diff_time = get_diff_time(start_time, end_time);
       if (diff_time > GLS_TIMEOUT_SEC)
       {
-        printf("\n%s\n", str);
+        fprintf(stderr, "\n%s\n", str);
         exit(EXIT_FAILURE);
         return FALSE;
       }
@@ -224,7 +224,7 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
     c->offset = offset + offset1;
     c->size = size1;
     if (send_packet(sendbytes) == FALSE) {
-      printf("GLS ERROR: %s failed.\n", __FUNCTION__);
+      fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
       success = FALSE;
       break;
     }
@@ -241,7 +241,7 @@ static int gls_cmd_get_context()
   gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_get_context;
   if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE) {
-    printf("GLS ERROR: %s failed.\n", __FUNCTION__);
+    fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
   }
 
@@ -251,9 +251,9 @@ static int gls_cmd_get_context()
   {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
-    printf("GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
+    fprintf(stderr, "GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
     if (ret->server_version != GLS_VERSION) {
-      printf("GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
+      fprintf(stderr, "GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
       return FALSE;
     }
   }
@@ -275,7 +275,7 @@ void gls_init_library()
     if (env_serverAddr == NULL) {
         strncpy(his_ip, "127.0.0.1", 10);
     } else {
-        printf("GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
+        fprintf(stderr, "GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
         
         char* env_serverAddr_search = ":";
         int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
@@ -324,7 +324,7 @@ int gls_cmd_flush()
   c = (gls_command_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_FLUSH;
   if (send_packet(sizeof(gls_command_t)) == FALSE) {
-    printf("GLS ERROR: %s failed.\n", __FUNCTION__);
+    fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
   }
   return TRUE;
