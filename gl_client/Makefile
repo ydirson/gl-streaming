@@ -48,7 +48,7 @@ $(LIB_EGL): $(LIB_GLES)
 install:
 	mkdir -p $(DESTDIR)$(GLS_LIB_DIR)
 	cp $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/
-	ln -sf $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/libEGL.so.1
+	ln -sf $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/$(LIB_EGL)
 
 clean:
 	rm -f $(EXES) $(OBJS)
