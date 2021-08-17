@@ -63,7 +63,9 @@
       - [x] fragment-loop=false:fragment-steps=5:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
-
+  - SDL2 programs with a GLE2-only libSDL
+    - [ ] blobby (needs: glGenFramebuffers glUniform1i glUniform4f glFramebufferTexture2D
+                  glCheckFramebufferStatus)
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - [x] work on native 64bit platforms
