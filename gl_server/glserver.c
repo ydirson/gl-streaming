@@ -227,9 +227,6 @@ void * glserver_thread(void * arg)
 
   free(glsec_global.tmp_buf.buf);
   free(glsec_global.out_buf.buf);
-#ifdef GL_DEBUG
-  fclose(fl);
-#endif
   pthread_exit(NULL);
 }
 
