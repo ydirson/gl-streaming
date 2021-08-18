@@ -1037,14 +1037,9 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
-  uint32_t cmd_size;
   uint32_t mode;
   int32_t count;
   uint32_t type;
-  // uint32_t indices;
-  char indices[GLS_STRING_SIZE_PLUS];
-  uint32_t indices_isnull;
-  uint64_t indices_uint;
 } gls_glDrawElements_t;
 
 

@@ -248,13 +248,8 @@ void glse_glDrawArrays()
 
 void glse_glDrawElements()
 {
-    GLSE_SET_COMMAND_PTR(c, glDrawElements);
-    
-    if (c->indices_isnull == TRUE) {
-        glDrawElements(c->mode, c->count, c->type, (GLvoid *) c->indices_uint);
-    } else {
-        glDrawElements (c->mode, c->count, c->type, (const GLvoid*)c->indices);
-    }
+  GLSE_SET_COMMAND_PTR(c, glDrawElements);
+  glDrawElements(c->mode, c->count, c->type, NULL);
 }
 
 
