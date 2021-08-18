@@ -87,32 +87,6 @@ void * server_thread(void * arg)
   pthread_exit(NULL);
 }
 
-
-void set_fifo_packet_size_in_bits(server_context_t *c, unsigned int bits)
-{
-  c->fifo_packet_size_in_bits = bits;
-}
-
-
-void set_fifo_size_in_bits(server_context_t *c, unsigned int bits)
-{
-  c->fifo_size_in_bits = bits;
-}
-
-
-void set_sleep_time(server_context_t *c, unsigned int usec)
-{
-  c->sleep_usec = usec;
-}
-
-
-#ifdef GLS_SERVER
-void set_client_user_context(server_context_t *c, void *ptr)
-{
-  c->popper_thread_arg.user_context_ptr = ptr;
-}
-#endif
-
 void set_server_address_port(server_context_t *c, char * addr, uint16_t port)
 {
 #ifdef GLS_SERVER
