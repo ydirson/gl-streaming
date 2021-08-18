@@ -60,8 +60,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   EMPTY()                                       \
     X(HANDSHAKE)                                \
     X(SEND_DATA)                                \
-    X(BREAK)                                    \
-    X(FLUSH)                                    \
   //
 
 #define GLS_EGL_COMMANDS()                      \

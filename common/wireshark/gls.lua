@@ -11,8 +11,6 @@ local vs_commands = {
    [0] = "UNDEF",
    [1] = "HANDSHAKE",
    [2] = "SEND_DATA",
-   [3] = "BREAK",
-   [4] = "FLUSH",
 
    [0x10000] = "eglChooseConfig",
    [0x10008] = "eglGetConfigAttrib",

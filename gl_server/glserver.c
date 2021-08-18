@@ -128,35 +128,6 @@ static int glse_cmd_recv_data()
   return TRUE;
 }
 
-
-void glse_cmd_flush()
-{
-  glsec_global.tmp_buf.ptr = 0;
-  int quit = FALSE;
-  while (quit == FALSE) {
-    gls_command_t *c = (gls_command_t *)(glsec_global.tmp_buf.buf + glsec_global.tmp_buf.ptr);
-    glsec_global.cmd_data = c;
-    switch (c->cmd) {
-      case GLSC_BREAK:
-        quit = TRUE;
-        break;
-      default: {
-        int result = egl_flushCommand(c);
-        // Attempt to flush EGL first, if fail then attempt to GLES.
-        if (result == FALSE) {
-            result = gles_flushCommand(c);
-        }
-        
-        if (result == FALSE) {
-            LOGE("GLS ERROR: Command Flush 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-            quit = TRUE;
-        }
-        break;
-      }
-    }
-  }
-}
-
 void glserver_handle_packets(recvr_context_t* rc)
 {
   int quit = FALSE;
@@ -190,12 +161,6 @@ void glserver_handle_packets(recvr_context_t* rc)
     case GLSC_SEND_DATA:
       glse_cmd_recv_data();
       break;
-    case GLSC_FLUSH:
-#ifdef GL_DEBUG
-      fprintf(stderr, "GLS Exec: Flushing command buffer...\n");
-#endif
-      glse_cmd_flush();
-      break;
     case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
       fprintf(stderr, "GLS Exec: Handshake...\n");
@@ -204,19 +169,13 @@ void glserver_handle_packets(recvr_context_t* rc)
       break;
           
     default: {
-      int result = egl_executeCommand(c);
-      // Attempt to execute EGL first, if fail then attempt to GLES.
-      if (result == FALSE) {
-        result = gles_executeCommand(c);
-      }
-          
-      if (result == FALSE) {
-#ifdef GL_DEBUG
-        fprintf(stderr, "GLS ERROR: Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-#endif
-        LOGE("GLS ERROR: Undefined command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-      }
-      break;
+      int result = FALSE;
+      if (!result) result = gles_flushCommand(c); // used-to-be-batched
+      if (!result) result = gles_executeCommand(c);
+      if (!result) result = egl_executeCommand(c);
+
+      if (!result)
+        LOGE("GLS ERROR: Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
     }
     }
     fifo_pop_ptr_next(&rc->fifo);

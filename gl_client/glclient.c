@@ -48,33 +48,6 @@ static float get_diff_time(struct timeval start, struct timeval end)
 }
 
 
-int check_batch_overflow(size_t size, const char *msg)
-{
-  if (size >= GLS_TMP_BUFFER_SIZE - BATCH_AUTO_FLUSH_SIZE)
-  {
-    perror(msg);
-    return FALSE;
-  }
-  uint32_t ptr = next_ptr(glsc_global.tmp_buf.ptr, size, GLS_ALIGNMENT_BITS);
-  if (ptr >= GLS_TMP_BUFFER_SIZE - BATCH_AUTO_FLUSH_SIZE)
-  {
-    gls_cmd_flush();
-  }
-  return TRUE;
-}
-
-
-void push_batch_command()
-{
-  gls_command_t* c = (gls_command_t*)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
-  glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, c->cmd_size, GLS_ALIGNMENT_BITS);
-  if (glsc_global.tmp_buf.ptr > BATCH_AUTO_FLUSH_SIZE)
-  {
-    gls_cmd_flush();
-  }
-}
-
-
 static int gls_init()
 {
   if (GLS_VERSION & 1)
@@ -135,7 +108,7 @@ int send_packet()
   gls_command_t* c = (gls_command_t*)glsc_global.out_buf.buf;
 
   if (send(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, c->cmd_size, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
+    fprintf(stderr, "GLS ERROR: send_packet(%u) failure: %s\n", c->cmd_size, strerror(errno));
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
   }
@@ -295,24 +268,4 @@ void gls_cleanup_library()
 {
   recvr_stop(&glsc_global.rc);
   gls_free();
-}
-
-int gls_cmd_flush()
-{
-  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  if (glsc_global.tmp_buf.ptr == 0)
-  {
-    return FALSE;
-  }
-  if (glsc_global.is_debug) fprintf(stderr, "%s sending\n", __FUNCTION__);
-  gls_command_t *c = (gls_command_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
-  c->cmd = GLSC_BREAK;
-  glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, sizeof(gls_command_t), GLS_ALIGNMENT_BITS);
-  gls_cmd_send_data(0, glsc_global.tmp_buf.ptr, (void *)glsc_global.tmp_buf.buf);
-  glsc_global.tmp_buf.ptr = 0;
-
-  GLS_SET_COMMAND_PTR(c2, FLUSH);
-  if (!send_packet())
-    return FALSE;
-  return TRUE;
 }
