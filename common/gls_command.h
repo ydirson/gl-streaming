@@ -1450,6 +1450,36 @@ typedef struct
 typedef struct
 {
   uint32_t cmd;
+  uint32_t cmd_size;
+  int32_t location;
+  int32_t count;
+  float v[];
+} gls_glUniformNfv_t;
+
+typedef gls_glUniformNfv_t gls_glUniform1fv_t;
+typedef gls_glUniformNfv_t gls_glUniform2fv_t;
+typedef gls_glUniformNfv_t gls_glUniform3fv_t;
+typedef gls_glUniformNfv_t gls_glUniform4fv_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
+  uint32_t cmd_size;
+  int32_t location;
+  int32_t count;
+  int32_t v[];
+} gls_glUniformNiv_t;
+
+typedef gls_glUniformNiv_t gls_glUniform1iv_t;
+typedef gls_glUniformNiv_t gls_glUniform2iv_t;
+typedef gls_glUniformNiv_t gls_glUniform3iv_t;
+typedef gls_glUniformNiv_t gls_glUniform4iv_t;
+
+
+typedef struct
+{
+  uint32_t cmd;
   int32_t location;
   float x;
 } gls_glUniform1f_t;
@@ -1521,16 +1551,6 @@ typedef struct
   int32_t z;
   int32_t w;
 } gls_glUniform4i_t;
-
-
-typedef struct
-{
-  uint32_t cmd;
-  uint32_t cmd_size;
-  int32_t location;
-  int32_t count;
-  float v[1];
-} gls_glUniform4fv_t;
 
 
 typedef struct

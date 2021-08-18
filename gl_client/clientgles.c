@@ -1336,70 +1336,30 @@ IMPLEM_glUniformNX(glUniform3i, c->x = x; c->y = y; c->z = z;, GLint x, GLint y,
 IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x, GLint y, GLint z, GLint w);
 
 
-GL_APICALL void GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const GLint* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const GLint* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const GLfloat* v)
-{
-  uint32_t datasize = count * 4 * sizeof(GLfloat);
-  GLS_SET_COMMAND_PTR_BATCH(c, glUniform4fv);
-  uint32_t cmd_size = (uint32_t)(((char *)c->v + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glUniform4fv: buffer overflow") != TRUE)
-  {
-    return;
+#define IMPLEM_glUniformNXv(FUNC,N,TYPE)                                \
+  GL_APICALL void GL_APIENTRY FUNC(GLint location, GLsizei count, const TYPE* v) \
+  {                                                                     \
+  uint32_t datasize = count * N * sizeof(TYPE);                         \
+  GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                   \
+  uint32_t cmd_size = (uint32_t)(((char *)c->v + datasize) - (char *)c); \
+  if (check_batch_overflow(cmd_size, #FUNC": buffer overflow") != TRUE) \
+    return;                                                             \
+  c->cmd_size = cmd_size;                                               \
+  c->location = location;                                               \
+  c->count = count;                                                     \
+  memcpy(c->v, v, datasize);                                            \
+  push_batch_command(cmd_size);                                         \
   }
-  c->cmd_size = cmd_size;
-  c->location = location;
-  c->count = count;
-  memcpy(c->v, v, datasize);
-  push_batch_command(cmd_size);
-}
 
+IMPLEM_glUniformNXv(glUniform1fv,1,GLfloat);
+IMPLEM_glUniformNXv(glUniform2fv,2,GLfloat);
+IMPLEM_glUniformNXv(glUniform3fv,3,GLfloat);
+IMPLEM_glUniformNXv(glUniform4fv,4,GLfloat);
 
-GL_APICALL void GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const GLint* v)
-{
-  (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
+IMPLEM_glUniformNXv(glUniform1iv,1,GLint);
+IMPLEM_glUniformNXv(glUniform2iv,2,GLint);
+IMPLEM_glUniformNXv(glUniform3iv,3,GLint);
+IMPLEM_glUniformNXv(glUniform4iv,4,GLint);
 
 
 #define IMPLEM_glUniformMatrixNXv(FUNC,N,TYPE)                          \

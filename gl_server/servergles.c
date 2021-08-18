@@ -626,12 +626,22 @@ IMPLEM_glUniformMatrixNX(glUniform3i, c->x, c->y, c->z);
 IMPLEM_glUniformMatrixNX(glUniform4f, c->x, c->y, c->z, c->w);
 IMPLEM_glUniformMatrixNX(glUniform4i, c->x, c->y, c->z, c->w);
 
+#define IMPLEM_glUniformNXv(FUNC,TYPE)                           \
+  void glse_##FUNC()                                             \
+  {                                                              \
+  GLSE_SET_COMMAND_PTR(c, FUNC);                                 \
+  FUNC(c->location, c->count, (const TYPE*) c->v);               \
+  }
 
-void glse_glUniform4fv()
-{
-  GLSE_SET_COMMAND_PTR(c, glUniform4fv);
-  glUniform4fv (c->location, c->count, (const GLfloat*) c->v);
-}
+IMPLEM_glUniformNXv(glUniform1fv,GLfloat);
+IMPLEM_glUniformNXv(glUniform2fv,GLfloat);
+IMPLEM_glUniformNXv(glUniform3fv,GLfloat);
+IMPLEM_glUniformNXv(glUniform4fv,GLfloat);
+
+IMPLEM_glUniformNXv(glUniform1iv,GLint);
+IMPLEM_glUniformNXv(glUniform2iv,GLint);
+IMPLEM_glUniformNXv(glUniform3iv,GLint);
+IMPLEM_glUniformNXv(glUniform4iv,GLint);
 
 
 #define IMPLEM_glUniformMatrixNXv(FUNC)                                 \
@@ -797,21 +807,21 @@ int gles_flushCommand(gls_command_t *c) {
         CASE_FLUSH_CMD(glTexParameteri);
         //CASE_FLUSH_CMD(glTexParameteriv);
         CASE_FLUSH_CMD(glUniform1f);
-        //CASE_FLUSH_CMD_SIZE(glUniform1fv);
+        CASE_FLUSH_CMD_SIZE(glUniform1fv);
         CASE_FLUSH_CMD(glUniform1i);
-        //CASE_FLUSH_CMD_SIZE(glUniform1iv);
+        CASE_FLUSH_CMD_SIZE(glUniform1iv);
         CASE_FLUSH_CMD(glUniform2f);
-        //CASE_FLUSH_CMD_SIZE(glUniform2fv);
+        CASE_FLUSH_CMD_SIZE(glUniform2fv);
         CASE_FLUSH_CMD(glUniform2i);
-        //CASE_FLUSH_CMD_SIZE(glUniform2iv);
+        CASE_FLUSH_CMD_SIZE(glUniform2iv);
         CASE_FLUSH_CMD(glUniform3f);
-        //CASE_FLUSH_CMD_SIZE(glUniform3fv);
+        CASE_FLUSH_CMD_SIZE(glUniform3fv);
         CASE_FLUSH_CMD(glUniform3i);
-        //CASE_FLUSH_CMD_SIZE(glUniform3iv);
+        CASE_FLUSH_CMD_SIZE(glUniform3iv);
         CASE_FLUSH_CMD(glUniform4f);
         CASE_FLUSH_CMD_SIZE(glUniform4fv);
         CASE_FLUSH_CMD(glUniform4i);
-        //CASE_FLUSH_CMD_SIZE(glUniform4iv);
+        CASE_FLUSH_CMD_SIZE(glUniform4iv);
         CASE_FLUSH_CMD_SIZE(glUniformMatrix2fv);
         CASE_FLUSH_CMD_SIZE(glUniformMatrix3fv);
         CASE_FLUSH_CMD_SIZE(glUniformMatrix4fv);
