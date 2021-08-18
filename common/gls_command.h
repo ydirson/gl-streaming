@@ -1472,9 +1472,12 @@ typedef struct
   int32_t location;
   int32_t count;
   uint32_t transpose;
-  float value[1];
-} gls_glUniformMatrix4fv_t;
+  float value[];
+} gls_glUniformMatrixNfv_t;
 
+typedef gls_glUniformMatrixNfv_t gls_glUniformMatrix2fv_t;
+typedef gls_glUniformMatrixNfv_t gls_glUniformMatrix3fv_t;
+typedef gls_glUniformMatrixNfv_t gls_glUniformMatrix4fv_t;
 
 typedef struct
 {

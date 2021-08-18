@@ -46,7 +46,7 @@
       - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
       - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata (timeout:glGetAttribLocation)
       - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
-    - ideas (needs glUniformMatrix3fv, glUniform3fv)
+    - ideas (needs glUniform3fv)
       - [ ] speed=duration
     - [.] jellyfish (needs glUniform3fv, glUniform1i to be complete)
     - [ ] terrain (needs glUniform2fv, glGenFramebuffers, glFramebufferTexture2D, glUniform1i)

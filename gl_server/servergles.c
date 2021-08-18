@@ -624,11 +624,16 @@ void glse_glUniform4fv()
 }
 
 
-void glse_glUniformMatrix4fv()
-{
-  GLSE_SET_COMMAND_PTR(c, glUniformMatrix4fv);
-  glUniformMatrix4fv(c->location, c->count, c->transpose, (const GLfloat*) c->value);
-}
+#define IMPLEM_glUniformMatrixNXv(FUNC)                                 \
+  void glse_##FUNC()                                                    \
+  {                                                                     \
+  GLSE_SET_COMMAND_PTR(c, FUNC);                                        \
+  FUNC(c->location, c->count, c->transpose, (const GLfloat*) c->value); \
+  }
+
+IMPLEM_glUniformMatrixNXv(glUniformMatrix2fv);
+IMPLEM_glUniformMatrixNXv(glUniformMatrix3fv);
+IMPLEM_glUniformMatrixNXv(glUniformMatrix4fv);
 
 
 void glse_glUseProgram()
@@ -797,8 +802,8 @@ int gles_flushCommand(gls_command_t *c) {
         CASE_FLUSH_CMD_SIZE(glUniform4fv);
         //CASE_FLUSH_CMD(glUniform4i);
         //CASE_FLUSH_CMD_SIZE(glUniform4iv);
-        //CASE_FLUSH_CMD_SIZE(glUniformMatrix2fv);
-        //CASE_FLUSH_CMD_SIZE(glUniformMatrix3fv);
+        CASE_FLUSH_CMD_SIZE(glUniformMatrix2fv);
+        CASE_FLUSH_CMD_SIZE(glUniformMatrix3fv);
         CASE_FLUSH_CMD_SIZE(glUniformMatrix4fv);
         CASE_FLUSH_CMD(glUseProgram);
         //CASE_FLUSH_CMD(glVertexAttribFloat);

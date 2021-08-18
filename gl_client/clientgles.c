@@ -1440,36 +1440,25 @@ GL_APICALL void GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const G
 }
 
 
-GL_APICALL void GL_APIENTRY glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
-{
-  (void)location; (void)count; (void)transpose; (void)value;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
-{
-  (void)location; (void)count; (void)transpose; (void)value;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
-{
-  uint32_t datasize = count * 16 * sizeof(GLfloat);
-  GLS_SET_COMMAND_PTR_BATCH(c, glUniformMatrix4fv);
-  uint32_t cmd_size = (uint32_t)(((char *)c->value + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glUniformMatrix4fv: buffer overflow") != TRUE)
-  {
-    return;
+#define IMPLEM_glUniformMatrixNXv(FUNC,N,TYPE)                          \
+  GL_APICALL void GL_APIENTRY FUNC(GLint location, GLsizei count, GLboolean transpose, const TYPE* value) \
+  {                                                                     \
+    uint32_t datasize = count * N * N * sizeof(TYPE);                   \
+    GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                 \
+    uint32_t cmd_size = (uint32_t)(((char *)c->value + datasize) - (char *)c); \
+    if (check_batch_overflow(cmd_size, #FUNC": buffer overflow") != TRUE) \
+      return;                                                           \
+    c->cmd_size = cmd_size;                                             \
+    c->location = location;                                             \
+    c->count = count;                                                   \
+    c->transpose = transpose;                                           \
+    memcpy(c->value, value, datasize);                                  \
+    push_batch_command(cmd_size);                                       \
   }
-  c->cmd_size = cmd_size;
-  c->location = location;
-  c->count = count;
-  c->transpose = transpose;
-  memcpy(c->value, value, datasize);
-  push_batch_command(cmd_size);
-}
+
+IMPLEM_glUniformMatrixNXv(glUniformMatrix2fv,2,GLfloat);
+IMPLEM_glUniformMatrixNXv(glUniformMatrix3fv,3,GLfloat);
+IMPLEM_glUniformMatrixNXv(glUniformMatrix4fv,4,GLfloat);
 
 
 GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
