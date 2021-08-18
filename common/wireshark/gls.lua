@@ -16,11 +16,16 @@ local vs_commands = {
 
    [0x10000] = "eglChooseConfig",
    [0x10008] = "eglGetConfigAttrib",
+   [0x10012] = "eglQueryString",
 
    [0x20000] = "glActiveTexture",
    [0x2000e] = "glCheckFramebufferStatus",
+   [0x20033] = "glGenFramebuffers",
+   [0x20035] = "glGenTextures",
+   [0x2003f] = "glGetIntegerv",
    [0x20047] = "glGetString",
    [0x20062] = "glShaderSource",
+   [0x20069] = "glTexImage2D",
 }
 
 -- SEND_DATA
@@ -70,7 +75,7 @@ function p_gls.dissector(buf, pkt, tree)
       dissector.dissector:call(buf(4):tvb(), pkt, tree)
    else
       -- fallback dissector that just shows the raw data.
-      data_dis:call(buf(2):tvb(), pkt, tree)
+      data_dis:call(buf(4):tvb(), pkt, tree)
    end
 end
 

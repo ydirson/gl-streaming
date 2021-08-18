@@ -240,7 +240,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glIsTexture)                              \
     X(glLineWidth)                              \
     X(glLinkProgram)                            \
-                                                \
     X(glPixelStorei)                            \
     X(glPolygonOffset)                          \
     X(glReadPixels)                             \
