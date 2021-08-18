@@ -14,6 +14,11 @@ virtual machines, with rendering on their host, especially to be
 usable on [QubesOS](https://www.qubes-os.org/) to securely provide
 decent GPU acceleration to Qubes containers.
 
+The GPU server should be able to run on most UNIX-like systems.  The
+client library will be adapted to work on various plaforms suitable to
+be used in a Qube.  Either way, today it is only tested on GNU/Linux
+platforms.
+
 
 # Current status
 
@@ -48,10 +53,7 @@ This is still a work in progress, notably:
   despite the large amount of work to be done, things are really
   progressing.
 
-* Essentially tested both client and server sides on GNU/Linux.  In
-  particular, Android server support does not get tested or updated,
-  patches welcomed, and did not follow the protocol evolutions, and as
-  such is not even expected to compile.
+* Essentially tested both client and server sides on GNU/Linux.
 
 
 # Performance and conformance information
@@ -63,8 +65,7 @@ reasonable.
 
 # Other sources of information
 
-* [Usage informations](USAGE.md), a bit terse and somewhat targetting
-  Android builds
+* [Usage informations](USAGE.md), though still a bit terse
 * [An overview of inner workings](INTERNALS.md)
 * [Historical information](README.shodruky-rhyammer.md) from author of
   the original project, including a nice visual explanation

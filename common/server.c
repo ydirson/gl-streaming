@@ -214,16 +214,7 @@ void server_run(server_context_t *ctx, void *(*popper_thread)(void *))
   pthread_setname_np(c->popper_th, "gls-popper");
   pthread_join(c->popper_th, NULL);
   
-  // From https://github.com/tinmaniac/gl-streaming/blob/master/gl_server/server.c#L188
-#ifdef __ANDROID__
-  // this is wrong, but android has no pthread_cancel
-  // see stack overflow for a better solution that uses a SIGUSR1 handler
-  // that I don't have time to implement right now
-  // http://stackoverflow.com/questions/4610086/pthread-cancel-alternatives-in-android-ndk
-  pthread_kill(c->server_th, SIGUSR1);
-#else
   pthread_cancel(c->server_th);
-#endif
   
   socket_close(c);
   fifo_delete(&c->fifo);
@@ -246,10 +237,7 @@ void *server_start(server_context_t *c)
 
 void server_stop(server_context_t *c)
 {
-#ifndef __ANDROID__
     pthread_cancel(c->server_th);
-#endif // GLS_SERVER
-
     socket_close(c);
     fifo_delete(&c->fifo);
 }

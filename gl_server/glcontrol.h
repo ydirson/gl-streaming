@@ -53,9 +53,6 @@ typedef struct
   uint32_t screen_height;
   EGLDisplay display;
   EGLContext context;
-#ifdef __ANDROID__
-  ANativeWindow* d_window;
-#endif
 #ifdef USE_X11
   struct {
     Display* display;
