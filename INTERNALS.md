@@ -74,6 +74,24 @@ In either case, a `BREAK` message is queued in `tmp_buf` which is then
 sent as `SEND_DATA`, and a `FLUSH` message is sent to trigger their
 execution.
 
+#### problems with command batching
+
+This enumeration is surely not complete:
+
+- batched commands are stacked in a 2MB buffer, and could accumulate
+  that much amount of command messages before autoflush.  Autoflush
+  should instead try to prevent retention on the client of messages
+  that could be sent already.  Huge source of latency.
+- batching commands allows to send single command messages larger than
+  the max UDP size (64KB), without the developer easily realizing
+  what's going on (clear abuse of the data-chunking mechanism designed
+  for large data blocks).  This even prevents turning batching off, as those
+  messages are rightfully rejected by sendto().
+- trying to optimize network traffic this early in development is clearly
+  premature optimization
+
+Bottom line: must first switch to TCP-encapsulated messages, then we
+can remove the batching system.
 
 ## special client work
 
@@ -200,6 +218,10 @@ Some options:
   just to get reliability, esp. given its relatively low deployment
 - implement a packet protocol inside TCP: this will be the easiest and
   most portable.  It will have an impact on batching, though.
+
+The current batching system (see above) is in such a state that we
+must switch to TCP-encapsulated messages first to be able to disable
+it in a controlled way, because of huge command messages.
 
 ### shared memory
 
