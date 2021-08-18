@@ -1229,16 +1229,14 @@ GL_APICALL void GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenu
 
 GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  uint32_t pixelbytes, linebytes, datasize;
-  pixelbytes = _pixelformat_to_bytes(format, type);
-  linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
-  datasize = linebytes * height;
-  GLS_SET_COMMAND_PTR_BATCH(c, glTexImage2D);
-  uint32_t cmd_size = (uint32_t)(((char *)c->pixels + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glTexImage2D: buffer overflow") != TRUE) {
-      return;
+  gls_cmd_flush();
+  if (pixels) {
+    uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
+    uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
+    gls_cmd_send_data(0, linebytes * height, pixels);
   }
-  c->cmd_size = cmd_size;
+
+  GLS_SET_COMMAND_PTR(c, glTexImage2D);
   c->target = target;
   c->level = level;
   c->internalformat = internalformat;
@@ -1247,12 +1245,8 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
   c->border = border;
   c->format = format;
   c->type = type;
-  c->pixels_isnull = (pixels == NULL);
-  if (c->pixels_isnull == FALSE) {
-      memcpy(c->pixels, pixels, datasize);
-  }
-  push_batch_command(cmd_size);
-  gls_cmd_flush();
+  c->has_pixels = (pixels != NULL);
+  GLS_SEND_PACKET(glTexImage2D);
 }
 
 
@@ -1289,17 +1283,15 @@ GL_APICALL void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const
 
 GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  uint32_t pixelbytes, linebytes, datasize;
-  pixelbytes = _pixelformat_to_bytes(format, type);
-  linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
-  datasize = linebytes * height;
-  GLS_SET_COMMAND_PTR_BATCH(c, glTexSubImage2D);
-  uint32_t cmd_size = (uint32_t)(((char *)c->pixels + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glTexSubImage2D: buffer overflow") != TRUE)
-  {
-    return;
+  WARN_STUBBED(); // just untested, really
+  gls_cmd_flush();
+  if (pixels) {
+    uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
+    uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
+    gls_cmd_send_data(0, linebytes * height, pixels);
   }
-  c->cmd_size = cmd_size;
+
+  GLS_SET_COMMAND_PTR_BATCH(c, glTexSubImage2D);
   c->target = target;
   c->level = level;
   c->xoffset = xoffset;
@@ -1308,12 +1300,8 @@ GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint x
   c->height = height;
   c->format = format;
   c->type = type;
-  c->pixels_isnull = (pixels == NULL);
-  if (c->pixels_isnull == FALSE) {
-      memcpy(c->pixels, pixels, datasize);
-  }
-  push_batch_command(cmd_size);
-  gls_cmd_flush();
+  c->has_pixels = (pixels != NULL);
+  GLS_SEND_PACKET(glTexSubImage2D);
 }
 
 

@@ -592,21 +592,14 @@ void glse_glTexParameteri()
 void glse_glTexImage2D()
 {
   GLSE_SET_COMMAND_PTR(c, glTexImage2D);
-/*
-  int i;
-  int *pixInt = (int *) c->pixels;
-  for (i = 0; i < c->width; i++) {
-      LOGD("Pixel[%i]=%p\n", i, pixInt[i]);
-  }
-*/
-  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
+  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->has_pixels ? glsec_global.tmp_buf.buf : NULL);
 }
 
 
 void glse_glTexSubImage2D()
 {
   GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
-  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->pixels_isnull ? NULL : c->pixels);
+  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->has_pixels ? glsec_global.tmp_buf.buf : NULL);
 }
 
 
@@ -800,8 +793,6 @@ int gles_flushCommand(gls_command_t *c) {
         //CASE_FLUSH_CMD(glStencilMaskSeparate);
         CASE_FLUSH_CMD(glStencilOp);
         //CASE_FLUSH_CMD(glStencilOpSeparate);
-        CASE_FLUSH_CMD_SIZE(glTexImage2D);
-        CASE_FLUSH_CMD_SIZE(glTexSubImage2D);
         //CASE_FLUSH_CMD(glTexParameterf);
         //CASE_FLUSH_CMD(glTexParameterfv);
         CASE_FLUSH_CMD(glTexParameteri);
@@ -900,6 +891,8 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glReadPixels);
         //CASE_EXEC_CMD(glShaderBinary);
         CASE_EXEC_CMD(glShaderSource);
+        CASE_EXEC_CMD(glTexImage2D);
+        CASE_EXEC_CMD(glTexSubImage2D);
 
     default:
             return FALSE;
