@@ -48,8 +48,8 @@
       - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
     - ideas (needs glUniform3fv)
       - [ ] speed=duration
-    - [.] jellyfish (needs glUniform3fv, glUniform1i to be complete)
-    - [ ] terrain (needs glUniform2fv, glGenFramebuffers, glFramebufferTexture2D, glUniform1i)
+    - [.] jellyfish (needs glUniform3fv to be complete)
+    - [ ] terrain (needs glUniform2fv, glGenFramebuffers, glFramebufferTexture2D)
     - [ ] shadow (needs "depth texture extension")
     - [ ] refract ("Unsupported")
     - conditionals
@@ -64,7 +64,7 @@
       - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
   - SDL2 programs with a GLE2-only libSDL
-    - [ ] blobby (needs: glGenFramebuffers glUniform1i glUniform4f glFramebufferTexture2D
+    - [ ] blobby (needs: glGenFramebuffers glUniform4f glFramebufferTexture2D
                   glCheckFramebufferStatus)
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)

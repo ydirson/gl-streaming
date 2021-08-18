@@ -610,11 +610,21 @@ void glse_glTexSubImage2D()
 }
 
 
-void glse_glUniform1f()
-{
-  GLSE_SET_COMMAND_PTR(c, glUniform1f);
-  glUniform1f(c->location, c->x);
-}
+#define IMPLEM_glUniformMatrixNX(FUNC, ...)         \
+  void glse_##FUNC()                                \
+  {                                                 \
+    GLSE_SET_COMMAND_PTR(c, FUNC);                  \
+    FUNC(c->location, __VA_ARGS__);                 \
+  }
+
+IMPLEM_glUniformMatrixNX(glUniform1f, c->x);
+IMPLEM_glUniformMatrixNX(glUniform1i, c->x);
+IMPLEM_glUniformMatrixNX(glUniform2f, c->x, c->y);
+IMPLEM_glUniformMatrixNX(glUniform2i, c->x, c->y);
+IMPLEM_glUniformMatrixNX(glUniform3f, c->x, c->y, c->z);
+IMPLEM_glUniformMatrixNX(glUniform3i, c->x, c->y, c->z);
+IMPLEM_glUniformMatrixNX(glUniform4f, c->x, c->y, c->z, c->w);
+IMPLEM_glUniformMatrixNX(glUniform4i, c->x, c->y, c->z, c->w);
 
 
 void glse_glUniform4fv()
@@ -788,19 +798,19 @@ int gles_flushCommand(gls_command_t *c) {
         //CASE_FLUSH_CMD(glTexParameteriv);
         CASE_FLUSH_CMD(glUniform1f);
         //CASE_FLUSH_CMD_SIZE(glUniform1fv);
-        //CASE_FLUSH_CMD(glUniform1i);
+        CASE_FLUSH_CMD(glUniform1i);
         //CASE_FLUSH_CMD_SIZE(glUniform1iv);
-        //CASE_FLUSH_CMD(glUniform2f);
+        CASE_FLUSH_CMD(glUniform2f);
         //CASE_FLUSH_CMD_SIZE(glUniform2fv);
-        //CASE_FLUSH_CMD(glUniform2i);
+        CASE_FLUSH_CMD(glUniform2i);
         //CASE_FLUSH_CMD_SIZE(glUniform2iv);
-        //CASE_FLUSH_CMD(glUniform3f);
+        CASE_FLUSH_CMD(glUniform3f);
         //CASE_FLUSH_CMD_SIZE(glUniform3fv);
-        //CASE_FLUSH_CMD(glUniform3i);
+        CASE_FLUSH_CMD(glUniform3i);
         //CASE_FLUSH_CMD_SIZE(glUniform3iv);
-        //CASE_FLUSH_CMD(glUniform4f);
+        CASE_FLUSH_CMD(glUniform4f);
         CASE_FLUSH_CMD_SIZE(glUniform4fv);
-        //CASE_FLUSH_CMD(glUniform4i);
+        CASE_FLUSH_CMD(glUniform4i);
         //CASE_FLUSH_CMD_SIZE(glUniform4iv);
         CASE_FLUSH_CMD_SIZE(glUniformMatrix2fv);
         CASE_FLUSH_CMD_SIZE(glUniformMatrix3fv);

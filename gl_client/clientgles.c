@@ -1316,25 +1316,29 @@ GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint x
   gls_cmd_flush();
 }
 
-GL_APICALL void GL_APIENTRY glUniform1f (GLint location, GLfloat x)
-{
-  GLS_SET_COMMAND_PTR_BATCH(c, glUniform1f);
-  c->location = location;
-  c->x = x;
-  GLS_PUSH_BATCH(glUniform1f);
-}
+
+#define IMPLEM_glUniformNX(FUNC, COPYARGS, ...)                         \
+  GL_APICALL void GL_APIENTRY FUNC(GLint location, __VA_ARGS__)         \
+  {                                                                     \
+    GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                 \
+    c->location = location;                                             \
+    COPYARGS;                                                           \
+    GLS_PUSH_BATCH(glUniform1f);                                        \
+  }
+
+IMPLEM_glUniformNX(glUniform1f, c->x = x;, GLfloat x);
+IMPLEM_glUniformNX(glUniform2f, c->x = x; c->y = y;, GLfloat x, GLfloat y);
+IMPLEM_glUniformNX(glUniform3f, c->x = x; c->y = y; c->z = z;, GLfloat x, GLfloat y, GLfloat z);
+IMPLEM_glUniformNX(glUniform4f, c->x = x; c->y = y; c->z = z; c->w = w;, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+IMPLEM_glUniformNX(glUniform1i, c->x = x;, GLint x);
+IMPLEM_glUniformNX(glUniform2i, c->x = x; c->y = y;, GLint x, GLint y);
+IMPLEM_glUniformNX(glUniform3i, c->x = x; c->y = y; c->z = z;, GLint x, GLint y, GLint z);
+IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x, GLint y, GLint z, GLint w);
 
 
 GL_APICALL void GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)
 {
   (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform1i (GLint location, GLint x)
-{
-  (void)location; (void)x;
   WARN_STUBBED();
 }
 
@@ -1346,23 +1350,9 @@ GL_APICALL void GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const G
 }
 
 
-GL_APICALL void GL_APIENTRY glUniform2f (GLint location, GLfloat x, GLfloat y)
-{
-  (void)location; (void)x; (void)y;
-  WARN_STUBBED();
-}
-
-
 GL_APICALL void GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)
 {
   (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform2i (GLint location, GLint x, GLint y)
-{
-  (void)location; (void)x; (void)y;
   WARN_STUBBED();
 }
 
@@ -1374,13 +1364,6 @@ GL_APICALL void GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const G
 }
 
 
-GL_APICALL void GL_APIENTRY glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z)
-{
-  (void)location; (void)x; (void)y; (void)z;
-  WARN_STUBBED();
-}
-
-
 GL_APICALL void GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)
 {
   (void)location; (void)count; (void)v;
@@ -1388,23 +1371,9 @@ GL_APICALL void GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const G
 }
 
 
-GL_APICALL void GL_APIENTRY glUniform3i (GLint location, GLint x, GLint y, GLint z)
-{
-  (void)location; (void)x; (void)y; (void)z;
-  WARN_STUBBED();
-}
-
-
 GL_APICALL void GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)
 {
   (void)location; (void)count; (void)v;
-  WARN_STUBBED();
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
-{
-  (void)location; (void)x; (void)y; (void)z; (void)w;
   WARN_STUBBED();
 }
 
@@ -1423,13 +1392,6 @@ GL_APICALL void GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const G
   c->count = count;
   memcpy(c->v, v, datasize);
   push_batch_command(cmd_size);
-}
-
-
-GL_APICALL void GL_APIENTRY glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w)
-{
-  (void)location; (void)x; (void)y; (void)z; (void)w;
-  WARN_STUBBED();
 }
 
 
