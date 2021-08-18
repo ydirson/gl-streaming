@@ -7,9 +7,6 @@ CFLAGS+=-DUSE_X11
 # Fake surface size from client-side window
 CFLAGS+=-DGLS_USE_CLTSIZE
 
-# FIXME required for now
-CFLAGS+=-DGLS_EMULATE_VBO
-
 LIBS=-pthread -ldl -lX11
 OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
 

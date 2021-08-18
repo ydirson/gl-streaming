@@ -538,49 +538,6 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   // FIXME should free VBO's and IBO emulating client arrays
 }
 
-#if 0
-// this is GLES3
-GLvoid glDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices )
-{
-    int vbo_bkp = buffer_objs.vbo;
-    int ibo_bkp = buffer_objs.ibo;
-    int i;
-    for (i = 0; i < 16; i++)
-        defered_vertex_attrib_pointer(i, end);
-    if (!buffer_objs.ibo) {
-        if (!buffer_objs.ibo_emu) {
-            glGenBuffers(1, &buffer_objs.ibo_emu);
-        }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * (type == GL_UNSIGNED_SHORT ? 2 : 4), indices, GL_STREAM_DRAW);
-        indices = 0;
-    }
-
-
-    GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
-    c->mode = mode;
-    c->count = count;
-    c->type = type;
-
-#ifdef GLS_EMULATE_VBO
-    c->indices_isnull = 1;
-    c->indices[0] = '\0';
-#endif // !GLS_EMULATE_VBO
-
-#if __WORDSIZE == 64
-    c->indices_uint = (uint32_t)(uint64_t)indices;
-#else // __WORDSIZE == 32
-    c->indices_uint = (uint32_t)indices;
-#endif // __WORDSIZE == 32
-    
-    GLS_PUSH_BATCH(glDrawElements);
-    
-    if( !ibo_bkp )
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-       glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
-}
-#endif
-
 
 GL_APICALL void GL_APIENTRY glEnable (GLenum cap)
 {
