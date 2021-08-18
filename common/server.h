@@ -55,7 +55,7 @@ typedef struct
 
 typedef struct
 {
-  pthread_t server_th, popper_th;
+  pthread_t server_th;
   int err;
   fifo_t fifo;
   int sock_fd;
