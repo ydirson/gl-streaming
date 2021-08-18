@@ -199,7 +199,7 @@ Some options:
 - use a reliable packet transport -- SCTP would work but may be overkill
   just to get reliability, esp. given its relatively low deployment
 - implement a packet protocol inside TCP: this will be the easiest and
-  most portable
+  most portable.  It will have an impact on batching, though.
 
 ### shared memory
 
