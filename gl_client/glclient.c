@@ -200,7 +200,7 @@ int wait_for_data(char *str)
 }
 
 
-int gls_cmd_send_data(uint32_t offset, uint32_t size, void *data)
+int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   if (data == NULL) {
