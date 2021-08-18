@@ -8,7 +8,7 @@ CFLAGS+=-DUSE_X11
 CFLAGS+=-DGLS_USE_CLTSIZE
 
 LIBS=-pthread -ldl -lX11
-OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
+OBJS=fifo.o recvr.o clientegl.o clientgles.o glclient.o
 
 LIBGLES2_2 = libGLESv2.so.2
 LIBEGL_1 = libEGL.so.1
@@ -25,19 +25,19 @@ EXES = $(LIBGLES2_2) $(LIBEGL_1) $(LIBGLES2) $(LIBEGL)
 all: $(EXES)
 
 fifo.o: ../common/fifo.c ../common/fifo.h
-	$(CC) -c -o fifo.o $(CFLAGS) ../common/fifo.c
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-server.o: ../common/server.c ../common/server.h fifo.o
-	$(CC) -c -o server.o $(CFLAGS) ../common/server.c
+recvr.o: ../common/recvr.c ../common/recvr.h fifo.o
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 clientegl.o: clientegl.c include/EGL/egl.h
-	$(CC) -c -o clientegl.o $(CFLAGS) clientegl.c
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 clientgles.o: clientgles.c include/GLES2/gl2.h
-	$(CC) -c -o clientgles.o $(CFLAGS) clientgles.c
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-glclient.o: glclient.c glclient.h ../common/gls_command.h server.o
-	$(CC) -c -o glclient.o $(CFLAGS) glclient.c
+glclient.o: glclient.c glclient.h ../common/gls_command.h recvr.o
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 $(LIBGLES2_2): $(OBJS)
 	$(CC) -shared -o $(LIBGLES2_2) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library,--no-undefined $(LIBS)

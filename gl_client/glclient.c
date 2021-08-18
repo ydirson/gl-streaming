@@ -39,8 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 gls_context_t glsc_global;
 uint32_t client_egl_error;
 
-static server_context_t sc;
-
 static float get_diff_time(struct timeval start, struct timeval end)
 {
   float dt = (float)(end.tv_sec - start.tv_sec) + (float)(end.tv_usec - start.tv_usec) * 0.000001f;
@@ -74,10 +72,8 @@ void push_batch_command(size_t size)
 }
 
 
-static int gls_init(server_context_t *arg)
+static int gls_init()
 {
-  memset(&glsc_global, 0, sizeof(glsc_global));
-  
   if (GLS_VERSION & 1)
     fprintf(stderr, "WARNING: this is a development GLS protocol, "
             "make sure client and server match\n");
@@ -89,7 +85,6 @@ static int gls_init(server_context_t *arg)
   } else {
       env_isDebug = atoi(env_isDebugStr);
   }
-  
   if (env_isDebug == 0 || env_isDebug == 1) {
       glsc_global.is_debug = env_isDebug;
   } else {
@@ -98,7 +93,6 @@ static int gls_init(server_context_t *arg)
       return FALSE;
   }
   
-  glsc_global.sta = arg;
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
   glsc_global.screen_width = 1280;
@@ -135,9 +129,8 @@ static int gls_free()
 int send_packet(size_t size)
 {
   client_egl_error = EGL_SUCCESS;
-  server_context_t *a = glsc_global.sta;
-  if (sendto(a->sock_fd, glsc_global.out_buf.buf, size, 0,
-             (struct sockaddr *)&a->sai, sizeof(struct sockaddr_in)) == -1) {
+  if (sendto(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, size, 0,
+             &glsc_global.server.addr, glsc_global.server.addrlen) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
@@ -160,13 +153,12 @@ static int gls_cmd_recv_data()
 
 int wait_for_data(char *str)
 {
-  server_context_t *a = glsc_global.sta;
   struct timeval start_time, end_time;
   gettimeofday(&start_time, NULL);
   int quit = FALSE;
   while (quit == FALSE)
   {
-    void *popptr = (void *)fifo_pop_ptr_get(&a->fifo);
+    void *popptr = (void *)fifo_pop_ptr_get(&glsc_global.rc.fifo);
     if (popptr == NULL)
     {
       gettimeofday(&end_time, NULL);
@@ -177,7 +169,7 @@ int wait_for_data(char *str)
         exit(EXIT_FAILURE);
         return FALSE;
       }
-      usleep(a->sleep_usec);
+      usleep(glsc_global.rc.sleep_usec);
     }
     else
     {
@@ -193,7 +185,7 @@ int wait_for_data(char *str)
         default:
           break;
       }
-      fifo_pop_ptr_next(&a->fifo);
+      fifo_pop_ptr_next(&glsc_global.rc.fifo);
     }
   }
   return TRUE;
@@ -266,9 +258,7 @@ void gls_init_library()
     static int init = FALSE;
     if(init)
         return;
-    char my_ip[30]; // GLS_STRING_SIZE_PLUS
     char his_ip[30]; // GLS_STRING_SIZE_PLUS
-    uint16_t my_port = 18146;
     uint16_t his_port = 18145;
     
     const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
@@ -285,16 +275,19 @@ void gls_init_library()
         char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
         strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
         his_port = atoi(strtok(NULL, env_serverAddr_search));
-        
     }
 
-    strncpy(my_ip, "127.0.0.1", 10);
-    server_init(&sc);
-    set_client_address_port(&sc, my_ip, my_port);
-    set_server_address_port(&sc, his_ip, his_port);
+    {
+      struct sockaddr_in* sai = (struct sockaddr_in*)&glsc_global.server.addr;
+      sai->sin_family = AF_INET;
+      sai->sin_port = htons(his_port);
+      sai->sin_addr.s_addr = inet_addr(his_ip);
+      glsc_global.server.addrlen = sizeof(struct sockaddr_in);
+    }
 
-    server_start(&sc);
-    gls_init(&sc);
+    recvr_init(&glsc_global.rc);
+    recvr_start(&glsc_global.rc);
+    gls_init();
     if (!gls_cmd_get_context())
         exit(EXIT_FAILURE);
 
@@ -303,7 +296,7 @@ void gls_init_library()
 
 void gls_cleanup_library()
 {
-  server_stop(&sc);
+  recvr_stop_deinit(&glsc_global.rc);
   gls_free();
 }
 

@@ -29,18 +29,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/time.h>
-#include <arpa/inet.h>
 #include <string.h>
-#include <assert.h>
+#include <errno.h>
 
 #include "glserver.h"
 
 // #define GL_DEBUG
+
+#ifdef GL_DEBUG
+#include <stdio.h>
+#endif
 
 glse_context_t glsec_global;
 
@@ -51,11 +50,11 @@ void pop_batch_command(size_t size)
 }
 
 
-int send_packet(size_t size)
+static int send_packet(size_t size)
 {
-  server_thread_args_t *a = glsec_global.sta;
-  if (sendto(a->sock_fd, glsec_global.out_buf.buf, size, 0, (struct sockaddr *)&a->sai, sizeof(struct sockaddr_in)) == -1)
-  {
+  if (sendto(glsec_global.rc->sock_fd, glsec_global.out_buf.buf, size, 0,
+             &glsec_global.rc->peer.addr, glsec_global.rc->peer.addrlen) < 0) {
+    fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     return FALSE;
   }
   return TRUE;
@@ -151,16 +150,15 @@ void glse_cmd_flush()
   }
 }
 
-void * glserver_thread(void * arg)
+void glserver_handle_packets(recvr_context_t* rc)
 {
   int quit = FALSE;
-  server_thread_args_t * a = (server_thread_args_t *)arg;
   static graphics_context_t gc;
   memset(&glsec_global, 0, sizeof(glsec_global));
   memset(&gc, 0, sizeof(gc));
   init_egl(&gc);
 
-  glsec_global.sta = a;
+  glsec_global.rc = rc;
   glsec_global.gc = &gc;
   glsec_global.tmp_buf.buf = (char *)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
@@ -170,9 +168,9 @@ void * glserver_thread(void * arg)
 
   while (quit == FALSE)
   {
-    void *popptr = (void *)fifo_pop_ptr_get(a->fifo);
+    void *popptr = (void *)fifo_pop_ptr_get(&rc->fifo);
     if (popptr == NULL) {
-      usleep(a->sleep_usec);
+      usleep(rc->sleep_usec);
     } else {
       gls_command_t *c = (gls_command_t *)popptr;
       glsec_global.cmd_data = c;
@@ -214,7 +212,7 @@ void * glserver_thread(void * arg)
           break;
         }
       }
-      fifo_pop_ptr_next(a->fifo);
+      fifo_pop_ptr_next(&rc->fifo);
     }
   }
 

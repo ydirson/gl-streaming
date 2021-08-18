@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include "gls_command.h"
 #include "glcontrol.h"
-#include "server.h"
+#include "recvr.h"
 
 
 #define TRUE 1
@@ -42,23 +42,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsec_global.cmd_data;
 
+// FIXME sta and cmd_data cold move out
 typedef struct
 {
   gls_buffer_t tmp_buf;
   gls_buffer_t out_buf;
-  server_thread_args_t *sta;
+  recvr_context_t* rc;
   graphics_context_t *gc;
   void *cmd_data;
 } glse_context_t;
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern glse_context_t glsec_global;
 void pop_batch_command(size_t size);
-void * glserver_thread(void * arg);
+  void glserver_handle_packets(recvr_context_t* rc);
 
 int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data);
 
@@ -67,9 +63,5 @@ int egl_flushCommand(gls_command_t *c);
 
 int gles_executeCommand(gls_command_t *c);
 int gles_flushCommand(gls_command_t *c);
-
-#ifdef __cplusplus
-}
-#endif
 
 

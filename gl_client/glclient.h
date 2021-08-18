@@ -32,13 +32,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 
 #include "gls_command.h"
-#include "server.h"
+#include "recvr.h"
 
 typedef struct
 {
   gls_buffer_t tmp_buf;
   gls_buffer_t out_buf;
-  server_context_t *sta;
+  recvr_context_t rc;
+  struct {
+    struct sockaddr addr;
+    socklen_t addrlen;
+  } server;
   void *cmd_data;
   uint32_t screen_width;
   uint32_t screen_height;
