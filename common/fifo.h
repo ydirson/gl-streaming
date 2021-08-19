@@ -33,7 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
   char *buffer;
-  char *p_start;
   int idx_reader;
   int idx_writer;
   unsigned int fifo_size;
@@ -47,7 +46,7 @@ static inline char* fifo_push_ptr_get(fifo_t *fifo)
   {
     return NULL;
   }
-  return fifo->p_start + (fifo->idx_writer * fifo->fifo_packet_size);
+  return fifo->buffer + (fifo->idx_writer * fifo->fifo_packet_size);
 }
 
 static inline void fifo_push_ptr_next(fifo_t *fifo)
@@ -65,7 +64,7 @@ static inline char* fifo_pop_ptr_get(fifo_t *fifo)
   {
     return NULL;
   }
-  return fifo->p_start + (fifo->idx_reader * fifo->fifo_packet_size);
+  return fifo->buffer + (fifo->idx_reader * fifo->fifo_packet_size);
 }
 
 static inline void fifo_pop_ptr_next(fifo_t *fifo)
