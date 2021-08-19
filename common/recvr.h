@@ -30,9 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include <arpa/inet.h>
-
+#include <unistd.h>
 #include "fifo.h"
-#include "pthread.h"
 
 #define SLEEP_USEC 1000
 #define FIFO_SIZE_IN_BITS 10

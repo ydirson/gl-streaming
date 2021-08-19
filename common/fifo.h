@@ -29,8 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
-#include <unistd.h>
-
 
 typedef struct
 {
@@ -80,15 +78,6 @@ static inline void fifo_pop_ptr_next(fifo_t *fifo)
 }
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-int fifo_init(fifo_t *fifo, unsigned int fifo_size_in_bits, unsigned int fifo_packet_size_in_bits);
-
+int fifo_init(fifo_t *fifo, unsigned int fifo_size_in_bits,
+              unsigned int fifo_packet_size_in_bits);
 int fifo_delete(fifo_t *fifo);
-
-#ifdef __cplusplus
-}
-#endif
-

@@ -33,7 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glcontrol.h"
 #include "recvr.h"
 
-
 #define TRUE 1
 #define FALSE 0
 

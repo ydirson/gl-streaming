@@ -52,10 +52,6 @@ typedef struct
 } gls_context_t;
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
 #define BATCH_AUTO_FLUSH_SIZE 16256 // 8128
 #define GLS_TIMEOUT_SEC 3.0f
@@ -108,7 +104,3 @@ int send_packet(size_t size);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data);
 int gls_cmd_flush();
 int wait_for_data(char *str);
-
-#ifdef __cplusplus
-}
-#endif
