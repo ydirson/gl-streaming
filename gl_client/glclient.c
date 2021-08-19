@@ -142,11 +142,20 @@ int send_packet(size_t size)
 static int gls_cmd_recv_data()
 {
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.cmd_data;
-  if ((c->offset + c->size > glsc_global.tmp_buf.size) || (glsc_global.tmp_buf.size == 0))
-  {
+  if (glsc_global.tmp_buf.size == 0)
+    return c->isLast;
+  if (c->offset + c->size > glsc_global.tmp_buf.size) {
+    fprintf(stderr, "GLS ERROR: data too large for buffer, dropping chunk with offset %d\n",
+            c->offset);
+    return c->isLast;
+  }
+  if (c->size > glsc_global.rc.fifo.fifo_packet_size) {
+    fprintf(stderr, "GLS ERROR: DATA packet size %u > fifo_packet_size %u\n",
+            c->size, glsc_global.rc.fifo.fifo_packet_size);
     return c->isLast;
   }
   memcpy(&glsc_global.tmp_buf.buf[c->offset], c->data.data_char, c->size);
+  // FIXME: does not behave properly on out-of-order chunks
   return c->isLast;
 }
 
@@ -178,6 +187,8 @@ int wait_for_data(char *str)
           quit = TRUE;
         break;
       default:
+        fprintf(stderr, "GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
+                c->cmd, GLSC_tostring(c->cmd));
         break;
       }
     fifo_pop_ptr_next(&glsc_global.rc.fifo);
