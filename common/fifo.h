@@ -78,6 +78,6 @@ static inline void fifo_pop_ptr_next(fifo_t *fifo)
 }
 
 
-int fifo_init(fifo_t *fifo, unsigned int fifo_size_in_bits,
-              unsigned int fifo_packet_size_in_bits);
+int fifo_init(fifo_t *fifo, unsigned int fifo_size_order,
+              unsigned int fifo_packet_size_order);
 int fifo_delete(fifo_t *fifo);

@@ -84,7 +84,7 @@ static void* recvr_thread(recvr_context_t* rc)
 
 void recvr_init(recvr_context_t *rc)
 {
-  fifo_init(&rc->fifo, FIFO_SIZE_IN_BITS, FIFO_PACKET_SIZE_IN_BITS);
+  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
   rc->sleep_usec = SLEEP_USEC;
 
   rc->sock_fd = socket(AF_INET, SOCK_DGRAM, 0);

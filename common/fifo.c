@@ -34,10 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fifo.h"
 
-int fifo_init(fifo_t *fifo, unsigned int fifo_size_in_bits, unsigned int fifo_packet_size_in_bits)
+int fifo_init(fifo_t *fifo, unsigned int fifo_size_order,
+              unsigned int fifo_packet_size_order)
 {
-  fifo->fifo_size = 1 << fifo_size_in_bits;
-  fifo->fifo_packet_size = 1 << fifo_packet_size_in_bits;
+  fifo->fifo_size = 1 << fifo_size_order;
+  fifo->fifo_packet_size = 1 << fifo_packet_size_order;
   unsigned int alignment = fifo->fifo_packet_size;
   fifo->buffer = (char *)malloc(fifo->fifo_size * fifo->fifo_packet_size + alignment);
   if (fifo->buffer == NULL)
