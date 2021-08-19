@@ -29,51 +29,48 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
+#include <assert.h>
 
 typedef struct
 {
   char *buffer;
-  int idx_reader;
-  int idx_writer;
+  int idx_reader, idx_writer; // packet numbers
   unsigned int fifo_size;
   unsigned int fifo_packet_size;
 } fifo_t;
+
+/*
+ * fifo_*_ptr_next() are not supposed to be called if the matching
+ * fifo_*_ptr_get() returns NULL, and will assert.
+ */
 
 static inline char* fifo_push_ptr_get(fifo_t *fifo)
 {
   int next_idx = (fifo->idx_writer + 1) & (fifo->fifo_size - 1);
   if (next_idx == fifo->idx_reader)
-  {
     return NULL;
-  }
   return fifo->buffer + (fifo->idx_writer * fifo->fifo_packet_size);
 }
 
 static inline void fifo_push_ptr_next(fifo_t *fifo)
 {
   int next_idx = (fifo->idx_writer + 1) & (fifo->fifo_size - 1);
-  if (next_idx != fifo->idx_reader)
-  {
-    fifo->idx_writer = next_idx;
-  }
+  assert (next_idx != fifo->idx_reader);
+  fifo->idx_writer = next_idx;
 }
 
 static inline char* fifo_pop_ptr_get(fifo_t *fifo)
 {
   if (fifo->idx_reader == fifo->idx_writer)
-  {
     return NULL;
-  }
   return fifo->buffer + (fifo->idx_reader * fifo->fifo_packet_size);
 }
 
 static inline void fifo_pop_ptr_next(fifo_t *fifo)
 {
+  assert (fifo->idx_reader != fifo->idx_writer);
   int next_idx = (fifo->idx_reader + 1) & (fifo->fifo_size - 1);
-  if (fifo->idx_reader != fifo->idx_writer)
-  {
-    fifo->idx_reader = next_idx;
-  }
+  fifo->idx_reader = next_idx;
 }
 
 
