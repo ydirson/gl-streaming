@@ -8,44 +8,53 @@ CFLAGS+=-DUSE_X11
 CFLAGS+=-DGLS_USE_CLTSIZE
 
 LIBS=-pthread -ldl -lX11
-OBJS=fifo.o server.o clientegl.o clientgles.o glclient.o
+OBJS=fifo.o recvr.o clientegl.o clientgles.o glclient.o
 
-LIB_GLES = libGLESv2.so.2
-LIB_EGL = libEGL.so.1
+LIBGLES2_2 = libGLESv2.so.2
+LIBEGL_1 = libEGL.so.1
+
+LIBGLES2 = libGLESv2.so
+LIBEGL = libEGL.so
 
 DESTDIR =
 prefix = /usr/local
 GLS_LIB_DIR = $(prefix)/lib/gl-streaming
 
-EXES = $(LIB_GLES) $(LIB_EGL)
+EXES = $(LIBGLES2_2) $(LIBEGL_1) $(LIBGLES2) $(LIBEGL)
 
 all: $(EXES)
 
 fifo.o: ../common/fifo.c ../common/fifo.h
-	$(CC) -c -o fifo.o $(CFLAGS) ../common/fifo.c
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-server.o: ../common/server.c ../common/server.h fifo.o
-	$(CC) -c -o server.o $(CFLAGS) ../common/server.c
+recvr.o: ../common/recvr.c ../common/recvr.h fifo.o
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 clientegl.o: clientegl.c include/EGL/egl.h
-	$(CC) -c -o clientegl.o $(CFLAGS) clientegl.c
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 clientgles.o: clientgles.c include/GLES2/gl2.h
-	$(CC) -c -o clientgles.o $(CFLAGS) clientgles.c
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-glclient.o: glclient.c glclient.h ../common/gls_command.h server.o
-	$(CC) -c -o glclient.o $(CFLAGS) glclient.c
+glclient.o: glclient.c glclient.h ../common/gls_command.h recvr.o
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-$(LIB_GLES): $(OBJS)
-	$(CC) -shared -o $(LIB_GLES) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library,--no-undefined $(LIBS)
+$(LIBGLES2_2): $(OBJS)
+	$(CC) -shared -o $(LIBGLES2_2) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library,--no-undefined $(LIBS)
 
-$(LIB_EGL): $(LIB_GLES)
-	ln -sf $(LIB_GLES) $(LIB_EGL)
+$(LIBEGL_1): $(LIBGLES2_2)
+	ln -sf $< $@
+
+$(LIBGLES2): $(LIBGLES2_2)
+	ln -sf $< $@
+
+$(LIBEGL): $(LIBEGL_1)
+	ln -sf $< $@
 
 install:
 	mkdir -p $(DESTDIR)$(GLS_LIB_DIR)
-	cp $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/
-	ln -sf $(LIB_GLES) $(DESTDIR)$(GLS_LIB_DIR)/$(LIB_EGL)
+	cp $(LIBGLES2_2) $(DESTDIR)$(GLS_LIB_DIR)/
+	ln -sf $(LIBGLES2_2) $(DESTDIR)$(GLS_LIB_DIR)/$(LIBEGL_1)
 
 clean:
 	rm -f $(EXES) $(OBJS)

@@ -2,23 +2,9 @@
 
 No installation is required to test the software.
 
-## Server setup
-
-### Linux
-
-```
-make -C gl_server
-```
-
-### Android (code probably not uptodate, may not build)
-- Build Server app using Android Studio with NDK installed.
-- Install server APK. 
-
-## Client setup
-
-```
-make -C gl_client
-```
+Use `make` in either one directory `gl_server` or `gl_client`, or from
+toplevel to build both at the same time.  If you need to tweek the
+code, beware that source dependency tracking is not available yet.
 
 # Launch server
 
@@ -73,4 +59,3 @@ This will likely only be useful to developers.
 - Only meaningful if USE_X11 is enabled.
 - Enabled by default.
 - May be useful to disable scaling of rendering to server window size.
-

@@ -141,11 +141,6 @@ void init_egl(graphics_context_t *gc)
   // gc->d_window = glsurfaceview_window;
   // assert (glsurfaceview_window != NULL);
 #endif
-/*
-#ifdef __ANDROID__
-  assert(gc->d_window != NULL);
-#elif defined(USE_X11)
-*/
 
 #ifdef USE_X11
   make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
@@ -230,10 +225,8 @@ static void make_egl_base(graphics_context_t *gc)
    }
 
    XFree(visInfo);
-#elif defined(__ANDROID__)
-   gc->surface(gc->display, config, glsurfaceview_window, NULL);
 #else
-   fprintf(stderr, "GLS FIXME!!! on platform without X11 or Android? Windows?\n");
+   fprintf(stderr, "GLS FIXME: only supporting server on X11 platform\n");
    exit(1);
 #endif
 }

@@ -28,49 +28,47 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/time.h>
-#include <arpa/inet.h>
+#include <errno.h>
 #include <string.h>
 
 #include "glserver.h"
-#include "main.h"
-// #include "fastlog.h"
+
+static void glserver_bind(recvr_context_t *rc, const char* addr, uint16_t port)
+{
+  struct sockaddr_in sai;
+  sai.sin_family = AF_INET;
+  sai.sin_port = htons(port);
+  sai.sin_addr.s_addr = inet_addr(addr);
+  if (bind(rc->sock_fd, (struct sockaddr *)&sai, sizeof(sai)) < 0) {
+    fprintf(stderr, "Server socket bind error: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
 
 int main(int argc, char * argv[])
 {
-  static server_context_t sc;
   int opt;
+  recvr_context_t rc = {};
 
   if (GLS_VERSION & 1)
     fprintf(stderr, "WARNING: this is a development GLS protocol, "
             "make sure client and server match\n");
 
-  char my_ip[GLS_STRING_SIZE_PLUS];
-  char his_ip[GLS_STRING_SIZE_PLUS];
+  char my_ip[255];
   uint16_t my_port = 18145;
-  uint16_t his_port = 18146;
-  strncpy(my_ip, "127.0.0.1", GLS_STRING_SIZE);
-  strncpy(his_ip, "127.0.0.1", GLS_STRING_SIZE);
+  strcpy(my_ip, "127.0.0.1");
   while ((opt = getopt(argc, argv, "s:c:h")) != -1)
   {
     switch (opt)
     {
       case 's':
-        strncpy(my_ip, strtok(optarg, ":"), GLS_STRING_SIZE);
+        strncpy(my_ip, strtok(optarg, ":"), sizeof(my_ip) - 1);
         my_port = atoi(strtok(NULL, ":"));
-        break;
-      case 'c':
-        strncpy(his_ip, strtok(optarg, ":"), GLS_STRING_SIZE);
-        his_port = atoi(strtok(NULL, ":"));
         break;
       case 'h':
       default:
-        printf("Usage: %s [-s my_ip_address:port] [-c client_ip_address:port]\n", argv[0]);
+        printf("Usage: %s [-s my_ip_address:port]\n", argv[0]);
         return 0;
     }
   }
@@ -79,30 +77,12 @@ int main(int argc, char * argv[])
   glsurfaceview_width = 1280;
   glsurfaceview_height = 720;
 #endif
-  server_init(&sc);
-  set_server_address_port(&sc, my_ip, my_port);
-  set_client_address_port(&sc, his_ip, his_port);
 
-  server_run(&sc, glserver_thread);
+  recvr_init(&rc);
+  glserver_bind(&rc, my_ip, my_port);
+  recvr_start(&rc);
+  glserver_handle_packets(&rc);
+  recvr_stop_deinit(&rc);
 
   return 0;
 }
-
-void init_android_main()
-{
-  static server_context_t sc;
-  char server_ip[GLS_STRING_SIZE_PLUS];
-  char client_ip[GLS_STRING_SIZE_PLUS];
-  uint16_t server_port = var_server_port;
-  uint16_t client_port = var_client_port;
-  strncpy(server_ip, "127.0.0.1", GLS_STRING_SIZE);
-  strncpy(client_ip, var_client_addr, GLS_STRING_SIZE);
-  server_init(&sc);
-  set_server_address_port(&sc, server_ip, server_port);
-  set_client_address_port(&sc, client_ip, client_port);
-
-  server_run(&sc, glserver_thread);
-
-  // return 0;
-}
-
