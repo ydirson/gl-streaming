@@ -155,38 +155,32 @@ int wait_for_data(char *str)
 {
   struct timeval start_time, end_time;
   gettimeofday(&start_time, NULL);
-  int quit = FALSE;
-  while (quit == FALSE)
-  {
+  int quit = 0;
+  while (!quit) {
     void *popptr = (void *)fifo_pop_ptr_get(&glsc_global.rc.fifo);
-    if (popptr == NULL)
-    {
+    if (popptr == NULL) {
       gettimeofday(&end_time, NULL);
       float diff_time = get_diff_time(start_time, end_time);
-      if (diff_time > GLS_TIMEOUT_SEC)
-      {
+      if (diff_time > GLS_TIMEOUT_SEC) {
         fprintf(stderr, "\n%s\n", str);
         exit(EXIT_FAILURE);
         return FALSE;
       }
       usleep(glsc_global.rc.sleep_usec);
+      continue;
     }
-    else
-    {
-      gls_command_t *c = (gls_command_t *)popptr;
-      glsc_global.cmd_data = popptr;
-      switch (c->cmd)
-      {
-        case GLSC_SEND_DATA:
-          if (gls_cmd_recv_data() == TRUE) {
-            quit = TRUE;
-          }
-          break;
-        default:
-          break;
+
+    gls_command_t *c = (gls_command_t *)popptr;
+    glsc_global.cmd_data = popptr;
+    switch (c->cmd) {
+      case GLSC_SEND_DATA:
+        if (gls_cmd_recv_data())
+          quit = TRUE;
+        break;
+      default:
+        break;
       }
-      fifo_pop_ptr_next(&glsc_global.rc.fifo);
-    }
+    fifo_pop_ptr_next(&glsc_global.rc.fifo);
   }
   return TRUE;
 }
