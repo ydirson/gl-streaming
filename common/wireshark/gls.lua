@@ -82,4 +82,3 @@ end
 local udp_encap_table = DissectorTable.get("udp.port")
 
 udp_encap_table:add(18145, p_gls)
-udp_encap_table:add(18146, p_gls)

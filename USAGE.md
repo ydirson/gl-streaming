@@ -12,9 +12,8 @@ code, beware that source dependency tracking is not available yet.
 gl_server
 ```
 
-Optionally, use `-s` and `-c` flags to specify non-default server and
-client `ip:port` (defaults `127.0.0.1:18145` and `127.0.0.1:18146`
-respectively).
+Optionally, use `-s` flags to specify non-default server `ip:port`
+(default `127.0.0.1:18145`).
 
 # Launch client
 
