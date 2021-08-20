@@ -80,7 +80,7 @@ typedef struct
     fprintf(stderr, "gls debug: handling %s\n", #FUNCNAME);
 
 // send_packet(sizeof(gls_glFunctionName_t));
-#define GLS_SEND_PACKET(FUNCNAME) send_packet(sizeof(gls_##FUNCNAME##_t))
+#define GLS_SEND_PACKET(FUNCNAME) send_packet()
 
 #define WARN_STUBBED() do {                                             \
     static int shown = 0;                                               \
@@ -104,7 +104,7 @@ void gls_init_library(void);
 void gls_cleanup_library(void);
 
 extern gls_context_t glsc_global;
-int send_packet(size_t size);
+int send_packet(void);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data);
 int gls_cmd_flush(void);
 int wait_for_data(char *str);

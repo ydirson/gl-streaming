@@ -129,10 +129,12 @@ static int gls_free()
 }
 
 
-int send_packet(size_t size)
+int send_packet()
 {
   client_egl_error = EGL_SUCCESS;
-  if (sendto(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, size, 0,
+  gls_command_t* c = (gls_command_t*)glsc_global.out_buf.buf;
+
+  if (sendto(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, c->cmd_size, 0,
              &glsc_global.server.addr, glsc_global.server.addrlen) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
@@ -220,10 +222,10 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
     c->isLast = (size1 > glssize) ? FALSE : TRUE;
     size1 = (size1 > glssize) ? glssize : size1;
     memcpy(c->data.data_char, data1, size1);
-    size_t sendbytes = (size_t)(&c->data.data_char[size1] - (char *)c);
+    c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
     c->offset = offset + offset1;
     c->size = size1;
-    if (send_packet(sendbytes) == FALSE) {
+    if (send_packet() == FALSE) {
       fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
       success = FALSE;
       break;
@@ -239,7 +241,7 @@ static int gls_cmd_HANDSHAKE()
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
-  if (!send_packet(sizeof(gls_HANDSHAKE_t)))
+  if (!send_packet())
     return FALSE;
 
   wait_for_data("timeout:gls_HANDSHAKE");
@@ -320,7 +322,7 @@ int gls_cmd_flush()
   glsc_global.tmp_buf.ptr = 0;
 
   GLS_SET_COMMAND_PTR(c2, FLUSH);
-  if (!send_packet(sizeof(gls_command_t)))
+  if (!send_packet())
     return FALSE;
   return TRUE;
 }
