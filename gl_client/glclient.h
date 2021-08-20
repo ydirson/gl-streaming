@@ -97,14 +97,14 @@ extern gls_context_t glsc_global;
 extern uint32_t client_egl_error;
 
 int check_batch_overflow(size_t size, const char *msg);
-void push_batch_command();
-int gls_cmd_flush();
+void push_batch_command(void);
+int gls_cmd_flush(void);
 
-void gls_init_library();
-void gls_cleanup_library();
+void gls_init_library(void);
+void gls_cleanup_library(void);
 
 extern gls_context_t glsc_global;
 int send_packet(size_t size);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data);
-int gls_cmd_flush();
+int gls_cmd_flush(void);
 int wait_for_data(char *str);
