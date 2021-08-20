@@ -26,8 +26,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This file declare EGL methods on server side
 
 #include "glserver.h"
-#include <string.h>
+#include "fastlog.h"
+
 #include <alloca.h>
+#include <stdio.h>
+#include <string.h>
 
 //#define DEBUG
 

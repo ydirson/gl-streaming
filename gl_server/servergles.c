@@ -26,8 +26,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This file declare OpenGL ES methods on server side
 
 #include "glserver.h"
-#include <string.h>
+#include "fastlog.h"
+
 #include <alloca.h>
+#include <string.h>
 
 
 void glse_glActiveTexture()

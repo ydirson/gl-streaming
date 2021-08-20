@@ -28,13 +28,13 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "glserver.h"
+#include "fastlog.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include <pthread.h>
-
-#include "glserver.h"
+#include <stdlib.h>
+#include <string.h>
 
 // #define GL_DEBUG
 

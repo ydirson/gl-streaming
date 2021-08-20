@@ -1,10 +1,13 @@
 // This file declare EGL methods for stubs or streaming
 
+
+#include "glclient.h"
+
+#include "EGL/egl.h"
+
 #include <dlfcn.h>
 #include <assert.h>
 #include <string.h>
-
-#include "glclient.h"
 
 #if defined(USE_X11)
 Display *xDisplay;

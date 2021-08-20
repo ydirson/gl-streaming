@@ -28,16 +28,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <assert.h>
-#include <unistd.h>
-#include <string.h>
-
 #include "glcontrol.h"
+#include "fastlog.h"
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int glsurfaceview_width;
 int glsurfaceview_height;

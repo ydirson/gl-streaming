@@ -1,11 +1,11 @@
 // This file declare OpenGL ES methods for streaming
 
+#include "glclient.h"
+#include "GLES2/gl2.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
-#include "glclient.h"
-#include "GLES2/gl2.h"
 
 static struct
 {

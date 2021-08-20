@@ -29,9 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
-#include <arpa/inet.h>
-#include <unistd.h>
+
 #include "fifo.h"
+
+#include <unistd.h>
+#include <arpa/inet.h>
 
 #define SLEEP_USEC 1000
 #define FIFO_SIZE_ORDER 10
