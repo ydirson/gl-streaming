@@ -247,9 +247,8 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t cmd_size;
   int32_t n;
-  uint32_t textures[1];
+  uint32_t textures[];
 } gls_glDeleteTextures_t;
 
 
@@ -710,7 +709,6 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t cmd_size;
   int32_t location;
   int32_t count;
   float v[];
@@ -725,7 +723,6 @@ typedef gls_glUniformNfv_t gls_glUniform4fv_t;
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t cmd_size;
   int32_t location;
   int32_t count;
   int32_t v[];
@@ -816,7 +813,6 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t cmd_size;
   int32_t location;
   int32_t count;
   uint32_t transpose;

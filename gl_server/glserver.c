@@ -81,10 +81,10 @@ int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
     c->isLast = (size1 > glssize) ? FALSE : TRUE;
     size1 = (size1 > glssize) ? glssize : size1;
     memcpy(c->data.data_char, data1, size1);
-    size_t sendbytes = (size_t)(&c->data.data_char[size1] - (char *)c);
+    c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
     c->offset = offset + offset1;
     c->size = size1;
-    if (send_packet(sendbytes) == FALSE)
+    if (send_packet(c->cmd_size) == FALSE)
     {
       success = FALSE;
     }
@@ -101,6 +101,7 @@ void glse_cmd_get_context()
 
   gls_ret_get_context_t *ret = (gls_ret_get_context_t *)glsec_global.tmp_buf.buf;
   ret->cmd = c->cmd;
+  ret->cmd_size = sizeof(gls_ret_get_context_t);
   ret->screen_width = gc->screen_width = glsurfaceview_width;
   ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;

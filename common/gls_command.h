@@ -313,6 +313,7 @@ static inline const char* GLSC_tostring(enum GL_Server_Command e)
 
 #define GLSCOMMAND_FIELDS()                     \
   uint32_t cmd;                                 \
+  uint32_t cmd_size;                            \
   //
 
 typedef struct

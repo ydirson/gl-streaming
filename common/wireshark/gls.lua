@@ -49,7 +49,8 @@ end
 
 -- GLS
 local f_cmd = ProtoField.uint32("gls.command", "Command", base.HEX, vs_commands)
-p_gls.fields = { f_cmd }
+local f_pktsize = ProtoField.uint32("gls.pktsize", "Packet size", base.DEC)
+p_gls.fields = { f_cmd, f_pktsize }
 
 local data_dis = Dissector.get("data")
 
@@ -65,6 +66,7 @@ function p_gls.dissector(buf, pkt, tree)
 
    local subtree = tree:add(p_gls, buf(0,4))
    subtree:add_le(f_cmd, buf(0,4))
+   subtree:add_le(f_pktsize, buf(4,4))
 
    local cmd_id = buf(0,4):le_uint()
    local dissector = protos[cmd_id]
@@ -72,10 +74,10 @@ function p_gls.dissector(buf, pkt, tree)
    if dissector ~= nil then
       -- Dissector was found, invoke subdissector with a new Tvb,
       -- created from the current buffer (skipping GLS header).
-      dissector.dissector:call(buf(4):tvb(), pkt, tree)
+      dissector.dissector:call(buf(8):tvb(), pkt, tree)
    else
       -- fallback dissector that just shows the raw data.
-      data_dis:call(buf(4):tvb(), pkt, tree)
+      data_dis:call(buf(8):tvb(), pkt, tree)
    end
 end
 

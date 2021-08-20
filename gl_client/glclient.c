@@ -239,6 +239,7 @@ static int gls_cmd_get_context()
   gls_cmd_flush();
   gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_get_context;
+  c->cmd_size = sizeof(gls_cmd_get_context_t);
   if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE) {
     fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;

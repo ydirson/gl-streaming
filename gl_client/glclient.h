@@ -58,9 +58,11 @@ typedef struct
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
 // c->cmd = GLSC_glFunctionName;
+// c->cmd_size = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME)                        \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr); \
   PTR->cmd = GLSC_##FUNCNAME;                                           \
+  PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
     fprintf(stderr, "gls debug: batch handling command %s\n", #FUNCNAME);
 
@@ -69,9 +71,11 @@ typedef struct
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.out_buf.buf;
 // c->cmd = GLSC_glFunctionName;
+// c->cmd = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.out_buf.buf; \
   PTR->cmd = GLSC_##FUNCNAME;                                           \
+  PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
     fprintf(stderr, "gls debug: handling %s\n", #FUNCNAME);
 
