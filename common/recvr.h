@@ -46,13 +46,17 @@ typedef struct
   fifo_t fifo;
   useconds_t sleep_usec;
 
-  int sock_fd;
   struct {
     struct sockaddr addr;
     socklen_t addrlen;
   } peer;
+
+  // On server side, sock_fd is first used for the listening socket,
+  // until we start the accept loop, where it takes the communication
+  // FD as on client side.  FIXME: maybe avoid that juggling.
+  int sock_fd;
 } recvr_context_t;
 
-void recvr_init(recvr_context_t *rc);
-void recvr_start(recvr_context_t *c);
-void recvr_stop_deinit(recvr_context_t *c);
+void recvr_server_start(recvr_context_t *rc, const char* listen_addr, uint16_t listen_port);
+void recvr_client_start(recvr_context_t *rc, const char* connect_addr, uint16_t connect_port);
+void recvr_stop(recvr_context_t *c);

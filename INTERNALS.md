@@ -13,7 +13,7 @@ better.
    [clientgles](gl_client/clientgles.c) modules
 
 2. API calls are marshalled into messages, described in
-   [gls_command.h](common/gls_command.h), and sent using UDP, and
+   [gls_command.h](common/gls_command.h), and sent using TCP, and
    possibly wait for a reply before the API returns control to the
    application
 

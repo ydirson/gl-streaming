@@ -82,5 +82,7 @@ function p_gls.dissector(buf, pkt, tree)
 end
 
 local udp_encap_table = DissectorTable.get("udp.port")
+local tcp_encap_table = DissectorTable.get("tcp.port")
 
 udp_encap_table:add(18145, p_gls)
+tcp_encap_table:add(18145, p_gls)

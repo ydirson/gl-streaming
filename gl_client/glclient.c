@@ -134,8 +134,7 @@ int send_packet()
   client_egl_error = EGL_SUCCESS;
   gls_command_t* c = (gls_command_t*)glsc_global.out_buf.buf;
 
-  if (sendto(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, c->cmd_size, 0,
-             &glsc_global.server.addr, glsc_global.server.addrlen) < 0) {
+  if (send(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, c->cmd_size, 0) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
@@ -284,16 +283,7 @@ void gls_init_library()
         his_port = atoi(strtok(NULL, env_serverAddr_search));
     }
 
-    {
-      struct sockaddr_in* sai = (struct sockaddr_in*)&glsc_global.server.addr;
-      sai->sin_family = AF_INET;
-      sai->sin_port = htons(his_port);
-      sai->sin_addr.s_addr = inet_addr(his_ip);
-      glsc_global.server.addrlen = sizeof(struct sockaddr_in);
-    }
-
-    recvr_init(&glsc_global.rc);
-    recvr_start(&glsc_global.rc);
+    recvr_client_start(&glsc_global.rc, his_ip, his_port);
     gls_init();
     if (!gls_cmd_HANDSHAKE())
         exit(EXIT_FAILURE);
@@ -303,7 +293,7 @@ void gls_init_library()
 
 void gls_cleanup_library()
 {
-  recvr_stop_deinit(&glsc_global.rc);
+  recvr_stop(&glsc_global.rc);
   gls_free();
 }
 

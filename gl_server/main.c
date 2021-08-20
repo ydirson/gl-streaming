@@ -36,18 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <unistd.h>
 
-static void glserver_bind(recvr_context_t *rc, const char* addr, uint16_t port)
-{
-  struct sockaddr_in sai;
-  sai.sin_family = AF_INET;
-  sai.sin_port = htons(port);
-  sai.sin_addr.s_addr = inet_addr(addr);
-  if (bind(rc->sock_fd, (struct sockaddr *)&sai, sizeof(sai)) < 0) {
-    fprintf(stderr, "Server socket bind error: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
-  }
-}
-
 int main(int argc, char * argv[])
 {
   int opt;
@@ -80,11 +68,9 @@ int main(int argc, char * argv[])
   glsurfaceview_height = 720;
 #endif
 
-  recvr_init(&rc);
-  glserver_bind(&rc, my_ip, my_port);
-  recvr_start(&rc);
+  recvr_server_start(&rc, my_ip, my_port);
   glserver_handle_packets(&rc);
-  recvr_stop_deinit(&rc);
+  recvr_stop(&rc);
 
   return 0;
 }

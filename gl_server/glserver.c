@@ -53,8 +53,7 @@ void pop_batch_command(size_t size)
 
 static int send_packet(size_t size)
 {
-  if (sendto(glsec_global.rc->sock_fd, glsec_global.out_buf.buf, size, 0,
-             &glsec_global.rc->peer.addr, glsec_global.rc->peer.addrlen) < 0) {
+  if (send(glsec_global.rc->sock_fd, glsec_global.out_buf.buf, size, 0) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     return FALSE;
   }
