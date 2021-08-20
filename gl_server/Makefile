@@ -1,5 +1,6 @@
 WARNINGS = -Wall -Wextra -Werror
-CFLAGS = $(WARNINGS) -O3 -DUSE_X11 -DGLS_SERVER -g
+OPT = -O3 -g
+CFLAGS = $(WARNINGS) $(OPT) -DUSE_X11 -DGLS_SERVER
 
 LIBS = -lX11 -lGLESv2 -lEGL -lpthread -lrt
 INCLUDES = -I../common -I. -I./include

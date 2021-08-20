@@ -1,5 +1,6 @@
 WARNINGS = -Wall -Wextra -Werror
-CFLAGS = $(WARNINGS) -O3 -I../common -I. -I./include -fPIC -g
+OPT = -O3 -g
+CFLAGS = $(WARNINGS) $(OPT) -I../common -I. -I./include -fPIC
 
 # Use X11
 CFLAGS+=-DUSE_X11
