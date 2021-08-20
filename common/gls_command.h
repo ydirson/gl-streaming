@@ -311,20 +311,24 @@ static inline const char* GLSC_tostring(enum GL_Server_Command e)
 
 // command protocol core
 
+#define GLSCOMMAND_FIELDS()                     \
+  uint32_t cmd;                                 \
+  //
+
 typedef struct
 {
-  uint32_t cmd;
+  GLSCOMMAND_FIELDS();
 } gls_command_t;
 
 
 typedef struct
 {
-  uint32_t cmd;
+  GLSCOMMAND_FIELDS();
 } gls_cmd_get_context_t;
 
 typedef struct
 {
-  uint32_t cmd;
+  GLSCOMMAND_FIELDS();
   uint32_t server_version;
   uint32_t screen_width;
   uint32_t screen_height;
@@ -341,7 +345,7 @@ typedef union
 
 typedef struct
 {
-  uint32_t cmd;
+  GLSCOMMAND_FIELDS();
   uint32_t offset;
   uint32_t size;
   int32_t isLast;
