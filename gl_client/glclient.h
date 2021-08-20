@@ -67,7 +67,7 @@ typedef struct
     fprintf(stderr, "gls debug: batch handling command %s\n", #FUNCNAME);
 
 // push_batch_command(sizeof(gls_glFunctionName_t));
-#define GLS_PUSH_BATCH(FUNCNAME) push_batch_command(sizeof(gls_##FUNCNAME##_t))
+#define GLS_PUSH_BATCH(FUNCNAME) push_batch_command()
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.out_buf.buf;
 // c->cmd = GLSC_glFunctionName;
@@ -97,7 +97,7 @@ extern gls_context_t glsc_global;
 extern uint32_t client_egl_error;
 
 int check_batch_overflow(size_t size, const char *msg);
-void push_batch_command(size_t size);
+void push_batch_command();
 int gls_cmd_flush();
 
 void gls_init_library();

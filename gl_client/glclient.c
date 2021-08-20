@@ -64,9 +64,10 @@ int check_batch_overflow(size_t size, const char *msg)
 }
 
 
-void push_batch_command(size_t size)
+void push_batch_command()
 {
-  glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, size, GLS_ALIGNMENT_BITS);
+  gls_command_t* c = (gls_command_t*)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
+  glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, c->cmd_size, GLS_ALIGNMENT_BITS);
   if (glsc_global.tmp_buf.ptr > BATCH_AUTO_FLUSH_SIZE)
   {
     gls_cmd_flush();

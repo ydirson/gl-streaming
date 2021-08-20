@@ -387,7 +387,7 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
   }
   c->n = n;
   memcpy(c->textures, textures, datasize);
-  push_batch_command(c->cmd_size);
+  push_batch_command();
   gls_cmd_flush();
 }
 
@@ -1335,7 +1335,7 @@ IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x
   c->location = location;                                               \
   c->count = count;                                                     \
   memcpy(c->v, v, datasize);                                            \
-  push_batch_command(c->cmd_size);                                      \
+  push_batch_command();                                                 \
   }
 
 IMPLEM_glUniformNXv(glUniform1fv,1,GLfloat);
@@ -1361,7 +1361,7 @@ IMPLEM_glUniformNXv(glUniform4iv,4,GLint);
     c->count = count;                                                   \
     c->transpose = transpose;                                           \
     memcpy(c->value, value, datasize);                                  \
-    push_batch_command(c->cmd_size);                                    \
+    push_batch_command();                                               \
   }
 
 IMPLEM_glUniformMatrixNXv(glUniformMatrix2fv,2,GLfloat);
