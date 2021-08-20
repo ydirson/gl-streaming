@@ -25,6 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // This file declare EGL methods on server side
 
+#include "gls_command_egl.h"
 #include "glserver.h"
 #include "fastlog.h"
 
