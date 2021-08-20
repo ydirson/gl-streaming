@@ -57,7 +57,7 @@ A message with large variable-length data gets sent as 2 messages:
 A message with output parameters uses `wait_for_data`, and
 subsequently finds those results in `tmp_buf`.
 
-When a client starts, it sends a handshake `get_context` message to
+When a client starts, it sends a `HANDSHAKE` message to
 check the server's protocol version, and get the size of the
 server-created window.
 

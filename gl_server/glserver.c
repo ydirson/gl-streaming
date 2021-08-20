@@ -94,18 +94,18 @@ int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 }
 
 
-void glse_cmd_get_context()
+void glse_cmd_HANDSHAKE()
 {
-  gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsec_global.cmd_data;
+  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)glsec_global.cmd_data;
   graphics_context_t *gc = glsec_global.gc;
 
-  gls_ret_get_context_t *ret = (gls_ret_get_context_t *)glsec_global.tmp_buf.buf;
+  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsec_global.tmp_buf.buf;
   ret->cmd = c->cmd;
-  ret->cmd_size = sizeof(gls_ret_get_context_t);
+  ret->cmd_size = sizeof(gls_ret_HANDSHAKE_t);
   ret->screen_width = gc->screen_width = glsurfaceview_width;
   ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;
-  size_t size = sizeof(gls_ret_get_context_t);
+  size_t size = sizeof(gls_ret_HANDSHAKE_t);
   glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
 }
 
@@ -197,11 +197,11 @@ void glserver_handle_packets(recvr_context_t* rc)
 #endif
       glse_cmd_flush();
       break;
-    case GLSC_get_context:
+    case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
-      fprintf(stderr, "GLS Exec: Feeding context to client...\n");
+      fprintf(stderr, "GLS Exec: Handshake...\n");
 #endif
-      glse_cmd_get_context();
+      glse_cmd_HANDSHAKE();
       break;
           
     default: {

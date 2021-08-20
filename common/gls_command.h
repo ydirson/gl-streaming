@@ -58,10 +58,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLS_GLS_COMMANDS()                      \
   EMPTY()                                       \
-    X(BREAK)                                    \
+    X(HANDSHAKE)                                \
     X(SEND_DATA)                                \
+    X(BREAK)                                    \
     X(FLUSH)                                    \
-    X(get_context)                              \
   //
 
 #define GLS_EGL_COMMANDS()                      \
@@ -325,7 +325,7 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-} gls_cmd_get_context_t;
+} gls_HANDSHAKE_t;
 
 typedef struct
 {
@@ -333,7 +333,7 @@ typedef struct
   uint32_t server_version;
   uint32_t screen_width;
   uint32_t screen_height;
-} gls_ret_get_context_t;
+} gls_ret_HANDSHAKE_t;
 
 
 typedef union

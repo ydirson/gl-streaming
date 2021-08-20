@@ -234,21 +234,21 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
 }
 
 
-static int gls_cmd_get_context()
+static int gls_cmd_HANDSHAKE()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
-  gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
-  c->cmd = GLSC_get_context;
-  c->cmd_size = sizeof(gls_cmd_get_context_t);
-  if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE) {
+  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)glsc_global.out_buf.buf;
+  c->cmd = GLSC_HANDSHAKE;
+  c->cmd_size = sizeof(gls_HANDSHAKE_t);
+  if (send_packet(sizeof(gls_HANDSHAKE_t)) == FALSE) {
     fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
   }
 
-  wait_for_data("timeout:gls_cmd_get_context");
-  gls_ret_get_context_t *ret = (gls_ret_get_context_t *)glsc_global.tmp_buf.buf;
-  if (ret->cmd == GLSC_get_context)
+  wait_for_data("timeout:gls_HANDSHAKE");
+  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.tmp_buf.buf;
+  if (ret->cmd == GLSC_HANDSHAKE)
   {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
@@ -297,7 +297,7 @@ void gls_init_library()
     recvr_init(&glsc_global.rc);
     recvr_start(&glsc_global.rc);
     gls_init();
-    if (!gls_cmd_get_context())
+    if (!gls_cmd_HANDSHAKE())
         exit(EXIT_FAILURE);
 
     init = TRUE;
