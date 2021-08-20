@@ -336,6 +336,12 @@ typedef struct
 } gls_ret_HANDSHAKE_t;
 
 
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+} gls_FLUSH_t;
+
+
 typedef union
 {
   float data_float[GLS_DATA_SIZE];

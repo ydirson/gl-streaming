@@ -238,9 +238,7 @@ static int gls_cmd_HANDSHAKE()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
-  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)glsc_global.out_buf.buf;
-  c->cmd = GLSC_HANDSHAKE;
-  c->cmd_size = sizeof(gls_HANDSHAKE_t);
+  GLS_SET_COMMAND_PTR(c, HANDSHAKE);
   if (send_packet(sizeof(gls_HANDSHAKE_t)) == FALSE) {
     fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
@@ -323,8 +321,7 @@ int gls_cmd_flush()
   gls_cmd_send_data(0, glsc_global.tmp_buf.ptr, (void *)glsc_global.tmp_buf.buf);
   glsc_global.tmp_buf.ptr = 0;
 
-  c = (gls_command_t *)glsc_global.out_buf.buf;
-  c->cmd = GLSC_FLUSH;
+  GLS_SET_COMMAND_PTR(c2, FLUSH);
   if (send_packet(sizeof(gls_command_t)) == FALSE) {
     fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
     return FALSE;
