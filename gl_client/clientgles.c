@@ -1,11 +1,12 @@
 // This file declare OpenGL ES methods for streaming
 
+#include "gls_command_gles2.h"
+#include "glclient.h"
+#include "GLES2/gl2.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
-#include "glclient.h"
-#include "GLES2/gl2.h"
 
 static struct
 {
@@ -380,14 +381,13 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
 {
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR_BATCH(c, glDeleteTextures);
-  uint32_t cmd_size = (uint32_t)(((char *)c->textures + datasize) - (char *)c);
-  if (check_batch_overflow(cmd_size, "glDeleteTextures: buffer overflow") != TRUE) {
+  c->cmd_size += datasize;
+  if (check_batch_overflow(c->cmd_size, "glDeleteTextures: buffer overflow") != TRUE) {
     return;
   }
-  c->cmd_size = cmd_size;
   c->n = n;
   memcpy(c->textures, textures, datasize);
-  push_batch_command(cmd_size);
+  push_batch_command();
   gls_cmd_flush();
 }
 
@@ -1329,14 +1329,13 @@ IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x
   {                                                                     \
   uint32_t datasize = count * N * sizeof(TYPE);                         \
   GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                   \
-  uint32_t cmd_size = (uint32_t)(((char *)c->v + datasize) - (char *)c); \
-  if (check_batch_overflow(cmd_size, #FUNC": buffer overflow") != TRUE) \
+  c->cmd_size += datasize;                                              \
+  if (check_batch_overflow(c->cmd_size, #FUNC": buffer overflow") != TRUE) \
     return;                                                             \
-  c->cmd_size = cmd_size;                                               \
   c->location = location;                                               \
   c->count = count;                                                     \
   memcpy(c->v, v, datasize);                                            \
-  push_batch_command(cmd_size);                                         \
+  push_batch_command();                                                 \
   }
 
 IMPLEM_glUniformNXv(glUniform1fv,1,GLfloat);
@@ -1355,15 +1354,14 @@ IMPLEM_glUniformNXv(glUniform4iv,4,GLint);
   {                                                                     \
     uint32_t datasize = count * N * N * sizeof(TYPE);                   \
     GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                 \
-    uint32_t cmd_size = (uint32_t)(((char *)c->value + datasize) - (char *)c); \
-    if (check_batch_overflow(cmd_size, #FUNC": buffer overflow") != TRUE) \
+    c->cmd_size += datasize;                                            \
+    if (check_batch_overflow(c->cmd_size, #FUNC": buffer overflow") != TRUE) \
       return;                                                           \
-    c->cmd_size = cmd_size;                                             \
     c->location = location;                                             \
     c->count = count;                                                   \
     c->transpose = transpose;                                           \
     memcpy(c->value, value, datasize);                                  \
-    push_batch_command(cmd_size);                                       \
+    push_batch_command();                                               \
   }
 
 IMPLEM_glUniformMatrixNXv(glUniformMatrix2fv,2,GLfloat);

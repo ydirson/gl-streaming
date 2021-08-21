@@ -58,25 +58,29 @@ typedef struct
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
 // c->cmd = GLSC_glFunctionName;
+// c->cmd_size = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME)                        \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr); \
   PTR->cmd = GLSC_##FUNCNAME;                                           \
+  PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
     fprintf(stderr, "gls debug: batch handling command %s\n", #FUNCNAME);
 
 // push_batch_command(sizeof(gls_glFunctionName_t));
-#define GLS_PUSH_BATCH(FUNCNAME) push_batch_command(sizeof(gls_##FUNCNAME##_t))
+#define GLS_PUSH_BATCH(FUNCNAME) push_batch_command()
 
 // gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.out_buf.buf;
 // c->cmd = GLSC_glFunctionName;
+// c->cmd = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.out_buf.buf; \
   PTR->cmd = GLSC_##FUNCNAME;                                           \
+  PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
     fprintf(stderr, "gls debug: handling %s\n", #FUNCNAME);
 
 // send_packet(sizeof(gls_glFunctionName_t));
-#define GLS_SEND_PACKET(FUNCNAME) send_packet(sizeof(gls_##FUNCNAME##_t))
+#define GLS_SEND_PACKET(FUNCNAME) send_packet()
 
 #define WARN_STUBBED() do {                                             \
     static int shown = 0;                                               \
@@ -93,14 +97,14 @@ extern gls_context_t glsc_global;
 extern uint32_t client_egl_error;
 
 int check_batch_overflow(size_t size, const char *msg);
-void push_batch_command(size_t size);
-int gls_cmd_flush();
+void push_batch_command(void);
+int gls_cmd_flush(void);
 
-void gls_init_library();
-void gls_cleanup_library();
+void gls_init_library(void);
+void gls_cleanup_library(void);
 
 extern gls_context_t glsc_global;
-int send_packet(size_t size);
+int send_packet(void);
 int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data);
-int gls_cmd_flush();
+int gls_cmd_flush(void);
 int wait_for_data(char *str);

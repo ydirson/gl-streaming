@@ -28,13 +28,13 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "glserver.h"
+#include "fastlog.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include <pthread.h>
-
-#include "glserver.h"
+#include <stdlib.h>
+#include <string.h>
 
 // #define GL_DEBUG
 
@@ -53,8 +53,7 @@ void pop_batch_command(size_t size)
 
 static int send_packet(size_t size)
 {
-  if (sendto(glsec_global.rc->sock_fd, glsec_global.out_buf.buf, size, 0,
-             &glsec_global.rc->peer.addr, glsec_global.rc->peer.addrlen) < 0) {
+  if (send(glsec_global.rc->sock_fd, glsec_global.out_buf.buf, size, 0) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     return FALSE;
   }
@@ -81,10 +80,10 @@ int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
     c->isLast = (size1 > glssize) ? FALSE : TRUE;
     size1 = (size1 > glssize) ? glssize : size1;
     memcpy(c->data.data_char, data1, size1);
-    size_t sendbytes = (size_t)(&c->data.data_char[size1] - (char *)c);
+    c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
     c->offset = offset + offset1;
     c->size = size1;
-    if (send_packet(sendbytes) == FALSE)
+    if (send_packet(c->cmd_size) == FALSE)
     {
       success = FALSE;
     }
@@ -94,17 +93,18 @@ int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 }
 
 
-void glse_cmd_get_context()
+void glse_cmd_HANDSHAKE()
 {
-  gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsec_global.cmd_data;
+  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)glsec_global.cmd_data;
   graphics_context_t *gc = glsec_global.gc;
 
-  gls_ret_get_context_t *ret = (gls_ret_get_context_t *)glsec_global.tmp_buf.buf;
+  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsec_global.tmp_buf.buf;
   ret->cmd = c->cmd;
+  ret->cmd_size = sizeof(gls_ret_HANDSHAKE_t);
   ret->screen_width = gc->screen_width = glsurfaceview_width;
   ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;
-  size_t size = sizeof(gls_ret_get_context_t);
+  size_t size = sizeof(gls_ret_HANDSHAKE_t);
   glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
 }
 
@@ -196,11 +196,11 @@ void glserver_handle_packets(recvr_context_t* rc)
 #endif
       glse_cmd_flush();
       break;
-    case GLSC_get_context:
+    case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
-      fprintf(stderr, "GLS Exec: Feeding context to client...\n");
+      fprintf(stderr, "GLS Exec: Handshake...\n");
 #endif
-      glse_cmd_get_context();
+      glse_cmd_HANDSHAKE();
       break;
           
     default: {

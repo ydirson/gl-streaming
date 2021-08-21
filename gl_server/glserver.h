@@ -39,7 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLSE_TMP_BUFFER_SIZE 2097152
 #define GLSE_OUT_BUFFER_SIZE 4096 // 2048
 
-#define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsec_global.cmd_data;
+#define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) \
+  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsec_global.cmd_data;
 
 // FIXME sta and cmd_data cold move out
 typedef struct
@@ -53,7 +54,7 @@ typedef struct
 
 extern glse_context_t glsec_global;
 void pop_batch_command(size_t size);
-  void glserver_handle_packets(recvr_context_t* rc);
+void glserver_handle_packets(recvr_context_t* rc);
 
 int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data);
 

@@ -28,13 +28,15 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "glclient.h"
+
+#include "EGL/egl.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-
-#include "glclient.h"
 
 gls_context_t glsc_global;
 uint32_t client_egl_error;
@@ -62,9 +64,10 @@ int check_batch_overflow(size_t size, const char *msg)
 }
 
 
-void push_batch_command(size_t size)
+void push_batch_command()
 {
-  glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, size, GLS_ALIGNMENT_BITS);
+  gls_command_t* c = (gls_command_t*)(glsc_global.tmp_buf.buf + glsc_global.tmp_buf.ptr);
+  glsc_global.tmp_buf.ptr = next_ptr(glsc_global.tmp_buf.ptr, c->cmd_size, GLS_ALIGNMENT_BITS);
   if (glsc_global.tmp_buf.ptr > BATCH_AUTO_FLUSH_SIZE)
   {
     gls_cmd_flush();
@@ -126,11 +129,12 @@ static int gls_free()
 }
 
 
-int send_packet(size_t size)
+int send_packet()
 {
   client_egl_error = EGL_SUCCESS;
-  if (sendto(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, size, 0,
-             &glsc_global.server.addr, glsc_global.server.addrlen) < 0) {
+  gls_command_t* c = (gls_command_t*)glsc_global.out_buf.buf;
+
+  if (send(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, c->cmd_size, 0) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
@@ -217,10 +221,10 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
     c->isLast = (size1 > glssize) ? FALSE : TRUE;
     size1 = (size1 > glssize) ? glssize : size1;
     memcpy(c->data.data_char, data1, size1);
-    size_t sendbytes = (size_t)(&c->data.data_char[size1] - (char *)c);
+    c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
     c->offset = offset + offset1;
     c->size = size1;
-    if (send_packet(sendbytes) == FALSE) {
+    if (send_packet() == FALSE) {
       fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
       success = FALSE;
       break;
@@ -231,20 +235,17 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
 }
 
 
-static int gls_cmd_get_context()
+static int gls_cmd_HANDSHAKE()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   gls_cmd_flush();
-  gls_cmd_get_context_t *c = (gls_cmd_get_context_t *)glsc_global.out_buf.buf;
-  c->cmd = GLSC_get_context;
-  if (send_packet(sizeof(gls_cmd_get_context_t)) == FALSE) {
-    fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
+  GLS_SET_COMMAND_PTR(c, HANDSHAKE);
+  if (!send_packet())
     return FALSE;
-  }
 
-  wait_for_data("timeout:gls_cmd_get_context");
-  gls_ret_get_context_t *ret = (gls_ret_get_context_t *)glsc_global.tmp_buf.buf;
-  if (ret->cmd == GLSC_get_context)
+  wait_for_data("timeout:gls_HANDSHAKE");
+  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.tmp_buf.buf;
+  if (ret->cmd == GLSC_HANDSHAKE)
   {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
@@ -282,18 +283,9 @@ void gls_init_library()
         his_port = atoi(strtok(NULL, env_serverAddr_search));
     }
 
-    {
-      struct sockaddr_in* sai = (struct sockaddr_in*)&glsc_global.server.addr;
-      sai->sin_family = AF_INET;
-      sai->sin_port = htons(his_port);
-      sai->sin_addr.s_addr = inet_addr(his_ip);
-      glsc_global.server.addrlen = sizeof(struct sockaddr_in);
-    }
-
-    recvr_init(&glsc_global.rc);
-    recvr_start(&glsc_global.rc);
+    recvr_client_start(&glsc_global.rc, his_ip, his_port);
     gls_init();
-    if (!gls_cmd_get_context())
+    if (!gls_cmd_HANDSHAKE())
         exit(EXIT_FAILURE);
 
     init = TRUE;
@@ -301,7 +293,7 @@ void gls_init_library()
 
 void gls_cleanup_library()
 {
-  recvr_stop_deinit(&glsc_global.rc);
+  recvr_stop(&glsc_global.rc);
   gls_free();
 }
 
@@ -319,11 +311,8 @@ int gls_cmd_flush()
   gls_cmd_send_data(0, glsc_global.tmp_buf.ptr, (void *)glsc_global.tmp_buf.buf);
   glsc_global.tmp_buf.ptr = 0;
 
-  c = (gls_command_t *)glsc_global.out_buf.buf;
-  c->cmd = GLSC_FLUSH;
-  if (send_packet(sizeof(gls_command_t)) == FALSE) {
-    fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
+  GLS_SET_COMMAND_PTR(c2, FLUSH);
+  if (!send_packet())
     return FALSE;
-  }
   return TRUE;
 }

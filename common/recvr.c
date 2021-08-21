@@ -31,79 +31,174 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _GNU_SOURCE
 #include <pthread.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "recvr.h"
+#include "gls_command.h"
 #include "fastlog.h"
 
-#define TRUE 1
-#define FALSE 0
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
 
-
-static void* recvr_thread(recvr_context_t* rc)
-{
-  int quit = FALSE;
-
-  while (quit == FALSE) {
-    char* pushptr = fifo_push_ptr_get(&rc->fifo);
-    if (pushptr == NULL) {
-      LOGW("FIFO full!\n");
-      usleep(rc->sleep_usec);
-    } else {
-      struct sockaddr addr;
-      socklen_t addrlen = sizeof(addr);
-
-      int recv_size = recvfrom(rc->sock_fd, pushptr, rc->fifo.fifo_packet_size, 0,
-                               &addr, &addrlen);
-      if (recv_size < 0) {
-        LOGE("GLS ERROR: receiver socket recvfrom: %s\n", strerror(errno));
-        quit = TRUE;
-      } else if ((unsigned)recv_size == rc->fifo.fifo_packet_size) {
-        // FIXME not very fine criteria, but can only give false positives
-        LOGW("GLS WARNING: receiver socket recvfrom too large for fifo, truncated\n");
-      }
-      do {
-        if (rc->peer.addrlen) {
-          if (rc->peer.addrlen == addrlen && memcmp(&rc->peer.addr, &addr, addrlen) == 0)
-            break;
-          LOGW("GLS WARNING: received packet from different address\n");
-        }
-        memcpy(&rc->peer.addr, &addr, addrlen);
-        rc->peer.addrlen = addrlen;
-      } while(0);
-
-      fifo_push_ptr_next(&rc->fifo);
-    }
-  }
-
-  pthread_exit(NULL);
-}
-
-
-void recvr_init(recvr_context_t *rc)
+static void recvr_init(recvr_context_t *rc)
 {
   fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
   rc->sleep_usec = SLEEP_USEC;
 
-  rc->sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+  rc->sock_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (rc->sock_fd < 0) {
     fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 }
 
-void recvr_start(recvr_context_t *rc)
+
+static void socket_to_fifo_loop(recvr_context_t* rc)
 {
-  pthread_create(&rc->recvr_th, NULL, (void* (*)(void*))recvr_thread, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  {
+    int sockopt = 1;
+    if (setsockopt(rc->sock_fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
+      fprintf(stderr, "GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  int endsession = 0;
+  while (!endsession) {
+    char* pushptr = fifo_push_ptr_get(&rc->fifo);
+    if (pushptr == NULL) {
+      LOGW("GLS WARNING: FIFO full!\n");
+      usleep(rc->sleep_usec);
+      continue;
+    }
+
+    // look at message header to know its size and decide what to do
+    int recv_size = recv(rc->sock_fd, pushptr, sizeof(gls_command_t), MSG_PEEK | MSG_WAITALL);
+    if (recv_size < 0) {
+      LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+      close(rc->sock_fd);
+      break;
+    } else if (recv_size == 0) {
+      LOGI("GLS INFO: connection closed\n\n");
+      close(rc->sock_fd);
+      break;
+    } else if (recv_size != sizeof(gls_command_t)) {
+      LOGE("GLS ERROR: receiver socket recv: requested %zu bytes, read %d\n",
+           sizeof(gls_command_t), recv_size);
+      close(rc->sock_fd);
+      break;
+    }
+
+    gls_command_t* c = (gls_command_t*)pushptr;
+    assert(c->cmd_size >= sizeof(gls_command_t)); // minimum sanity
+
+    char* dest;
+    size_t remaining = c->cmd_size;
+    if (c->cmd_size <= rc->fifo.fifo_packet_size) {
+      dest = pushptr;
+    } else {
+      // currently should not happen, data is pieced under 2KB
+      LOGW("GLS ERROR: receiver socket recv too large for fifo, \n");
+      close(rc->sock_fd);
+      break;
+    }
+
+    do {
+      recv_size = recv(rc->sock_fd, dest, remaining, 0);
+      if (recv_size < 0) {
+        LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+        close(rc->sock_fd);
+        break;
+      } else if (recv_size == 0) {
+        LOGI("GLS INFO: connection closed\n\n");
+        close(rc->sock_fd);
+        break;
+      }
+
+      remaining -= recv_size;
+      dest += recv_size;
+    } while(remaining);
+
+    fifo_push_ptr_next(&rc->fifo);
+  }
+}
+
+static void* recvr_server_thread(void* data)
+{
+  recvr_context_t* rc = (recvr_context_t*)data;
+  int listen_fd = rc->sock_fd;
+  int quit = 0;
+  while (!quit) {
+    rc->peer.addrlen = sizeof(rc->peer.addr);
+    rc->sock_fd = accept4(listen_fd, &rc->peer.addr, &rc->peer.addrlen, SOCK_CLOEXEC);
+    if (rc->sock_fd < 0) {
+      LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
+      break;
+    }
+
+    socket_to_fifo_loop(rc);
+  }
+
+  return NULL;
+}
+
+static void* recvr_client_thread(void* data)
+{
+  recvr_context_t* rc = (recvr_context_t*)data;
+  socket_to_fifo_loop(rc);
+  return NULL;
 }
 
 
-void recvr_stop_deinit(recvr_context_t *rc)
+void recvr_server_start(recvr_context_t *rc, const char* listen_addr, uint16_t listen_port)
+{
+  recvr_init(rc);
+
+  int sockopt = 1;
+  if (setsockopt(rc->sock_fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+    LOGE("GLS ERROR: setsockopt(SO_REUSEADDR) failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  struct sockaddr_in sai;
+  sai.sin_family = AF_INET;
+  sai.sin_port = htons(listen_port);
+  sai.sin_addr.s_addr = inet_addr(listen_addr);
+  if (bind(rc->sock_fd, (struct sockaddr *)&sai, sizeof(sai)) < 0) {
+    LOGE("GLS ERROR: bind failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  if (listen(rc->sock_fd, 1) < 0) {
+    LOGE("GLS ERROR: listen failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  pthread_create(&rc->recvr_th, NULL, recvr_server_thread, rc);
+  pthread_setname_np(rc->recvr_th, "gls-recvr");
+}
+
+void recvr_client_start(recvr_context_t *rc, const char* connect_addr, uint16_t connect_port)
+{
+  recvr_init(rc);
+
+  struct sockaddr_in sai;
+  sai.sin_family = AF_INET;
+  sai.sin_port = htons(connect_port);
+  sai.sin_addr.s_addr = inet_addr(connect_addr);
+  if (connect(rc->sock_fd, (struct sockaddr *)&sai, sizeof(sai)) < 0) {
+    LOGE("GLS ERROR: connect failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  pthread_create(&rc->recvr_th, NULL, (void* (*)(void*))recvr_client_thread, rc);
+  pthread_setname_np(rc->recvr_th, "gls-recvr");
+}
+
+void recvr_stop(recvr_context_t *rc)
 {
   pthread_cancel(rc->recvr_th);
   close(rc->sock_fd);

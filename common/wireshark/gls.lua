@@ -9,10 +9,10 @@ local p_gls = Proto("gls", "GL-Streaming")
 
 local vs_commands = {
    [0] = "UNDEF",
-   [1] = "BREAK",
+   [1] = "HANDSHAKE",
    [2] = "SEND_DATA",
-   [3] = "FLUSH",
-   [4] = "get_context",
+   [3] = "BREAK",
+   [4] = "FLUSH",
 
    [0x10000] = "eglChooseConfig",
    [0x10008] = "eglGetConfigAttrib",
@@ -49,7 +49,8 @@ end
 
 -- GLS
 local f_cmd = ProtoField.uint32("gls.command", "Command", base.HEX, vs_commands)
-p_gls.fields = { f_cmd }
+local f_pktsize = ProtoField.uint32("gls.pktsize", "Packet size", base.DEC)
+p_gls.fields = { f_cmd, f_pktsize }
 
 local data_dis = Dissector.get("data")
 
@@ -65,6 +66,7 @@ function p_gls.dissector(buf, pkt, tree)
 
    local subtree = tree:add(p_gls, buf(0,4))
    subtree:add_le(f_cmd, buf(0,4))
+   subtree:add_le(f_pktsize, buf(4,4))
 
    local cmd_id = buf(0,4):le_uint()
    local dissector = protos[cmd_id]
@@ -72,13 +74,15 @@ function p_gls.dissector(buf, pkt, tree)
    if dissector ~= nil then
       -- Dissector was found, invoke subdissector with a new Tvb,
       -- created from the current buffer (skipping GLS header).
-      dissector.dissector:call(buf(4):tvb(), pkt, tree)
+      dissector.dissector:call(buf(8):tvb(), pkt, tree)
    else
       -- fallback dissector that just shows the raw data.
-      data_dis:call(buf(4):tvb(), pkt, tree)
+      data_dis:call(buf(8):tvb(), pkt, tree)
    end
 end
 
 local udp_encap_table = DissectorTable.get("udp.port")
+local tcp_encap_table = DissectorTable.get("tcp.port")
 
 udp_encap_table:add(18145, p_gls)
+tcp_encap_table:add(18145, p_gls)
