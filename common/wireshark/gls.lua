@@ -63,28 +63,50 @@ protos = {
    [2] = p_gls_senddata,
 }
 
-function p_gls.dissector(buf, pkt, tree)
+function p_gls.dissector(buf, pinfo, tree)
    length = buf:len()
    if length == 0 then return end
 
-   pkt.cols.protocol = p_gls.name
+   pinfo.cols.protocol = p_gls.name
 
-   local cmd_id = buf(0,4):le_uint()
-   local pktsize = buf(4,4):le_uint()
+   local offset = pinfo.desegment_offset or 0
+   while true do
+      -- if buf:len() < offset + 8 then
+      --    pinfo.desegment_len =  -- how much ?  cannot know !
+      --    pinfo.desegment_offset = offset
+      --    return
+      -- end
 
-   local subtree = tree:add(p_gls, buf(0,pktsize))
-   subtree:add_le(f_cmd, buf(0,4))
-   subtree:add_le(f_pktsize, buf(4,4))
+      local cmd_id = buf(offset, 4):le_uint()
+      local pktsize = buf(offset+4, 4):le_uint()
 
-   local dissector = protos[cmd_id]
+      local nxtpdu = offset + pktsize
 
-   if dissector ~= nil then
-      -- Dissector was found, invoke subdissector with a new Tvb,
-      -- created from the current buffer (skipping GLS header).
-      dissector.dissector:call(buf(8, pktsize-8):tvb(), pkt, tree)
-   else
-      -- fallback dissector that just shows the raw data.
-      data_dis:call(buf(8, pktsize-8):tvb(), pkt, tree)
+      if nxtpdu > buf:len() then
+         pinfo.desegment_len = nxtpdu - buf:len()
+         pinfo.desegment_offset = offset
+         return
+      end
+
+      local subtree = tree:add(p_gls, buf(offset, pktsize))
+      subtree:add_le(f_cmd, buf(offset, 4))
+      subtree:add_le(f_pktsize, buf(offset+4, 4))
+
+      local dissector = protos[cmd_id]
+
+      if dissector ~= nil then
+         -- Dissector was found, invoke subdissector with a new Tvb,
+         -- created from the current buffer (skipping GLS header).
+         dissector.dissector:call(buf(offset+8, pktsize-8):tvb(), pinfo, tree)
+      else
+         -- fallback dissector that just shows the raw data.
+         data_dis:call(buf(offset+8, pktsize-8):tvb(), pinfo, tree)
+      end
+
+      offset = nxtpdu
+      if nxtpdu == buf:len() then
+         return
+      end
    end
 end
 
