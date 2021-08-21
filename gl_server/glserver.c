@@ -109,14 +109,20 @@ void glse_cmd_get_context()
 }
 
 
-int glse_cmd_recv_data()
+static int glse_cmd_recv_data()
 {
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.cmd_data;
-  if ((c->offset + c->size > glsec_global.tmp_buf.size) || (glsec_global.tmp_buf.size == 0))
-  {
-    fprintf(stderr, "GLS ERROR: data too large for buffer, dropping packet with offset %d\n",
+  if (glsec_global.tmp_buf.size == 0)
+    return FALSE;
+  if (c->offset + c->size > glsec_global.tmp_buf.size) {
+    fprintf(stderr, "GLS ERROR: data too large for buffer, dropping chunk with offset %d\n",
             c->offset);
     return FALSE;
+  }
+  if (c->size > glsec_global.rc->fifo.fifo_packet_size) {
+    fprintf(stderr, "GLS ERROR: DATA packet size %u > fifo_packet_size %u\n",
+            c->size, glsec_global.rc->fifo.fifo_packet_size);
+    return c->isLast;
   }
   memcpy(&glsec_global.tmp_buf.buf[c->offset], c->data.data_char, c->size);
   return TRUE;
@@ -136,7 +142,7 @@ void glse_cmd_flush()
         break;
       default: {
         int result = egl_flushCommand(c);
-        // Attempt to flush EGL first, if fail then attepmt to GLES.
+        // Attempt to flush EGL first, if fail then attempt to GLES.
         if (result == FALSE) {
             result = gles_flushCommand(c);
         }
@@ -166,55 +172,54 @@ void glserver_handle_packets(recvr_context_t* rc)
   glsec_global.out_buf.buf = (char *)malloc(GLSE_OUT_BUFFER_SIZE);
   glsec_global.out_buf.size = GLSE_OUT_BUFFER_SIZE;
   
-
-  while (quit == FALSE)
-  {
+  while (!quit) {
     void *popptr = (void *)fifo_pop_ptr_get(&rc->fifo);
     if (popptr == NULL) {
       usleep(rc->sleep_usec);
-    } else {
-      gls_command_t *c = (gls_command_t *)popptr;
-      glsec_global.cmd_data = c;
+      continue;
+    }
+
+    gls_command_t *c = (gls_command_t *)popptr;
+    glsec_global.cmd_data = c;
 #ifdef GL_DEBUG
-      fprintf(stderr, "GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
-              c->cmd, GLSC_tostring(c->cmd));
+    fprintf(stderr, "GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
+            c->cmd, GLSC_tostring(c->cmd));
 #endif
 
-      switch (c->cmd) {
-        case GLSC_SEND_DATA:
-          glse_cmd_recv_data();
-          break;
-        case GLSC_FLUSH:
+    switch (c->cmd) {
+    case GLSC_SEND_DATA:
+      glse_cmd_recv_data();
+      break;
+    case GLSC_FLUSH:
 #ifdef GL_DEBUG
-          fprintf(stderr, "GLS Exec: Flushing command buffer...\n");
+      fprintf(stderr, "GLS Exec: Flushing command buffer...\n");
 #endif
-          glse_cmd_flush();
-          break;
-        case GLSC_get_context:
+      glse_cmd_flush();
+      break;
+    case GLSC_get_context:
 #ifdef GL_DEBUG
-          fprintf(stderr, "GLS Exec: Feeding context to client...\n");
+      fprintf(stderr, "GLS Exec: Feeding context to client...\n");
 #endif
-          glse_cmd_get_context();
-          break;
+      glse_cmd_get_context();
+      break;
           
-        default: {
-          int result = egl_executeCommand(c);
-          // Attempt to execute EGL first, if fail then attempt to GLES.
-          if (result == FALSE) {
-              result = gles_executeCommand(c);
-          }
-          
-          if (result == FALSE) {
-#ifdef GL_DEBUG
-            fprintf(stderr, "GLS ERROR: Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-#endif
-            LOGE("GLS ERROR: Undefined command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-          }
-          break;
-        }
+    default: {
+      int result = egl_executeCommand(c);
+      // Attempt to execute EGL first, if fail then attempt to GLES.
+      if (result == FALSE) {
+        result = gles_executeCommand(c);
       }
-      fifo_pop_ptr_next(&rc->fifo);
+          
+      if (result == FALSE) {
+#ifdef GL_DEBUG
+        fprintf(stderr, "GLS ERROR: Exec: 0x%x : Undefined command (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+#endif
+        LOGE("GLS ERROR: Undefined command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+      }
+      break;
     }
+    }
+    fifo_pop_ptr_next(&rc->fifo);
   }
 
   release_egl(&gc);

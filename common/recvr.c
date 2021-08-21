@@ -62,6 +62,9 @@ static void* recvr_thread(recvr_context_t* rc)
       if (recv_size < 0) {
         LOGE("GLS ERROR: receiver socket recvfrom: %s\n", strerror(errno));
         quit = TRUE;
+      } else if ((unsigned)recv_size == rc->fifo.fifo_packet_size) {
+        // FIXME not very fine criteria, but can only give false positives
+        LOGW("GLS WARNING: receiver socket recvfrom too large for fifo, truncated\n");
       }
       do {
         if (rc->peer.addrlen) {
@@ -73,7 +76,6 @@ static void* recvr_thread(recvr_context_t* rc)
         rc->peer.addrlen = addrlen;
       } while(0);
 
-      // FIXME check fifo packet overflow
       fifo_push_ptr_next(&rc->fifo);
     }
   }

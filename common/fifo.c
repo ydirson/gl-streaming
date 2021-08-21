@@ -39,17 +39,19 @@ int fifo_init(fifo_t *fifo, unsigned int fifo_size_order,
 {
   fifo->fifo_size = 1 << fifo_size_order;
   fifo->fifo_packet_size = 1 << fifo_packet_size_order;
+
+#if 0
+  // aligned malloc ?  Do we gain anything ?
   unsigned int alignment = fifo->fifo_packet_size;
-  fifo->buffer = (char *)malloc(fifo->fifo_size * fifo->fifo_packet_size + alignment);
-  if (fifo->buffer == NULL)
-  {
-    return -1;
+  fifo->buffer = (char *)aligned_alloc(alignment, fifo->fifo_size * fifo->fifo_packet_size);
+  if (fifo->buffer == NULL) {
+    fprintf(stderr, "GLS ERROR: FIFO allocation failure: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
   }
-#if __WORDSIZE == 64
-  fifo->p_start = (char *)(((uint64_t)fifo->buffer + alignment - 1) & (~ ((uint64_t)alignment - 1)));
 #else
-  fifo->p_start = (char *)(((uint32_t)fifo->buffer + alignment - 1) & (~ ((uint32_t)alignment - 1)));
+  fifo->buffer = (char *)malloc(fifo->fifo_size * fifo->fifo_packet_size);
 #endif
+
   fifo->idx_reader = 0;
   fifo->idx_writer = 0;
   return 0;
@@ -59,7 +61,6 @@ int fifo_delete(fifo_t *fifo)
 {
   free(fifo->buffer);
   fifo->buffer = NULL;
-  fifo->p_start = NULL;
   fifo->idx_reader = 0;
   fifo->idx_writer = 0;
   fifo->fifo_size = 0;

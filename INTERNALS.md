@@ -87,6 +87,9 @@ This enumeration is surely not complete:
   what's going on (clear abuse of the data-chunking mechanism designed
   for large data blocks).  This even prevents turning batching off, as those
   messages are rightfully rejected by sendto().
+- the SEND_DATA mechanism relying just on the `isLast` field is unable to
+  react properly to out-of-order UDP delivery (not even talking about lost
+  packets)
 - trying to optimize network traffic this early in development is clearly
   premature optimization
 
