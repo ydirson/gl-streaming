@@ -43,11 +43,13 @@ function p_gls_senddata.dissector(buf, pkt, tree)
    length = buf:len()
    if length == 0 then return end
 
-   local subtree = tree:add(p_gls_senddata, buf(0,4))
+   local datasize = buf(4,4):le_uint()
+
+   local subtree = tree:add(p_gls_senddata, buf(0, 12 + datasize))
    subtree:add_le(f_data_offset, buf(0,4))
    subtree:add_le(f_data_size, buf(4,4))
    subtree:add_le(f_is_last, buf(8,4))
-   subtree:add(f_data_chunk, buf(12))
+   subtree:add(f_data_chunk, buf(12,datasize))
 end
 
 -- GLS
@@ -67,20 +69,22 @@ function p_gls.dissector(buf, pkt, tree)
 
    pkt.cols.protocol = p_gls.name
 
-   local subtree = tree:add(p_gls, buf(0,4))
+   local cmd_id = buf(0,4):le_uint()
+   local pktsize = buf(4,4):le_uint()
+
+   local subtree = tree:add(p_gls, buf(0,pktsize))
    subtree:add_le(f_cmd, buf(0,4))
    subtree:add_le(f_pktsize, buf(4,4))
 
-   local cmd_id = buf(0,4):le_uint()
    local dissector = protos[cmd_id]
 
    if dissector ~= nil then
       -- Dissector was found, invoke subdissector with a new Tvb,
       -- created from the current buffer (skipping GLS header).
-      dissector.dissector:call(buf(8):tvb(), pkt, tree)
+      dissector.dissector:call(buf(8, pktsize-8):tvb(), pkt, tree)
    else
       -- fallback dissector that just shows the raw data.
-      data_dis:call(buf(8):tvb(), pkt, tree)
+      data_dis:call(buf(8, pktsize-8):tvb(), pkt, tree)
    end
 end
 
