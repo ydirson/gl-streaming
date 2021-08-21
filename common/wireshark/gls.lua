@@ -17,6 +17,10 @@ local vs_commands = {
    [0x10012] = "eglQueryString",
 
    [0x20000] = "glActiveTexture",
+   [0x20003] = "glBindBuffer",
+   [0x20006] = "glBindTexture",
+   [0x2000c] = "glBufferData",
+   [0x2000d] = "glBufferSubData",
    [0x2000e] = "glCheckFramebufferStatus",
    [0x20033] = "glGenFramebuffers",
    [0x20035] = "glGenTextures",
@@ -24,6 +28,7 @@ local vs_commands = {
    [0x20047] = "glGetString",
    [0x20062] = "glShaderSource",
    [0x20069] = "glTexImage2D",
+   [0x2006c] = "glTexParameteri",
 }
 
 -- SEND_DATA
