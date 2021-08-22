@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GLS_TMP_BUFFER_SIZE 2097152
-
 typedef struct
 {
   char *buf;
