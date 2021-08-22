@@ -98,17 +98,17 @@ void glse_glBlendFuncSeparate(gls_command_t* buf)
 
 void glse_glBufferData(gls_command_t* buf)
 {
+  GLSE_SET_RAWDATA_PTR(dat, void);
   GLSE_SET_COMMAND_PTR(c, glBufferData);
-  glBufferData(c->target, c->size,
-               (c->has_data) ? glsec_global.pool.tmp_buf.buf : NULL,
-               c->usage);
+  glBufferData(c->target, c->size, (c->has_data) ? dat : NULL, c->usage);
 }
 
 
 void glse_glBufferSubData(gls_command_t* buf)
 {
+  GLSE_SET_RAWDATA_PTR(dat, void);
   GLSE_SET_COMMAND_PTR(c, glBufferSubData);
-  glBufferSubData(c->target, c->offset, c->size, glsec_global.pool.tmp_buf.buf);
+  glBufferSubData(c->target, c->offset, c->size, dat);
 }
 
 
@@ -185,8 +185,9 @@ void glse_glCullFace(gls_command_t* buf)
 
 void glse_glDeleteBuffers(gls_command_t* buf)
 {
+  GLSE_SET_RAWDATA_PTR(dat, GLuint);
   GLSE_SET_COMMAND_PTR(c, glDeleteBuffers);
-  glDeleteBuffers (c->n, (GLuint *)glsec_global.pool.tmp_buf.buf);
+  glDeleteBuffers (c->n, dat);
 }
 
 
@@ -543,7 +544,7 @@ void glse_glReadPixels(gls_command_t* buf)
 void glse_glShaderSource(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glShaderSource);
-  gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_DATA_PTR(dat, glShaderSource);
   int i;
   const GLchar** strings = alloca(c->count * sizeof(GLchar*));
   if (!strings) {
@@ -602,14 +603,18 @@ void glse_glTexParameteri(gls_command_t* buf)
 void glse_glTexImage2D(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glTexImage2D);
-  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border, c->format, c->type, c->has_pixels ? glsec_global.pool.tmp_buf.buf : NULL);
+  GLSE_SET_RAWDATA_PTR(dat, void);
+  glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border,
+               c->format, c->type, c->has_pixels ? dat : NULL);
 }
 
 
 void glse_glTexSubImage2D(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
-  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height, c->format, c->type, c->has_pixels ? glsec_global.pool.tmp_buf.buf : NULL);
+  GLSE_SET_RAWDATA_PTR(dat, void);
+  glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height,
+                  c->format, c->type, c->has_pixels ? dat : NULL);
 }
 
 
@@ -671,7 +676,7 @@ void glse_glUseProgram(gls_command_t* buf)
 void glse_glVertexAttribFloat(gls_command_t* buf)
 {
     GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
-    gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_DATA_PTR(dat, glVertexAttribFloat);
 
     if (c->call_arr) {
         switch (c->num_float) {

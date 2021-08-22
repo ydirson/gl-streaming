@@ -42,7 +42,7 @@ void glse_eglChooseConfig(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
   EGLint *attrib_list = NULL;
   if (c->has_attribs) {
-    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_DATA_PTR(dat, egl_attriblist);
     attrib_list = dat->attrib_list;
   }
   EGLint num_config;
@@ -74,7 +74,7 @@ void glse_eglCreateContext(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglCreateContext);
   EGLint *attrib_list = NULL;
   if (c->has_attribs) {
-    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_DATA_PTR(dat, egl_attriblist);
     attrib_list = dat->attrib_list;
   }
   EGLContext context = eglCreateContext((EGLDisplay)c->dpy, (EGLConfig)c->config,
@@ -91,7 +91,7 @@ void glse_eglCreatePbufferSurface(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
   EGLint *attrib_list = NULL;
   if (c->has_attribs) {
-    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_DATA_PTR(dat, egl_attriblist);
     attrib_list = dat->attrib_list;
   }
   EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, attrib_list);
@@ -107,7 +107,7 @@ void glse_eglCreatePixmapSurface(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
   EGLint *attrib_list = NULL;
   if (c->has_attribs) {
-    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_DATA_PTR(dat, egl_attriblist);
     attrib_list = dat->attrib_list;
   }
   // FIXME must transfer Pixmap first
@@ -125,7 +125,7 @@ void glse_eglCreateWindowSurface(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
   EGLint *attrib_list = NULL;
   if (c->has_attribs) {
-    gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_DATA_PTR(dat, egl_attriblist);
     attrib_list = dat->attrib_list;
   }
   fprintf(stderr, "GLS WARNING: eglCreateWindowSurface ignoring window parameter\n");

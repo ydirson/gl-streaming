@@ -43,6 +43,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)buf;
 
+#define GLSE_SET_RAWDATA_PTR(PTR, TYPE)                 \
+  TYPE* PTR = (TYPE*)glsec_global.pool.tmp_buf.buf;
+#define GLSE_SET_DATA_PTR(PTR, FUNCNAME)                \
+  GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t)
+
 typedef struct
 {
   gls_bufpool_t pool;
