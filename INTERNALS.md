@@ -43,9 +43,8 @@ The networking code uses 2 buffers:
 * `out_buf` to compose an outgoing messages, whether fixed-size or large
   variable-length data
 * `tmp_buf` to:
-  * receive results from server
-  * batch simpler calls which do not need tmp_buf for any usage listed
-    above
+  * receive SEND_DATA messages (ie. variable-length input from client,
+    as well as outputs from server)
 
 A message with large variable-length data gets sent as 2 messages:
 
@@ -63,38 +62,11 @@ server-created window.
 
 ### batched commands
 
-A message that does not need `tmp_buf` for those usages is accumulated
-into `tmp_buf` using `GLS_PUSH_BATCH`, until one of those conditions
-occur:
+Upstream used a batching mechanism to send several API calls in a
+single UDP packet.  This has been culled from the current codebase
+as premature optimisation and because of inherent limitations (see [older
+INTERNALS](https://github.com/ydirson/gl-streaming/blob/master/INTERNALS.md#batched-commands)).
 
-* a given volume of messages get queued (see `BATCH_AUTO_FLUSH_SIZE`)
-* an API function with a need for `tmp_buf` is called
-
-In either case, a `BREAK` message is queued in `tmp_buf` which is then
-sent as `SEND_DATA`, and a `FLUSH` message is sent to trigger their
-execution.
-
-#### problems with command batching
-
-This enumeration is surely not complete:
-
-- batched commands are stacked in a 2MB buffer, and could accumulate
-  that much amount of command messages before autoflush.  Autoflush
-  should instead try to prevent retention on the client of messages
-  that could be sent already.  Huge source of latency.
-- batching commands allows to send single command messages larger than
-  the max UDP size (64KB), without the developer easily realizing
-  what's going on (clear abuse of the data-chunking mechanism designed
-  for large data blocks).  This even prevents turning batching off, as those
-  messages are rightfully rejected by sendto().
-- the SEND_DATA mechanism relying just on the `isLast` field is unable to
-  react properly to out-of-order UDP delivery (not even talking about lost
-  packets)
-- trying to optimize network traffic this early in development is clearly
-  premature optimization
-
-Bottom line: must first switch to TCP-encapsulated messages, then we
-can remove the batching system.
 
 ## special client work
 
@@ -201,30 +173,6 @@ memory following the buffer instead.
 
 Also, usage of oversized buffers "just to be sure we don't miss
 something" is just too common today.
-
-### transport reliability
-
-Transport is done with UDP today.  This has nice properties for a
-packet-based protocol, but does not provide any reliability features,
-which are supposed to be added at application level.  Currently we
-don't add any such reliability feature, and are bound to suffer from
-packet loss.
-
-Some options:
-
-- add reliability features (tracking packets to get lost ones resent,
-  congestion control to limit occurences of losses, etc): this would
-  be good if we could drop packets to resync (eg. video), but here we
-  do need reliability foremost, and will have no benefit implementing
-  that atop UDP
-- use a reliable packet transport -- SCTP would work but may be overkill
-  just to get reliability, esp. given its relatively low deployment
-- implement a packet protocol inside TCP: this will be the easiest and
-  most portable.  It will have an impact on batching, though.
-
-The current batching system (see above) is in such a state that we
-must switch to TCP-encapsulated messages first to be able to disable
-it in a controlled way, because of huge command messages.
 
 ### shared memory
 
