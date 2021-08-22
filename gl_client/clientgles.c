@@ -128,6 +128,13 @@ GL_APICALL void GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer
 }
 
 
+GL_APICALL void GL_APIENTRY glBindRenderbuffer(GLenum target, GLuint renderbuffer)
+{
+  (void)target; (void)renderbuffer;
+  WARN_STUBBED();
+}
+
+
 GL_APICALL void GL_APIENTRY glBindTexture (GLenum target, GLuint texture)
 {
   GLS_SET_COMMAND_PTR_BATCH(c, glBindTexture);
