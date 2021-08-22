@@ -123,7 +123,6 @@ void glserver_handle_packets(recvr_context_t* rc)
           
     default: {
       int result = FALSE;
-      if (!result) result = gles_flushCommand(c); // used-to-be-batched
       if (!result) result = gles_executeCommand(c);
       if (!result) result = egl_executeCommand(c);
 

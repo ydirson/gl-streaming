@@ -458,15 +458,3 @@ int egl_executeCommand(gls_command_t *c) {
 }
 
 #undef CASE_EXEC_CMD
-
-int egl_flushCommand(gls_command_t *c) {
-    switch (c->cmd) {
-        // Nothing here to flush
-        default:
-            return FALSE;
-    }
-    
-    check_egl_err_cmd(c->cmd);
-    return TRUE;
-}
-

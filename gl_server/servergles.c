@@ -745,117 +745,61 @@ void glse_()
 */
 
 
-#define CASE_FLUSH_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
-#define CASE_FLUSH_CMD_SIZE(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
-int gles_flushCommand(gls_command_t *c) {
-#ifdef DEBUG
-    LOGD("Flushing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-#endif
-    switch (c->cmd) {
-        CASE_FLUSH_CMD(glActiveTexture);
-        CASE_FLUSH_CMD(glAttachShader);
-        CASE_FLUSH_CMD(glBindAttribLocation);
-        CASE_FLUSH_CMD(glBindBuffer);
-        CASE_FLUSH_CMD(glBindFramebuffer);
-        //CASE_FLUSH_CMD(glBindRenderbuffer);
-        CASE_FLUSH_CMD(glBindTexture);
-        //CASE_FLUSH_CMD(glBlendEquation);
-        CASE_FLUSH_CMD(glBlendEquationSeparate);
-        CASE_FLUSH_CMD(glBlendFunc);
-        CASE_FLUSH_CMD(glBlendFuncSeparate);
-        CASE_FLUSH_CMD(glClear);
-        CASE_FLUSH_CMD(glClearColor);
-        CASE_FLUSH_CMD(glClearDepthf);
-        //CASE_FLUSH_CMD(glClearStencil);
-        CASE_FLUSH_CMD(glColorMask);
-        CASE_FLUSH_CMD(glCompileShader);
-        //CASE_FLUSH_CMD(glCopyTexImage2D);
-        CASE_FLUSH_CMD(glCopyTexSubImage2D);
-        CASE_FLUSH_CMD(glCullFace);
-        CASE_FLUSH_CMD(glDeleteProgram);
-        CASE_FLUSH_CMD(glDeleteShader);
-        CASE_FLUSH_CMD(glDeleteTextures);
-        CASE_FLUSH_CMD(glDepthFunc);
-        CASE_FLUSH_CMD(glDepthMask);
-        CASE_FLUSH_CMD(glDepthRangef);
-        //CASE_FLUSH_CMD(glDetachShader);
-        CASE_FLUSH_CMD(glDisable);
-        CASE_FLUSH_CMD(glDisableVertexAttribArray);
-        CASE_FLUSH_CMD(glDrawArrays);
-        CASE_FLUSH_CMD(glDrawElements);
-        CASE_FLUSH_CMD(glEnable);
-        CASE_FLUSH_CMD(glEnableVertexAttribArray);
-        CASE_FLUSH_CMD(glFlush);
-        CASE_FLUSH_CMD(glHint);
-        CASE_FLUSH_CMD(glLineWidth);
-        CASE_FLUSH_CMD(glLinkProgram);
-        CASE_FLUSH_CMD(glPixelStorei);
-        CASE_FLUSH_CMD(glPolygonOffset);
-        //CASE_FLUSH_CMD(glReleaseShaderCompiler);
-        //CASE_FLUSH_CMD(glRenderbufferStorage);
-        //CASE_FLUSH_CMD(glSampleCoverage);
-        //CASE_FLUSH_CMD(glScissor);
-        CASE_FLUSH_CMD(glStencilFunc);
-        //CASE_FLUSH_CMD(glStencilFuncSeparate);
-        CASE_FLUSH_CMD(glStencilMask);
-        //CASE_FLUSH_CMD(glStencilMaskSeparate);
-        CASE_FLUSH_CMD(glStencilOp);
-        //CASE_FLUSH_CMD(glStencilOpSeparate);
-        //CASE_FLUSH_CMD(glTexParameterf);
-        //CASE_FLUSH_CMD(glTexParameterfv);
-        CASE_FLUSH_CMD(glTexParameteri);
-        //CASE_FLUSH_CMD(glTexParameteriv);
-        CASE_FLUSH_CMD(glUniform1f);
-        CASE_FLUSH_CMD_SIZE(glUniform1fv);
-        CASE_FLUSH_CMD(glUniform1i);
-        CASE_FLUSH_CMD_SIZE(glUniform1iv);
-        CASE_FLUSH_CMD(glUniform2f);
-        CASE_FLUSH_CMD_SIZE(glUniform2fv);
-        CASE_FLUSH_CMD(glUniform2i);
-        CASE_FLUSH_CMD_SIZE(glUniform2iv);
-        CASE_FLUSH_CMD(glUniform3f);
-        CASE_FLUSH_CMD_SIZE(glUniform3fv);
-        CASE_FLUSH_CMD(glUniform3i);
-        CASE_FLUSH_CMD_SIZE(glUniform3iv);
-        CASE_FLUSH_CMD(glUniform4f);
-        CASE_FLUSH_CMD_SIZE(glUniform4fv);
-        CASE_FLUSH_CMD(glUniform4i);
-        CASE_FLUSH_CMD_SIZE(glUniform4iv);
-        CASE_FLUSH_CMD_SIZE(glUniformMatrix2fv);
-        CASE_FLUSH_CMD_SIZE(glUniformMatrix3fv);
-        CASE_FLUSH_CMD_SIZE(glUniformMatrix4fv);
-        CASE_FLUSH_CMD(glUseProgram);
-        //CASE_FLUSH_CMD(glVertexAttribFloat);
-        CASE_FLUSH_CMD(glVertexAttribPointer);
-        CASE_FLUSH_CMD(glViewport);
-      default:
-          return FALSE;
-    }
-    check_gl_err_cmd(c->cmd);
-    return TRUE;
-}
-#undef CASE_FLUSH_CMD_SIZE
-#undef CASE_FLUSH_CMD
-
-
-#define CASE_EXEC_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
+#define CASE_EXEC_CMD(FUNCNAME) \
+  case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
+#define CASE_BATCH_CMD(FUNCNAME) \
+  CASE_EXEC_CMD(FUNCNAME)
 
 int gles_executeCommand(gls_command_t *c) {
 #ifdef DEBUG
     LOGD("gles_executeCommand: Executing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
     switch (c->cmd) {
+        CASE_BATCH_CMD(glActiveTexture);
+        CASE_BATCH_CMD(glAttachShader);
+        CASE_BATCH_CMD(glBindAttribLocation);
+        CASE_BATCH_CMD(glBindBuffer);
+        CASE_BATCH_CMD(glBindFramebuffer);
+        //CASE_BATCH_CMD(glBindRenderbuffer);
+        CASE_BATCH_CMD(glBindTexture);
+        //CASE_BATCH_CMD(glBlendEquation);
+        CASE_BATCH_CMD(glBlendEquationSeparate);
+        CASE_BATCH_CMD(glBlendFunc);
+        CASE_BATCH_CMD(glBlendFuncSeparate);
         CASE_EXEC_CMD(glBufferData);
         CASE_EXEC_CMD(glBufferSubData);
         //CASE_EXEC_CMD(glCheckFramebufferStatus);
+        CASE_BATCH_CMD(glClear);
+        CASE_BATCH_CMD(glClearColor);
+        CASE_BATCH_CMD(glClearDepthf);
+        //CASE_BATCH_CMD(glClearStencil);
+        CASE_BATCH_CMD(glColorMask);
+        CASE_BATCH_CMD(glCompileShader);
         //CASE_EXEC_CMD(glCompressedTexImage2D);
         //CASE_EXEC_CMD(glCompressedTexSubImage2D);
+        //CASE_BATCH_CMD(glCopyTexImage2D);
+        CASE_BATCH_CMD(glCopyTexSubImage2D);
         CASE_EXEC_CMD(glCreateProgram);
         CASE_EXEC_CMD(glCreateShader);
+        CASE_BATCH_CMD(glCullFace);
         CASE_EXEC_CMD(glDeleteBuffers);
         //CASE_EXEC_CMD(glDeleteFramebuffers);
+        CASE_BATCH_CMD(glDeleteProgram);
         //CASE_EXEC_CMD(glDeleteRenderbuffers);
+        CASE_BATCH_CMD(glDeleteShader);
+        CASE_BATCH_CMD(glDeleteTextures);
+        CASE_BATCH_CMD(glDepthFunc);
+        CASE_BATCH_CMD(glDepthMask);
+        CASE_BATCH_CMD(glDepthRangef);
+        //CASE_BATCH_CMD(glDetachShader);
+        CASE_BATCH_CMD(glDisable);
+        CASE_BATCH_CMD(glDisableVertexAttribArray);
+        CASE_BATCH_CMD(glDrawArrays);
+        CASE_BATCH_CMD(glDrawElements);
+        CASE_BATCH_CMD(glEnable);
+        CASE_BATCH_CMD(glEnableVertexAttribArray);
         CASE_EXEC_CMD(glFinish);
+        CASE_BATCH_CMD(glFlush);
         //CASE_EXEC_CMD(glFramebufferRenderbuffer);
         //CASE_EXEC_CMD(glFramebufferTexture2D);
         //CASE_EXEC_CMD(glFrontFace);
@@ -888,6 +832,7 @@ int gles_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(glGetUniformfv);
         //CASE_EXEC_CMD(glGetUniformiv);
         CASE_EXEC_CMD(glGetUniformLocation);
+        CASE_BATCH_CMD(glHint);
         CASE_EXEC_CMD(glIsBuffer);
         CASE_EXEC_CMD(glIsEnabled);
         //CASE_EXEC_CMD(glIsFramebuffer);
@@ -895,12 +840,52 @@ int gles_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(glIsRenderbuffer);
         //CASE_EXEC_CMD(glIsShader);
         //CASE_EXEC_CMD(glIsTexture);
-        CASE_EXEC_CMD(glVertexAttribFloat);
+        CASE_BATCH_CMD(glLineWidth);
+        CASE_BATCH_CMD(glLinkProgram);
+        CASE_BATCH_CMD(glPixelStorei);
+        CASE_BATCH_CMD(glPolygonOffset);
         CASE_EXEC_CMD(glReadPixels);
+        //CASE_BATCH_CMD(glReleaseShaderCompiler);
+        //CASE_BATCH_CMD(glRenderbufferStorage);
+        //CASE_BATCH_CMD(glSampleCoverage);
+        //CASE_BATCH_CMD(glScissor);
         //CASE_EXEC_CMD(glShaderBinary);
         CASE_EXEC_CMD(glShaderSource);
+        CASE_BATCH_CMD(glStencilFunc);
+        //CASE_BATCH_CMD(glStencilFuncSeparate);
+        CASE_BATCH_CMD(glStencilMask);
+        //CASE_BATCH_CMD(glStencilMaskSeparate);
+        CASE_BATCH_CMD(glStencilOp);
+        //CASE_BATCH_CMD(glStencilOpSeparate);
         CASE_EXEC_CMD(glTexImage2D);
+        //CASE_BATCH_CMD(glTexParameterf);
+        //CASE_BATCH_CMD(glTexParameterfv);
+        CASE_BATCH_CMD(glTexParameteri);
+        //CASE_BATCH_CMD(glTexParameteriv);
         CASE_EXEC_CMD(glTexSubImage2D);
+        CASE_BATCH_CMD(glUniform1f);
+        CASE_BATCH_CMD(glUniform1fv);
+        CASE_BATCH_CMD(glUniform1i);
+        CASE_BATCH_CMD(glUniform1iv);
+        CASE_BATCH_CMD(glUniform2f);
+        CASE_BATCH_CMD(glUniform2fv);
+        CASE_BATCH_CMD(glUniform2i);
+        CASE_BATCH_CMD(glUniform2iv);
+        CASE_BATCH_CMD(glUniform3f);
+        CASE_BATCH_CMD(glUniform3fv);
+        CASE_BATCH_CMD(glUniform3i);
+        CASE_BATCH_CMD(glUniform3iv);
+        CASE_BATCH_CMD(glUniform4f);
+        CASE_BATCH_CMD(glUniform4fv);
+        CASE_BATCH_CMD(glUniform4i);
+        CASE_BATCH_CMD(glUniform4iv);
+        CASE_BATCH_CMD(glUniformMatrix2fv);
+        CASE_BATCH_CMD(glUniformMatrix3fv);
+        CASE_BATCH_CMD(glUniformMatrix4fv);
+        CASE_BATCH_CMD(glUseProgram);
+        CASE_EXEC_CMD(glVertexAttribFloat);
+        CASE_BATCH_CMD(glVertexAttribPointer);
+        CASE_BATCH_CMD(glViewport);
 
     default:
             return FALSE;
