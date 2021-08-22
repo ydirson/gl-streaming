@@ -31,8 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <stdio.h>
 
-#include "gls_command.h"
+#include "bufpool.h"
 #include "recvr.h"
+#include "gls_command.h"
 
 typedef struct
 {

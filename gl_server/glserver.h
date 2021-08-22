@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
+#include "bufpool.h"
 #include "gls_command.h"
 #include "glcontrol.h"
 #include "recvr.h"

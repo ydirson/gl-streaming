@@ -356,24 +356,3 @@ typedef struct
   int32_t isLast;
   gls_data_t data;
 } gls_cmd_send_data_t;
-
-
-// buffer management
-
-#define GLS_TMP_BUFFER_SIZE 2097152
-#define GLS_ALIGNMENT_BITS 3
-
-typedef struct
-{
-  char *buf;
-  size_t size;
-  uint32_t ptr; // for accumulation, only for batching into tmp_buf
-} gls_buffer_t;
-
-
-// for batching too
-static inline uint32_t next_ptr(uint32_t ptr, uint32_t size, uint32_t alignment_bits)
-{
-  uint32_t a = (1 << alignment_bits) - 1;
-  return (ptr + size + a) & ~a;
-}
