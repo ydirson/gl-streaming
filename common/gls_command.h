@@ -46,8 +46,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // lack of separator in the lists
 #define EMPTY()
 
-// FIXME: commands should be further split between batchable and non-batchable
-
 #define GLS_COMMANDS()                          \
   EMPTY()                                       \
     GLS_GLS_COMMANDS()                          \
@@ -332,12 +330,6 @@ typedef struct
   uint32_t screen_width;
   uint32_t screen_height;
 } gls_ret_HANDSHAKE_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-} gls_FLUSH_t;
 
 
 typedef struct

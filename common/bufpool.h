@@ -15,13 +15,6 @@ typedef struct
 } gls_buffer_t;
 
 
-// for batching too
-static inline uint32_t next_ptr(uint32_t ptr, uint32_t size, uint32_t alignment_bits)
-{
-  uint32_t a = (1 << alignment_bits) - 1;
-  return (ptr + size + a) & ~a;
-}
-
 // Copy a send_data chunk from fifo packet buffer to `dst` buffer
 // (soon to buffer pool)
 static inline int fifobuf_data_to_bufpool(gls_buffer_t* dst, fifo_t* fifo, gls_command_t* buf)
