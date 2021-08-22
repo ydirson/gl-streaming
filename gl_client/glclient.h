@@ -73,8 +73,12 @@ typedef struct
   wait_for_data(#FUNCNAME);                                     \
   //
 #define GLS_SET_RAWRET_PTR(PTR, TYPE, FUNCNAME)                 \
-  TYPE* ret = (TYPE*)glsc_global.pool.tmp_buf.buf;              \
-  //
+  TYPE* PTR;                                                    \
+  if (glsc_global.pool.mallocated)                              \
+    PTR = glsc_global.pool.data_payload;                        \
+  else                                                          \
+    PTR = (TYPE*)glsc_global.pool.tmp_buf.buf;                  \
+   //
 #define GLS_SET_RET_PTR(PTR, FUNCNAME)                          \
   GLS_SET_RAWRET_PTR(PTR, gls_ret_##FUNCNAME##_t, FUNCNAME);    \
   //
@@ -86,6 +90,19 @@ typedef struct
   GLS_WAIT_RET(FUNCNAME);                                       \
   GLS_SET_RET_PTR(PTR, FUNCNAME);                               \
   //
+#define GLS_RELEASE_RET()                                       \
+  if (glsc_global.pool.mallocated) {                            \
+    free(glsc_global.pool.mallocated);                          \
+    glsc_global.pool.mallocated = NULL;                         \
+  }                                                             \
+  //
+#define GLS_RELEASE_RETURN_RET(TYPE, PTR, FIELD)        \
+  do {                                                  \
+    TYPE tmp = (TYPE)PTR->FIELD;                        \
+    GLS_RELEASE_RET();                                  \
+    return tmp;                                         \
+  } while(0)
+
 
 // aliases/stubs for potentially-batchable commands
 #define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME) GLS_SET_COMMAND_PTR(PTR, FUNCNAME)

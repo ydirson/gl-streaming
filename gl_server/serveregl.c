@@ -57,6 +57,7 @@ void glse_eglChooseConfig(gls_command_t* buf)
   if (success)
     success = eglChooseConfig((EGLDisplay)c->dpy, dat,
                               configs, c->config_size, &num_config);
+  GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglChooseConfig);
   if (success && c->config_size)
       memcpy(ret->configs, configs, num_config * sizeof(EGLConfig));
@@ -73,6 +74,7 @@ void glse_eglCreateContext(gls_command_t* buf)
   EGLContext context = eglCreateContext((EGLDisplay)c->dpy, (EGLConfig)c->config,
                                         (EGLContext)c->share_list, dat);
 
+  GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreateContext);
   ret->context = (uint64_t)context;
   GLSE_SEND_RET(ret, eglCreateContext);
@@ -84,6 +86,7 @@ void glse_eglCreatePbufferSurface(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat,void, c->has_attribs);
 
   EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, dat);
+  GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreatePbufferSurface);
   ret->surface = (uint64_t)surface;
   GLSE_SEND_RET(ret, eglCreatePbufferSurface);
@@ -98,6 +101,7 @@ void glse_eglCreatePixmapSurface(gls_command_t* buf)
   // FIXME must transfer Pixmap first
   EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, dat);
   EGLSurface surface = eglGetCurrentSurface(EGL_DRAW); // Stub: current
+  GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreatePixmapSurface);
   ret->surface = surface;
   GLSE_SEND_RET(ret, eglCreatePixmapSurface);
@@ -113,6 +117,7 @@ void glse_eglCreateWindowSurface(gls_command_t* buf)
   EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
                                               glsec_global.gc->x.window, // FIXME
                                               dat);
+  GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreateWindowSurface);
   ret->surface = (uint64_t)surface;
   GLSE_SEND_RET(ret, eglCreateWindowSurface);

@@ -68,19 +68,31 @@ as long as there is space in the FIFO.  It may be necessary to adjust
 the compile-time `FIFO_SIZE_ORDER` if "FIFO full" is reported (causing
 throttling of network reception).
 
-Incoming `SEND_DATA` messages too large for a packet are dropped for
-now -- upstream worked around this by splitting large command packets
-into chunks (small enough to be queued in the FIFO) and reconstructing
-them into `tmp_buf`, with limited success (FIFO and `tmp_buf` also
-prevented large messages, and reconstruction assumed perfect network
-conditions).
+Incoming `SEND_DATA` messages too large for a FIFO packet get a
+newly-allocated buffer just for them.  They still use a FIFO packet
+preserving the order of arrival, and it contains the
+`gls_cmd_send_data_t` header, including a pointer to the allocated
+data (a temporary hack which brings a nasty `zero` field to the
+protocol just to reserve space for that pointer).
 
 #### dequeuing and execution
 
 When dequeuing an API command message from the FIFO, it gets passed by
-pointer to the API implementation.  `SEND_DATA` message are copied in
-`tmp_buf` to free their FIFO slot, and API commands expecting input
-from a `SEND_DATA` message just use it from there.
+pointer to the API implementation.
+
+`SEND_DATA` message are handled according to where they were stored:
+
+* those small enough to fit in a FIFO buffer (`dataptr == NULL`)are
+  copied in `tmp_buf` to free their FIFO slot * those
+
+* the larger ones get their `dataptr` stored in `pool.mallocated`
+  alongside the (unused) `tmp_buf`; that points to the `SEND_DATA`
+  header, and we need it for `free()` later, and the data encapsulated
+  within it is stored a ref in `pool.data_payload`
+
+API commands expecting input from a `SEND_DATA` message just use it
+from there, according to the whether `pool.mallocated` is `NULL` or
+holds a pointer (in which case it is finally freed after use).
 
 ### output from API commands
 

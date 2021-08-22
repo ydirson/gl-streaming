@@ -45,10 +45,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef GLS_SERVER
 # define FIFO_SIZE_ORDER 12
-# define FIFO_PACKET_SIZE_ORDER 19
+# define FIFO_PACKET_SIZE_ORDER 15
 #else
 # define FIFO_SIZE_ORDER 2
-# define FIFO_PACKET_SIZE_ORDER 14
+# define FIFO_PACKET_SIZE_ORDER 10
 #endif
 
 static void recvr_init(recvr_context_t *rc)
@@ -61,6 +61,29 @@ static void recvr_init(recvr_context_t *rc)
     fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
+}
+
+
+// read everything into a scratch buffer to discard data
+static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size)
+{
+  LOGW("GLS ERROR: discarding large packet (%zu bytes)\n", size);
+  do {
+    int recv_size = recv(fd, scratch, scratch_size, 0);
+    if (recv_size < 0) {
+      LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+      close(fd);
+      return 0;
+    } else if (recv_size == 0) {
+      LOGI("GLS INFO: connection closed\n\n");
+      close(fd);
+      return 0;
+    }
+
+    assert ((unsigned)recv_size <= size);
+    size -= recv_size;
+  } while(size);
+  return 1;
 }
 
 
@@ -108,26 +131,25 @@ static void socket_to_fifo_loop(recvr_context_t* rc)
     if (c->cmd_size <= rc->fifo.fifo_packet_size) {
       dest = pushptr;
     } else {
-      LOGW("GLS ERROR: receiver socket recv too large for fifo: %u > %u, discarding\n",
-           c->cmd_size, rc->fifo.fifo_packet_size);
-      dest = pushptr;
-      // read everything into this buffer, used as a scratch space for discarding data
-      // FIXME: we'll want to put it in a larger buffer instead
-      do {
-        recv_size = recv(rc->sock_fd, dest, rc->fifo.fifo_packet_size, 0);
-        if (recv_size < 0) {
-          LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
-          close(rc->sock_fd);
+      if (c->cmd != GLSC_SEND_DATA) {
+        // only SEND_DATA packets may be larger than a fifo packet
+        LOGE("GLS ERROR: received large packet, not a SEND_DATA\n");
+        if (discard_bytes(rc->sock_fd, remaining, pushptr, rc->fifo.fifo_packet_size))
+          continue;
+        else
           break;
-        } else if (recv_size == 0) {
-          LOGI("GLS INFO: connection closed\n\n");
-          close(rc->sock_fd);
-          break;
-        }
+      }
 
-        remaining -= recv_size;
-      } while(remaining);
-      continue;
+      dest = malloc(c->cmd_size);
+      if (!dest) {
+        LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+        if (discard_bytes(rc->sock_fd, remaining, pushptr, rc->fifo.fifo_packet_size))
+          continue;
+        else
+          break;
+      }
+      // advertized malloc'd zone
+      ((gls_cmd_send_data_t*)c)->dataptr = dest;
     }
 
     do {
@@ -145,6 +167,14 @@ static void socket_to_fifo_loop(recvr_context_t* rc)
       remaining -= recv_size;
       dest += recv_size;
     } while(remaining);
+
+    if (c->cmd_size <= rc->fifo.fifo_packet_size && c->cmd == GLSC_SEND_DATA) {
+      gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
+      if (data->zero != 0) {
+        LOGW("GLS WARNING: SEND_DATA with non-zero 'zero' field %lx, compensating\n", data->zero);
+        data->zero = 0;
+      }
+    }
 
     fifo_push_ptr_next(&rc->fifo);
   }

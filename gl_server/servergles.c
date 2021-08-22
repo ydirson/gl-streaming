@@ -101,6 +101,7 @@ void glse_glBufferData(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glBufferData);
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_data);
   glBufferData(c->target, c->size, dat, c->usage);
+  GLSE_RELEASE_DATA();
 }
 
 
@@ -109,6 +110,7 @@ void glse_glBufferSubData(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat, void, 1);
   GLSE_SET_COMMAND_PTR(c, glBufferSubData);
   glBufferSubData(c->target, c->offset, c->size, dat);
+  GLSE_RELEASE_DATA();
 }
 
 
@@ -195,6 +197,7 @@ void glse_glDeleteBuffers(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat, GLuint, 1);
   GLSE_SET_COMMAND_PTR(c, glDeleteBuffers);
   glDeleteBuffers (c->n, dat);
+  GLSE_RELEASE_DATA();
 }
 
 
@@ -568,6 +571,7 @@ void glse_glShaderSource(gls_command_t* buf)
   }
 
   glShaderSource(c->shader, c->count, strings, dat->length);
+  GLSE_RELEASE_DATA();
 }
 
 
@@ -605,6 +609,7 @@ void glse_glTexImage2D(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_pixels);
   glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border,
                c->format, c->type, dat);
+  GLSE_RELEASE_DATA();
 }
 
 
@@ -614,6 +619,7 @@ void glse_glTexSubImage2D(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_pixels);
   glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height,
                   c->format, c->type, dat);
+  GLSE_RELEASE_DATA();
 }
 
 
@@ -694,6 +700,7 @@ void glse_glVertexAttribFloat(gls_command_t* buf)
             CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
         }
     }
+    GLSE_RELEASE_DATA();
 }
 #undef CASE_VTXATTR_FLOAT
 #undef CASE_VTXATTR_FLOAT_ARR

@@ -53,8 +53,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglChooseConfig( EGLDisplay dpy, const EGLint *att
         assert(*num_config <= config_size);
         memcpy(configs, ret->configs, ret->num_config * sizeof(EGLConfig));
     }
-    
-    return ret->success;
+
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglCopyBuffers( EGLDisplay dpy, EGLSurface surface, NativePixmapType target )
@@ -76,7 +76,7 @@ EGLAPI EGLContext EGLAPIENTRY eglCreateContext( EGLDisplay dpy, EGLConfig config
     GLS_SEND_PACKET(eglCreateContext);
 
     GLS_WAIT_SET_RET_PTR(ret, eglCreateContext);
-    return (EGLContext)ret->context;
+    GLS_RELEASE_RETURN_RET(EGLContext, ret, context);
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list )
@@ -90,7 +90,7 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig
   GLS_SEND_PACKET(eglCreatePbufferSurface);
 
   GLS_WAIT_SET_RET_PTR(ret, eglCreatePbufferSurface);
-  return (EGLSurface)ret->surface;
+  GLS_RELEASE_RETURN_RET(EGLSurface, ret, surface);
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig config, NativePixmapType pixmap, const EGLint *attrib_list )
@@ -106,7 +106,7 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig 
   GLS_SEND_PACKET(eglCreatePixmapSurface);
 
   GLS_WAIT_SET_RET_PTR(ret, eglCreatePixmapSurface);
-  return (EGLSurface)ret->surface;
+  GLS_RELEASE_RETURN_RET(EGLSurface, ret, surface);
 #else
     (void)dpy; (void)config; (void)pixmap; (void)attrib_list; // FIXME stub
     WARN_STUBBED();
@@ -133,7 +133,7 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
     GLS_SEND_PACKET(eglCreateWindowSurface);
 
     GLS_WAIT_SET_RET_PTR(ret, eglCreateWindowSurface);
-    return (EGLSurface)ret->surface;
+    GLS_RELEASE_RETURN_RET(EGLSurface, ret, surface);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroyContext( EGLDisplay dpy, EGLContext ctx )
@@ -145,7 +145,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglDestroyContext( EGLDisplay dpy, EGLContext ctx 
   GLS_SEND_PACKET(eglDestroyContext);
 
   GLS_WAIT_SET_RET_PTR(ret, eglDestroyContext);
-  return ret->success;
+  GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surface )
@@ -157,7 +157,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface( EGLDisplay dpy, EGLSurface surf
     GLS_SEND_PACKET(eglDestroySurface);
 
     GLS_WAIT_SET_RET_PTR(ret, eglDestroySurface);
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value )
@@ -172,7 +172,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib( EGLDisplay dpy, EGLConfig conf
     GLS_WAIT_SET_RET_PTR(ret, eglGetConfigAttrib);
     *value = ret->value;
     
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs, EGLint config_size, EGLint *num_config )
@@ -189,7 +189,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig *configs,
         assert(*num_config <= config_size);
         memcpy(configs, ret->configs, *num_config * sizeof(EGLConfig));
     }
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetCurrentDisplay(void)
@@ -199,7 +199,7 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetCurrentDisplay(void)
     GLS_SEND_PACKET(eglGetCurrentDisplay);
     
     GLS_WAIT_SET_RET_PTR(ret, eglGetCurrentDisplay);
-    return (EGLDisplay)ret->display;
+    GLS_RELEASE_RETURN_RET(EGLDisplay, ret, display);
 }
 
 EGLAPI EGLSurface EGLAPIENTRY eglGetCurrentSurface(EGLint readdraw)
@@ -210,7 +210,7 @@ EGLAPI EGLSurface EGLAPIENTRY eglGetCurrentSurface(EGLint readdraw)
     GLS_SEND_PACKET(eglGetCurrentSurface);
     
     GLS_WAIT_SET_RET_PTR(ret, eglGetCurrentSurface);
-    return (EGLSurface)ret->surface;
+    GLS_RELEASE_RETURN_RET(EGLSurface, ret, surface);
 }
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
@@ -228,7 +228,7 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
     GLS_SEND_PACKET(eglGetDisplay);
     
     GLS_WAIT_SET_RET_PTR(ret, eglGetDisplay);
-    return (EGLDisplay)ret->display;
+    GLS_RELEASE_RETURN_RET(EGLDisplay, ret, display);
 }
 
 EGLAPI EGLint EGLAPIENTRY eglGetError( void )
@@ -241,7 +241,7 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
     GLS_SEND_PACKET(eglGetError);
     
     GLS_WAIT_SET_RET_PTR(ret, eglGetError);
-    return ret->error;
+    GLS_RELEASE_RETURN_RET(EGLint, ret, error);
 }
 
 EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char *procname )
@@ -263,7 +263,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint *major, EGLi
         *major = ret->major;
     if (minor)
         *minor = ret->minor;
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)
@@ -292,7 +292,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext( EGLDisplay dpy, EGLContext ctx, E
     
     GLS_WAIT_SET_RET_PTR(ret, eglQueryContext);
     *value = ret->value;
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 // eglQueryString (with caching)
@@ -306,8 +306,10 @@ static const char* EGLAPIENTRY _real_eglQueryString(EGLDisplay dpy, EGLint name)
   GLS_SEND_PACKET(eglQueryString);
     
   GLS_WAIT_SET_RET_PTR(ret, eglQueryString);
-  if (!ret->success)
+  if (!ret->success) {
+    GLS_RELEASE_RET();
     return NULL;
+  }
   return ret->params;
 }
 
@@ -358,6 +360,7 @@ static int _registerEglString(EGLDisplay dpy, EGLint name, const char** field_p)
   strcpy(field, value);
   *field_p = field;
   egl_strings.nfilled += valuesize;
+  GLS_RELEASE_RET();
   return 1;
 }
 
@@ -402,6 +405,7 @@ EGLAPI const char* EGLAPIENTRY eglQueryString(EGLDisplay dpy, EGLint name)
         exit(EXIT_FAILURE);
       }
       strcpy(eglquerystring_client_extensions, value);
+      GLS_RELEASE_RET();
     }
     client_egl_error = EGL_SUCCESS;
     return eglquerystring_client_extensions;
@@ -472,7 +476,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surfac
     
     GLS_WAIT_SET_RET_PTR(ret, eglQuerySurface);
     *value = ret->value;
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers( EGLDisplay dpy, EGLSurface draw )
@@ -485,7 +489,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers( EGLDisplay dpy, EGLSurface draw )
 
     wait_for_data("eglSwapBuffers");
     gls_ret_eglSwapBuffers_t *ret = (gls_ret_eglSwapBuffers_t *)glsc_global.pool.tmp_buf.buf;
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglTerminate( EGLDisplay dpy )
@@ -496,7 +500,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglTerminate( EGLDisplay dpy )
     GLS_SEND_PACKET(eglTerminate);
     
     GLS_WAIT_SET_RET_PTR(ret, eglTerminate);
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitGL( void )
@@ -525,7 +529,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglBindTexImage(EGLDisplay dpy, EGLSurface surface
     GLS_SEND_PACKET(eglBindTexImage);
     
     GLS_WAIT_SET_RET_PTR(ret, eglBindTexImage);
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglReleaseTexImage( EGLDisplay dpy, EGLSurface surface, EGLint buffer )
@@ -538,7 +542,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglReleaseTexImage( EGLDisplay dpy, EGLSurface sur
     GLS_SEND_PACKET(eglReleaseTexImage);
     
     GLS_WAIT_SET_RET_PTR(ret, eglReleaseTexImage);
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value)
@@ -552,7 +556,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surfac
     GLS_SEND_PACKET(eglSurfaceAttrib);
     
     GLS_WAIT_SET_RET_PTR(ret, eglSurfaceAttrib);
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapInterval(EGLDisplay dpy, EGLint interval)
@@ -564,7 +568,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSwapInterval(EGLDisplay dpy, EGLint interval)
   GLS_SEND_PACKET(eglSwapInterval);
 
   GLS_WAIT_SET_RET_PTR(ret, eglSwapInterval);
-  return ret->success;
+  GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 // EGL 1.2
@@ -577,7 +581,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
     GLS_SEND_PACKET(eglBindAPI);
     
     GLS_WAIT_SET_RET_PTR(ret, eglBindAPI);
-    return ret->success;
+    GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLenum EGLAPIENTRY eglQueryAPI (void)
@@ -600,7 +604,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglReleaseThread(void)
   GLS_SEND_PACKET(eglReleaseThread);
 
   GLS_WAIT_SET_RET_PTR(ret, eglReleaseThread);
-  return ret->success;
+  GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitClient (void)
@@ -619,5 +623,5 @@ EGLAPI EGLContext EGLAPIENTRY eglGetCurrentContext(void)
     GLS_SEND_PACKET(eglGetCurrentContext);
     
     GLS_WAIT_SET_RET_PTR(ret, eglGetCurrentContext);
-    return (EGLContext)ret->context;
+    GLS_RELEASE_RETURN_RET(EGLContext, ret, context);
 }

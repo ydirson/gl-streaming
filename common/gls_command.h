@@ -340,5 +340,9 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  union {
+    uint64_t zero; // must be on wire
+    char* dataptr; // server-side hack, allows to point to a separate malloc'd buffer
+  };
   char data[];
 } gls_cmd_send_data_t;
