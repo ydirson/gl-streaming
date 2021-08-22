@@ -98,8 +98,10 @@ void glse_glBlendFuncSeparate(gls_command_t* buf)
 
 void glse_glBufferData(gls_command_t* buf)
 {
-  GLSE_SET_COMMAND_PTR(c,glBufferData );
-  glBufferData(c->target, c->size, glsec_global.tmp_buf.buf, c->usage);
+  GLSE_SET_COMMAND_PTR(c, glBufferData);
+  glBufferData(c->target, c->size,
+               (c->has_data) ? glsec_global.tmp_buf.buf : NULL,
+               c->usage);
 }
 
 

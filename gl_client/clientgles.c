@@ -179,12 +179,13 @@ GL_APICALL void GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, G
 GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage)
 {
     gls_cmd_flush();
-    // printf("GL_DBG: glBufferData size=%i realsize=%i\n",size,sizeof(data));
-    gls_cmd_send_data((uint32_t)size, (void *)data);
+    if (data)
+      gls_cmd_send_data((uint32_t)size, (void *)data);
     GLS_SET_COMMAND_PTR(c, glBufferData);
     c->target = target;
     c->size = size;
     c->usage = usage;
+    c->has_data = (data != NULL);
     GLS_SEND_PACKET(glBufferData);
 }
 

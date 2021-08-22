@@ -115,6 +115,7 @@ typedef struct
   uint32_t target;
   int32_t size;
   uint32_t usage;
+  int has_data;
 } gls_glBufferData_t;
 
 
