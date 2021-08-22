@@ -152,7 +152,7 @@ int wait_for_data(char *str)
 }
 
 
-int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
+int gls_cmd_send_data(uint32_t size, const void *data)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   if (data == NULL) {
@@ -173,7 +173,7 @@ int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data)
     size1 = (size1 > glssize) ? glssize : size1;
     memcpy(c->data.data_char, data1, size1);
     c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
-    c->offset = offset + offset1;
+    c->offset = offset1;
     c->size = size1;
     if (send_packet() == FALSE) {
       fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);

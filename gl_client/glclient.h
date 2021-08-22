@@ -96,5 +96,5 @@ void gls_cleanup_library(void);
 
 extern gls_context_t glsc_global;
 int send_packet(void);
-int gls_cmd_send_data(uint32_t offset, uint32_t size, const void *data);
+int gls_cmd_send_data(uint32_t size, const void *data);
 int wait_for_data(char *str);

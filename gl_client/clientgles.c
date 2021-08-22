@@ -180,7 +180,7 @@ GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const 
 {
     gls_cmd_flush();
     // printf("GL_DBG: glBufferData size=%i realsize=%i\n",size,sizeof(data));
-    gls_cmd_send_data(0, (uint32_t)size, (void *)data);
+    gls_cmd_send_data((uint32_t)size, (void *)data);
     GLS_SET_COMMAND_PTR(c, glBufferData);
     c->target = target;
     c->size = size;
@@ -192,7 +192,7 @@ GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const 
 GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data)
 {
     gls_cmd_flush();
-    gls_cmd_send_data(0, (uint32_t)size, (void *)data);
+    gls_cmd_send_data((uint32_t)size, (void *)data);
 
     GLS_SET_COMMAND_PTR(c, glBufferSubData);
     c->target = target;
@@ -339,7 +339,7 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
   gls_cmd_flush();
   _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
   uint32_t size = n * sizeof(uint32_t);
-  gls_cmd_send_data(0, size, (void *)buffers);
+  gls_cmd_send_data(size, (void *)buffers);
 
   GLS_SET_COMMAND_PTR(c, glDeleteBuffers);
   c->n = n;
@@ -1170,7 +1170,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
 
   // printf(" ----- ENDED SHADER CONTENT -----\n\n");
   
-  gls_cmd_send_data(0, size_all, glsc_global.tmp_buf.buf);
+  gls_cmd_send_data(size_all, glsc_global.tmp_buf.buf);
   GLS_SET_COMMAND_PTR(c, glShaderSource);
   c->shader = shader;
   c->count = count;
@@ -1233,7 +1233,7 @@ GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint inte
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
-    gls_cmd_send_data(0, linebytes * height, pixels);
+    gls_cmd_send_data(linebytes * height, pixels);
   }
 
   GLS_SET_COMMAND_PTR(c, glTexImage2D);
@@ -1288,7 +1288,7 @@ GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint x
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
-    gls_cmd_send_data(0, linebytes * height, pixels);
+    gls_cmd_send_data(linebytes * height, pixels);
   }
 
   GLS_SET_COMMAND_PTR_BATCH(c, glTexSubImage2D);
@@ -1383,7 +1383,7 @@ static void _glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_a
     gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsc_global.tmp_buf.buf;
     memcpy(dat->arr, arr, num_float);
     // It's small so use GLS_DATA_SIZE
-    gls_cmd_send_data(0, GLS_DATA_SIZE, glsc_global.tmp_buf.buf);
+    gls_cmd_send_data(GLS_DATA_SIZE, glsc_global.tmp_buf.buf);
 
     GLS_SET_COMMAND_PTR(c, glVertexAttribFloat);
     c->index = index;
