@@ -155,10 +155,6 @@ int wait_for_data(char *str)
 int gls_cmd_send_data(uint32_t size, const void *data)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  if (data == NULL) {
-    return TRUE;
-  }
-
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
