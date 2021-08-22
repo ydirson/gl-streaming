@@ -131,6 +131,19 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  uint32_t target;
+} gls_glCheckFramebufferStatus_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t status;
+} gls_ret_glCheckFramebufferStatus_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   uint32_t mask;
 } gls_glClear_t;
 

@@ -205,9 +205,14 @@ GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLs
 
 GL_APICALL GLenum GL_APIENTRY glCheckFramebufferStatus (GLenum target)
 {
-  (void)target;
-  WARN_STUBBED();
-  return 0;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glCheckFramebufferStatus);
+  c->target = target;
+  GLS_SEND_PACKET(glCheckFramebufferStatus);
+
+  wait_for_data("timeout:glCheckFramebufferStatus");
+  gls_ret_glCheckFramebufferStatus_t *ret = (gls_ret_glCheckFramebufferStatus_t *)glsc_global.pool.tmp_buf.buf;
+  return ret->status;
 }
 
 

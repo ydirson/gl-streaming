@@ -112,6 +112,15 @@ void glse_glBufferSubData(gls_command_t* buf)
 }
 
 
+void glse_glCheckFramebufferStatus(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glCheckFramebufferStatus);
+  gls_ret_glCheckFramebufferStatus_t *ret = (gls_ret_glCheckFramebufferStatus_t *)glsec_global.pool.tmp_buf.buf;
+  ret->status = glCheckFramebufferStatus(c->target);
+  glse_cmd_send_data(sizeof(gls_ret_glCheckFramebufferStatus_t), glsec_global.pool.tmp_buf.buf);
+}
+
+
 void glse_glClear(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glClear);
@@ -792,7 +801,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_BATCH_CMD(glBlendFuncSeparate);
         CASE_EXEC_CMD(glBufferData);
         CASE_EXEC_CMD(glBufferSubData);
-        //CASE_EXEC_CMD(glCheckFramebufferStatus);
+        CASE_EXEC_CMD(glCheckFramebufferStatus);
         CASE_BATCH_CMD(glClear);
         CASE_BATCH_CMD(glClearColor);
         CASE_BATCH_CMD(glClearDepthf);
