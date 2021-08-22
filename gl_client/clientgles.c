@@ -339,6 +339,14 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 {
   gls_cmd_flush();
   _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
+
+  if (buffer_objs.vbo || buffer_objs.ibo)
+    for (int i=0; i<n; i++) {
+      // deleting a buffer causes bindings to be reset to 0, emulate that
+      if (buffers[i] == buffer_objs.vbo) buffer_objs.vbo = 0;
+      if (buffers[i] == buffer_objs.ibo) buffer_objs.ibo = 0;
+    }
+
   uint32_t size = n * sizeof(uint32_t);
   gls_cmd_send_data(size, (void *)buffers);
 
