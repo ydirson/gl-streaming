@@ -295,18 +295,20 @@ void glse_glFlush(gls_command_t* buf)
 void glse_glGenBuffers(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenBuffers);
-  glGenBuffers(c->n, (GLuint*)glsec_global.pool.tmp_buf.buf);
+  GLuint *ret = (GLuint*)glsec_global.pool.tmp_buf.buf;
+  glGenBuffers(c->n, ret);
   uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(size, (char *)glsec_global.pool.tmp_buf.buf);
+  glse_cmd_send_data(size, ret);
 }
 
 
 void glse_glGenTextures(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenTextures);
-  glGenTextures(c->n, (GLuint*)glsec_global.pool.tmp_buf.buf);
+  GLuint* ret = (GLuint*)glsec_global.pool.tmp_buf.buf;
+  glGenTextures(c->n, ret);
   uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(size, (char *)glsec_global.pool.tmp_buf.buf);
+  glse_cmd_send_data(size, ret);
 }
 
 
