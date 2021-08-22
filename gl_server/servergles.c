@@ -98,15 +98,15 @@ void glse_glBlendFuncSeparate(gls_command_t* buf)
 
 void glse_glBufferData(gls_command_t* buf)
 {
-  GLSE_SET_RAWDATA_PTR(dat, void);
   GLSE_SET_COMMAND_PTR(c, glBufferData);
-  glBufferData(c->target, c->size, (c->has_data) ? dat : NULL, c->usage);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_data);
+  glBufferData(c->target, c->size, dat, c->usage);
 }
 
 
 void glse_glBufferSubData(gls_command_t* buf)
 {
-  GLSE_SET_RAWDATA_PTR(dat, void);
+  GLSE_SET_RAWDATA_PTR(dat, void, 1);
   GLSE_SET_COMMAND_PTR(c, glBufferSubData);
   glBufferSubData(c->target, c->offset, c->size, dat);
 }
@@ -185,7 +185,7 @@ void glse_glCullFace(gls_command_t* buf)
 
 void glse_glDeleteBuffers(gls_command_t* buf)
 {
-  GLSE_SET_RAWDATA_PTR(dat, GLuint);
+  GLSE_SET_RAWDATA_PTR(dat, GLuint, 1);
   GLSE_SET_COMMAND_PTR(c, glDeleteBuffers);
   glDeleteBuffers (c->n, dat);
 }
@@ -544,7 +544,7 @@ void glse_glReadPixels(gls_command_t* buf)
 void glse_glShaderSource(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glShaderSource);
-  GLSE_SET_DATA_PTR(dat, glShaderSource);
+  GLSE_SET_DATA_PTR(dat, glShaderSource, 1);
   int i;
   const GLchar** strings = alloca(c->count * sizeof(GLchar*));
   if (!strings) {
@@ -603,18 +603,18 @@ void glse_glTexParameteri(gls_command_t* buf)
 void glse_glTexImage2D(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glTexImage2D);
-  GLSE_SET_RAWDATA_PTR(dat, void);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_pixels);
   glTexImage2D(c->target, c->level, c->internalformat, c->width, c->height, c->border,
-               c->format, c->type, c->has_pixels ? dat : NULL);
+               c->format, c->type, dat);
 }
 
 
 void glse_glTexSubImage2D(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glTexSubImage2D);
-  GLSE_SET_RAWDATA_PTR(dat, void);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_pixels);
   glTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->width, c->height,
-                  c->format, c->type, c->has_pixels ? dat : NULL);
+                  c->format, c->type, dat);
 }
 
 
@@ -676,7 +676,7 @@ void glse_glUseProgram(gls_command_t* buf)
 void glse_glVertexAttribFloat(gls_command_t* buf)
 {
     GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
-    GLSE_SET_DATA_PTR(dat, glVertexAttribFloat);
+    GLSE_SET_DATA_PTR(dat, glVertexAttribFloat, 1);
 
     if (c->call_arr) {
         switch (c->num_float) {

@@ -43,10 +43,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)buf;
 
-#define GLSE_SET_RAWDATA_PTR(PTR, TYPE)                 \
-  TYPE* PTR = (TYPE*)glsec_global.pool.tmp_buf.buf;
-#define GLSE_SET_DATA_PTR(PTR, FUNCNAME)                \
-  GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t)
+#define GLSE_SET_RAWDATA_PTR(PTR, TYPE, WAITDATA)                       \
+  TYPE* PTR;                                                            \
+  if (WAITDATA) {                                                       \
+    if (!glsec_global.pool.has_data) {                                  \
+      fprintf(stderr, "GLS WARNING: skipping %s call without data\n", __FUNCTION__); \
+      return;                                                           \
+    }                                                                   \
+    PTR = (TYPE*)glsec_global.pool.tmp_buf.buf;                         \
+  } else {                                                              \
+    PTR = NULL;                                                         \
+  }                                                                     \
+  glsec_global.pool.has_data = 0;                                       \
+//
+#define GLSE_SET_DATA_PTR(PTR, FUNCNAME, WAITDATA)              \
+  GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t, WAITDATA)
 
 typedef struct
 {
