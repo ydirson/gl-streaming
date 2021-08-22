@@ -116,9 +116,9 @@ int send_packet()
 }
 
 
-static int gls_cmd_recv_data()
+static int gls_cmd_recv_data(gls_command_t* buf)
 {
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.cmd_data;
+  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)buf;
   if (glsc_global.tmp_buf.size == 0)
     return c->isLast;
   if (c->offset + c->size > glsc_global.tmp_buf.size) {
@@ -157,10 +157,9 @@ int wait_for_data(char *str)
     }
 
     gls_command_t *c = (gls_command_t *)popptr;
-    glsc_global.cmd_data = popptr;
     switch (c->cmd) {
       case GLSC_SEND_DATA:
-        if (gls_cmd_recv_data())
+        if (gls_cmd_recv_data(c))
           quit = TRUE;
         break;
       default:

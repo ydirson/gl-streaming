@@ -43,7 +43,6 @@ typedef struct
     struct sockaddr addr;
     socklen_t addrlen;
   } server;
-  void *cmd_data;
   uint32_t screen_width;
   uint32_t screen_height;
   int32_t pack_alignment;
