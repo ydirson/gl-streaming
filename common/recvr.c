@@ -100,11 +100,26 @@ static void socket_to_fifo_loop(recvr_context_t* rc)
     if (c->cmd_size <= rc->fifo.fifo_packet_size) {
       dest = pushptr;
     } else {
-      // currently should not happen, data is pieced under 2KB
-      LOGW("GLS ERROR: receiver socket recv too large for fifo: %u > %u \n",
+      LOGW("GLS ERROR: receiver socket recv too large for fifo: %u > %u, discarding\n",
            c->cmd_size, rc->fifo.fifo_packet_size);
-      close(rc->sock_fd);
-      break;
+      dest = pushptr;
+      // read everything into this buffer, used as a scratch space for discarding data
+      // FIXME: we'll want to put it in a larger buffer instead
+      do {
+        recv_size = recv(rc->sock_fd, dest, rc->fifo.fifo_packet_size, 0);
+        if (recv_size < 0) {
+          LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+          close(rc->sock_fd);
+          break;
+        } else if (recv_size == 0) {
+          LOGI("GLS INFO: connection closed\n\n");
+          close(rc->sock_fd);
+          break;
+        }
+
+        remaining -= recv_size;
+      } while(remaining);
+      continue;
     }
 
     do {
