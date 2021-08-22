@@ -158,31 +158,21 @@ int gls_cmd_send_data(uint32_t size, const void *data)
   if (data == NULL) {
     return TRUE;
   }
-    
+
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
+  c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
 
-  int success = TRUE;
-  uint32_t glssize = GLS_DATA_SIZE * 4;
-  char *data1 = (char *)data;
-  uint32_t offset1;
-  for (offset1 = 0; offset1 < size; offset1 += glssize)
-  {
-    unsigned int size1 = size - offset1;
-    c->isLast = (size1 > glssize) ? FALSE : TRUE;
-    size1 = (size1 > glssize) ? glssize : size1;
-    memcpy(c->data.data_char, data1, size1);
-    c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
-    c->offset = offset1;
-    c->size = size1;
-    if (send_packet() == FALSE) {
-      fprintf(stderr, "GLS ERROR: %s failed.\n", __FUNCTION__);
-      success = FALSE;
-      break;
-    }
-    data1 += glssize;
+  struct iovec iov[2] = { { c, sizeof(gls_cmd_send_data_t) },
+                          { (void*)data, size } };
+  struct msghdr msg = { .msg_iov = iov, .msg_iovlen = 2 };
+
+  if (sendmsg(glsc_global.rc.sock_fd, &msg, 0) < 0) {
+    fprintf(stderr, "GLS ERROR: send_data sendmsg(%u) failure: %s\n", c->cmd_size, strerror(errno));
+    client_egl_error = EGL_BAD_ACCESS; // dubious but eh
+    return FALSE;
   }
-  return success;
+  return TRUE;
 }
 
 

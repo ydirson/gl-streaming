@@ -340,19 +340,8 @@ typedef struct
 } gls_FLUSH_t;
 
 
-typedef union
-{
-  float data_float[GLS_DATA_SIZE];
-  uint32_t data_uint[GLS_DATA_SIZE];
-  int32_t data_int[GLS_DATA_SIZE];
-  char data_char[GLS_DATA_SIZE * 36]; // * 4
-} gls_data_t;
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t offset;
-  uint32_t size;
-  int32_t isLast;
-  gls_data_t data;
+  char data[];
 } gls_cmd_send_data_t;

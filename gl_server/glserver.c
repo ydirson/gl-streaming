@@ -51,16 +51,6 @@ void pop_batch_command(size_t size)
 }
 
 
-static int send_packet(size_t size)
-{
-  if (send(glsec_global.rc->sock_fd, glsec_global.out_buf.buf, size, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_packet failure: %s\n", strerror(errno));
-    return FALSE;
-  }
-  return TRUE;
-}
-
-
 int glse_cmd_send_data(uint32_t size, void *data)
 {
 #ifdef GL_DEBUG
@@ -68,28 +58,17 @@ int glse_cmd_send_data(uint32_t size, void *data)
 #endif
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
+  c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
 
-  int success = TRUE;
-  uint32_t glssize = GLS_DATA_SIZE * 4;
-  char *data1 = (char *)data;
-  
-  uint32_t offset1;
-  for (offset1 = 0; offset1 < size; offset1 += glssize)
-  {
-    unsigned int size1 = size - offset1;
-    c->isLast = (size1 > glssize) ? FALSE : TRUE;
-    size1 = (size1 > glssize) ? glssize : size1;
-    memcpy(c->data.data_char, data1, size1);
-    c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
-    c->offset = offset1;
-    c->size = size1;
-    if (send_packet(c->cmd_size) == FALSE)
-    {
-      success = FALSE;
-    }
-    data1 += glssize;
+  struct iovec iov[2] = { { c, sizeof(gls_cmd_send_data_t) },
+                          { (void*)data, size } };
+  struct msghdr msg = { .msg_iov = iov, .msg_iovlen = 2 };
+
+  if (sendmsg(glsec_global.rc->sock_fd, &msg, 0) < 0) {
+    fprintf(stderr, "GLS ERROR: send_data sendmsg(%u) failure: %s\n", c->cmd_size, strerror(errno));
+    return FALSE;
   }
-  return success;
+  return TRUE;
 }
 
 
