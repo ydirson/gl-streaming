@@ -86,8 +86,6 @@ static int gls_init()
   }
   glsc_global.out_buf.size = GLS_OUT_BUFFER_SIZE;
   glsc_global.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
-  glsc_global.out_buf.ptr = 0;
-  glsc_global.tmp_buf.ptr = 0;
   
   return TRUE;
 }

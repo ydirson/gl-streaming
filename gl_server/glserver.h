@@ -52,7 +52,6 @@ typedef struct
 } glse_context_t;
 
 extern glse_context_t glsec_global;
-void pop_batch_command(size_t size);
 void glserver_handle_packets(recvr_context_t* rc);
 
 int glse_cmd_send_data(uint32_t size, void *data);

@@ -745,8 +745,8 @@ void glse_()
 */
 
 
-#define CASE_FLUSH_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); pop_batch_command(sizeof(gls_##FUNCNAME##_t)); break
-#define CASE_FLUSH_CMD_SIZE(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); pop_batch_command(((gls_##FUNCNAME##_t *)c)->cmd_size); break
+#define CASE_FLUSH_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
+#define CASE_FLUSH_CMD_SIZE(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
 int gles_flushCommand(gls_command_t *c) {
 #ifdef DEBUG
     LOGD("Flushing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));

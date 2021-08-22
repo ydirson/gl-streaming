@@ -7,13 +7,11 @@
 #include <string.h>
 
 #define GLS_TMP_BUFFER_SIZE 2097152
-#define GLS_ALIGNMENT_BITS 3
 
 typedef struct
 {
   char *buf;
   size_t size;
-  uint32_t ptr; // for accumulation, only for batching into tmp_buf
 } gls_buffer_t;
 
 

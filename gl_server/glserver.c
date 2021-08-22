@@ -45,12 +45,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 glse_context_t glsec_global;
 
 
-void pop_batch_command(size_t size)
-{
-  glsec_global.tmp_buf.ptr = next_ptr(glsec_global.tmp_buf.ptr, size, GLS_ALIGNMENT_BITS);
-}
-
-
 int glse_cmd_send_data(uint32_t size, void *data)
 {
 #ifdef GL_DEBUG
