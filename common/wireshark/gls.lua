@@ -35,23 +35,15 @@ local vs_commands = {
 
 -- SEND_DATA
 local p_gls_senddata = Proto("gls.data_chunk", "GL-Streaming send_data buffer chunk")
-local f_data_offset = ProtoField.uint32("gls.data_chunk.offset", "Offset of chunk in buffer", base.DEC)
-local f_data_size = ProtoField.uint32("gls.data_chunk.size", "Size of chunk", base.DEC)
-local f_is_last = ProtoField.uint32("gls.data_chunk.is_last", "Is last chunk", base.DEC)
 local f_data_chunk = ProtoField.bytes("gls.data_chunk.data", "Data chunk", base.NONE)
-p_gls_senddata.fields = { f_data_offset, f_data_size, f_is_last, f_data_chunk }
+p_gls_senddata.fields = { f_data_chunk }
 
 function p_gls_senddata.dissector(buf, pkt, tree)
    length = buf:len()
    if length == 0 then return end
 
-   local datasize = buf(4,4):le_uint()
-
-   local subtree = tree:add(p_gls_senddata, buf(0, 12 + datasize))
-   subtree:add_le(f_data_offset, buf(0,4))
-   subtree:add_le(f_data_size, buf(4,4))
-   subtree:add_le(f_is_last, buf(8,4))
-   subtree:add(f_data_chunk, buf(12,datasize))
+   local subtree = tree:add(p_gls_senddata, buf())
+   subtree:add(f_data_chunk, buf(0))
 end
 
 -- GLS
