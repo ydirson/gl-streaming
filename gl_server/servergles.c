@@ -159,7 +159,7 @@ void glse_glCreateProgram(gls_command_t* buf)
   gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glCreateProgram;
   ret->program = program;
-  glse_cmd_send_data(0, sizeof(gls_ret_glCreateProgram_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glCreateProgram_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -170,7 +170,7 @@ void glse_glCreateShader(gls_command_t* buf)
   gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glCreateShader;
   ret->obj = obj;
-  glse_cmd_send_data(0, sizeof(gls_ret_glCreateShader_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glCreateShader_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -279,7 +279,7 @@ void glse_glFinish(gls_command_t* buf)
   gls_command_t *ret = (gls_command_t *)glsec_global.tmp_buf.buf;
   ret->cmd = c->cmd;
   size_t size = sizeof(gls_command_t);
-  glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, glsec_global.tmp_buf.buf);
 }
 
 
@@ -295,7 +295,7 @@ void glse_glGenBuffers(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glGenBuffers);
   glGenBuffers(c->n, (GLuint*)glsec_global.tmp_buf.buf);
   uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(0, size, (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -304,7 +304,7 @@ void glse_glGenTextures(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glGenTextures);
   glGenTextures(c->n, (GLuint*)glsec_global.tmp_buf.buf);
   uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(0, size, (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -314,7 +314,7 @@ void glse_glGetActiveAttrib(gls_command_t* buf)
   gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsec_global.tmp_buf.buf;
   glGetActiveAttrib (c->program, c->index, c->bufsize, &ret->length, &ret->size, &ret->type, (GLchar*)ret->name);
   ret->cmd = GLSC_glGetActiveAttrib;
-  glse_cmd_send_data(0, sizeof(gls_ret_glGetActiveAttrib_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetActiveAttrib_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -324,7 +324,7 @@ void glse_glGetActiveUniform(gls_command_t* buf)
   gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsec_global.tmp_buf.buf;
   glGetActiveUniform (c->program, c->index, c->bufsize, &ret->length, &ret->size, &ret->type, (GLchar*)ret->name);
   ret->cmd = GLSC_glGetActiveUniform;
-  glse_cmd_send_data(0, sizeof(gls_ret_glGetActiveUniform_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetActiveUniform_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -335,7 +335,7 @@ void glse_glGetAttribLocation(gls_command_t* buf)
   gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glGetAttribLocation;
   ret->index = index;
-  glse_cmd_send_data(0, sizeof(gls_ret_glGetAttribLocation_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetAttribLocation_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -346,7 +346,7 @@ void glse_glGetError(gls_command_t* buf)
   gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glGetError;
   ret->error = error;
-  glse_cmd_send_data(0, sizeof(gls_ret_glGetError_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetError_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -356,7 +356,7 @@ void glse_glGetFloatv(gls_command_t* buf)
   gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsec_global.tmp_buf.buf;
   glGetFloatv(c->name, &ret->params);
   ret->cmd = GLSC_glGetFloatv;
-  glse_cmd_send_data(0,sizeof(gls_ret_glGetFloatv_t),(char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetFloatv_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -366,7 +366,7 @@ void glse_glGetIntegerv(gls_command_t* buf)
   gls_ret_glGetIntegerv_t *ret = (gls_ret_glGetIntegerv_t *)glsec_global.tmp_buf.buf;
   glGetIntegerv(c->name, &ret->params);
   ret->cmd = GLSC_glGetIntegerv;
-  glse_cmd_send_data(0,sizeof(gls_ret_glGetIntegerv_t),(char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetIntegerv_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -382,7 +382,7 @@ void glse_glGetProgramInfoLog(gls_command_t* buf)
   glGetProgramInfoLog(c->program, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
   ret->cmd = GLSC_glGetProgramInfoLog;
   uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
-  glse_cmd_send_data(0, size, (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -395,7 +395,7 @@ void glse_glGetProgramiv(gls_command_t* buf)
     // LOGD("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", c->program, c->pname, &ret->params, ret->params);
     
     ret->cmd = GLSC_glGetProgramiv;
-    glse_cmd_send_data(0,sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
+    glse_cmd_send_data(sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -411,7 +411,7 @@ void glse_glGetShaderInfoLog(gls_command_t* buf)
   glGetShaderInfoLog(c->shader, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
   ret->cmd = GLSC_glGetShaderInfoLog;
   uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
-  glse_cmd_send_data(0, size, (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -421,7 +421,7 @@ void glse_glGetShaderiv(gls_command_t* buf)
   gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsec_global.tmp_buf.buf;
   glGetShaderiv(c->shader, c->pname, &ret->params);
   ret->cmd = GLSC_glGetShaderiv;
-  glse_cmd_send_data(0,sizeof(gls_ret_glGetShaderiv_t),(char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetShaderiv_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -456,7 +456,7 @@ void glse_glGetString(gls_command_t* buf)
   ret->cmd = GLSC_glGetString;
   // LOGD("Client asking for %i, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  glse_cmd_send_data(0,sizeof(gls_ret_glGetString_t),(char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetString_t),(char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -467,7 +467,7 @@ void glse_glGetUniformLocation(gls_command_t* buf)
   gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glGetUniformLocation;
   ret->location = location;
-  glse_cmd_send_data(0, sizeof(gls_ret_glGetUniformLocation_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glGetUniformLocation_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -483,7 +483,7 @@ void glse_glIsBuffer(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glIsBuffer);
   gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsec_global.tmp_buf.buf;
   ret->isbuffer = glIsBuffer(c->buffer);
-  glse_cmd_send_data(0, sizeof(gls_ret_glIsBuffer_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glIsBuffer_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -492,7 +492,7 @@ void glse_glIsEnabled(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glIsEnabled);
   gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsec_global.tmp_buf.buf;
   ret->isenabled = glIsEnabled(c->cap);
-  glse_cmd_send_data(0, sizeof(gls_ret_glIsEnabled_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glIsEnabled_t), (char *)glsec_global.tmp_buf.buf);
 }
 
 
@@ -530,7 +530,7 @@ void glse_glReadPixels(gls_command_t* buf)
   gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsec_global.tmp_buf.buf;
   glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
   ret->cmd = GLSC_glReadPixels;
-  glse_cmd_send_data(0, sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.tmp_buf.buf);
   
   // gls_cmd_send_data(0, (uint32_t) (c->width * c->height) /* correct??? */ , (void *)ret->pixels);
 }
@@ -724,7 +724,7 @@ void glse_glUnmapBufferOES(gls_command_t* buf)
   gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_glUnmapBufferOES;
   ret->success = success;
-  glse_cmd_send_data(0, sizeof(gls_ret_glUnmapBufferOES_t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret_glUnmapBufferOES_t), (char *)glsec_global.tmp_buf.buf);
 }
 #endif
 
@@ -739,7 +739,7 @@ void glse_()
   gls_ret__t *ret = (gls_ret__t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_;
   ret-> = ;
-  glse_cmd_send_data(0, sizeof(gls_ret__t), (char *)glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(sizeof(gls_ret__t), (char *)glsec_global.tmp_buf.buf);
 */
 
 

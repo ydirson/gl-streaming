@@ -61,7 +61,7 @@ static int send_packet(size_t size)
 }
 
 
-int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
+int glse_cmd_send_data(uint32_t size, void *data)
 {
 #ifdef GL_DEBUG
   fprintf(stderr, "GLS: glse_cmd_send_data sending data back\n");
@@ -81,7 +81,7 @@ int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
     size1 = (size1 > glssize) ? glssize : size1;
     memcpy(c->data.data_char, data1, size1);
     c->cmd_size = (size_t)(&c->data.data_char[size1] - (char *)c);
-    c->offset = offset + offset1;
+    c->offset = offset1;
     c->size = size1;
     if (send_packet(c->cmd_size) == FALSE)
     {
@@ -105,7 +105,7 @@ void glse_cmd_HANDSHAKE(gls_command_t* buf)
   ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;
   size_t size = sizeof(gls_ret_HANDSHAKE_t);
-  glse_cmd_send_data(0, size, glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, glsec_global.tmp_buf.buf);
 }
 
 
