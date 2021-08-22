@@ -136,7 +136,7 @@ int wait_for_data(char *str)
     gls_command_t *c = (gls_command_t *)popptr;
     switch (c->cmd) {
       case GLSC_SEND_DATA:
-        if (fifobuf_data_to_bufpool(&glsc_global.pool.tmp_buf, &glsc_global.rc.fifo, c))
+        if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
           quit = TRUE;
         break;
       default:

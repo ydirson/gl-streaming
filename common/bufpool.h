@@ -17,18 +17,18 @@ typedef struct {
   gls_buffer_t out_buf;
 } gls_bufpool_t;
 
-// Copy a send_data chunk from fifo packet buffer to `dst` buffer
+// Copy a send_data chunk from fifo packet buffer to `pool`'s tmp_buf
 // (soon to buffer pool)
-static inline int fifobuf_data_to_bufpool(gls_buffer_t* dst, fifo_t* fifo, gls_command_t* buf)
+static inline int fifobuf_data_to_bufpool(gls_bufpool_t* pool, fifo_t* fifo, gls_command_t* buf)
 {
   (void)fifo;
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)buf;
-  assert (dst->size);
-  if (c->cmd_size > dst->size) {
+  assert (pool->tmp_buf.size);
+  if (c->cmd_size > pool->tmp_buf.size) {
     fprintf(stderr, "GLS ERROR: data too large for buffer (%u > %zu), dropping\n",
-            c->cmd_size, dst->size);
+            c->cmd_size, pool->tmp_buf.size);
     return 0;
   }
-  memcpy(dst->buf, c->data, c->cmd_size - sizeof(gls_cmd_send_data_t));
+  memcpy(pool->tmp_buf.buf, c->data, c->cmd_size - sizeof(gls_cmd_send_data_t));
   return 1;
 }
