@@ -40,16 +40,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLSE_OUT_BUFFER_SIZE 4096 // 2048
 
 #define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) \
-  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsec_global.cmd_data;
+  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)buf;
 
-// FIXME sta and cmd_data cold move out
 typedef struct
 {
   gls_buffer_t tmp_buf;
   gls_buffer_t out_buf;
   recvr_context_t* rc;
   graphics_context_t *gc;
-  void *cmd_data;
 } glse_context_t;
 
 extern glse_context_t glsec_global;

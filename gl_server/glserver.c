@@ -93,9 +93,9 @@ int glse_cmd_send_data(uint32_t offset, uint32_t size, void *data)
 }
 
 
-void glse_cmd_HANDSHAKE()
+void glse_cmd_HANDSHAKE(gls_command_t* buf)
 {
-  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)glsec_global.cmd_data;
+  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)buf;
   graphics_context_t *gc = glsec_global.gc;
 
   gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsec_global.tmp_buf.buf;
@@ -109,9 +109,9 @@ void glse_cmd_HANDSHAKE()
 }
 
 
-static int glse_cmd_recv_data()
+static int glse_cmd_recv_data(gls_command_t* buf)
 {
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.cmd_data;
+  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)buf;
   if (glsec_global.tmp_buf.size == 0)
     return FALSE;
   if (c->offset + c->size > glsec_global.tmp_buf.size) {
@@ -151,7 +151,6 @@ void glserver_handle_packets(recvr_context_t* rc)
     }
 
     gls_command_t *c = (gls_command_t *)popptr;
-    glsec_global.cmd_data = c;
 #ifdef GL_DEBUG
     fprintf(stderr, "GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
             c->cmd, GLSC_tostring(c->cmd));
@@ -159,13 +158,13 @@ void glserver_handle_packets(recvr_context_t* rc)
 
     switch (c->cmd) {
     case GLSC_SEND_DATA:
-      glse_cmd_recv_data();
+      glse_cmd_recv_data(c);
       break;
     case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
       fprintf(stderr, "GLS Exec: Handshake...\n");
 #endif
-      glse_cmd_HANDSHAKE();
+      glse_cmd_HANDSHAKE(c);
       break;
           
     default: {

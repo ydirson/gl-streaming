@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // EGL 1.0
 
-void glse_eglChooseConfig()
+void glse_eglChooseConfig(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
   EGLint *attrib_list = NULL;
@@ -69,7 +69,7 @@ void glse_eglChooseConfig()
   glse_cmd_send_data(0,sizeof(gls_ret_eglChooseConfig_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglCreateContext()
+void glse_eglCreateContext(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreateContext);
   EGLint *attrib_list = NULL;
@@ -86,7 +86,7 @@ void glse_eglCreateContext()
   glse_cmd_send_data(0, sizeof(gls_ret_eglCreateContext_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglCreatePbufferSurface()
+void glse_eglCreatePbufferSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
   EGLint *attrib_list = NULL;
@@ -102,7 +102,7 @@ void glse_eglCreatePbufferSurface()
 }
 
 #if 0
-void glse_eglCreatePixmapSurface()
+void glse_eglCreatePixmapSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
   EGLint *attrib_list = NULL;
@@ -120,7 +120,7 @@ void glse_eglCreatePixmapSurface()
 }
 #endif
 
-void glse_eglCreateWindowSurface()
+void glse_eglCreateWindowSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
   EGLint *attrib_list = NULL;
@@ -138,7 +138,7 @@ void glse_eglCreateWindowSurface()
   glse_cmd_send_data(0, sizeof(gls_ret_eglCreateWindowSurface_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglDestroyContext()
+void glse_eglDestroyContext(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglDestroyContext);
   EGLBoolean success = eglDestroyContext((EGLDisplay)c->dpy, (EGLContext)c->ctx);
@@ -149,7 +149,7 @@ void glse_eglDestroyContext()
   glse_cmd_send_data(0, sizeof(gls_ret_eglDestroyContext_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglDestroySurface()
+void glse_eglDestroySurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglDestroySurface);
   EGLBoolean success = eglDestroySurface((EGLDisplay)c->dpy, (EGLSurface)c->surface);
@@ -160,7 +160,7 @@ void glse_eglDestroySurface()
   glse_cmd_send_data(0,sizeof(gls_ret_eglDestroySurface_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetConfigAttrib()
+void glse_eglGetConfigAttrib(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetConfigAttrib);
   gls_ret_eglGetConfigAttrib_t *ret = (gls_ret_eglGetConfigAttrib_t *)glsec_global.tmp_buf.buf;
@@ -173,7 +173,7 @@ void glse_eglGetConfigAttrib()
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetConfigAttrib_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetConfigs()
+void glse_eglGetConfigs(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetConfigs);
   gls_ret_eglGetConfigs_t *ret = (gls_ret_eglGetConfigs_t *)glsec_global.tmp_buf.buf;
@@ -185,8 +185,9 @@ void glse_eglGetConfigs()
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetConfigs_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetCurrentDisplay()
+void glse_eglGetCurrentDisplay(gls_command_t* buf)
 {
+  (void)buf;
   EGLDisplay display = eglGetCurrentDisplay();
   
   gls_ret_eglGetCurrentDisplay_t *ret = (gls_ret_eglGetCurrentDisplay_t *)glsec_global.tmp_buf.buf;
@@ -195,7 +196,7 @@ void glse_eglGetCurrentDisplay()
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentDisplay_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetCurrentSurface()
+void glse_eglGetCurrentSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetCurrentSurface);
   EGLSurface surface = eglGetCurrentSurface(c->readdraw);
@@ -206,7 +207,7 @@ void glse_eglGetCurrentSurface()
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetCurrentSurface_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetDisplay()
+void glse_eglGetDisplay(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetDisplay);
   EGLDisplay display;
@@ -231,8 +232,9 @@ void glse_eglGetDisplay()
   glse_cmd_send_data(0,sizeof(gls_ret_eglGetDisplay_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglGetError()
+void glse_eglGetError(gls_command_t* buf)
 {
+  (void)buf;
   GLuint error = eglGetError();
   // Should check gl error inside eglGetError() ???
   
@@ -242,8 +244,9 @@ void glse_eglGetError()
   glse_cmd_send_data(0, sizeof(gls_ret_eglGetError_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglInitialize()
+void glse_eglInitialize(gls_command_t* buf)
 {
+  (void)buf;
   EGLBoolean success = EGL_TRUE; // Current stub instead of real init
   // GLSE_SET_COMMAND_PTR(c, eglInitialize);
   // eglInitialize((EGLDisplay)c->dpy, c->major, c->minor);
@@ -255,7 +258,7 @@ void glse_eglInitialize()
   glse_cmd_send_data(0,sizeof(gls_ret_eglInitialize_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglMakeCurrent()
+void glse_eglMakeCurrent(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglMakeCurrent);
   EGLBoolean success = eglMakeCurrent((EGLDisplay)c->dpy, (EGLSurface)c->draw,
@@ -267,7 +270,7 @@ void glse_eglMakeCurrent()
   glse_cmd_send_data(0, sizeof(gls_ret_eglMakeCurrent_t), (char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglQueryContext()
+void glse_eglQueryContext(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglQueryContext);
   gls_ret_eglQueryContext_t *ret = (gls_ret_eglQueryContext_t *)glsec_global.tmp_buf.buf;
@@ -280,7 +283,7 @@ void glse_eglQueryContext()
   glse_cmd_send_data(0,sizeof(gls_ret_eglQueryContext_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglQueryString()
+void glse_eglQueryString(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglQueryString);
   gls_ret_eglQueryString_t *ret = (gls_ret_eglQueryString_t *)glsec_global.tmp_buf.buf;
@@ -325,7 +328,7 @@ void glse_eglQueryString()
   glse_cmd_send_data(0,sizeof(gls_ret_eglQueryString_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglQuerySurface()
+void glse_eglQuerySurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglQuerySurface);
   gls_ret_eglQuerySurface_t *ret = (gls_ret_eglQuerySurface_t *)glsec_global.tmp_buf.buf;
@@ -338,7 +341,7 @@ void glse_eglQuerySurface()
   glse_cmd_send_data(0,sizeof(gls_ret_eglQuerySurface_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglSwapBuffers()
+void glse_eglSwapBuffers(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglSwapBuffers);
   gls_ret_eglSwapBuffers_t *ret = (gls_ret_eglSwapBuffers_t *)glsec_global.tmp_buf.buf;
@@ -347,8 +350,9 @@ void glse_eglSwapBuffers()
   glse_cmd_send_data(0,sizeof(gls_ret_eglSwapBuffers_t),(char *)glsec_global.tmp_buf.buf);
 }
 
-void glse_eglTerminate()
+void glse_eglTerminate(gls_command_t* buf)
 {
+  (void)buf;
   gls_ret_eglTerminate_t *ret = (gls_ret_eglTerminate_t *)glsec_global.tmp_buf.buf;
   ret->cmd = GLSC_eglTerminate;
   ret->success = EGL_TRUE; // Current stub instead of real init
@@ -362,7 +366,7 @@ void glse_eglTerminate()
 
 // EGL 1.2
 
-void glse_eglBindAPI()
+void glse_eglBindAPI(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglBindAPI);
   EGLBoolean success = eglBindAPI(c->api);
@@ -375,8 +379,9 @@ void glse_eglBindAPI()
 
 // EGL 1.4
 
-void glse_eglGetCurrentContext()
+void glse_eglGetCurrentContext(gls_command_t* buf)
 {
+  (void)buf;
   EGLContext context = eglGetCurrentContext();
   
   gls_ret_eglGetCurrentContext_t *ret = (gls_ret_eglGetCurrentContext_t *)glsec_global.tmp_buf.buf;
@@ -387,7 +392,8 @@ void glse_eglGetCurrentContext()
 
 //
 
-#define CASE_EXEC_CMD(FUNCNAME) case GLSC_##FUNCNAME: glse_##FUNCNAME(); break
+#define CASE_EXEC_CMD(FUNCNAME) \
+  case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break
 
 int egl_executeCommand(gls_command_t *c) {
 #ifdef DEBUG
