@@ -37,8 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef struct
 {
-  gls_buffer_t tmp_buf;
-  gls_buffer_t out_buf;
+  gls_bufpool_t pool;
   recvr_context_t rc;
   struct {
     struct sockaddr addr;
@@ -56,11 +55,11 @@ typedef struct
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
 #define GLS_TIMEOUT_SEC 3.0f
 
-// gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.out_buf.buf;
+// gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.pool.out_buf.buf;
 // c->cmd = GLSC_glFunctionName;
 // c->cmd = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
-  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.out_buf.buf; \
+  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.pool.out_buf.buf; \
   PTR->cmd = GLSC_##FUNCNAME;                                           \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \

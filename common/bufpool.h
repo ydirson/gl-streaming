@@ -12,6 +12,10 @@ typedef struct
   size_t size;
 } gls_buffer_t;
 
+typedef struct {
+  gls_buffer_t tmp_buf;
+  gls_buffer_t out_buf;
+} gls_bufpool_t;
 
 // Copy a send_data chunk from fifo packet buffer to `dst` buffer
 // (soon to buffer pool)

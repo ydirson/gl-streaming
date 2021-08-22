@@ -73,19 +73,19 @@ static int gls_init()
   glsc_global.unpack_alignment = 4;
   glsc_global.screen_width = 1280;
   glsc_global.screen_height = 720;
-  glsc_global.out_buf.buf = (char *)malloc(GLS_OUT_BUFFER_SIZE);
-  if (glsc_global.out_buf.buf == NULL)
+  glsc_global.pool.out_buf.buf = (char *)malloc(GLS_OUT_BUFFER_SIZE);
+  if (glsc_global.pool.out_buf.buf == NULL)
   {
     return FALSE;
   }
-  glsc_global.tmp_buf.buf = (char *)malloc(GLS_TMP_BUFFER_SIZE);
-  if (glsc_global.tmp_buf.buf == NULL)
+  glsc_global.pool.tmp_buf.buf = (char *)malloc(GLS_TMP_BUFFER_SIZE);
+  if (glsc_global.pool.tmp_buf.buf == NULL)
   {
-    free(glsc_global.out_buf.buf);
+    free(glsc_global.pool.out_buf.buf);
     return FALSE;
   }
-  glsc_global.out_buf.size = GLS_OUT_BUFFER_SIZE;
-  glsc_global.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
+  glsc_global.pool.out_buf.size = GLS_OUT_BUFFER_SIZE;
+  glsc_global.pool.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
   
   return TRUE;
 }
@@ -93,8 +93,8 @@ static int gls_init()
 
 static int gls_free()
 {
-    free(glsc_global.out_buf.buf);
-    free(glsc_global.tmp_buf.buf);
+    free(glsc_global.pool.out_buf.buf);
+    free(glsc_global.pool.tmp_buf.buf);
   
     return TRUE;
 }
@@ -103,9 +103,9 @@ static int gls_free()
 int send_packet()
 {
   client_egl_error = EGL_SUCCESS;
-  gls_command_t* c = (gls_command_t*)glsc_global.out_buf.buf;
+  gls_command_t* c = (gls_command_t*)glsc_global.pool.out_buf.buf;
 
-  if (send(glsc_global.rc.sock_fd, glsc_global.out_buf.buf, c->cmd_size, 0) < 0) {
+  if (send(glsc_global.rc.sock_fd, glsc_global.pool.out_buf.buf, c->cmd_size, 0) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet(%u) failure: %s\n", c->cmd_size, strerror(errno));
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
@@ -136,7 +136,7 @@ int wait_for_data(char *str)
     gls_command_t *c = (gls_command_t *)popptr;
     switch (c->cmd) {
       case GLSC_SEND_DATA:
-        if (fifobuf_data_to_bufpool(&glsc_global.tmp_buf, &glsc_global.rc.fifo, c))
+        if (fifobuf_data_to_bufpool(&glsc_global.pool.tmp_buf, &glsc_global.rc.fifo, c))
           quit = TRUE;
         break;
       default:
@@ -153,7 +153,7 @@ int wait_for_data(char *str)
 int gls_cmd_send_data(uint32_t size, const void *data)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.out_buf.buf;
+  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
 
@@ -179,7 +179,7 @@ static int gls_cmd_HANDSHAKE()
     return FALSE;
 
   wait_for_data("timeout:gls_HANDSHAKE");
-  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.tmp_buf.buf;
+  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.pool.tmp_buf.buf;
   if (ret->cmd == GLSC_HANDSHAKE)
   {
     glsc_global.screen_width = ret->screen_width;

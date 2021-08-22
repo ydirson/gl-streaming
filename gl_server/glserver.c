@@ -50,7 +50,7 @@ int glse_cmd_send_data(uint32_t size, void *data)
 #ifdef GL_DEBUG
   fprintf(stderr, "GLS: glse_cmd_send_data sending data back\n");
 #endif
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.out_buf.buf;
+  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
 
@@ -71,14 +71,14 @@ void glse_cmd_HANDSHAKE(gls_command_t* buf)
   gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)buf;
   graphics_context_t *gc = glsec_global.gc;
 
-  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsec_global.tmp_buf.buf;
+  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsec_global.pool.tmp_buf.buf;
   ret->cmd = c->cmd;
   ret->cmd_size = sizeof(gls_ret_HANDSHAKE_t);
   ret->screen_width = gc->screen_width = glsurfaceview_width;
   ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;
   size_t size = sizeof(gls_ret_HANDSHAKE_t);
-  glse_cmd_send_data(size, glsec_global.tmp_buf.buf);
+  glse_cmd_send_data(size, glsec_global.pool.tmp_buf.buf);
 }
 
 
@@ -92,10 +92,10 @@ void glserver_handle_packets(recvr_context_t* rc)
 
   glsec_global.rc = rc;
   glsec_global.gc = &gc;
-  glsec_global.tmp_buf.buf = (char *)malloc(GLSE_TMP_BUFFER_SIZE);
-  glsec_global.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
-  glsec_global.out_buf.buf = (char *)malloc(GLSE_OUT_BUFFER_SIZE);
-  glsec_global.out_buf.size = GLSE_OUT_BUFFER_SIZE;
+  glsec_global.pool.tmp_buf.buf = (char *)malloc(GLSE_TMP_BUFFER_SIZE);
+  glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
+  glsec_global.pool.out_buf.buf = (char *)malloc(GLSE_OUT_BUFFER_SIZE);
+  glsec_global.pool.out_buf.size = GLSE_OUT_BUFFER_SIZE;
   
   while (!quit) {
     void *popptr = (void *)fifo_pop_ptr_get(&rc->fifo);
@@ -112,7 +112,7 @@ void glserver_handle_packets(recvr_context_t* rc)
 
     switch (c->cmd) {
     case GLSC_SEND_DATA:
-      fifobuf_data_to_bufpool(&glsec_global.tmp_buf, &glsec_global.rc->fifo, c);
+      fifobuf_data_to_bufpool(&glsec_global.pool.tmp_buf, &glsec_global.rc->fifo, c);
       break;
     case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
@@ -135,8 +135,8 @@ void glserver_handle_packets(recvr_context_t* rc)
 
   release_egl(&gc);
 
-  free(glsec_global.tmp_buf.buf);
-  free(glsec_global.out_buf.buf);
+  free(glsec_global.pool.tmp_buf.buf);
+  free(glsec_global.pool.out_buf.buf);
   pthread_exit(NULL);
 }
 

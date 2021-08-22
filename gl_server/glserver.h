@@ -45,8 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef struct
 {
-  gls_buffer_t tmp_buf;
-  gls_buffer_t out_buf;
+  gls_bufpool_t pool;
   recvr_context_t* rc;
   graphics_context_t *gc;
 } glse_context_t;

@@ -309,7 +309,7 @@ GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
     GLS_SEND_PACKET(glCreateProgram);
 
     wait_for_data("timeout:glCreateProgram");
-    gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsc_global.pool.tmp_buf.buf;
     return ret->program;
 }
 
@@ -322,7 +322,7 @@ GL_APICALL GLuint GL_APIENTRY glCreateShader (GLenum type)
     GLS_SEND_PACKET(glCreateShader);
 
     wait_for_data("timeout:glCreateShader");
-    gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsc_global.pool.tmp_buf.buf;
     return ret->obj;
 }
 
@@ -611,7 +611,7 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
   GLS_SEND_PACKET(glGenBuffers);
 
   wait_for_data("timeout:glGenBuffers");
-  memcpy(buffers, glsc_global.tmp_buf.buf, c->n * sizeof(uint32_t));
+  memcpy(buffers, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
 }
 
 
@@ -644,7 +644,7 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
   GLS_SEND_PACKET(glGenTextures);
 
   wait_for_data("timeout:glGenTextures");
-  memcpy(textures, glsc_global.tmp_buf.buf, c->n * sizeof(uint32_t));
+  memcpy(textures, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
 }
 
 
@@ -659,7 +659,7 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
     GLS_SEND_PACKET(glGetActiveAttrib);
     
     wait_for_data("timeout:glGetActiveAttrib");
-    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.pool.tmp_buf.buf;
     
     if (length != NULL) {
         *length = ret->length;
@@ -684,7 +684,7 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
     GLS_SEND_PACKET(glGetActiveUniform);
     
     wait_for_data("timeout:glGetActiveUniform");
-    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.pool.tmp_buf.buf;
     
     if (length != NULL) {
         *length = ret->length;
@@ -723,7 +723,7 @@ GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* 
     GLS_SEND_PACKET(glGetAttribLocation);
 
     wait_for_data("timeout:glGetAttribLocation");
-    gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.pool.tmp_buf.buf;
     return ret->index;
 }
 
@@ -748,7 +748,7 @@ GL_APICALL GLenum GL_APIENTRY glGetError()
     GLS_SEND_PACKET(glGetError);
     
     wait_for_data("timeout:glGetError");
-    gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsc_global.pool.tmp_buf.buf;
     return ret->error;
 }
 
@@ -761,7 +761,7 @@ GL_APICALL void GL_APIENTRY glGetFloatv(GLenum name, GLfloat *params)
     GLS_SEND_PACKET(glGetFloatv);
     
     wait_for_data("timeout:glGetFloatv");
-    gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsc_global.pool.tmp_buf.buf;
     *params = ret->params;
 }
 
@@ -781,7 +781,7 @@ GL_APICALL void GL_APIENTRY glGetIntegerv(GLenum name, GLint *params)
     GLS_SEND_PACKET(glGetIntegerv);
     
     wait_for_data("timeout:glGetIntegerv");
-    gls_ret_glGetIntegerv_t *ret = (gls_ret_glGetIntegerv_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetIntegerv_t *ret = (gls_ret_glGetIntegerv_t *)glsc_global.pool.tmp_buf.buf;
     *params = ret->params;
 }
 
@@ -795,7 +795,7 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
     GLS_SEND_PACKET(glGetProgramiv);
 
     wait_for_data("timeout:glGetProgramiv");
-    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.pool.tmp_buf.buf;
 
     *params = ret->params;
 
@@ -812,7 +812,7 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
   GLS_SEND_PACKET(glGetProgramInfoLog);
 
   wait_for_data("timeout:glGetProgramInfoLog");
-  gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsc_global.pool.tmp_buf.buf;
   if (length != NULL) {
     *length = ret->length;
   }
@@ -839,7 +839,7 @@ GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* p
   GLS_SEND_PACKET(glGetShaderiv);
 
   wait_for_data("timeout:glGetShaderiv");
-  gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsc_global.pool.tmp_buf.buf;
   
   *params = ret->params;
   // printf("Done executing glGetShaderiv(%p, %p) with return %i\n", shader, pname, ret->params);
@@ -855,7 +855,7 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
   GLS_SEND_PACKET(glGetShaderInfoLog);
 
   wait_for_data("timeout:glGetShaderInfoLog");
-  gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsc_global.pool.tmp_buf.buf;
   if (length != NULL) {
     *length = ret->length;
   }
@@ -888,7 +888,7 @@ GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
     GLS_SEND_PACKET(glGetString);
 
     wait_for_data("timeout:glGetString");
-    gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsc_global.pool.tmp_buf.buf;
     // printf("glGetString(%i) return %s\n", name, &ret->params[0]);
     if (ret->success)
       return ret->params;
@@ -942,7 +942,7 @@ GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* n
   GLS_SEND_PACKET(glGetUniformLocation);
 
   wait_for_data("timeout:glGetUniformLocation");
-  gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsc_global.pool.tmp_buf.buf;
   return ret->location;
 }
 
@@ -984,7 +984,7 @@ GL_APICALL GLboolean GL_APIENTRY glIsBuffer (GLuint buffer)
   c->buffer = buffer;
   GLS_SEND_PACKET(glIsBuffer);
   wait_for_data("timeout:glIsBuffer");
-  gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsc_global.pool.tmp_buf.buf;
   return ret->isbuffer;
 }
 
@@ -996,7 +996,7 @@ GL_APICALL GLboolean GL_APIENTRY glIsEnabled (GLenum cap)
   c->cap = cap;
   GLS_SEND_PACKET(glIsEnabled);
   wait_for_data("timeout:glIsEnabled");
-  gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsc_global.pool.tmp_buf.buf;
   return ret->isenabled;
 }
 
@@ -1099,7 +1099,7 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
     GLS_SEND_PACKET(glReadPixels);
     
     wait_for_data("timeout:glReadPixels");
-    gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsc_global.tmp_buf.buf;
+    gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsc_global.pool.tmp_buf.buf;
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = ((pixelbytes * width + glsc_global.pack_alignment - 1) &
                           (~ (glsc_global.pack_alignment - 1)));
@@ -1148,7 +1148,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
     printf("gls warning: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
     return;
   }
-  gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsc_global.tmp_buf.buf;
+  gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsc_global.pool.tmp_buf.buf;
   size_t size_all = (size_t)(dat->data - (char *)dat);
   
   // printf("\n ----- BEGIN SHADER CONTENT -----\n");
@@ -1179,7 +1179,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
 
   // printf(" ----- ENDED SHADER CONTENT -----\n\n");
   
-  gls_cmd_send_data(size_all, glsc_global.tmp_buf.buf);
+  gls_cmd_send_data(size_all, glsc_global.pool.tmp_buf.buf);
   GLS_SET_COMMAND_PTR(c, glShaderSource);
   c->shader = shader;
   c->count = count;
@@ -1389,10 +1389,10 @@ GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
 static void _glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_arr, const GLfloat *arr)
 {
     gls_cmd_flush();
-    gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsc_global.tmp_buf.buf;
+    gls_data_glVertexAttribFloat_t *dat = (gls_data_glVertexAttribFloat_t *)glsc_global.pool.tmp_buf.buf;
     memcpy(dat->arr, arr, num_float);
     // It's small so use GLS_DATA_SIZE
-    gls_cmd_send_data(GLS_DATA_SIZE, glsc_global.tmp_buf.buf);
+    gls_cmd_send_data(GLS_DATA_SIZE, glsc_global.pool.tmp_buf.buf);
 
     GLS_SET_COMMAND_PTR(c, glVertexAttribFloat);
     c->index = index;
@@ -1511,7 +1511,7 @@ GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
   GLS_SEND_PACKET(glUnmapBufferOES);
 
   wait_for_data("timeout:glUnmapBufferOES");
-  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.pool.tmp_buf.buf;
   return ret->success;
 }
 
@@ -1539,7 +1539,7 @@ GL_APICALL GLreturn GL_APIENTRY glCommand (GLparam param)
   GLS_SEND_PACKET(glCommand);
   
   wait_for_data("timeout:glCommand");
-  gls_ret_glCommand_t *ret = (gls_ret_glCommand_t *)glsc_global.tmp_buf.buf;
+  gls_ret_glCommand_t *ret = (gls_ret_glCommand_t *)glsc_global.pool.tmp_buf.buf;
   // *params = ret->params;
   // or below if return
   // return ret->returnVal;
