@@ -19,12 +19,12 @@
         - [ ] `xeglthreads` (needs multiple contexts)
   - glmark2 coverage
     - build
-      - [ ] use-vbo=false
+      - [x] use-vbo=false
       - [x] use-vbo=true
     - texture
       - [x] texture-filter=nearest
       - [x] texture-filter=linear
-      - [ ] texture-filter=mipmap
+      - [ ] texture-filter=mipmap (needs glGenerateMipmap)
     - shading
       - [x] shading=gouraud
       - [x] shading=blinn-phong-inf
