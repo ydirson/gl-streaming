@@ -1286,7 +1286,7 @@ GL_APICALL void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const
 
 GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  WARN_STUBBED(); // just untested, really
+  WARN_UNTESTED();
   gls_cmd_flush();
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
