@@ -64,7 +64,9 @@ typedef struct
   PTR->cmd = GLSC_##FUNCNAME;                                           \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
-    fprintf(stderr, "gls debug: handling %s\n", #FUNCNAME);
+    fprintf(stderr, "gls debug: handling %s (cmd=0x%x)\n",              \
+            #FUNCNAME, GLSC_##FUNCNAME);                                \
+  //
 
 // send_packet(sizeof(gls_glFunctionName_t));
 #define GLS_SEND_PACKET(FUNCNAME) send_packet()
