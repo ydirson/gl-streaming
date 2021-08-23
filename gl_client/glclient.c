@@ -157,6 +157,7 @@ static int gls_cmd_recv_data()
 
 int wait_for_data(char *str)
 {
+  if (glsc_global.is_debug) fprintf(stderr, "wait_for_data(%s)\n", str);
   struct timeval start_time, end_time;
   gettimeofday(&start_time, NULL);
   int quit = 0;
