@@ -42,37 +42,7 @@ typedef struct
 } gls_data_egl_attriblist_t;
  
 
-// EGL commands
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t api;
-} gls_eglBindAPI_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t success;
-} gls_ret_eglBindAPI_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint64_t dpy;
-  uint64_t surface;
-  uint32_t buffer;
-} gls_eglBindTexImage_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t success;
-} gls_ret_eglBindTexImage_t;
-
+// EGL 1.0
 
 typedef struct
 {
@@ -81,6 +51,14 @@ typedef struct
   uint32_t config_size;
   uint32_t has_attribs;
 } gls_eglChooseConfig_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t configs[GLS_DATA_SIZE];
+  uint32_t num_config;
+  uint32_t success;
+} gls_ret_eglChooseConfig_t;
 
 
 typedef struct
@@ -91,7 +69,6 @@ typedef struct
   uint64_t share_list;
   uint32_t has_attribs;
 } gls_eglCreateContext_t;
-
 
 typedef struct
 {
@@ -107,7 +84,6 @@ typedef struct
   uint64_t config;
   uint32_t has_attribs;
 } gls_eglCreatePbufferSurface_t;
-
 
 typedef struct
 {
@@ -125,7 +101,6 @@ typedef struct
   uint32_t has_attribs;
 } gls_eglCreatePixmapSurface_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -142,7 +117,6 @@ typedef struct
   uint32_t has_attribs;
 } gls_eglCreateWindowSurface_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -157,7 +131,6 @@ typedef struct
   uint64_t ctx;
 } gls_eglDestroyContext_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -168,19 +141,9 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint64_t configs[GLS_DATA_SIZE];
-  uint32_t num_config;
-  uint32_t success;
-} gls_ret_eglChooseConfig_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
   uint64_t dpy;
   uint64_t surface;
 } gls_eglDestroySurface_t;
-
 
 typedef struct
 {
@@ -197,7 +160,6 @@ typedef struct
   int32_t attribute;
 } gls_eglGetConfigAttrib_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -213,7 +175,6 @@ typedef struct
   uint32_t config_size;
 } gls_eglGetConfigs_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -226,21 +187,7 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-} gls_eglGetCurrentContext_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint64_t context;
-} gls_ret_eglGetCurrentContext_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
 } gls_eglGetCurrentDisplay_t;
-
 
 typedef struct
 {
@@ -255,7 +202,6 @@ typedef struct
   uint32_t readdraw;
 } gls_eglGetCurrentSurface_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -269,7 +215,6 @@ typedef struct
   uint64_t native_display;
 } gls_eglGetDisplay_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -281,7 +226,6 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
 } gls_eglGetError_t;
-
 
 typedef struct
 {
@@ -295,7 +239,6 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint64_t dpy;
 } gls_eglInitialize_t;
-
 
 typedef struct
 {
@@ -315,7 +258,6 @@ typedef struct
   uint64_t ctx;
 } gls_eglMakeCurrent_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -331,7 +273,6 @@ typedef struct
   uint32_t attribute;
 } gls_eglQueryContext_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -346,7 +287,6 @@ typedef struct
   uint64_t dpy;
   uint32_t name;
 } gls_eglQueryString_t;
-
 
 typedef struct
 {
@@ -364,7 +304,6 @@ typedef struct
   uint32_t attribute;
 } gls_eglQuerySurface_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -377,10 +316,53 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint64_t dpy;
+  uint64_t draw;
+} gls_eglSwapBuffers_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_eglSwapBuffers_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t dpy;
+} gls_eglTerminate_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_eglTerminate_t;
+
+
+// EGL 1.1
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t dpy;
+  uint64_t surface;
+  uint32_t buffer;
+} gls_eglBindTexImage_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_eglBindTexImage_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t dpy;
   uint64_t surface;
   uint32_t buffer;
 } gls_eglReleaseTexImage_t;
-
 
 typedef struct
 {
@@ -398,7 +380,6 @@ typedef struct
   uint32_t value;
 } gls_eglSurfaceAttrib_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -406,30 +387,30 @@ typedef struct
 } gls_ret_eglSurfaceAttrib_t;
 
 
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint64_t dpy;
-  uint64_t draw;
-} gls_eglSwapBuffers_t;
-
+// EGL 1.2
 
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t success;
-} gls_ret_eglSwapBuffers_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint64_t dpy;
-} gls_eglTerminate_t;
-
+  uint32_t api;
+} gls_eglBindAPI_t;
 
 typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t success;
-} gls_ret_eglTerminate_t;
+} gls_ret_eglBindAPI_t;
+
+
+// EGL 1.4
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+} gls_eglGetCurrentContext_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t context;
+} gls_ret_eglGetCurrentContext_t;
