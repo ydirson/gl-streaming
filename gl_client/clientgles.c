@@ -93,8 +93,12 @@ GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, 
   GLS_SET_COMMAND_PTR_BATCH(c, glBindAttribLocation);
   c->program = program;
   c->index = index;
-  // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  strncpy(c->name, name, GLS_STRING_SIZE);
+  if (strlen(name) + 1 > sizeof(c->name)) {
+    fprintf(stderr, "GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
+            __FUNCTION__, name, sizeof(c->name));
+    return;
+  }
+  strcpy(c->name, name);
   GLS_PUSH_BATCH(glBindAttribLocation);
 }
 
@@ -313,7 +317,7 @@ GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
     GLS_SET_COMMAND_PTR(c, glCreateProgram);
     GLS_SEND_PACKET(glCreateProgram);
 
-    wait_for_data("timeout:glCreateProgram");
+    wait_for_data("glCreateProgram");
     gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsc_global.pool.tmp_buf.buf;
     return ret->program;
 }
@@ -326,7 +330,7 @@ GL_APICALL GLuint GL_APIENTRY glCreateShader (GLenum type)
     c->type = type;
     GLS_SEND_PACKET(glCreateShader);
 
-    wait_for_data("timeout:glCreateShader");
+    wait_for_data("glCreateShader");
     gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsc_global.pool.tmp_buf.buf;
     return ret->obj;
 }
@@ -577,7 +581,7 @@ GL_APICALL void GL_APIENTRY glFinish (void)
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glFinish);
   GLS_SEND_PACKET(glFinish);
-  wait_for_data("timeout:glFinish");
+  wait_for_data("glFinish");
 }
 
 
@@ -620,7 +624,7 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
   c->n = n;
   GLS_SEND_PACKET(glGenBuffers);
 
-  wait_for_data("timeout:glGenBuffers");
+  wait_for_data("glGenBuffers");
   memcpy(buffers, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
 }
 
@@ -658,23 +662,30 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
   c->n = n;
   GLS_SEND_PACKET(glGenTextures);
 
-  wait_for_data("timeout:glGenTextures");
+  wait_for_data("glGenTextures");
   memcpy(textures, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
 }
 
 
 GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
+    WARN_UNTESTED();
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetActiveAttrib);
     c->program = program;
     c->index = index;
     c->bufsize = bufsize;
-    
+
+    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.pool.tmp_buf.buf;
+    if ((unsigned)bufsize > sizeof(ret->name)) {
+        c->bufsize = sizeof(ret->name);
+        fprintf(stderr,
+                "GLS WARNING: %s: buffer for attrib name limited by protocol: %u => %u\n",
+                __FUNCTION__, bufsize, c->bufsize);
+    }
     GLS_SEND_PACKET(glGetActiveAttrib);
     
-    wait_for_data("timeout:glGetActiveAttrib");
-    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.pool.tmp_buf.buf;
+    wait_for_data("glGetActiveAttrib");
     
     if (length != NULL) {
         *length = ret->length;
@@ -690,16 +701,23 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
 
 GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
+    WARN_UNTESTED();
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetActiveUniform);
     c->program = program;
     c->index = index;
     c->bufsize = bufsize;
     
+    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.pool.tmp_buf.buf;
+    if ((unsigned)bufsize > sizeof(ret->name)) {
+        c->bufsize = sizeof(ret->name);
+        fprintf(stderr,
+                "GLS WARNING: %s: buffer for uniform name limited by protocol: %u => %u\n",
+                __FUNCTION__, bufsize, c->bufsize);
+    }
     GLS_SEND_PACKET(glGetActiveUniform);
     
-    wait_for_data("timeout:glGetActiveUniform");
-    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.pool.tmp_buf.buf;
+    wait_for_data("glGetActiveUniform");
     
     if (length != NULL) {
         *length = ret->length;
@@ -726,18 +744,16 @@ GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* 
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
     c->program = program;
-    // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-    
-    int nameLength = strnlen(name, 0xA00000) + 1;
-/*
-    if (nameLength > 50) {
-        printf("gls error: please increase glGetAttribLocation(char name[]) up to %d\n", nameLength);
+    if (strlen(name) + 1 > sizeof(c->name)) {
+        fprintf(stderr, "GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
+                __FUNCTION__, name, sizeof(c->name));
+        client_gles_error = GL_INVALID_OPERATION;
+        return -1;
     }
-*/
-    strncpy(c->name, name, nameLength);
+    strcpy(c->name, name);
     GLS_SEND_PACKET(glGetAttribLocation);
 
-    wait_for_data("timeout:glGetAttribLocation");
+    wait_for_data("glGetAttribLocation");
     gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.pool.tmp_buf.buf;
     return ret->index;
 }
@@ -758,11 +774,14 @@ GL_APICALL void GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname,
 
 GL_APICALL GLenum GL_APIENTRY glGetError()
 {
+    if (client_gles_error != GL_NO_ERROR)
+        return client_gles_error;
+
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetError);
     GLS_SEND_PACKET(glGetError);
     
-    wait_for_data("timeout:glGetError");
+    wait_for_data("glGetError");
     gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsc_global.pool.tmp_buf.buf;
     return ret->error;
 }
@@ -775,7 +794,7 @@ GL_APICALL void GL_APIENTRY glGetFloatv(GLenum name, GLfloat *params)
     c->name = name;
     GLS_SEND_PACKET(glGetFloatv);
     
-    wait_for_data("timeout:glGetFloatv");
+    wait_for_data("glGetFloatv");
     gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsc_global.pool.tmp_buf.buf;
     *params = ret->params;
 }
@@ -795,7 +814,7 @@ GL_APICALL void GL_APIENTRY glGetIntegerv(GLenum name, GLint *params)
     c->name = name;
     GLS_SEND_PACKET(glGetIntegerv);
     
-    wait_for_data("timeout:glGetIntegerv");
+    wait_for_data("glGetIntegerv");
     gls_ret_glGetIntegerv_t *ret = (gls_ret_glGetIntegerv_t *)glsc_global.pool.tmp_buf.buf;
     *params = ret->params;
 }
@@ -809,7 +828,7 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
     c->pname = pname;
     GLS_SEND_PACKET(glGetProgramiv);
 
-    wait_for_data("timeout:glGetProgramiv");
+    wait_for_data("glGetProgramiv");
     gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.pool.tmp_buf.buf;
 
     *params = ret->params;
@@ -826,7 +845,7 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
   c->bufsize = bufsize;
   GLS_SEND_PACKET(glGetProgramInfoLog);
 
-  wait_for_data("timeout:glGetProgramInfoLog");
+  wait_for_data("glGetProgramInfoLog");
   gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsc_global.pool.tmp_buf.buf;
   if (length != NULL) {
     *length = ret->length;
@@ -853,7 +872,7 @@ GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* p
   c->pname = pname;
   GLS_SEND_PACKET(glGetShaderiv);
 
-  wait_for_data("timeout:glGetShaderiv");
+  wait_for_data("glGetShaderiv");
   gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsc_global.pool.tmp_buf.buf;
   
   *params = ret->params;
@@ -869,7 +888,7 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
   c->bufsize = bufsize;
   GLS_SEND_PACKET(glGetShaderInfoLog);
 
-  wait_for_data("timeout:glGetShaderInfoLog");
+  wait_for_data("glGetShaderInfoLog");
   gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsc_global.pool.tmp_buf.buf;
   if (length != NULL) {
     *length = ret->length;
@@ -902,7 +921,7 @@ GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
     c->name = name;
     GLS_SEND_PACKET(glGetString);
 
-    wait_for_data("timeout:glGetString");
+    wait_for_data("glGetString");
     gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsc_global.pool.tmp_buf.buf;
     // printf("glGetString(%i) return %s\n", name, &ret->params[0]);
     if (ret->success)
@@ -956,7 +975,7 @@ GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* n
   strncpy(c->name, name, nameLength);
   GLS_SEND_PACKET(glGetUniformLocation);
 
-  wait_for_data("timeout:glGetUniformLocation");
+  wait_for_data("glGetUniformLocation");
   gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsc_global.pool.tmp_buf.buf;
   return ret->location;
 }
@@ -998,7 +1017,7 @@ GL_APICALL GLboolean GL_APIENTRY glIsBuffer (GLuint buffer)
   GLS_SET_COMMAND_PTR(c, glIsBuffer);
   c->buffer = buffer;
   GLS_SEND_PACKET(glIsBuffer);
-  wait_for_data("timeout:glIsBuffer");
+  wait_for_data("glIsBuffer");
   gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsc_global.pool.tmp_buf.buf;
   return ret->isbuffer;
 }
@@ -1010,7 +1029,7 @@ GL_APICALL GLboolean GL_APIENTRY glIsEnabled (GLenum cap)
   GLS_SET_COMMAND_PTR(c, glIsEnabled);
   c->cap = cap;
   GLS_SEND_PACKET(glIsEnabled);
-  wait_for_data("timeout:glIsEnabled");
+  wait_for_data("glIsEnabled");
   gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsc_global.pool.tmp_buf.buf;
   return ret->isenabled;
 }
@@ -1113,7 +1132,7 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
     c->type = type;
     GLS_SEND_PACKET(glReadPixels);
     
-    wait_for_data("timeout:glReadPixels");
+    wait_for_data("glReadPixels");
     gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsc_global.pool.tmp_buf.buf;
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = ((pixelbytes * width + glsc_global.pack_alignment - 1) &
@@ -1307,7 +1326,7 @@ GL_APICALL void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const
 
 GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  WARN_STUBBED(); // just untested, really
+  WARN_UNTESTED();
   gls_cmd_flush();
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
@@ -1525,7 +1544,7 @@ GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
   c->target = target;
   GLS_SEND_PACKET(glUnmapBufferOES);
 
-  wait_for_data("timeout:glUnmapBufferOES");
+  wait_for_data("glUnmapBufferOES");
   gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.pool.tmp_buf.buf;
   return ret->success;
 }
@@ -1553,7 +1572,7 @@ GL_APICALL GLreturn GL_APIENTRY glCommand (GLparam param)
   c->param = param;
   GLS_SEND_PACKET(glCommand);
   
-  wait_for_data("timeout:glCommand");
+  wait_for_data("glCommand");
   gls_ret_glCommand_t *ret = (gls_ret_glCommand_t *)glsc_global.pool.tmp_buf.buf;
   // *params = ret->params;
   // or below if return

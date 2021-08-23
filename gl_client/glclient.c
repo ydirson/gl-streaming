@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glclient.h"
 
 #include "EGL/egl.h"
+#include "GLES2/gl2.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -40,6 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 gls_context_t glsc_global;
 uint32_t client_egl_error;
+uint32_t client_gles_error;
 
 static float get_diff_time(struct timeval start, struct timeval end)
 {
@@ -102,12 +104,28 @@ static int gls_free()
 
 int send_packet()
 {
-  client_egl_error = EGL_SUCCESS;
   gls_command_t* c = (gls_command_t*)glsc_global.pool.out_buf.buf;
+
+  // reset clientside error for protocol
+  switch (c->cmd & GLSC_PROTOCOL_MASK) {
+  case GLSC_PROTOCOL_EGL:
+    client_egl_error = EGL_SUCCESS;
+    break;
+  case GLSC_PROTOCOL_GLES2:
+    client_gles_error = GL_NO_ERROR;
+    break;
+  }
 
   if (send(glsc_global.rc.sock_fd, glsc_global.pool.out_buf.buf, c->cmd_size, 0) < 0) {
     fprintf(stderr, "GLS ERROR: send_packet(%u) failure: %s\n", c->cmd_size, strerror(errno));
-    client_egl_error = EGL_BAD_ACCESS; // dubious but eh
+    switch (c->cmd & GLSC_PROTOCOL_MASK) {
+    case GLSC_PROTOCOL_EGL:
+      client_egl_error = EGL_BAD_ACCESS; // dubious but eh
+      break;
+    case GLSC_PROTOCOL_GLES2:
+      client_gles_error = GL_INVALID_OPERATION; // dubious but eh
+      break;
+    }
     return FALSE;
   }
   return TRUE;
@@ -116,6 +134,7 @@ int send_packet()
 
 int wait_for_data(char *str)
 {
+  if (glsc_global.is_debug) fprintf(stderr, "wait_for_data(%s)\n", str);
   struct timeval start_time, end_time;
   gettimeofday(&start_time, NULL);
   int quit = 0;
@@ -125,7 +144,7 @@ int wait_for_data(char *str)
       gettimeofday(&end_time, NULL);
       float diff_time = get_diff_time(start_time, end_time);
       if (diff_time > GLS_TIMEOUT_SEC) {
-        fprintf(stderr, "\n%s\n", str);
+        fprintf(stderr, "\nGLS ERROR: timeout:%s\n", str);
         exit(EXIT_FAILURE);
         return FALSE;
       }
@@ -178,7 +197,7 @@ static int gls_cmd_HANDSHAKE()
   if (!send_packet())
     return FALSE;
 
-  wait_for_data("timeout:gls_HANDSHAKE");
+  wait_for_data("gls_HANDSHAKE");
   gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.pool.tmp_buf.buf;
   if (ret->cmd == GLSC_HANDSHAKE)
   {

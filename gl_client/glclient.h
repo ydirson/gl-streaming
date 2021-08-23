@@ -63,7 +63,9 @@ typedef struct
   PTR->cmd = GLSC_##FUNCNAME;                                           \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
-    fprintf(stderr, "gls debug: handling %s\n", #FUNCNAME);
+    fprintf(stderr, "gls debug: handling %s (cmd=0x%x)\n",              \
+            #FUNCNAME, GLSC_##FUNCNAME);                                \
+  //
 
 // send_packet(sizeof(gls_glFunctionName_t));
 #define GLS_SEND_PACKET(FUNCNAME) send_packet()
@@ -76,19 +78,22 @@ typedef struct
 #define gls_cmd_flush() do {} while(0)
 
 
-#define WARN_STUBBED() do {                                             \
+#define WARN_ONCE(FMT, ...) do {                                        \
     static int shown = 0;                                               \
     if (!shown) {                                                       \
-      fprintf(stderr, "WARNING: %s is stubbed\n", __FUNCTION__);        \
+      fprintf(stderr, FMT, __VA_ARGS__);                                \
       shown = 1;                                                        \
     }                                                                   \
   } while(0);
+#define WARN_STUBBED() WARN_ONCE("GLS WARNING: %s is stubbed\n", __FUNCTION__)
+#define WARN_UNTESTED() WARN_ONCE("GLS WARNING: %s is untested\n", __FUNCTION__)
 
 #define TRUE 1
 #define FALSE 0
 
 extern gls_context_t glsc_global;
 extern uint32_t client_egl_error;
+extern uint32_t client_gles_error;
 
 void gls_init_library(void);
 void gls_cleanup_library(void);

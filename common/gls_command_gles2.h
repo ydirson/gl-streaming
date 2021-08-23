@@ -35,6 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <stddef.h>
 
+#define GLS_GLES2_MAX_ATTRIBVAR_NAMELEN 128
+#define GLS_GLES2_MAX_UNIFORM_NAMELEN 128
+
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -55,7 +58,7 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint32_t program;
   uint32_t index;
-  char name[GLS_STRING_SIZE_PLUS];
+  char name[GLS_GLES2_MAX_ATTRIBVAR_NAMELEN];
 } gls_glBindAttribLocation_t;
 
 
@@ -393,7 +396,7 @@ typedef struct
   int32_t length;
   int32_t size;
   uint32_t type;
-  char name[GLS_STRING_SIZE_PLUS];
+  char name[GLS_GLES2_MAX_ATTRIBVAR_NAMELEN];
 } gls_ret_glGetActiveAttrib_t;
 
 
@@ -413,7 +416,7 @@ typedef struct
   int32_t length;
   int32_t size;
   uint32_t type;
-  char name[GLS_STRING_SIZE_PLUS];
+  char name[GLS_GLES2_MAX_UNIFORM_NAMELEN];
 } gls_ret_glGetActiveUniform_t;
 
 
@@ -421,7 +424,7 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t program;
-  char name[50];
+  char name[GLS_GLES2_MAX_ATTRIBVAR_NAMELEN];
 } gls_glGetAttribLocation_t;
 
 
