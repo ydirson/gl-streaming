@@ -734,6 +734,9 @@ GL_APICALL void GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname,
 
 GL_APICALL GLenum GL_APIENTRY glGetError()
 {
+    if (client_gles_error != GL_NO_ERROR)
+        return client_gles_error;
+
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetError);
     GLS_SEND_PACKET(glGetError);

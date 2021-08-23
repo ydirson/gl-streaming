@@ -90,6 +90,7 @@ typedef struct
 
 extern gls_context_t glsc_global;
 extern uint32_t client_egl_error;
+extern uint32_t client_gles_error;
 
 void gls_init_library(void);
 void gls_cleanup_library(void);

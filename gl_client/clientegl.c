@@ -246,12 +246,9 @@ EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 
 EGLAPI EGLint EGLAPIENTRY eglGetError( void )
 {
-    if (client_egl_error != EGL_SUCCESS) {
-        EGLint error = client_egl_error;
-        client_egl_error = EGL_SUCCESS;
-        return error;
-    }
-    
+    if (client_egl_error != EGL_SUCCESS)
+        return client_egl_error;
+
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, eglGetError);
     GLS_SEND_PACKET(eglGetError);
