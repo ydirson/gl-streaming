@@ -795,6 +795,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_BATCH_CMD(glBindFramebuffer);
         //CASE_BATCH_CMD(glBindRenderbuffer);
         CASE_BATCH_CMD(glBindTexture);
+        //CASE_BATCH_CMD(glBlendColor);
         //CASE_BATCH_CMD(glBlendEquation);
         CASE_BATCH_CMD(glBlendEquationSeparate);
         CASE_BATCH_CMD(glBlendFunc);
@@ -853,10 +854,9 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glGetIntegerv);
         CASE_EXEC_CMD(glGetProgramiv);
         CASE_EXEC_CMD(glGetProgramInfoLog);
-        CASE_EXEC_CMD(glGetShaderInfoLog);
         //CASE_EXEC_CMD(glGetRenderbufferParameteriv);
         CASE_EXEC_CMD(glGetShaderiv);
-        //CASE_EXEC_CMD(glGetShaderInfoLog);
+        CASE_EXEC_CMD(glGetShaderInfoLog);
         //CASE_EXEC_CMD(glGetShaderPrecisionFormat);
         //CASE_EXEC_CMD(glGetShaderSource);
         CASE_EXEC_CMD(glGetString);
@@ -865,6 +865,9 @@ int gles_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(glGetUniformfv);
         //CASE_EXEC_CMD(glGetUniformiv);
         CASE_EXEC_CMD(glGetUniformLocation);
+        //CASE_EXEC_CMD(glGetVertexAttribfv);
+        //CASE_EXEC_CMD(glGetVertexAttribiv);
+        //CASE_EXEC_CMD(glGetVertexAttribPointerv);
         CASE_BATCH_CMD(glHint);
         CASE_EXEC_CMD(glIsBuffer);
         CASE_EXEC_CMD(glIsEnabled);
@@ -916,6 +919,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_BATCH_CMD(glUniformMatrix3fv);
         CASE_BATCH_CMD(glUniformMatrix4fv);
         CASE_BATCH_CMD(glUseProgram);
+        //CASE_BATCH_CMD(glValidateProgram);
         CASE_EXEC_CMD(glVertexAttribFloat);
         CASE_BATCH_CMD(glVertexAttribPointer);
         CASE_BATCH_CMD(glViewport);
