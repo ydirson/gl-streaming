@@ -93,8 +93,12 @@ GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, 
   GLS_SET_COMMAND_PTR_BATCH(c, glBindAttribLocation);
   c->program = program;
   c->index = index;
-  // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  strncpy(c->name, name, GLS_STRING_SIZE);
+  if (strlen(name) + 1 > sizeof(c->name)) {
+    fprintf(stderr, "GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
+            __FUNCTION__, name, sizeof(c->name));
+    return;
+  }
+  strcpy(c->name, name);
   GLS_PUSH_BATCH(glBindAttribLocation);
 }
 
@@ -641,16 +645,23 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
 
 GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
+    WARN_UNTESTED();
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetActiveAttrib);
     c->program = program;
     c->index = index;
     c->bufsize = bufsize;
-    
+
+    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.tmp_buf.buf;
+    if ((unsigned)bufsize > sizeof(ret->name)) {
+        c->bufsize = sizeof(ret->name);
+        fprintf(stderr,
+                "GLS WARNING: %s: buffer for attrib name limited by protocol: %u => %u\n",
+                __FUNCTION__, bufsize, c->bufsize);
+    }
     GLS_SEND_PACKET(glGetActiveAttrib);
     
     wait_for_data("timeout:glGetActiveAttrib");
-    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.tmp_buf.buf;
     
     if (length != NULL) {
         *length = ret->length;
@@ -702,15 +713,13 @@ GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* 
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
     c->program = program;
-    // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
-    
-    int nameLength = strnlen(name, 0xA00000) + 1;
-/*
-    if (nameLength > 50) {
-        printf("gls error: please increase glGetAttribLocation(char name[]) up to %d\n", nameLength);
+    if (strlen(name) + 1 > sizeof(c->name)) {
+        fprintf(stderr, "GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
+                __FUNCTION__, name, sizeof(c->name));
+        client_gles_error = GL_INVALID_OPERATION;
+        return -1;
     }
-*/
-    strncpy(c->name, name, nameLength);
+    strcpy(c->name, name);
     GLS_SEND_PACKET(glGetAttribLocation);
 
     wait_for_data("timeout:glGetAttribLocation");
