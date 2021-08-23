@@ -677,16 +677,23 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
 
 GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
+    WARN_UNTESTED();
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glGetActiveUniform);
     c->program = program;
     c->index = index;
     c->bufsize = bufsize;
     
+    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.tmp_buf.buf;
+    if ((unsigned)bufsize > sizeof(ret->name)) {
+        c->bufsize = sizeof(ret->name);
+        fprintf(stderr,
+                "GLS WARNING: %s: buffer for uniform name limited by protocol: %u => %u\n",
+                __FUNCTION__, bufsize, c->bufsize);
+    }
     GLS_SEND_PACKET(glGetActiveUniform);
     
     wait_for_data("timeout:glGetActiveUniform");
-    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.tmp_buf.buf;
     
     if (length != NULL) {
         *length = ret->length;

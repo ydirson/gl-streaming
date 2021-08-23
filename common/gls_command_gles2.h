@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stddef.h>
 
 #define GLS_GLES2_MAX_ATTRIBVAR_NAMELEN 128
+#define GLS_GLES2_MAX_UNIFORM_NAMELEN 128
 
 typedef struct
 {
@@ -383,7 +384,7 @@ typedef struct
   int32_t length;
   int32_t size;
   uint32_t type;
-  char name[GLS_STRING_SIZE_PLUS];
+  char name[GLS_GLES2_MAX_UNIFORM_NAMELEN];
 } gls_ret_glGetActiveUniform_t;
 
 
