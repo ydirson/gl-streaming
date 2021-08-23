@@ -166,7 +166,7 @@ int wait_for_data(char *str)
       gettimeofday(&end_time, NULL);
       float diff_time = get_diff_time(start_time, end_time);
       if (diff_time > GLS_TIMEOUT_SEC) {
-        fprintf(stderr, "\n%s\n", str);
+        fprintf(stderr, "\nGLS ERROR: timeout:%s\n", str);
         exit(EXIT_FAILURE);
         return FALSE;
       }
@@ -234,7 +234,7 @@ static int gls_cmd_HANDSHAKE()
   if (!send_packet())
     return FALSE;
 
-  wait_for_data("timeout:gls_HANDSHAKE");
+  wait_for_data("gls_HANDSHAKE");
   gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.tmp_buf.buf;
   if (ret->cmd == GLSC_HANDSHAKE)
   {
