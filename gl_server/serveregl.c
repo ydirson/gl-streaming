@@ -359,6 +359,15 @@ void glse_eglTerminate(gls_command_t* buf)
 
 // EGL 1.1
 
+void glse_eglSwapInterval(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, eglSwapInterval);
+  gls_ret_eglSwapInterval_t *ret = (gls_ret_eglSwapInterval_t *)glsec_global.pool.tmp_buf.buf;
+  ret->cmd = GLSC_eglSwapInterval;
+  ret->success = eglSwapInterval((EGLDisplay)c->dpy, c->interval);
+  glse_cmd_send_data(sizeof(gls_ret_eglSwapInterval_t),(char *)glsec_global.pool.tmp_buf.buf);
+}
+
 // EGL 1.2
 
 void glse_eglBindAPI(gls_command_t* buf)
@@ -424,7 +433,7 @@ int egl_executeCommand(gls_command_t *c) {
         //CASE_EXEC_CMD(eglBindTexImage);
         //CASE_EXEC_CMD(eglReleaseTexImage);
         //CASE_EXEC_CMD(eglSurfaceAttrib);
-        //CASE_EXEC_CMD(eglSwapInterval);
+        CASE_EXEC_CMD(eglSwapInterval);
 // EGL 1.2
         CASE_EXEC_CMD(eglBindAPI);
         //CASE_EXEC_CMD(eglQueryAPI);

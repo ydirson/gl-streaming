@@ -387,6 +387,20 @@ typedef struct
 } gls_ret_eglSurfaceAttrib_t;
 
 
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t dpy;
+  uint32_t interval;
+} gls_eglSwapInterval_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_eglSwapInterval_t;
+
+
 // EGL 1.2
 
 typedef struct

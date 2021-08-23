@@ -450,11 +450,17 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surfac
     return ret->success;
 }
 
-EGLAPI EGLBoolean EGLAPIENTRY eglSwapInterval( EGLDisplay dpy, EGLint interval )
+EGLAPI EGLBoolean EGLAPIENTRY eglSwapInterval(EGLDisplay dpy, EGLint interval)
 {
-    (void)dpy; (void)interval; // FIXME stub
-    WARN_STUBBED();
-    return EGL_FALSE;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglSwapInterval);
+  c->dpy = (uint64_t)dpy;
+  c->interval = interval;
+  GLS_SEND_PACKET(eglSwapInterval);
+
+  wait_for_data("eglSwapInterval");
+  gls_ret_eglSwapInterval_t *ret = (gls_ret_eglSwapInterval_t *)glsc_global.pool.tmp_buf.buf;
+  return ret->success;
 }
 
 // EGL 1.2
