@@ -492,8 +492,13 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferFromClientBuffer (EGLDisplay dpy, 
 
 EGLAPI EGLBoolean EGLAPIENTRY eglReleaseThread(void)
 {
-    WARN_STUBBED();
-    return EGL_FALSE;
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglReleaseThread);
+  GLS_SEND_PACKET(eglReleaseThread);
+
+  wait_for_data("eglReleaseThread");
+  gls_ret_eglReleaseThread_t *ret = (gls_ret_eglReleaseThread_t *)glsc_global.pool.tmp_buf.buf;
+  return ret->success;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitClient (void)

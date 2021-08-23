@@ -381,6 +381,17 @@ void glse_eglBindAPI(gls_command_t* buf)
   glse_cmd_send_data(sizeof(gls_ret_eglBindAPI_t),(char *)glsec_global.pool.tmp_buf.buf);
 }
 
+void glse_eglReleaseThread(gls_command_t* buf)
+{
+  (void)buf;
+  EGLBoolean success = eglReleaseThread();
+
+  gls_ret_eglReleaseThread_t *ret = (gls_ret_eglReleaseThread_t *)glsec_global.pool.tmp_buf.buf;
+  ret->cmd = GLSC_eglReleaseThread;
+  ret->success = success;
+  glse_cmd_send_data(sizeof(gls_ret_eglReleaseThread_t),(char *)glsec_global.pool.tmp_buf.buf);
+}
+
 // EGL 1.4
 
 void glse_eglGetCurrentContext(gls_command_t* buf)
@@ -438,7 +449,7 @@ int egl_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(eglBindAPI);
         //CASE_EXEC_CMD(eglQueryAPI);
         //CASE_EXEC_CMD(eglCreatePbufferFromClientBuffer);
-        //CASE_EXEC_CMD(eglReleaseThread);
+        CASE_EXEC_CMD(eglReleaseThread);
         //CASE_EXEC_CMD(eglWaitClient);
 // EGL 1.4
         CASE_EXEC_CMD(eglGetCurrentContext);

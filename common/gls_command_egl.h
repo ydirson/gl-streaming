@@ -416,6 +416,18 @@ typedef struct
 } gls_ret_eglBindAPI_t;
 
 
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+} gls_eglReleaseThread_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_eglReleaseThread_t;
+
+
 // EGL 1.4
 
 typedef struct
