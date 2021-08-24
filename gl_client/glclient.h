@@ -78,13 +78,15 @@ typedef struct
 #define gls_cmd_flush() do {} while(0)
 
 
-#define WARN_ONCE(FMT, ...) do {                                        \
-    static int shown = 0;                                               \
-    if (!shown) {                                                       \
-      fprintf(stderr, FMT, __VA_ARGS__);                                \
-      shown = 1;                                                        \
-    }                                                                   \
-  } while(0);
+#define WARN_ONCE(FMT, ...) do {         \
+    static int shown = 0;                \
+    if (!shown) {                        \
+      fprintf(stderr, FMT, __VA_ARGS__); \
+      shown = 1;                         \
+    }                                    \
+  } while(0);                            \
+  //
+
 #define WARN_STUBBED() WARN_ONCE("GLS WARNING: %s is stubbed\n", __FUNCTION__)
 #define WARN_UNTESTED() WARN_ONCE("GLS WARNING: %s is untested\n", __FUNCTION__)
 

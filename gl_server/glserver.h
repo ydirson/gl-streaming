@@ -40,8 +40,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLSE_TMP_BUFFER_SIZE 2097152
 #define GLSE_OUT_BUFFER_SIZE 4096 // 2048
 
-#define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME) \
-  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)buf;
+#define GLSE_SET_COMMAND_PTR(PTR, FUNCNAME)             \
+  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)buf;  \
+  //
 
 #define GLSE_SET_RAWDATA_PTR(PTR, TYPE, WAITDATA)                       \
   TYPE* PTR;                                                            \
@@ -55,9 +56,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     PTR = NULL;                                                         \
   }                                                                     \
   glsec_global.pool.has_data = 0;                                       \
-//
+  //
 #define GLSE_SET_DATA_PTR(PTR, FUNCNAME, WAITDATA)              \
-  GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t, WAITDATA)
+  GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t, WAITDATA)  \
+  //
 
 typedef struct
 {
