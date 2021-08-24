@@ -13,15 +13,14 @@ better.
    [clientgles](gl_client/clientgles.c) modules
 
 2. API calls are marshalled into messages, described in
-   [gls_command.h](common/gls_command.h), and sent using TCP, and
-   possibly wait for a reply before the API returns control to the
-   application
+   [gls_command.h](common/gls_command.h), sent using TCP, and possibly
+   wait for a reply before the API returns control to the application
 
 3. Server initializes GLES2 using EGL and creates a static window on
    startup, in [glcontrol](gl_server/glcontrol.c) (this will have to
    change for better window management)
 
-4. Server receives packets with [server](common/server.c) in a
+4. Server receives packets with [server](common/recvr.c) in a
    dedicated thread, managed from [glserver](gl_server/glserver.c) and
    puts them in a [FIFO queue](common/fifo.h)
 
@@ -36,29 +35,59 @@ better.
    received synchronously
 
 
-## buffers and transfer modes
+## data handling
 
-The networking code uses 2 buffers:
+### emission
 
-* `out_buf` to compose an outgoing messages, whether fixed-size or large
-  variable-length data
-* `tmp_buf` to:
-  * receive SEND_DATA messages (ie. variable-length input from client,
-    as well as outputs from server)
+Client-side API implementations are essentially forwarding the call
+parameters to the server (and receiving output data if any).
 
-A message with large variable-length data gets sent as 2 messages:
+Every command message contains a command identifier, defined in
+[gls_command.h](common/gls_command.h), which in most cases uniquely
+map to an API call.
 
-* first the data in a `SEND_DATA` message, using `gls_cmd_send_data`
-* then the command with its fixed arguments in a command-specific
-  structure; on execution on the server it finds in data right in
-  `tmp_buf`
+Small fixed-sized input parameters are filled into a per-API-call data
+structure, located in `out_buf` buffer provided to the client-side
+implementations as temporary space for message composition before
+sending.
 
-A message with output parameters uses `wait_for_data`, and
-subsequently finds those results in `tmp_buf`.
+Larger input data is sent with a `SEND_DATA` message pior to the
+command message itself.
 
-When a client starts, it sends a `HANDSHAKE` message to
-check the server's protocol version, and get the size of the
-server-created window.
+When a client starts, it sends a special `HANDSHAKE` message to check
+the server's protocol version, and get the size of the server-created
+window.
+
+### reception
+
+#### queuing to FIFO
+
+To avoid dynamic allocation, a fixed-size FIFO of fixed-size packet
+buffers is pre-allocated.  Data received from the network lands here
+as long as there is space in the FIFO.  It may be necessary to adjust
+the compile-time `FIFO_SIZE_ORDER` if "FIFO full" is reported (causing
+throttling of network reception).
+
+Incoming `SEND_DATA` messages too large for a packet are dropped for
+now -- upstream worked around this by splitting large command packets
+into chunks (small enough to be queued in the FIFO) and reconstructing
+them into `tmp_buf`, with limited success (FIFO and `tmp_buf` also
+prevented large messages, and reconstruction assumed perfect network
+conditions).
+
+#### dequeuing and execution
+
+When dequeuing an API command message from the FIFO, it gets passed by
+pointer to the API implementation.  `SEND_DATA` message are copied in
+`tmp_buf` to free their FIFO slot, and API commands expecting input
+from a `SEND_DATA` message just use it from there.
+
+### output from API commands
+
+A message with output parameters uses has its client-side
+implementation use `wait_for_data()`, which expects to receive a
+`SEND_DATA` message in client FIFO, and subsequently reads those
+results from `tmp_buf` just like the server does with large inputs.
 
 ### batched commands
 
@@ -121,11 +150,6 @@ shared object space of the current GL rendering context".  Since we're
 not tracking any context we can assume this will break when more than
 one shared object space gets used.
 
-### `glDrawElements` client-array case
-
-This case has yet to be properly handled, and is protected by an
-`assert(0)` in the meantime.
-
 ### `eglQuerySurface` and size attributes
 
 Currently we use a single (fixed-size) window on server side, created
@@ -168,11 +192,14 @@ where several clients can connect at the same time.
 
 Large data buffers cause problems to the fixed-size tmp_buf.
 Currently the code drops data that does not fit in the buffer, and the
-commands suffering this loss probably don't know and use undefined
-memory following the buffer instead.
+commands suffering this loss will not be executed as they will miss
+input.
 
-Also, usage of oversized buffers "just to be sure we don't miss
-something" is just too common today.
+Also, usage of oversized arrays in non-`SEND_DATA` "just to be sure we
+don't miss something" is still too common today.
+
+As well, a number of calls don't properly check the size of data
+blocks will fit in the space reserved for them.
 
 ### shared memory
 
@@ -201,8 +228,3 @@ window propagated back.  This seems hardly reasonable for
 manually-created X11 windows, but can be studied for common
 window-handling frameworks like GLFW and SDL2, which would then be
 taught a new backend alongside X11.
-
-
-# other things to be documented
-
-* more protocol details
