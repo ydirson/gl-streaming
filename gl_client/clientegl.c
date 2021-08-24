@@ -5,8 +5,10 @@
 
 #include "EGL/egl.h"
 
-#include <dlfcn.h>
 #include <assert.h>
+#include <dlfcn.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if defined(USE_X11)
@@ -293,18 +295,145 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext( EGLDisplay dpy, EGLContext ctx, E
     return ret->success;
 }
 
-EGLAPI const char* EGLAPIENTRY eglQueryString( EGLDisplay dpy, EGLint name )
+// eglQueryString (with caching)
+
+static const char* EGLAPIENTRY _real_eglQueryString(EGLDisplay dpy, EGLint name)
 {
-    gls_cmd_flush();
-    GLS_SET_COMMAND_PTR(c, eglQueryString);
-    c->dpy = (uint64_t)dpy;
-    c->name = name;
-    GLS_SEND_PACKET(eglQueryString);
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, eglQueryString);
+  c->dpy = (uint64_t)dpy;
+  c->name = name;
+  GLS_SEND_PACKET(eglQueryString);
     
-    GLS_WAIT_SET_RET_PTR(ret, eglQueryString);
-    if (!ret->success)
-        return NULL;
-    return ret->params;
+  GLS_WAIT_SET_RET_PTR(ret, eglQueryString);
+  if (!ret->success)
+    return NULL;
+  return ret->params;
+}
+
+static char* eglquerystring_client_extensions;
+
+#define GLS_EGLQUERYSTRING_ITEMS() \
+  EMPTY()                          \
+    X(CLIENT_APIS)                 \
+    X(VENDOR)                      \
+    X(VERSION)                     \
+    X(EXTENSIONS)                  \
+  //
+
+static struct {
+  EGLDisplay dpy;
+  char* storage;
+  size_t allocated;
+  size_t nfilled;
+
+#define X(FIELD) const char* FIELD##_str;
+  GLS_EGLQUERYSTRING_ITEMS();
+#undef X
+} egl_strings;
+
+// record a string into egl_strings
+static int _registerEglString(EGLDisplay dpy, EGLint name, const char** field_p)
+{
+  const char* value = _real_eglQueryString(dpy, name);
+  if (!value) {
+    EGLint error = eglGetError();
+    if (error != EGL_BAD_PARAMETER)
+      fprintf(stderr, "GLS ERROR: eglQueryString(%p, 0x%x) failed, error 0x%x\n",
+              dpy, name, error);
+    return 0;
+  }
+  int valuesize = strlen(value) + 1;
+  while (egl_strings.nfilled + valuesize > egl_strings.allocated) {
+    egl_strings.allocated *= 2;
+    //fprintf(stderr, "GLS DBG: eglQueryString reallocating %zu\n", egl_strings.allocated);
+    void* newstorage = realloc(egl_strings.storage, egl_strings.allocated);
+    if (!newstorage) {
+      fprintf(stderr, "GLS ERROR: eglQueryString reallocation failed: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    egl_strings.storage = newstorage;
+  }
+  char* field = egl_strings.storage + egl_strings.nfilled;
+  strcpy(field, value);
+  *field_p = field;
+  egl_strings.nfilled += valuesize;
+  return 1;
+}
+
+static void _populate_egl_strings(EGLDisplay dpy)
+{
+  assert(!egl_strings.dpy);
+  assert(!egl_strings.allocated);
+  egl_strings.dpy = dpy;
+  egl_strings.allocated = 1024; // rather arbitrary
+  egl_strings.storage = malloc(egl_strings.allocated);
+  if (!egl_strings.storage) {
+    fprintf(stderr, "GLS ERROR: eglQueryString allocation failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+#define X(FIELD)                                                        \
+  if (!_registerEglString(dpy, EGL_##FIELD, &egl_strings.FIELD##_str))  \
+    exit(EXIT_FAILURE);                                                 \
+  //
+
+  GLS_EGLQUERYSTRING_ITEMS();
+#undef X
+}
+
+// FIXME: since we're handling queries mostly locally, we should do
+// more checks and fill client_egl_error properly, following spec
+EGLAPI const char* EGLAPIENTRY eglQueryString(EGLDisplay dpy, EGLint name)
+{
+  // handle the client-extensions special case
+  if (dpy == EGL_NO_DISPLAY) {
+    if (name != EGL_EXTENSIONS) {
+      client_egl_error = EGL_BAD_DISPLAY;
+      return NULL;
+    }
+    if (!eglquerystring_client_extensions) {
+      // query and cache
+      const char* value = _real_eglQueryString(dpy, name);
+      if (!value) return NULL;
+      eglquerystring_client_extensions = malloc(strlen(value)+1);
+      if (!eglquerystring_client_extensions) {
+        fprintf(stderr, "GLS ERROR: eglQueryString allocation failed: %s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      strcpy(eglquerystring_client_extensions, value);
+    }
+    client_egl_error = EGL_SUCCESS;
+    return eglquerystring_client_extensions;
+  }
+
+  // init storage
+  if (!egl_strings.storage)
+    _populate_egl_strings(dpy);
+
+  // check dpy against cache
+  if (egl_strings.dpy != dpy) {
+    fprintf(stderr, "GLS ERROR: eglQueryString() called for a second display, values will be wrong\n");
+    exit(EXIT_FAILURE);
+  }
+
+  switch(name) {
+#define X(FIELD)                                                        \
+    case EGL_##FIELD:                                                   \
+      if (!egl_strings.FIELD##_str) {                                   \
+        client_egl_error = EGL_BAD_PARAMETER;                           \
+        return NULL;                                                    \
+      }                                                                 \
+      client_egl_error = EGL_SUCCESS;                                   \
+      return egl_strings.FIELD##_str;                                   \
+      //
+    GLS_EGLQUERYSTRING_ITEMS();
+#undef X
+
+  default:
+    client_egl_error = EGL_BAD_PARAMETER;
+    return NULL;
+  }
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value )
