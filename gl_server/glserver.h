@@ -61,6 +61,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t, WAITDATA)  \
   //
 
+#define GLSE_SET_RAWRET_PTR(PTR, TYPE)                          \
+  TYPE* ret = (TYPE*)glsec_global.pool.tmp_buf.buf;             \
+  //
+#define GLSE_SET_RET_PTR(PTR, FUNCNAME)                         \
+  GLSE_SET_RAWRET_PTR(PTR, gls_ret_##FUNCNAME##_t);             \
+  ret->cmd = GLSC_##FUNCNAME;                                   \
+  //
+#define GLSE_SEND_RAWRET(PTR, SIZE)                             \
+  glse_cmd_send_data(SIZE, PTR);                                \
+  //
+#define GLSE_SEND_RET(PTR, FUNCNAME)                            \
+  GLSE_SEND_RAWRET(PTR, sizeof(gls_ret_##FUNCNAME##_t));        \
+  //
+
+
 typedef struct
 {
   gls_bufpool_t pool;

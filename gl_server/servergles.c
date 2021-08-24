@@ -115,9 +115,9 @@ void glse_glBufferSubData(gls_command_t* buf)
 void glse_glCheckFramebufferStatus(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glCheckFramebufferStatus);
-  gls_ret_glCheckFramebufferStatus_t *ret = (gls_ret_glCheckFramebufferStatus_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glCheckFramebufferStatus);
   ret->status = glCheckFramebufferStatus(c->target);
-  glse_cmd_send_data(sizeof(gls_ret_glCheckFramebufferStatus_t), glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glCheckFramebufferStatus);
 }
 
 
@@ -167,10 +167,9 @@ void glse_glCreateProgram(gls_command_t* buf)
 {
   (void)buf;
   GLuint program = glCreateProgram();
-  gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = GLSC_glCreateProgram;
+  GLSE_SET_RET_PTR(ret, glCreateProgram);
   ret->program = program;
-  glse_cmd_send_data(sizeof(gls_ret_glCreateProgram_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glCreateProgram);
 }
 
 
@@ -178,10 +177,9 @@ void glse_glCreateShader(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glCreateShader);
   uint32_t obj = glCreateShader(c->type);
-  gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = GLSC_glCreateShader;
+  GLSE_SET_RET_PTR(ret, glCreateShader);
   ret->obj = obj;
-  glse_cmd_send_data(sizeof(gls_ret_glCreateShader_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glCreateShader);
 }
 
 
@@ -308,50 +306,46 @@ void glse_glFramebufferTexture2D(gls_command_t* buf)
 void glse_glGenBuffers(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenBuffers);
-  GLuint *ret = (GLuint*)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RAWRET_PTR(ret, GLuint);
   glGenBuffers(c->n, ret);
-  uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(size, ret);
+  GLSE_SEND_RAWRET(ret, c->n * sizeof(uint32_t));
 }
 
 
 void glse_glGenFramebuffers(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenFramebuffers);
-  GLuint *ret = (GLuint*)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RAWRET_PTR(ret, GLuint);
   glGenFramebuffers(c->n, ret);
-  uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(size, ret);
+  GLSE_SEND_RAWRET(ret, c->n * sizeof(uint32_t));
 }
 
 
 void glse_glGenTextures(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenTextures);
-  GLuint* ret = (GLuint*)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RAWRET_PTR(ret, GLuint);
   glGenTextures(c->n, ret);
-  uint32_t size = c->n * sizeof(uint32_t);
-  glse_cmd_send_data(size, ret);
+  GLSE_SEND_RAWRET(ret, c->n * sizeof(uint32_t));
 }
 
 
 void glse_glGetActiveAttrib(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetActiveAttrib);
-  gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsec_global.pool.tmp_buf.buf;
-  glGetActiveAttrib (c->program, c->index, c->bufsize, &ret->length, &ret->size, &ret->type, (GLchar*)ret->name);
-  ret->cmd = GLSC_glGetActiveAttrib;
-  glse_cmd_send_data(sizeof(gls_ret_glGetActiveAttrib_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SET_RET_PTR(ret, glGetActiveAttrib);
+  glGetActiveAttrib (c->program, c->index, c->bufsize,
+                     &ret->length, &ret->size, &ret->type, (GLchar*)ret->name);
+  GLSE_SEND_RET(ret, glGetActiveAttrib);
 }
 
 
 void glse_glGetActiveUniform(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetActiveUniform);
-  gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetActiveUniform);
   glGetActiveUniform (c->program, c->index, c->bufsize, &ret->length, &ret->size, &ret->type, (GLchar*)ret->name);
-  ret->cmd = GLSC_glGetActiveUniform;
-  glse_cmd_send_data(sizeof(gls_ret_glGetActiveUniform_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetActiveUniform);
 }
 
 
@@ -359,10 +353,9 @@ void glse_glGetAttribLocation(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetAttribLocation);
   int index = glGetAttribLocation (c->program, c->name);
-  gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = GLSC_glGetAttribLocation;
+  GLSE_SET_RET_PTR(ret, glGetAttribLocation);
   ret->index = index;
-  glse_cmd_send_data(sizeof(gls_ret_glGetAttribLocation_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetAttribLocation);
 }
 
 
@@ -370,92 +363,82 @@ void glse_glGetError(gls_command_t* buf)
 {
   (void)buf;
   GLuint error = glGetError();
-  gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = GLSC_glGetError;
+  GLSE_SET_RET_PTR(ret, glGetError);
   ret->error = error;
-  glse_cmd_send_data(sizeof(gls_ret_glGetError_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetError);
 }
 
 
 void glse_glGetFloatv(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetFloatv);
-  gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetFloatv);
   glGetFloatv(c->name, &ret->params);
-  ret->cmd = GLSC_glGetFloatv;
-  glse_cmd_send_data(sizeof(gls_ret_glGetFloatv_t),(char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetFloatv);
 }
 
 
 void glse_glGetIntegerv(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetIntegerv);
-  gls_ret_glGetIntegerv_t *ret = (gls_ret_glGetIntegerv_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetIntegerv);
   glGetIntegerv(c->name, &ret->params);
-  ret->cmd = GLSC_glGetIntegerv;
-  glse_cmd_send_data(sizeof(gls_ret_glGetIntegerv_t),(char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetIntegerv);
 }
 
 
 void glse_glGetProgramInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetProgramInfoLog);
-  gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetProgramInfoLog);
   int32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
   if (c->bufsize > maxsize)
   {
     c->bufsize = maxsize;
   }
   glGetProgramInfoLog(c->program, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
-  ret->cmd = GLSC_glGetProgramInfoLog;
   uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
-  glse_cmd_send_data(size, (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RAWRET(ret, size);
 }
 
 
 void glse_glGetProgramiv(gls_command_t* buf)
 {
     GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
-    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsec_global.pool.tmp_buf.buf;
+    GLSE_SET_RET_PTR(ret, glGetProgramiv);
     glGetProgramiv(c->program, c->pname, &ret->params);
-    
-    // LOGD("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", c->program, c->pname, &ret->params, ret->params);
-    
-    ret->cmd = GLSC_glGetProgramiv;
-    glse_cmd_send_data(sizeof(gls_ret_glGetProgramiv_t),(char *)glsec_global.pool.tmp_buf.buf);
+    GLSE_SEND_RET(ret, glGetProgramiv);
 }
 
 
 void glse_glGetShaderInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
-  gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetShaderInfoLog);
   int32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
   if (c->bufsize > maxsize)
   {
     c->bufsize = maxsize;
   }
   glGetShaderInfoLog(c->shader, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
-  ret->cmd = GLSC_glGetShaderInfoLog;
   uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
-  glse_cmd_send_data(size, (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RAWRET(ret, size);
 }
 
 
 void glse_glGetShaderiv(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderiv);
-  gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetShaderiv);
   glGetShaderiv(c->shader, c->pname, &ret->params);
-  ret->cmd = GLSC_glGetShaderiv;
-  glse_cmd_send_data(sizeof(gls_ret_glGetShaderiv_t),(char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetShaderiv);
 }
 
 
 void glse_glGetString(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetString);
-  gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glGetString);
   switch (c->name) {
   case GL_EXTENSIONS:
     // we don't support any right now
@@ -480,21 +463,18 @@ void glse_glGetString(gls_command_t* buf)
       }
     }
   }
-  ret->cmd = GLSC_glGetString;
   // LOGD("Client asking for %i, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
-  glse_cmd_send_data(sizeof(gls_ret_glGetString_t),(char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glGetString);
 }
 
 
 void glse_glGetUniformLocation(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetUniformLocation);
-  GLint location = glGetUniformLocation (c->program, (const GLchar*)c->name);
-  gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = GLSC_glGetUniformLocation;
-  ret->location = location;
-  glse_cmd_send_data(sizeof(gls_ret_glGetUniformLocation_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SET_RET_PTR(ret, glGetUniformLocation);
+  ret->location = glGetUniformLocation (c->program, (const GLchar*)c->name);
+  GLSE_SEND_RET(ret, glGetUniformLocation);
 }
 
 
@@ -508,18 +488,18 @@ void glse_glHint(gls_command_t* buf)
 void glse_glIsBuffer(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glIsBuffer);
-  gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glIsBuffer);
   ret->isbuffer = glIsBuffer(c->buffer);
-  glse_cmd_send_data(sizeof(gls_ret_glIsBuffer_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glIsBuffer);
 }
 
 
 void glse_glIsEnabled(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glIsEnabled);
-  gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glIsEnabled);
   ret->isenabled = glIsEnabled(c->cap);
-  glse_cmd_send_data(sizeof(gls_ret_glIsEnabled_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glIsEnabled);
 }
 
 
@@ -554,12 +534,9 @@ void glse_glPolygonOffset(gls_command_t* buf)
 void glse_glReadPixels(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glReadPixels);
-  gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, glReadPixels);
   glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
-  ret->cmd = GLSC_glReadPixels;
-  glse_cmd_send_data(sizeof(gls_ret_glReadPixels_t), (char *)glsec_global.pool.tmp_buf.buf);
-  
-  // gls_cmd_send_data(0, (uint32_t) (c->width * c->height) /* correct??? */ , (void *)ret->pixels);
+  GLSE_SEND_RET(ret, glReadPixels);
 }
 
 
@@ -752,10 +729,9 @@ void glse_glUnmapBufferOES(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glUnmapBufferOES);
   GLboolean success = glUnmapBufferOES(c->target);
-  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = GLSC_glUnmapBufferOES;
+  GLSE_SET_RET_PTR(ret, glUnmapBufferOES);
   ret->success = success;
-  glse_cmd_send_data(sizeof(gls_ret_glUnmapBufferOES_t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, glUnmapBufferOES);
 }
 #endif
 
@@ -767,10 +743,10 @@ void glse_()
 
 }
 
-  gls_ret__t *ret = (gls_ret__t *)glsec_global.pool.tmp_buf.buf;
+  GLSE_SET_RET_PTR(ret, );
   ret->cmd = GLSC_;
   ret-> = ;
-  glse_cmd_send_data(sizeof(gls_ret__t), (char *)glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, );
 */
 
 
