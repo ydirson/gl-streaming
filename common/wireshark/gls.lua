@@ -15,6 +15,8 @@ local vs_commands = {
    [0x10000] = "eglChooseConfig",
    [0x10008] = "eglGetConfigAttrib",
    [0x10012] = "eglQueryString",
+   [0x10015] = "eglTerminate",
+   [0x1001f] = "eglReleaseThread",
 
    [0x20000] = "glActiveTexture",
    [0x20003] = "glBindBuffer",
@@ -24,6 +26,7 @@ local vs_commands = {
    [0x2000e] = "glCheckFramebufferStatus",
    [0x20033] = "glGenFramebuffers",
    [0x20035] = "glGenTextures",
+   [0x2003c] = "glGetError",
    [0x2003f] = "glGetIntegerv",
    [0x20044] = "glGetShaderInfoLog",
    [0x2004c] = "glGetUniformLocation",
