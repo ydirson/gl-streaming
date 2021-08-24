@@ -34,12 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stddef.h>
-
-// EGL command data
-typedef struct
-{
-  int32_t attrib_list[GLS_DATA_SIZE];
-} gls_data_egl_attriblist_t;
  
 
 // EGL 1.0

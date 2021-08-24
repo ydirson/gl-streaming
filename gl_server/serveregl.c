@@ -40,9 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void glse_eglChooseConfig(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
-  EGLint *attrib_list = NULL;
-  GLSE_SET_DATA_PTR(dat, egl_attriblist, c->has_attribs);
-  attrib_list = dat->attrib_list;
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
   EGLint num_config;
   EGLConfig* configs = NULL;
@@ -57,7 +55,7 @@ void glse_eglChooseConfig(gls_command_t* buf)
   }
 
   if (success)
-    success = eglChooseConfig((EGLDisplay)c->dpy, attrib_list,
+    success = eglChooseConfig((EGLDisplay)c->dpy, dat,
                               configs, c->config_size, &num_config);
   gls_ret_eglChooseConfig_t *ret = (gls_ret_eglChooseConfig_t *)glsec_global.pool.tmp_buf.buf;
   if (success && c->config_size)
@@ -71,12 +69,10 @@ void glse_eglChooseConfig(gls_command_t* buf)
 void glse_eglCreateContext(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreateContext);
-  EGLint *attrib_list = NULL;
-  GLSE_SET_DATA_PTR(dat, egl_attriblist, c->has_attribs);
-  attrib_list = dat->attrib_list;
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
   EGLContext context = eglCreateContext((EGLDisplay)c->dpy, (EGLConfig)c->config,
-                                        (EGLContext)c->share_list, attrib_list);
+                                        (EGLContext)c->share_list, dat);
 
   gls_ret_eglCreateContext_t *ret = (gls_ret_eglCreateContext_t *)glsec_global.pool.tmp_buf.buf;
   ret->cmd = GLSC_eglCreateContext;
@@ -87,11 +83,9 @@ void glse_eglCreateContext(gls_command_t* buf)
 void glse_eglCreatePbufferSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
-  EGLint *attrib_list = NULL;
-  GLSE_SET_DATA_PTR(dat, egl_attriblist, c->has_attribs);
-  attrib_list = dat->attrib_list;
+  GLSE_SET_RAWDATA_PTR(dat,void, c->has_attribs);
 
-  EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, attrib_list);
+  EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, dat);
   gls_ret_eglCreatePbufferSurface_t *ret = (gls_ret_eglCreatePbufferSurface_t *)glsec_global.pool.tmp_buf.buf;
   ret->cmd = GLSC_eglCreatePbufferSurface;
   ret->surface = (uint64_t)surface;
@@ -102,12 +96,10 @@ void glse_eglCreatePbufferSurface(gls_command_t* buf)
 void glse_eglCreatePixmapSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
-  EGLint *attrib_list = NULL;
-  GLSE_SET_DATA_PTR(dat, egl_attriblist, c->has_attribs);
-  attrib_list = dat->attrib_list;
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
   // FIXME must transfer Pixmap first
-  EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, attrib_list);
+  EGLSurface surface = eglCreatePbufferSurface((EGLDisplay)c->dpy, (EGLConfig)c->config, dat);
   EGLSurface surface = eglGetCurrentSurface(EGL_DRAW); // Stub: current
   gls_ret_eglCreatePixmapSurface_t *ret = (gls_ret_eglCreatePixmapSurface_t *)glsec_global.pool.tmp_buf.buf;
   ret->cmd = GLSC_eglCreatePixmapSurface;
@@ -119,14 +111,12 @@ void glse_eglCreatePixmapSurface(gls_command_t* buf)
 void glse_eglCreateWindowSurface(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
-  EGLint *attrib_list = NULL;
-  GLSE_SET_DATA_PTR(dat, egl_attriblist, c->has_attribs);
-  attrib_list = dat->attrib_list;
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
   fprintf(stderr, "GLS WARNING: eglCreateWindowSurface ignoring window parameter\n");
   EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
                                               glsec_global.gc->x.window, // FIXME
-                                              attrib_list);
+                                              dat);
   gls_ret_eglCreateWindowSurface_t *ret = (gls_ret_eglCreateWindowSurface_t *)glsec_global.pool.tmp_buf.buf;
   ret->cmd = GLSC_eglCreateWindowSurface;
   ret->surface = (uint64_t)surface;

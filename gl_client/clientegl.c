@@ -21,11 +21,10 @@ static inline unsigned SEND_ATTRIB_DATA(const EGLint *attrib_list)
   if (!attrib_list || attrib_list[0] == EGL_NONE) return 0;
   unsigned num_attribs;
   unsigned data_size;
-  gls_data_egl_attriblist_t *dat = (gls_data_egl_attriblist_t *)glsc_global.pool.tmp_buf.buf;
   for (num_attribs = 0; attrib_list[2*num_attribs] != EGL_NONE; num_attribs++);
   data_size = (num_attribs * 2 + 1) * sizeof(EGLint);
   assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));
-  memcpy(dat->attrib_list, attrib_list, data_size);
+  memcpy(glsc_global.pool.tmp_buf.buf, attrib_list, data_size);
   gls_cmd_send_data(data_size, glsc_global.pool.tmp_buf.buf);
   return num_attribs;
 }
