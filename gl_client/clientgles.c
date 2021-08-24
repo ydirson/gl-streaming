@@ -4,9 +4,11 @@
 #include "glclient.h"
 #include "GLES2/gl2.h"
 
+#include <assert.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 static struct
 {
@@ -903,21 +905,112 @@ GL_APICALL void GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, G
   WARN_STUBBED();
 }
 
+// glGetString (with caching)
+
+static const GLubyte* GL_APIENTRY _real_glGetString(GLenum name)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glGetString);
+  c->name = name;
+  GLS_SEND_PACKET(glGetString);
+
+  GLS_WAIT_SET_RET_PTR(ret, glGetString);
+  if (!ret->success)
+    return NULL;
+  return ret->params;
+}
+
+#define GLS_GLESGETSTRING_ITEMS()               \
+  EMPTY()                                       \
+    X(VENDOR)                                   \
+    X(RENDERER)                                 \
+    X(VERSION)                                  \
+    X(SHADING_LANGUAGE_VERSION)                 \
+    X(EXTENSIONS)                               \
+  //
+
+static struct {
+  char* storage;
+  size_t allocated;
+  size_t nfilled;
+
+#define X(FIELD) const char* FIELD##_str;
+  GLS_GLESGETSTRING_ITEMS();
+#undef X
+} gles_strings;
+
+// record a string into gl_strings
+static int _registerGlesString(GLenum name, const char** field_p)
+{
+  const char* value = (const char*)_real_glGetString(name);
+  if (!value) {
+    GLenum error = glGetError();
+    if (error != GL_INVALID_ENUM)
+      fprintf(stderr, "GLS ERROR: glGetString(0x%x) failed, error 0x%x\n",
+              name, error);
+    return 0;
+  }
+  int valuesize = strlen(value) + 1;
+  while (gles_strings.nfilled + valuesize > gles_strings.allocated) {
+    gles_strings.allocated *= 2;
+    //fprintf(stderr, "GLS DBG: glGetString reallocating %zu\n", gles_strings.allocated);
+    void* newstorage = realloc(gles_strings.storage, gles_strings.allocated);
+    if (!newstorage) {
+      fprintf(stderr, "GLS ERROR: glGetString reallocation failed: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    gles_strings.storage = newstorage;
+  }
+  char* field = gles_strings.storage + gles_strings.nfilled;
+  strcpy(field, value);
+  *field_p = field;
+  gles_strings.nfilled += valuesize;
+  return 1;
+}
+
+static void _populate_gles_strings()
+{
+  assert(!gles_strings.allocated);
+  gles_strings.allocated = 1024; // rather arbitrary
+  gles_strings.storage = malloc(gles_strings.allocated);
+  if (!gles_strings.storage) {
+    fprintf(stderr, "GLS ERROR: glGetString allocation failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+#define X(FIELD)                                                    \
+  if (!_registerGlesString(GL_##FIELD, &gles_strings.FIELD##_str))  \
+    exit(EXIT_FAILURE);                                             \
+  //
+
+  GLS_GLESGETSTRING_ITEMS();
+#undef X
+}
 
 GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
 {
-    gls_cmd_flush();
-    GLS_SET_COMMAND_PTR(c, glGetString);
-    c->name = name;
-    GLS_SEND_PACKET(glGetString);
+  // init storage
+  if (!gles_strings.storage)
+    _populate_gles_strings();
 
-    GLS_WAIT_SET_RET_PTR(ret, glGetString);
-    if (ret->success)
-      return ret->params;
-    else
-      return NULL;
+  switch(name) {
+#define X(FIELD)                                  \
+    case GL_##FIELD:                              \
+      if (!gles_strings.FIELD##_str) {            \
+        client_gles_error = GL_INVALID_ENUM;      \
+        return NULL;                              \
+      }                                           \
+      client_gles_error = GL_NO_ERROR;            \
+      return (GLubyte*)gles_strings.FIELD##_str;  \
+      //
+    GLS_GLESGETSTRING_ITEMS();
+#undef X
+
+  default:
+    client_gles_error = GL_INVALID_ENUM;
+    return NULL;
+  }
 }
-
 
 GL_APICALL void GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params)
 {

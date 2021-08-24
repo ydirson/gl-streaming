@@ -103,7 +103,7 @@ On client side, we try to keep the code minimal, just piping data to
 the server.  However, not all API calls are simple enough for this to
 be possible.  Some exceptions are:
 
-### `eglQueryString`
+### `eglQueryString` and `glGetString`
 
 The strings a client app can retrieve with those calls are specified
 to be static strings.  Forwarding each call to the server would not
@@ -111,14 +111,18 @@ only be inefficient (which is not a problem in itself, as this ought
 not to be a frequently-repeated call), but also raises memory
 management issues.
 
-We have to wait until a valid `EGLDisplay` is passed to fetch any
-string other than client-extension.  However since the returned
-strings have to be static, we cannot even afford a `realloc()` call
-after a single API call.  We thus have to store client-extension in a
-separate storage buffer, and it will be queried and cached on first
-call.  All others, display-dependant, will be all queried and stored
-the first time any of them is requested.  All further requests will
-hit the cache.
+For `eglQueryString` we have to wait until a valid `EGLDisplay` is
+passed to fetch any string other than client-extension.  However since
+the returned strings have to be static, we cannot even afford a
+`realloc()` call after a single API call.  We thus have to store
+client-extension in a separate storage buffer, and it will be queried
+and cached on first call.  All others, display-dependant, will be all
+queried and stored the first time any of them is requested.  All
+further requests will hit the cache.
+
+The `glGetString` case is simpler but has the same "static string"
+requirement; we can just fetch all valid strings to populate the cache
+on first call.
 
 ### `eglGetError`, `glGetError` and GLS-level errors
 
