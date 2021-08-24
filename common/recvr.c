@@ -43,6 +43,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 
+#ifdef GLS_SERVER
+# define FIFO_SIZE_ORDER 12
+# define FIFO_PACKET_SIZE_ORDER 19
+#else
+# define FIFO_SIZE_ORDER 2
+# define FIFO_PACKET_SIZE_ORDER 14
+#endif
+
 static void recvr_init(recvr_context_t *rc)
 {
   fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
