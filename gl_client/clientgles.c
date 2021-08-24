@@ -588,7 +588,6 @@ GL_APICALL void GL_APIENTRY glFinish (void)
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glFinish);
   GLS_SEND_PACKET(glFinish);
-  wait_for_data("glFinish");
 }
 
 

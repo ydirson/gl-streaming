@@ -286,12 +286,8 @@ void glse_glEnableVertexAttribArray(gls_command_t* buf)
 
 void glse_glFinish(gls_command_t* buf)
 {
-  GLSE_SET_COMMAND_PTR(c, glFinish);
+  (void)buf;
   glFinish();
-  gls_command_t *ret = (gls_command_t *)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = c->cmd;
-  size_t size = sizeof(gls_command_t);
-  glse_cmd_send_data(size, glsec_global.pool.tmp_buf.buf);
 }
 
 
