@@ -68,19 +68,31 @@ as long as there is space in the FIFO.  It may be necessary to adjust
 the compile-time `FIFO_SIZE_ORDER` if "FIFO full" is reported (causing
 throttling of network reception).
 
-Incoming `SEND_DATA` messages too large for a packet are dropped for
-now -- upstream worked around this by splitting large command packets
-into chunks (small enough to be queued in the FIFO) and reconstructing
-them into `tmp_buf`, with limited success (FIFO and `tmp_buf` also
-prevented large messages, and reconstruction assumed perfect network
-conditions).
+Incoming `SEND_DATA` messages too large for a FIFO packet get a
+newly-allocated buffer just for them.  They still use a FIFO packet
+preserving the order of arrival, and it contains the
+`gls_cmd_send_data_t` header, including a pointer to the allocated
+data (a temporary hack which brings a nasty `zero` field to the
+protocol just to reserve space for that pointer).
 
 #### dequeuing and execution
 
 When dequeuing an API command message from the FIFO, it gets passed by
-pointer to the API implementation.  `SEND_DATA` message are copied in
-`tmp_buf` to free their FIFO slot, and API commands expecting input
-from a `SEND_DATA` message just use it from there.
+pointer to the API implementation.
+
+`SEND_DATA` message are handled according to where they were stored:
+
+* those small enough to fit in a FIFO buffer (`dataptr == NULL`)are
+  copied in `tmp_buf` to free their FIFO slot * those
+
+* the larger ones get their `dataptr` stored in `pool.mallocated`
+  alongside the (unused) `tmp_buf`; that points to the `SEND_DATA`
+  header, and we need it for `free()` later, and the data encapsulated
+  within it is stored a ref in `pool.data_payload`
+
+API commands expecting input from a `SEND_DATA` message just use it
+from there, according to the whether `pool.mallocated` is `NULL` or
+holds a pointer (in which case it is finally freed after use).
 
 ### output from API commands
 
@@ -102,6 +114,27 @@ INTERNALS](https://github.com/ydirson/gl-streaming/blob/master/INTERNALS.md#batc
 On client side, we try to keep the code minimal, just piping data to
 the server.  However, not all API calls are simple enough for this to
 be possible.  Some exceptions are:
+
+### `eglQueryString` and `glGetString`
+
+The strings a client app can retrieve with those calls are specified
+to be static strings.  Forwarding each call to the server would not
+only be inefficient (which is not a problem in itself, as this ought
+not to be a frequently-repeated call), but also raises memory
+management issues.
+
+For `eglQueryString` we have to wait until a valid `EGLDisplay` is
+passed to fetch any string other than client-extension.  However since
+the returned strings have to be static, we cannot even afford a
+`realloc()` call after a single API call.  We thus have to store
+client-extension in a separate storage buffer, and it will be queried
+and cached on first call.  All others, display-dependant, will be all
+queried and stored the first time any of them is requested.  All
+further requests will hit the cache.
+
+The `glGetString` case is simpler but has the same "static string"
+requirement; we can just fetch all valid strings to populate the cache
+on first call.
 
 ### `eglGetError`, `glGetError` and GLS-level errors
 

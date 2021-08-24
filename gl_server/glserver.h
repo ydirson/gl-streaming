@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gls_command.h"
 #include "glcontrol.h"
 #include "recvr.h"
+#include <stdlib.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -51,15 +52,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       fprintf(stderr, "GLS WARNING: skipping %s call without data\n", __FUNCTION__); \
       return;                                                           \
     }                                                                   \
-    PTR = (TYPE*)glsec_global.pool.tmp_buf.buf;                         \
+    if (glsec_global.pool.mallocated)                                   \
+      PTR = glsec_global.pool.data_payload;                             \
+    else                                                                \
+      PTR = (TYPE*)glsec_global.pool.tmp_buf.buf;                       \
   } else {                                                              \
     PTR = NULL;                                                         \
   }                                                                     \
+  //
+#define GLSE_RELEASE_DATA()                                             \
   glsec_global.pool.has_data = 0;                                       \
+  if (glsec_global.pool.mallocated) {                                   \
+    free(glsec_global.pool.mallocated);                                 \
+    glsec_global.pool.mallocated = NULL;                                \
+  }                                                                     \
   //
 #define GLSE_SET_DATA_PTR(PTR, FUNCNAME, WAITDATA)              \
   GLSE_SET_RAWDATA_PTR(PTR, gls_data_##FUNCNAME##_t, WAITDATA)  \
   //
+
+#define GLSE_SET_RAWRET_PTR(PTR, TYPE)                          \
+  TYPE* ret = (TYPE*)glsec_global.pool.tmp_buf.buf;             \
+  //
+#define GLSE_SET_RET_PTR(PTR, FUNCNAME)                         \
+  GLSE_SET_RAWRET_PTR(PTR, gls_ret_##FUNCNAME##_t);             \
+  ret->cmd = GLSC_##FUNCNAME;                                   \
+  //
+#define GLSE_SEND_RAWRET(PTR, SIZE)                             \
+  glse_cmd_send_data(SIZE, PTR);                                \
+  //
+#define GLSE_SEND_RET(PTR, FUNCNAME)                            \
+  GLSE_SEND_RAWRET(PTR, sizeof(gls_ret_##FUNCNAME##_t));        \
+  //
+
 
 typedef struct
 {

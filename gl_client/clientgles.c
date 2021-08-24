@@ -4,9 +4,11 @@
 #include "glclient.h"
 #include "GLES2/gl2.h"
 
+#include <assert.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 static struct
 {
@@ -221,9 +223,8 @@ GL_APICALL GLenum GL_APIENTRY glCheckFramebufferStatus (GLenum target)
   c->target = target;
   GLS_SEND_PACKET(glCheckFramebufferStatus);
 
-  wait_for_data("timeout:glCheckFramebufferStatus");
-  gls_ret_glCheckFramebufferStatus_t *ret = (gls_ret_glCheckFramebufferStatus_t *)glsc_global.pool.tmp_buf.buf;
-  return ret->status;
+  GLS_WAIT_SET_RET_PTR(ret, glCheckFramebufferStatus);
+  GLS_RELEASE_RETURN_RET(GLenum, ret, status);
 }
 
 
@@ -324,9 +325,8 @@ GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
     GLS_SET_COMMAND_PTR(c, glCreateProgram);
     GLS_SEND_PACKET(glCreateProgram);
 
-    wait_for_data("glCreateProgram");
-    gls_ret_glCreateProgram_t *ret = (gls_ret_glCreateProgram_t *)glsc_global.pool.tmp_buf.buf;
-    return ret->program;
+    GLS_WAIT_SET_RET_PTR(ret, glCreateProgram);
+    GLS_RELEASE_RETURN_RET(GLuint, ret, program);
 }
 
 
@@ -337,9 +337,8 @@ GL_APICALL GLuint GL_APIENTRY glCreateShader (GLenum type)
     c->type = type;
     GLS_SEND_PACKET(glCreateShader);
 
-    wait_for_data("glCreateShader");
-    gls_ret_glCreateShader_t *ret = (gls_ret_glCreateShader_t *)glsc_global.pool.tmp_buf.buf;
-    return ret->obj;
+    GLS_WAIT_SET_RET_PTR(ret, glCreateShader);
+    GLS_RELEASE_RETURN_RET(GLuint, ret, obj);
 }
 
 
@@ -630,8 +629,8 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
   c->n = n;
   GLS_SEND_PACKET(glGenBuffers);
 
-  wait_for_data("glGenBuffers");
-  memcpy(buffers, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
+  GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenBuffers);
+  memcpy(buffers, ret, c->n * sizeof(uint32_t));
 }
 
 
@@ -649,8 +648,8 @@ GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
   c->n = n;
   GLS_SEND_PACKET(glGenFramebuffers);
 
-  wait_for_data("timeout:glGenFramebuffers");
-  memcpy(framebuffers, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
+  GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenFramebuffers);
+  memcpy(framebuffers, ret, c->n * sizeof(uint32_t));
 }
 
 
@@ -668,8 +667,8 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
   c->n = n;
   GLS_SEND_PACKET(glGenTextures);
 
-  wait_for_data("glGenTextures");
-  memcpy(textures, glsc_global.pool.tmp_buf.buf, c->n * sizeof(uint32_t));
+  GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenTextures);
+  memcpy(textures, ret, c->n * sizeof(uint32_t));
 }
 
 
@@ -682,7 +681,7 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
     c->index = index;
     c->bufsize = bufsize;
 
-    gls_ret_glGetActiveAttrib_t *ret = (gls_ret_glGetActiveAttrib_t *)glsc_global.pool.tmp_buf.buf;
+    GLS_SET_RET_PTR(ret, glGetActiveAttrib);
     if ((unsigned)bufsize > sizeof(ret->name)) {
         c->bufsize = sizeof(ret->name);
         fprintf(stderr,
@@ -691,7 +690,7 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
     }
     GLS_SEND_PACKET(glGetActiveAttrib);
     
-    wait_for_data("glGetActiveAttrib");
+    GLS_WAIT_RET(glGetActiveAttrib);
     
     if (length != NULL) {
         *length = ret->length;
@@ -702,6 +701,7 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
         ret->name[0] = '\0';
     }
     strncpy(name, ret->name, (size_t)bufsize);
+    GLS_RELEASE_RET();
 }
 
 
@@ -713,8 +713,8 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
     c->program = program;
     c->index = index;
     c->bufsize = bufsize;
-    
-    gls_ret_glGetActiveUniform_t *ret = (gls_ret_glGetActiveUniform_t *)glsc_global.pool.tmp_buf.buf;
+
+    GLS_SET_RET_PTR(ret, glGetActiveUniform);
     if ((unsigned)bufsize > sizeof(ret->name)) {
         c->bufsize = sizeof(ret->name);
         fprintf(stderr,
@@ -723,7 +723,7 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
     }
     GLS_SEND_PACKET(glGetActiveUniform);
     
-    wait_for_data("glGetActiveUniform");
+    GLS_WAIT_RET(glGetActiveUniform);
     
     if (length != NULL) {
         *length = ret->length;
@@ -735,6 +735,7 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
         ret->name[0] = '\0';
     }
     strncpy(name, ret->name, (size_t)bufsize);
+    GLS_RELEASE_RET();
 }
 
 
@@ -759,9 +760,8 @@ GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* 
     strcpy(c->name, name);
     GLS_SEND_PACKET(glGetAttribLocation);
 
-    wait_for_data("glGetAttribLocation");
-    gls_ret_glGetAttribLocation_t *ret = (gls_ret_glGetAttribLocation_t *)glsc_global.pool.tmp_buf.buf;
-    return ret->index;
+    GLS_WAIT_SET_RET_PTR(ret, glGetAttribLocation);
+    GLS_RELEASE_RETURN_RET(GLint, ret, index);
 }
 
 GL_APICALL void GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean* params)
@@ -787,9 +787,8 @@ GL_APICALL GLenum GL_APIENTRY glGetError()
     GLS_SET_COMMAND_PTR(c, glGetError);
     GLS_SEND_PACKET(glGetError);
     
-    wait_for_data("glGetError");
-    gls_ret_glGetError_t *ret = (gls_ret_glGetError_t *)glsc_global.pool.tmp_buf.buf;
-    return ret->error;
+    GLS_WAIT_SET_RET_PTR(ret, glGetError);
+    GLS_RELEASE_RETURN_RET(GLenum, ret, error);
 }
 
 
@@ -800,9 +799,9 @@ GL_APICALL void GL_APIENTRY glGetFloatv(GLenum name, GLfloat *params)
     c->name = name;
     GLS_SEND_PACKET(glGetFloatv);
     
-    wait_for_data("glGetFloatv");
-    gls_ret_glGetFloatv_t *ret = (gls_ret_glGetFloatv_t *)glsc_global.pool.tmp_buf.buf;
+    GLS_WAIT_SET_RET_PTR(ret, glGetFloatv);
     *params = ret->params;
+    GLS_RELEASE_RET();
 }
 
 
@@ -820,9 +819,9 @@ GL_APICALL void GL_APIENTRY glGetIntegerv(GLenum name, GLint *params)
     c->name = name;
     GLS_SEND_PACKET(glGetIntegerv);
     
-    wait_for_data("glGetIntegerv");
-    gls_ret_glGetIntegerv_t *ret = (gls_ret_glGetIntegerv_t *)glsc_global.pool.tmp_buf.buf;
+    GLS_WAIT_SET_RET_PTR(ret, glGetIntegerv);
     *params = ret->params;
+    GLS_RELEASE_RET();
 }
 
 
@@ -834,12 +833,9 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
     c->pname = pname;
     GLS_SEND_PACKET(glGetProgramiv);
 
-    wait_for_data("glGetProgramiv");
-    gls_ret_glGetProgramiv_t *ret = (gls_ret_glGetProgramiv_t *)glsc_global.pool.tmp_buf.buf;
-
+    GLS_WAIT_SET_RET_PTR(ret, glGetProgramiv);
     *params = ret->params;
-
-    // printf("glGetProgramiv(program=%p, pname=%p) -> ptr=%p, value=%p\n", program, pname, params, *params);
+    GLS_RELEASE_RET();
 }
 
 
@@ -851,8 +847,7 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
   c->bufsize = bufsize;
   GLS_SEND_PACKET(glGetProgramInfoLog);
 
-  wait_for_data("glGetProgramInfoLog");
-  gls_ret_glGetProgramInfoLog_t *ret = (gls_ret_glGetProgramInfoLog_t *)glsc_global.pool.tmp_buf.buf;
+  GLS_WAIT_SET_RET_PTR(ret, glGetProgramInfoLog);
   if (length != NULL) {
     *length = ret->length;
   }
@@ -860,6 +855,7 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
     ret->infolog[0] = '\0';
   }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
+  GLS_RELEASE_RET();
 }
 
 
@@ -878,11 +874,8 @@ GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* p
   c->pname = pname;
   GLS_SEND_PACKET(glGetShaderiv);
 
-  wait_for_data("glGetShaderiv");
-  gls_ret_glGetShaderiv_t *ret = (gls_ret_glGetShaderiv_t *)glsc_global.pool.tmp_buf.buf;
-  
+  GLS_WAIT_SET_RET_PTR(ret, glGetShaderiv);
   *params = ret->params;
-  // printf("Done executing glGetShaderiv(%p, %p) with return %i\n", shader, pname, ret->params);
 }
 
 
@@ -894,8 +887,7 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
   c->bufsize = bufsize;
   GLS_SEND_PACKET(glGetShaderInfoLog);
 
-  wait_for_data("glGetShaderInfoLog");
-  gls_ret_glGetShaderInfoLog_t *ret = (gls_ret_glGetShaderInfoLog_t *)glsc_global.pool.tmp_buf.buf;
+  GLS_WAIT_SET_RET_PTR(ret, glGetShaderInfoLog);
   if (length != NULL) {
     *length = ret->length;
   }
@@ -903,6 +895,7 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
     ret->infolog[0] = '\0';
   }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
+  GLS_RELEASE_RET();
 }
 
 
@@ -919,23 +912,116 @@ GL_APICALL void GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, G
   WARN_STUBBED();
 }
 
+// glGetString (with caching)
+
+static const GLubyte* GL_APIENTRY _real_glGetString(GLenum name)
+{
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glGetString);
+  c->name = name;
+  GLS_SEND_PACKET(glGetString);
+
+  GLS_WAIT_SET_RET_PTR(ret, glGetString);
+  if (!ret->success) {
+    GLS_RELEASE_RET();
+    return NULL;
+  }
+  // must defer ret freeing until after copy
+  return ret->params;
+}
+
+#define GLS_GLESGETSTRING_ITEMS()               \
+  EMPTY()                                       \
+    X(VENDOR)                                   \
+    X(RENDERER)                                 \
+    X(VERSION)                                  \
+    X(SHADING_LANGUAGE_VERSION)                 \
+    X(EXTENSIONS)                               \
+  //
+
+static struct {
+  char* storage;
+  size_t allocated;
+  size_t nfilled;
+
+#define X(FIELD) const char* FIELD##_str;
+  GLS_GLESGETSTRING_ITEMS();
+#undef X
+} gles_strings;
+
+// record a string into gl_strings
+static int _registerGlesString(GLenum name, const char** field_p)
+{
+  const char* value = (const char*)_real_glGetString(name);
+  if (!value) {
+    GLenum error = glGetError();
+    if (error != GL_INVALID_ENUM)
+      fprintf(stderr, "GLS ERROR: glGetString(0x%x) failed, error 0x%x\n",
+              name, error);
+    return 0;
+  }
+  int valuesize = strlen(value) + 1;
+  while (gles_strings.nfilled + valuesize > gles_strings.allocated) {
+    gles_strings.allocated *= 2;
+    //fprintf(stderr, "GLS DBG: glGetString reallocating %zu\n", gles_strings.allocated);
+    void* newstorage = realloc(gles_strings.storage, gles_strings.allocated);
+    if (!newstorage) {
+      fprintf(stderr, "GLS ERROR: glGetString reallocation failed: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    gles_strings.storage = newstorage;
+  }
+  char* field = gles_strings.storage + gles_strings.nfilled;
+  strcpy(field, value);
+  *field_p = field;
+  gles_strings.nfilled += valuesize;
+  GLS_RELEASE_RET();
+  return 1;
+}
+
+static void _populate_gles_strings()
+{
+  assert(!gles_strings.allocated);
+  gles_strings.allocated = 1024; // rather arbitrary
+  gles_strings.storage = malloc(gles_strings.allocated);
+  if (!gles_strings.storage) {
+    fprintf(stderr, "GLS ERROR: glGetString allocation failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+#define X(FIELD)                                                    \
+  if (!_registerGlesString(GL_##FIELD, &gles_strings.FIELD##_str))  \
+    exit(EXIT_FAILURE);                                             \
+  //
+
+  GLS_GLESGETSTRING_ITEMS();
+#undef X
+}
 
 GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name)
 {
-    gls_cmd_flush();
-    GLS_SET_COMMAND_PTR(c, glGetString);
-    c->name = name;
-    GLS_SEND_PACKET(glGetString);
+  // init storage
+  if (!gles_strings.storage)
+    _populate_gles_strings();
 
-    wait_for_data("glGetString");
-    gls_ret_glGetString_t *ret = (gls_ret_glGetString_t *)glsc_global.pool.tmp_buf.buf;
-    // printf("glGetString(%i) return %s\n", name, &ret->params[0]);
-    if (ret->success)
-      return ret->params;
-    else
-      return NULL;
+  switch(name) {
+#define X(FIELD)                                  \
+    case GL_##FIELD:                              \
+      if (!gles_strings.FIELD##_str) {            \
+        client_gles_error = GL_INVALID_ENUM;      \
+        return NULL;                              \
+      }                                           \
+      client_gles_error = GL_NO_ERROR;            \
+      return (GLubyte*)gles_strings.FIELD##_str;  \
+      //
+    GLS_GLESGETSTRING_ITEMS();
+#undef X
+
+  default:
+    client_gles_error = GL_INVALID_ENUM;
+    return NULL;
+  }
 }
-
 
 GL_APICALL void GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params)
 {
@@ -981,9 +1067,8 @@ GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* n
   strncpy(c->name, name, nameLength);
   GLS_SEND_PACKET(glGetUniformLocation);
 
-  wait_for_data("glGetUniformLocation");
-  gls_ret_glGetUniformLocation_t *ret = (gls_ret_glGetUniformLocation_t *)glsc_global.pool.tmp_buf.buf;
-  return ret->location;
+  GLS_WAIT_SET_RET_PTR(ret, glGetUniformLocation);
+  GLS_RELEASE_RETURN_RET(int, ret, location);
 }
 
 
@@ -1023,9 +1108,8 @@ GL_APICALL GLboolean GL_APIENTRY glIsBuffer (GLuint buffer)
   GLS_SET_COMMAND_PTR(c, glIsBuffer);
   c->buffer = buffer;
   GLS_SEND_PACKET(glIsBuffer);
-  wait_for_data("glIsBuffer");
-  gls_ret_glIsBuffer_t *ret = (gls_ret_glIsBuffer_t *)glsc_global.pool.tmp_buf.buf;
-  return ret->isbuffer;
+  GLS_WAIT_SET_RET_PTR(ret, glIsBuffer);
+  GLS_RELEASE_RETURN_RET(GLboolean, ret, isbuffer);
 }
 
 
@@ -1035,9 +1119,8 @@ GL_APICALL GLboolean GL_APIENTRY glIsEnabled (GLenum cap)
   GLS_SET_COMMAND_PTR(c, glIsEnabled);
   c->cap = cap;
   GLS_SEND_PACKET(glIsEnabled);
-  wait_for_data("glIsEnabled");
-  gls_ret_glIsEnabled_t *ret = (gls_ret_glIsEnabled_t *)glsc_global.pool.tmp_buf.buf;
-  return ret->isenabled;
+  GLS_WAIT_SET_RET_PTR(ret, glIsEnabled);
+  GLS_RELEASE_RETURN_RET(GLboolean, ret, isenabled);
 }
 
 
@@ -1138,12 +1221,12 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
     c->type = type;
     GLS_SEND_PACKET(glReadPixels);
     
-    wait_for_data("glReadPixels");
-    gls_ret_glReadPixels_t *ret = (gls_ret_glReadPixels_t *)glsc_global.pool.tmp_buf.buf;
+    GLS_WAIT_SET_RET_PTR(ret, glReadPixels);
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = ((pixelbytes * width + glsc_global.pack_alignment - 1) &
                           (~ (glsc_global.pack_alignment - 1)));
     memcpy(pixels, ret->pixels, linebytes * height);
+    GLS_RELEASE_RET();
 }
 
 
@@ -1550,9 +1633,8 @@ GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
   c->target = target;
   GLS_SEND_PACKET(glUnmapBufferOES);
 
-  wait_for_data("glUnmapBufferOES");
-  gls_ret_glUnmapBufferOES_t *ret = (gls_ret_glUnmapBufferOES_t *)glsc_global.pool.tmp_buf.buf;
-  return ret->success;
+  GLS_WAIT_SET_RET_PTR(ret, glUnmapBufferOES);
+  GLS_RELEASE_RETURN_RET(int, ret, success);
 }
 
 
@@ -1578,11 +1660,11 @@ GL_APICALL GLreturn GL_APIENTRY glCommand (GLparam param)
   c->param = param;
   GLS_SEND_PACKET(glCommand);
   
-  wait_for_data("glCommand");
-  gls_ret_glCommand_t *ret = (gls_ret_glCommand_t *)glsc_global.pool.tmp_buf.buf;
-  // *params = ret->params;
+  GLS_WAIT_SET_RET_PTR(ret, glCommand);
+  //  *params = ret->params;
+  //  GLS_RELEASE_RET();
   // or below if return
-  // return ret->returnVal;
+  //  GLS_RELEASE_RETURN_RET(GLreturn, ret, returnVal);
 }
  */
 

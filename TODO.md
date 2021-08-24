@@ -32,24 +32,26 @@
       - [x] shading=cel
     - bump
       - [x] bump-render=high-poly
-      - [ ] bump-render=normals
-      - [ ] bump-render=height
+      - [x] bump-render=normals
+      - [x] bump-render=height
     - effect2d
       - [x] kernel=0,1,0;1,-4,1;0,1,0;
       - [x] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;
     - pulsar
       - [x] light=false:quads=5:texture=false
-    - desktop (needs large data support)
-      - [ ] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
-      - [ ] effect=shadow:windows=4
+    - desktop
+      - [x] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
+      - [x] effect=shadow:windows=4
     - buffer
       - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
-      - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata (timeout:glGetAttribLocation)
+      - [x] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata
       - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
     - ideas
       - [.] speed=duration (no error, but missing some objects)
     - [x] jellyfish
-    - [ ] terrain (needs glGenerateMipmap, large data support)
+    - [ ] terrain (needs glGenerateMipmap, glGenRenderbuffers, glBindRenderbuffer,
+          glRenderbufferStorage, glFramebufferRenderbuffer, glDeleteRenderbuffers,
+          glDeleteFramebuffers)
     - [ ] shadow (needs "depth texture extension")
     - [ ] refract ("Unsupported")
     - conditionals
@@ -64,7 +66,8 @@
       - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
   - SDL2 programs with a GLE2-only libSDL
-    - [ ] blobby (needs glTexSubImage2D, large data support)
+    - [ ] blobby (needs glTexSubImage2D, SDL crashes in SDL_CreateTexture/**/SDL_GetHint
+          because SDL_Hints is empty)
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - [x] work on native 64bit platforms

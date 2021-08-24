@@ -175,6 +175,7 @@ int gls_cmd_send_data(uint32_t size, const void *data)
   gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
+  c->zero = 0;
 
   struct iovec iov[2] = { { c, sizeof(gls_cmd_send_data_t) },
                           { (void*)data, size } };
