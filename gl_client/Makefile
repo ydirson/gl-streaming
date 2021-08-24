@@ -2,6 +2,13 @@ WARNINGS = -Wall -Wextra -Werror
 OPT = -O3 -g
 CFLAGS = $(WARNINGS) $(OPT) -I../common -I. -I./include -fPIC
 
+#SANFLAGS = -fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope
+CFLAGS += $(SANFLAGS)
+LDFLAGS += $(SANFLAGS)
+ifeq ($(SANFLAGS),)
+LDFLAGS += -Wl,--no-undefined
+endif
+
 # Use X11
 CFLAGS+=-DUSE_X11
 
@@ -41,7 +48,7 @@ glclient.o: glclient.c glclient.h ../common/gls_command.h recvr.o
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 $(LIBGLES2_2): $(OBJS)
-	$(CC) -shared -o $(LIBGLES2_2) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library,--no-undefined $(LIBS)
+	$(CC) -shared -o $(LIBGLES2_2) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library $(LDFLAGS) $(LIBS)
 
 $(LIBEGL_1): $(LIBGLES2_2)
 	ln -sf $< $@

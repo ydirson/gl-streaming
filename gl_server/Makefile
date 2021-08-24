@@ -2,6 +2,10 @@ WARNINGS = -Wall -Wextra -Werror
 OPT = -O3 -g
 CFLAGS = $(WARNINGS) $(OPT) -DUSE_X11 -DGLS_SERVER
 
+#SANFLAGS = -fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope
+CFLAGS += $(SANFLAGS)
+LDFLAGS += $(SANFLAGS)
+
 LIBS = -lX11 -lGLESv2 -lEGL -lpthread -lrt
 INCLUDES = -I../common -I. -I./include
 OBJS = main.o fifo.o glcontrol.o recvr.o serveregl.o servergles.o glserver.o
@@ -34,7 +38,7 @@ main.o: main.c
 	$(CC) -c -o $@ $(CFLAGS) $(INCLUDES) $<
 
 gl_server: $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LIBS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
 
 install:
 	mkdir -p $(DESTDIR)$(bindir)
