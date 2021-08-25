@@ -24,13 +24,24 @@ for log in sys.argv[1:]:
             if not m: continue
             LOGDATA[m.group(1)] = m.group(2)
 
-MASTERKEYS = DATA[sys.argv[1]].keys()
+REFDATA = DATA[sys.argv[1]]
 
 print("| test | " + " | ".join(DATA.keys()) + " |")
 print("| :--- " + "| :-: " * len(DATA) + "|")
 
-for key in MASTERKEYS:
+for key in REFDATA.keys():
     print("|", html.escape(key), "| ", end="")
-    for log in sys.argv[1:]:
-        print(DATA[log][key] if key in DATA[log] else "N/A", "| ", end="")
+    for i, log in enumerate(sys.argv[1:]):
+        if key not in DATA[log]:
+            data = "N/A"
+        else:
+            data = DATA[log][key]
+            try:
+                score = int(data)
+                if i:
+                    data += " (%+d%%)" % (score * 100 / int(REFDATA[key]) - 100)
+            except ValueError:
+                pass # nota number, no stat
+
+            print(data, "| ", end="")
     print()
