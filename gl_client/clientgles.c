@@ -98,6 +98,7 @@ GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, 
   if (strlen(name) + 1 > sizeof(c->name)) {
     fprintf(stderr, "GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
             __FUNCTION__, name, sizeof(c->name));
+    client_gles_error = GL_INVALID_OPERATION;
     return;
   }
   strcpy(c->name, name);
@@ -117,7 +118,8 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
       buffer_objs.vbo = buffer;
   } else if(target == GL_ELEMENT_ARRAY_BUFFER) {
       buffer_objs.ibo = buffer;
-  } else printf("gls error: unsupported buffer type!\n");
+  } else
+    fprintf(stderr, "GLS ERROR: unsupported buffer type!\n");
 }
 
 
@@ -659,6 +661,7 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
   GLS_SEND_PACKET(glGenBuffers);
 
   GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenBuffers);
+  _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
   memcpy(buffers, ret, c->n * sizeof(uint32_t));
 }
 
@@ -679,6 +682,7 @@ GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
   GLS_SEND_PACKET(glGenFramebuffers);
 
   GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenFramebuffers);
+  _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
   memcpy(framebuffers, ret, c->n * sizeof(uint32_t));
 }
 
@@ -691,6 +695,7 @@ GL_APICALL void GL_APIENTRY glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
   GLS_SEND_PACKET(glGenRenderbuffers);
 
   GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenRenderbuffers);
+  _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
   memcpy(renderbuffers, ret, c->n * sizeof(uint32_t));
 }
 
@@ -703,6 +708,7 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
   GLS_SEND_PACKET(glGenTextures);
 
   GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenTextures);
+  _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
   memcpy(textures, ret, c->n * sizeof(uint32_t));
 }
 
@@ -1094,6 +1100,7 @@ GL_APICALL void GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLin
 
 GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* name)
 {
+  WARN_ONCE("GLS WARNING: %s should be totally rewritten\n", __FUNCTION__);
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetUniformLocation);
   c->program = program;
@@ -1232,7 +1239,7 @@ GL_APICALL void GL_APIENTRY glPixelStorei (GLenum pname, GLint param)
       glsc_global.unpack_alignment = param;
       break;
     default:
-      break;
+      fprintf(stderr, "GLS WARNING: %s called with unknown pname 0x%x\n", __FUNCTION__, pname);
   }
   GLS_SET_COMMAND_PTR_BATCH(c, glPixelStorei);
   c->pname = pname;
@@ -1252,6 +1259,8 @@ GL_APICALL void GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units)
 
 GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels)
 {
+  WARN_ONCE("GLS WARNING: %s likely to buffer overflow on both server and client\n",
+            __FUNCTION__);
     gls_cmd_flush();
     GLS_SET_COMMAND_PTR(c, glReadPixels);
     c->x = x;
@@ -1313,7 +1322,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
 {
   gls_cmd_flush();
   if (count > 10240) { // 256
-    printf("gls warning: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
+    fprintf(stderr, "GLS WARNING: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
     return;
   }
   gls_data_glShaderSource_t *dat = (gls_data_glShaderSource_t *)glsc_global.pool.tmp_buf.buf;
@@ -1331,7 +1340,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
       strsize = strlen(strptr);
     size_all += strsize + 1;
     if (size_all > GLS_TMP_BUFFER_SIZE) {
-      printf("gls error: shader buffer size overflow!\n");
+      fprintf(stderr, "GLS ERROR: shader buffer size overflow!\n");
       return;
     }
     dat->offsets[i] = stroffset;
