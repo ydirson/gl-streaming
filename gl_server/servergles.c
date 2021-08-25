@@ -315,6 +315,13 @@ void glse_glGenBuffers(gls_command_t* buf)
 }
 
 
+void glse_glGenerateMipmap(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glGenerateMipmap);
+  glGenerateMipmap(c->target);
+}
+
+
 void glse_glGenFramebuffers(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGenFramebuffers);
@@ -817,7 +824,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glFramebufferTexture2D);
         //CASE_EXEC_CMD(glFrontFace);
         CASE_EXEC_CMD(glGenBuffers);
-        //CASE_EXEC_CMD(glGenerateMipmap);
+        CASE_BATCH_CMD(glGenerateMipmap);
         CASE_EXEC_CMD(glGenFramebuffers);
         //CASE_EXEC_CMD(glGenRenderbuffers);
         CASE_EXEC_CMD(glGenTextures);

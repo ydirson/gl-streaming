@@ -368,6 +368,13 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  int32_t target;
+} gls_glGenerateMipmap_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   int32_t n;
 } gls_glGenFramebuffers_t;
 

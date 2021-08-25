@@ -24,7 +24,7 @@
     - texture
       - [x] texture-filter=nearest
       - [x] texture-filter=linear
-      - [ ] texture-filter=mipmap (needs glGenerateMipmap)
+      - [x] texture-filter=mipmap
     - shading
       - [x] shading=gouraud
       - [x] shading=blinn-phong-inf
@@ -49,7 +49,7 @@
     - ideas
       - [.] speed=duration (no error, but missing some objects)
     - [x] jellyfish
-    - [ ] terrain (needs glGenerateMipmap, glGenRenderbuffers, glBindRenderbuffer,
+    - [.] terrain (needs glGenRenderbuffers, glBindRenderbuffer,
           glRenderbufferStorage, glFramebufferRenderbuffer, glDeleteRenderbuffers,
           glDeleteFramebuffers)
     - [ ] shadow (needs "depth texture extension")

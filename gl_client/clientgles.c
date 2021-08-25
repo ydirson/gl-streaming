@@ -636,8 +636,9 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
 
 GL_APICALL void GL_APIENTRY glGenerateMipmap (GLenum target)
 {
-  (void)target;
-  WARN_STUBBED();
+  GLS_SET_COMMAND_PTR_BATCH(c, glGenerateMipmap);
+  c->target = target;
+  GLS_PUSH_BATCH(glGenerateMipmap);
 }
 
 
