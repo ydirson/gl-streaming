@@ -208,6 +208,13 @@ void glse_glDeleteBuffers(gls_command_t* buf)
 }
 
 
+void glse_glDeleteFramebuffers(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glDeleteFramebuffers);
+  glDeleteFramebuffers(c->n, c->framebuffers);
+}
+
+
 void glse_glDeleteProgram(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glDeleteProgram);
@@ -840,7 +847,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glCreateShader);
         CASE_BATCH_CMD(glCullFace);
         CASE_EXEC_CMD(glDeleteBuffers);
-        //CASE_EXEC_CMD(glDeleteFramebuffers);
+        CASE_BATCH_CMD(glDeleteFramebuffers);
         CASE_BATCH_CMD(glDeleteProgram);
         CASE_BATCH_CMD(glDeleteRenderbuffers);
         CASE_BATCH_CMD(glDeleteShader);

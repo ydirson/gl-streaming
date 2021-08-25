@@ -49,7 +49,7 @@
     - ideas
       - [.] speed=duration (no error, but missing some objects)
     - [x] jellyfish
-    - [x] terrain (needs glDeleteFramebuffers)
+    - [x] terrain
     - [ ] shadow (needs "depth texture extension")
     - [ ] refract ("Unsupported")
     - conditionals
@@ -64,7 +64,7 @@
       - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
   - SDL2 programs with a GLE2-only libSDL
-    - [.] blobby
+    - [x] blobby
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - [x] work on native 64bit platforms

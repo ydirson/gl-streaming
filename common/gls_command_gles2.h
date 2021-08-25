@@ -256,6 +256,14 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  int32_t n;
+  uint32_t framebuffers[];
+} gls_glDeleteFramebuffers_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   uint32_t program;
 } gls_glDeleteProgram_t;
 

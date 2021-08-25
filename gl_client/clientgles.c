@@ -375,8 +375,16 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 
 GL_APICALL void GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)
 {
-  (void)n; (void)framebuffers;
-  WARN_STUBBED();
+  uint32_t datasize = n * sizeof(uint32_t);
+  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteFramebuffers);
+  c->cmd_size += datasize;
+  if (check_batch_overflow(c->cmd_size, "glDeleteFramebuffers: buffer overflow") != TRUE) {
+    return;
+  }
+  c->n = n;
+  memcpy(c->framebuffers, framebuffers, datasize);
+  push_batch_command();
+  gls_cmd_flush();
 }
 
 
