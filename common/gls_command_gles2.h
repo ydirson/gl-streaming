@@ -494,7 +494,6 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t name;
-  float params;
 } gls_glGetFloatv_t;
 
 typedef struct
@@ -508,7 +507,6 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t name;
-  int32_t params;
 } gls_glGetIntegerv_t;
 
 typedef struct
