@@ -955,7 +955,7 @@ static const GLubyte* GL_APIENTRY _real_glGetString(GLenum name)
     return NULL;
   }
   // must defer ret freeing until after copy
-  return ret->params;
+  return (GLubyte*)ret->params;
 }
 
 #define GLS_GLESGETSTRING_ITEMS()               \

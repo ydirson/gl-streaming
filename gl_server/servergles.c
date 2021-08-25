@@ -492,7 +492,7 @@ void glse_glGetString(gls_command_t* buf)
   case GL_EXTENSIONS:
     // we don't support any right now
     // FIXME later will need to query and filter those we support
-    strcpy((char*)ret->params, "GL_GLS_dummy");
+    strcpy(ret->params, "GL_GLS_dummy");
     ret->success = TRUE;
     break;
   case GL_VENDOR:

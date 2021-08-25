@@ -587,7 +587,7 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t success;
-  unsigned char params[GLS_STRING_SIZE_PLUS];
+  char params[GLS_STRING_SIZE_PLUS];
 } gls_ret_glGetString_t;
 
 
