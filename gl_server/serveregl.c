@@ -213,7 +213,7 @@ void glse_eglGetDisplay(gls_command_t* buf)
 void glse_eglGetError(gls_command_t* buf)
 {
   (void)buf;
-  GLuint error = eglGetError();
+  EGLint error = eglGetError();
   // Should check gl error inside eglGetError() ???
   
   GLSE_SET_RET_PTR(ret, eglGetError);
