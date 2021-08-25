@@ -208,12 +208,14 @@ GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const 
 GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data)
 {
     gls_cmd_flush();
-    gls_cmd_send_data((uint32_t)size, (void *)data);
+    if (data)
+      gls_cmd_send_data((uint32_t)size, (void *)data);
 
     GLS_SET_COMMAND_PTR(c, glBufferSubData);
     c->target = target;
     c->offset = offset;
     c->size = size;
+    c->has_data = (data != NULL);
     GLS_SEND_PACKET(glBufferSubData);
 }
 

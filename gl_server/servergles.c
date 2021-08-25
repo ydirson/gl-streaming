@@ -116,8 +116,8 @@ void glse_glBufferData(gls_command_t* buf)
 
 void glse_glBufferSubData(gls_command_t* buf)
 {
-  GLSE_SET_RAWDATA_PTR(dat, void, 1);
   GLSE_SET_COMMAND_PTR(c, glBufferSubData);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_data);
   glBufferSubData(c->target, c->offset, c->size, dat);
   GLSE_RELEASE_DATA();
 }
