@@ -1,0 +1,24 @@
+project(
+  'gls-streaming', 'c',
+  #meson_version: '>= 0.28',
+  default_options: [
+    'werror=true',
+    'warning_level=2',
+    'buildtype=debugoptimized',
+  ],
+)
+
+add_project_arguments(
+  [
+    '-DUSE_X11',
+  ],
+  language : 'c')
+
+common_incdir = include_directories('common')
+common_srcs = files(['common/fifo.c', 'common/recvr.c'])
+
+thread_dep = dependency('threads')
+x11_dep = dependency('x11')
+
+subdir('gl_server')
+subdir('gl_client')
