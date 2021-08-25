@@ -49,9 +49,7 @@
     - ideas
       - [.] speed=duration (no error, but missing some objects)
     - [x] jellyfish
-    - [.] terrain (needs glGenRenderbuffers, glBindRenderbuffer,
-          glRenderbufferStorage, glFramebufferRenderbuffer, glDeleteRenderbuffers,
-          glDeleteFramebuffers)
+    - [x] terrain (needs glDeleteFramebuffers)
     - [ ] shadow (needs "depth texture extension")
     - [ ] refract ("Unsupported")
     - conditionals

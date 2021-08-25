@@ -61,6 +61,13 @@ void glse_glBindBuffer(gls_command_t* buf)
 }
 
 
+void glse_glBindRenderbuffer(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glBindRenderbuffer);
+  glBindRenderbuffer(c->target, c->renderbuffer);
+}
+
+
 void glse_glBindFramebuffer(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glBindFramebuffer);
@@ -208,6 +215,13 @@ void glse_glDeleteProgram(gls_command_t* buf)
 }
 
 
+void glse_glDeleteRenderbuffers(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glDeleteRenderbuffers);
+  glDeleteRenderbuffers(c->n, c->renderbuffers);
+}
+
+
 void glse_glDeleteShader(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glDeleteShader);
@@ -299,6 +313,13 @@ void glse_glFlush(gls_command_t* buf)
 }
 
 
+void glse_glFramebufferRenderbuffer(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glFramebufferRenderbuffer);
+  glFramebufferRenderbuffer(c->target, c->attachment, c->renderbuffertarget, c->renderbuffer);
+}
+
+
 void glse_glFramebufferTexture2D(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glFramebufferTexture2D);
@@ -327,6 +348,15 @@ void glse_glGenFramebuffers(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glGenFramebuffers);
   GLSE_SET_RAWRET_PTR(ret, GLuint);
   glGenFramebuffers(c->n, ret);
+  GLSE_SEND_RAWRET(ret, c->n * sizeof(uint32_t));
+}
+
+
+void glse_glGenRenderbuffers(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glGenRenderbuffers);
+  GLSE_SET_RAWRET_PTR(ret, GLuint);
+  glGenRenderbuffers(c->n, ret);
   GLSE_SEND_RAWRET(ret, c->n * sizeof(uint32_t));
 }
 
@@ -547,6 +577,13 @@ void glse_glReadPixels(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, glReadPixels);
   glReadPixels(c->x, c->y, c->width, c->height, c->format, c->type, &ret->pixels);
   GLSE_SEND_RET(ret, glReadPixels);
+}
+
+
+void glse_glRenderbufferStorage(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glRenderbufferStorage);
+  glRenderbufferStorage(c->target, c->internalformat, c->width, c->height);
 }
 
 
@@ -779,7 +816,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_BATCH_CMD(glBindAttribLocation);
         CASE_BATCH_CMD(glBindBuffer);
         CASE_BATCH_CMD(glBindFramebuffer);
-        //CASE_BATCH_CMD(glBindRenderbuffer);
+        CASE_BATCH_CMD(glBindRenderbuffer);
         CASE_BATCH_CMD(glBindTexture);
         //CASE_BATCH_CMD(glBlendColor);
         //CASE_BATCH_CMD(glBlendEquation);
@@ -805,7 +842,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_EXEC_CMD(glDeleteBuffers);
         //CASE_EXEC_CMD(glDeleteFramebuffers);
         CASE_BATCH_CMD(glDeleteProgram);
-        //CASE_EXEC_CMD(glDeleteRenderbuffers);
+        CASE_BATCH_CMD(glDeleteRenderbuffers);
         CASE_BATCH_CMD(glDeleteShader);
         CASE_BATCH_CMD(glDeleteTextures);
         CASE_BATCH_CMD(glDepthFunc);
@@ -820,13 +857,13 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_BATCH_CMD(glEnableVertexAttribArray);
         CASE_EXEC_CMD(glFinish);
         CASE_BATCH_CMD(glFlush);
-        //CASE_EXEC_CMD(glFramebufferRenderbuffer);
+        CASE_BATCH_CMD(glFramebufferRenderbuffer);
         CASE_EXEC_CMD(glFramebufferTexture2D);
         //CASE_EXEC_CMD(glFrontFace);
         CASE_EXEC_CMD(glGenBuffers);
         CASE_BATCH_CMD(glGenerateMipmap);
         CASE_EXEC_CMD(glGenFramebuffers);
-        //CASE_EXEC_CMD(glGenRenderbuffers);
+        CASE_EXEC_CMD(glGenRenderbuffers);
         CASE_EXEC_CMD(glGenTextures);
         CASE_EXEC_CMD(glGetActiveAttrib);
         CASE_EXEC_CMD(glGetActiveUniform);
@@ -868,7 +905,7 @@ int gles_executeCommand(gls_command_t *c) {
         CASE_BATCH_CMD(glPolygonOffset);
         CASE_EXEC_CMD(glReadPixels);
         //CASE_BATCH_CMD(glReleaseShaderCompiler);
-        //CASE_BATCH_CMD(glRenderbufferStorage);
+        CASE_BATCH_CMD(glRenderbufferStorage);
         //CASE_BATCH_CMD(glSampleCoverage);
         //CASE_BATCH_CMD(glScissor);
         //CASE_EXEC_CMD(glShaderBinary);

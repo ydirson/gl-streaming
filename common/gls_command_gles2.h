@@ -82,6 +82,14 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t target;
+  uint32_t renderbuffer;
+} gls_glBindRenderbuffer_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t target;
   uint32_t texture;
 } gls_glBindTexture_t;
 
@@ -255,6 +263,14 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  int32_t n;
+  uint32_t renderbuffers[];
+} gls_glDeleteRenderbuffers_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   uint32_t shader;
 } gls_glDeleteShader_t;
 
@@ -352,6 +368,16 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint32_t target;
   uint32_t attachment;
+  uint32_t renderbuffertarget;
+  uint32_t renderbuffer;
+} gls_glFramebufferRenderbuffer_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t target;
+  uint32_t attachment;
   uint32_t textarget;
   uint32_t texture;
   uint32_t level;
@@ -377,6 +403,13 @@ typedef struct
   GLSCOMMAND_FIELDS();
   int32_t n;
 } gls_glGenFramebuffers_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t n;
+} gls_glGenRenderbuffers_t;
 
 
 typedef struct
@@ -644,6 +677,16 @@ typedef struct
   GLSCOMMAND_FIELDS();
   char pixels[4];
 } gls_ret_glReadPixels_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t target;
+  int32_t internalformat;
+  int32_t width;
+  int32_t height;
+} gls_glRenderbufferStorage_t;
 
 
 typedef struct

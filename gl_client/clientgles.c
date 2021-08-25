@@ -132,8 +132,10 @@ GL_APICALL void GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer
 
 GL_APICALL void GL_APIENTRY glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 {
-  (void)target; (void)renderbuffer;
-  WARN_STUBBED();
+  GLS_SET_COMMAND_PTR_BATCH(c, glBindRenderbuffer);
+  c->target = target;
+  c->renderbuffer = renderbuffer;
+  GLS_PUSH_BATCH(glBindRenderbuffer);
 }
 
 
@@ -388,8 +390,16 @@ GL_APICALL void GL_APIENTRY glDeleteProgram (GLuint program)
 
 GL_APICALL void GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)
 {
-  (void)n; (void)renderbuffers;
-  WARN_STUBBED();
+  uint32_t datasize = n * sizeof(uint32_t);
+  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteRenderbuffers);
+  c->cmd_size += datasize;
+  if (check_batch_overflow(c->cmd_size, "glDeleteRenderbuffers: buffer overflow") != TRUE) {
+    return;
+  }
+  c->n = n;
+  memcpy(c->renderbuffers, renderbuffers, datasize);
+  push_batch_command();
+  gls_cmd_flush();
 }
 
 
@@ -596,10 +606,14 @@ GL_APICALL void GL_APIENTRY glFlush (void)
   GLS_PUSH_BATCH(glFlush);
 }
 
-GL_APICALL void GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+GL_APICALL void GL_APIENTRY glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
-  (void)target; (void)attachment; (void)renderbuffertarget; (void)renderbuffer;
-  WARN_STUBBED();
+  GLS_SET_COMMAND_PTR_BATCH(c, glFramebufferRenderbuffer);
+  c->target = target;
+  c->attachment = attachment;
+  c->renderbuffertarget = renderbuffertarget;
+  c->renderbuffer = renderbuffer;
+  GLS_PUSH_BATCH(glFramebufferRenderbuffer);
 }
 
 
@@ -654,10 +668,15 @@ GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
 }
 
 
-GL_APICALL void GL_APIENTRY glGenRenderbuffers (GLsizei n, GLuint* renderbuffers)
+GL_APICALL void GL_APIENTRY glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 {
-  (void)n; (void)renderbuffers;
-  WARN_STUBBED();
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, glGenRenderbuffers);
+  c->n = n;
+  GLS_SEND_PACKET(glGenRenderbuffers);
+
+  GLS_WAIT_SET_RAWRET_PTR(ret, void, glGenRenderbuffers);
+  memcpy(renderbuffers, ret, c->n * sizeof(uint32_t));
 }
 
 
@@ -1237,10 +1256,14 @@ GL_APICALL void GL_APIENTRY glReleaseShaderCompiler (void)
 }
 
 
-GL_APICALL void GL_APIENTRY glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+GL_APICALL void GL_APIENTRY glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
 {
-  (void)target; (void)internalformat; (void)width; (void)height;
-  WARN_STUBBED();
+  GLS_SET_COMMAND_PTR_BATCH(c, glRenderbufferStorage);
+  c->target = target;
+  c->internalformat = internalformat;
+  c->width = width;
+  c->height = height;
+  GLS_PUSH_BATCH(glRenderbufferStorage);
 }
 
 
