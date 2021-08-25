@@ -871,6 +871,7 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
 
 GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)
 {
+  WARN_UNTESTED();
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetProgramInfoLog);
   c->program = program;
@@ -878,13 +879,15 @@ GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize
   GLS_SEND_PACKET(glGetProgramInfoLog);
 
   GLS_WAIT_SET_RET_PTR(ret, glGetProgramInfoLog);
-  if (length != NULL) {
+  if (ret->length > bufsize - 1) {
+    client_gles_error = GL_INVALID_VALUE;
+    GLS_RELEASE_RET();
+    return;
+  }
+  if (length != NULL)
     *length = ret->length;
-  }
-  if (ret->length == 0) {
-    ret->infolog[0] = '\0';
-  }
-  strncpy(infolog, ret->infolog, (size_t)bufsize);
+  memcpy(infolog, ret->infolog, ret->length);
+  ret->infolog[ret->length] = '\0';
   GLS_RELEASE_RET();
 }
 
@@ -911,6 +914,7 @@ GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* p
 
 GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog)
 {
+  WARN_UNTESTED();
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetShaderInfoLog);
   c->shader = shader;
@@ -918,13 +922,15 @@ GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, 
   GLS_SEND_PACKET(glGetShaderInfoLog);
 
   GLS_WAIT_SET_RET_PTR(ret, glGetShaderInfoLog);
-  if (length != NULL) {
+  if (ret->length > bufsize - 1) {
+    client_gles_error = GL_INVALID_VALUE;
+    GLS_RELEASE_RET();
+    return;
+  }
+  if (length != NULL)
     *length = ret->length;
-  }
-  if (ret->length == 0) {
-    ret->infolog[0] = '\0';
-  }
   strncpy(infolog, ret->infolog, (size_t)bufsize);
+  ret->infolog[ret->length] = '\0';
   GLS_RELEASE_RET();
 }
 

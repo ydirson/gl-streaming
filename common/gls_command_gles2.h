@@ -543,7 +543,7 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   int32_t length;
-  char infolog[GLS_STRING_SIZE_PLUS];
+  char infolog[];
 } gls_ret_glGetProgramInfoLog_t;
 
 
@@ -572,7 +572,7 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   int32_t length;
-  char infolog[GLS_STRING_SIZE_PLUS];
+  char infolog[];
 } gls_ret_glGetShaderInfoLog_t;
 
 

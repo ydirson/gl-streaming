@@ -440,13 +440,15 @@ void glse_glGetProgramInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetProgramInfoLog);
   GLSE_SET_RET_PTR(ret, glGetProgramInfoLog);
-  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
-  if (c->bufsize > maxsize)
-  {
+  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - sizeof(gls_ret_glGetProgramInfoLog_t);
+  if (c->bufsize > maxsize) {
+    fprintf(stderr, "GLS WARNING: lowering %s buffer size to %u\n",
+            __FUNCTION__, maxsize);
     c->bufsize = maxsize;
   }
+  _Static_assert(sizeof(GLsizei) == sizeof(ret->length), "int size mismatch");
   glGetProgramInfoLog(c->program, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
-  uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
+  uint32_t size = sizeof(gls_ret_glGetProgramInfoLog_t) + ret->length + 1;
   GLSE_SEND_RAWRET(ret, size);
 }
 
@@ -464,13 +466,15 @@ void glse_glGetShaderInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
   GLSE_SET_RET_PTR(ret, glGetShaderInfoLog);
-  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - (uint32_t)((char*)ret->infolog - (char*)ret) - 256;
-  if (c->bufsize > maxsize)
-  {
+  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - sizeof(gls_ret_glGetShaderInfoLog_t);
+  if (c->bufsize > maxsize) {
+    fprintf(stderr, "GLS WARNING: lowering %s buffer size to %u\n",
+            __FUNCTION__, maxsize);
     c->bufsize = maxsize;
   }
+  _Static_assert(sizeof(GLsizei) == sizeof(ret->length), "int size mismatch");
   glGetShaderInfoLog(c->shader, c->bufsize, (GLsizei*)&ret->length, (GLchar*)ret->infolog);
-  uint32_t size = (uint32_t)((char*)ret->infolog - (char*)ret) + ret->length + 1;
+  uint32_t size = sizeof(gls_ret_glGetShaderInfoLog_t) + ret->length + 1;
   GLSE_SEND_RAWRET(ret, size);
 }
 
