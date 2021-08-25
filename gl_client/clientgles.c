@@ -380,7 +380,7 @@ GL_APICALL void GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* frame
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR_BATCH(c, glDeleteFramebuffers);
   c->cmd_size += datasize;
-  if (check_batch_overflow(c->cmd_size, "glDeleteFramebuffers: buffer overflow") != TRUE) {
+  if (!check_batch_overflow(c->cmd_size, "glDeleteFramebuffers")) {
     return;
   }
   c->n = n;
@@ -403,7 +403,7 @@ GL_APICALL void GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* rend
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR_BATCH(c, glDeleteRenderbuffers);
   c->cmd_size += datasize;
-  if (check_batch_overflow(c->cmd_size, "glDeleteRenderbuffers: buffer overflow") != TRUE) {
+  if (!check_batch_overflow(c->cmd_size, "glDeleteRenderbuffers")) {
     return;
   }
   c->n = n;
@@ -426,7 +426,7 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR_BATCH(c, glDeleteTextures);
   c->cmd_size += datasize;
-  if (check_batch_overflow(c->cmd_size, "glDeleteTextures: buffer overflow") != TRUE) {
+  if (!check_batch_overflow(c->cmd_size, "glDeleteTextures")) {
     return;
   }
   c->n = n;
@@ -1495,7 +1495,7 @@ IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x
   uint32_t datasize = count * N * sizeof(TYPE);                         \
   GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                   \
   c->cmd_size += datasize;                                              \
-  if (check_batch_overflow(c->cmd_size, #FUNC": buffer overflow") != TRUE) \
+  if (!check_batch_overflow(c->cmd_size, #FUNC))                        \
     return;                                                             \
   c->location = location;                                               \
   c->count = count;                                                     \
@@ -1520,7 +1520,7 @@ IMPLEM_glUniformNXv(glUniform4iv,4,GLint);
     uint32_t datasize = count * N * N * sizeof(TYPE);                   \
     GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                 \
     c->cmd_size += datasize;                                            \
-    if (check_batch_overflow(c->cmd_size, #FUNC": buffer overflow") != TRUE) \
+    if (!check_batch_overflow(c->cmd_size, #FUNC))                      \
       return;                                                           \
     c->location = location;                                             \
     c->count = count;                                                   \
