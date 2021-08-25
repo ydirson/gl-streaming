@@ -533,6 +533,8 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
 {
   int vbo_bkp = buffer_objs.vbo;
   int i;
+  if (!buffer_objs.vbo)
+    WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
   for (i = 0;i < 16; i++)
     defered_vertex_attrib_pointer(i, first + count);
   glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
@@ -558,22 +560,25 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   int vbo_bkp = buffer_objs.vbo;
   int ibo_bkp = buffer_objs.ibo;
   int i;
+  if (!buffer_objs.vbo)
+    WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
   for (i = 0; i < 16; i++) {
     defered_vertex_attrib_pointer(i, 65536); // FIXME count
   }
-  if( !buffer_objs.ibo ) {
+  if (!buffer_objs.ibo) {
+    WARN_ONCE("GLS WARNING: %s uses client-data index buffer, consider using an IBO\n", __FUNCTION__);
     if( !buffer_objs.ibo_emu ) {
       glGenBuffers(1, &buffer_objs.ibo_emu);
     }
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeoftype, indices, GL_STREAM_DRAW);
   }
-    
+
   GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
   c->mode = mode;
   c->count = count;
   c->type = type;
-    
+
   GLS_PUSH_BATCH(glDrawElements);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_bkp);
