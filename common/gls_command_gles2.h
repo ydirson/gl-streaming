@@ -74,14 +74,6 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t target;
-  uint32_t texture;
-} gls_glBindTexture_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t target;
   uint32_t framebuffer;
 } gls_glBindFramebuffer_t;
 
@@ -89,11 +81,9 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t srcRGB;
-  uint32_t dstRGB;
-  uint32_t srcAlpha;
-  uint32_t dstAlpha;
-} gls_glBlendFuncSeparate_t;
+  uint32_t target;
+  uint32_t texture;
+} gls_glBindTexture_t;
 
 
 typedef struct
@@ -110,6 +100,16 @@ typedef struct
   uint32_t sfactor;
   uint32_t dfactor;
 } gls_glBlendFunc_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t srcRGB;
+  uint32_t dstRGB;
+  uint32_t srcAlpha;
+  uint32_t dstAlpha;
+} gls_glBlendFuncSeparate_t;
 
 
 typedef struct
@@ -211,7 +211,6 @@ typedef struct
   GLSCOMMAND_FIELDS();
 } gls_glCreateProgram_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -224,7 +223,6 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint32_t type;
 } gls_glCreateShader_t;
-
 
 typedef struct
 {
@@ -400,7 +398,6 @@ typedef struct
 } gls_ret_glGetActiveAttrib_t;
 
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -408,7 +405,6 @@ typedef struct
   uint32_t index;
   int32_t bufsize;
 } gls_glGetActiveUniform_t;
-
 
 typedef struct
 {
@@ -427,7 +423,6 @@ typedef struct
   char name[GLS_GLES2_MAX_ATTRIBVAR_NAMELEN];
 } gls_glGetAttribLocation_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -440,7 +435,6 @@ typedef struct
   GLSCOMMAND_FIELDS();
 } gls_glGetError_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -452,24 +446,8 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t name;
-  int32_t params;
-} gls_glGetIntegerv_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  int32_t params;
-} gls_ret_glGetIntegerv_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t name;
   float params;
 } gls_glGetFloatv_t;
-
 
 typedef struct
 {
@@ -482,15 +460,28 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t name;
-} gls_glGetString_t;
+  int32_t params;
+} gls_glGetIntegerv_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t params;
+} gls_ret_glGetIntegerv_t;
 
 
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t success;
-  unsigned char params[GLS_STRING_SIZE_PLUS];
-} gls_ret_glGetString_t;
+  uint32_t program;
+  uint32_t pname;
+} gls_glGetProgramiv_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t params;
+} gls_ret_glGetProgramiv_t;
 
 
 typedef struct
@@ -512,25 +503,9 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t program;
-  uint32_t pname;
-} gls_glGetProgramiv_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  int32_t params;
-} gls_ret_glGetProgramiv_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
   uint32_t shader;
   uint32_t pname;
 } gls_glGetShaderiv_t;
-
 
 typedef struct
 {
@@ -546,7 +521,6 @@ typedef struct
   int32_t bufsize;
 } gls_glGetShaderInfoLog_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -558,10 +532,23 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  uint32_t name;
+} gls_glGetString_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+  unsigned char params[GLS_STRING_SIZE_PLUS];
+} gls_ret_glGetString_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   uint32_t program;
   char name[100];
 } gls_glGetUniformLocation_t;
-
 
 typedef struct
 {
@@ -621,14 +608,6 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t target;
-  uint32_t access;
-} gls_glMapBufferOES_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
   uint32_t pname;
   int32_t param;
 } gls_glPixelStorei_t;
@@ -653,7 +632,6 @@ typedef struct
   uint32_t type;
 } gls_glReadPixels_t;
 
-
 typedef struct
 {
   GLSCOMMAND_FIELDS();
@@ -667,7 +645,6 @@ typedef struct
   uint32_t shader;
   int32_t count;
 } gls_glShaderSource_t;
-
 
 typedef struct
 {
@@ -689,17 +666,17 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t fail;
-  uint32_t zfail;
-  uint32_t zpass;
-} gls_glStencilOp_t;
+  uint32_t mask;
+} gls_glStencilMask_t;
 
 
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint32_t mask;
-} gls_glStencilMask_t;
+  uint32_t fail;
+  uint32_t zfail;
+  uint32_t zpass;
+} gls_glStencilOp_t;
 
 
 typedef struct
@@ -858,19 +835,6 @@ typedef gls_glUniformMatrixNfv_t gls_glUniformMatrix2fv_t;
 typedef gls_glUniformMatrixNfv_t gls_glUniformMatrix3fv_t;
 typedef gls_glUniformMatrixNfv_t gls_glUniformMatrix4fv_t;
 
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t target;
-} gls_glUnmapBufferOES_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t success;
-} gls_ret_glUnmapBufferOES_t;
-
 
 typedef struct
 {
@@ -887,6 +851,7 @@ typedef struct
   uint32_t num_float;
   uint32_t call_arr;
 } gls_glVertexAttribFloat_t;
+
 typedef struct
 {
   float arr[4];
@@ -928,6 +893,27 @@ typedef struct
   uint32_t type;
   char image[GLS_STRING_SIZE_PLUS];
 } gls_glConvolutionFilter1D_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t target;
+  uint32_t access;
+} gls_glMapBufferOES_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t target;
+} gls_glUnmapBufferOES_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_glUnmapBufferOES_t;
 
 
 /*
