@@ -1,0 +1,36 @@
+| test | native | gls-loopback | gls-eth-1Gb |
+| :--- | :-: | :-: | :-: |
+| [build] use-vbo=false | 1146 | 407 | 125 | 
+| [build] use-vbo=true | 1439 | 564 | 472 | 
+| [texture] texture-filter=nearest | 1299 | 570 | 472 | 
+| [texture] texture-filter=linear | 1280 | 570 | 471 | 
+| [texture] texture-filter=mipmap | 1334 | 571 | 473 | 
+| [shading] shading=gouraud | 1184 | 541 | 472 | 
+| [shading] shading=blinn-phong-inf | 1175 | 541 | 473 | 
+| [shading] shading=phong | 1174 | 541 | 470 | 
+| [shading] shading=cel | 1180 | 543 | 470 | 
+| [bump] bump-render=high-poly | 1021 | 512 | 462 | 
+| [bump] bump-render=normals | 1463 | 556 | 468 | 
+| [bump] bump-render=height | 1470 | 569 | 473 | 
+| [effect2d] kernel=0,1,0;1,-4,1;0,1,0; | 1033 | 515 | 463 | 
+| [effect2d] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1; | 610 | 390 | 377 | 
+| [pulsar] light=false:quads=5:texture=false | 1081 | 469 | 457 | 
+| [desktop] blur-radius=5:effect=blur:passes=1:separable=true:windows=4 | 591 | 290 | 353 | 
+| [desktop] effect=shadow:windows=4 | 919 | 212 | 348 | 
+| [buffer] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map | 158 | - | - | 
+| [buffer] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata | 201 | 141 | 85 | 
+| [buffer] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map | 287 | - | - | 
+| [ideas] speed=duration | 989 | 124 | 269 | 
+| [jellyfish] &lt;default&gt; | 699 | 422 | 397 | 
+| [terrain] &lt;default&gt; | 120 | 95 | 96 | 
+| [shadow] &lt;default&gt; | 838 | - | - | 
+| [refract] &lt;default&gt; | 81 | - | - | 
+| [conditionals] fragment-steps=0:vertex-steps=0 | 1275 | 554 | 470 | 
+| [conditionals] fragment-steps=5:vertex-steps=0 | 1274 | 557 | 475 | 
+| [conditionals] fragment-steps=0:vertex-steps=5 | 1252 | 556 | 476 | 
+| [function] fragment-complexity=low:fragment-steps=5 | 1268 | 557 | 475 | 
+| [function] fragment-complexity=medium:fragment-steps=5 | 1260 | 556 | 474 | 
+| [loop] fragment-loop=false:fragment-steps=5:vertex-steps=5 | 1263 | 556 | 474 | 
+| [loop] fragment-steps=5:fragment-uniform=false:vertex-steps=5 | 1268 | 553 | 474 | 
+| [loop] fragment-steps=5:fragment-uniform=true:vertex-steps=5 | 1263 | 557 | 472 | 
+| glmark2 Score | 996 | 468 | 411 | 
