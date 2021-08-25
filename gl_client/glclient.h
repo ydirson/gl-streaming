@@ -108,9 +108,16 @@ typedef struct
 #define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME) GLS_SET_COMMAND_PTR(PTR, FUNCNAME)
 #define GLS_PUSH_BATCH(FUNCNAME) GLS_SEND_PACKET(FUNCNAME)
 #define push_batch_command(SIZE) send_packet(SIZE)
-#define check_batch_overflow(SIZE,MSG) (TRUE)
 #define gls_cmd_flush() do {} while(0)
 
+static inline int check_batch_overflow(size_t size, const char *msg)
+{
+  if (size > GLS_OUT_BUFFER_SIZE) {
+    fprintf(stderr, "GLS ERROR: %s data too large\n", msg);
+    return 0;
+  }
+  return 1;
+}
 
 #define WARN_ONCE(FMT, ...) do {         \
     static int shown = 0;                \
