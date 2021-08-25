@@ -226,17 +226,15 @@ void gls_init_library()
     if (env_serverAddr == NULL) {
         strncpy(his_ip, "127.0.0.1", 10);
     } else {
-        fprintf(stderr, "GLS_SERVER_ADDR is set to %s\n", env_serverAddr);
-        
-        char* env_serverAddr_search = ":";
-        int env_serverAddr_length = strnlen(env_serverAddr, 0xA00000);
-        char env_serverAddr_arr[env_serverAddr_length];
-        strncpy(env_serverAddr_arr, env_serverAddr, env_serverAddr_length + 1);
-        
-        char* env_serverIp = strtok(env_serverAddr_arr, env_serverAddr_search);
-        strncpy(his_ip, env_serverIp, strnlen(env_serverIp, 0xA00000) + 1);
-        his_port = atoi(strtok(NULL, env_serverAddr_search));
+        size_t addrlen = strcspn(env_serverAddr, ":");
+        assert(addrlen < sizeof(his_ip));
+        strncpy(his_ip, env_serverAddr, addrlen);
+        his_ip[addrlen] = '\0';
+
+        if (env_serverAddr[addrlen] == ':' && env_serverAddr[addrlen+1] != '\0')
+            his_port = atoi(env_serverAddr + addrlen + 1);
     }
+    fprintf(stderr, "GLS INFO: connecting to %s:%u\n", his_ip, his_port);
 
     recvr_client_start(&glsc_global.rc, his_ip, his_port);
     gls_init();
