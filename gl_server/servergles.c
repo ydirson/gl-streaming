@@ -488,11 +488,22 @@ void glse_glGetString(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetString);
   GLSE_SET_RET_PTR(ret, glGetString);
+
   switch (c->name) {
   case GL_EXTENSIONS:
     // we don't support any right now
     // FIXME later will need to query and filter those we support
     strcpy(ret->params, "GL_GLS_dummy");
+    ret->success = TRUE;
+    break;
+  case GL_VERSION:
+    // we just don't support more than 2.0
+    strcpy(ret->params, "OpenGL ES 2.0 GLS");
+    ret->success = TRUE;
+    break;
+  case GL_SHADING_LANGUAGE_VERSION:
+    // matches GLES 2.0
+    strcpy(ret->params, "OpenGL ES GLSL ES 1.00 GLS");
     ret->success = TRUE;
     break;
   case GL_VENDOR:

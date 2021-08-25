@@ -98,7 +98,7 @@
   - [ ] don't use GLint in protocol? (specified as platform-dependant, even though
         Mesa uses 32bit even on 64bit platforms)
   - [ ] handle window size, create windows on demand, not just a fixed one
-  - [ ] apitrace fails with __eglMustCastToProperFunctionPointerType
+  - [x] apitrace loops, requesting GLES3 items with glGetIntegerv
 - improve coverage
   - [ ] full EGL core
     - [x] non-stub config handling
