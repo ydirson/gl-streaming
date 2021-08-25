@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glserver.h"
 #include "fastlog.h"
 
+#include <GLES2/gl2.h>
+
 #include <alloca.h>
 #include <string.h>
 

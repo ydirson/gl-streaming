@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glcontrol.h"
 #include "fastlog.h"
 
+#include <GLES2/gl2.h>
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
