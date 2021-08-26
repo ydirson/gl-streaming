@@ -85,7 +85,7 @@ those items or add their own in the picture.
 * [ ] bring EGL/GLES2 support to a satisfying state
   * [ ] add extension support
   * [ ] solve structural security issues
-    * [ ] isolate clients in separate processes
+    * [x] use separate processes to isolate clients' contexts on server
     * [ ] pointers in protocol
     * [ ] connection authorization
   * [ ] implement a satisfying window/input experience

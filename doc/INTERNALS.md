@@ -16,20 +16,23 @@ better.
    [gls_command.h](../common/gls_command.h), sent using TCP, and possibly
    wait for a reply before the API returns control to the application
 
-3. Server initializes GLES2 using EGL and creates a static window on
+3. The main server process just listens for connections, and forks a
+   dedicated "child" process to handle each incoming client.
+
+4. Server "child" initializes GLES2 using EGL and creates a static window on
    startup, in [glcontrol](../gl_server/glcontrol.c) (this will have to
    change for better window management)
 
-4. Server receives packets with [recvr](../common/recvr.c) in a
+5. Server "child" receives packets with [recvr](../common/recvr.c) in a
    dedicated thread, managed from [glserver](../gl_server/glserver.c) and
    puts them in a [FIFO queue](../common/fifo.h)
 
-5. A server thread from [glserver](../gl_server/glserver.c) executes
+6. A server thread from [glserver](../gl_server/glserver.c) executes
    commands from the FIFO, with implementations from
    [serveregl](../gl_server/serveregl.c) and
    [servergles](../gl_server/servergles.c) modules
 
-6. Serverside implementations for calls with output parameters
+7. Serverside implementations for calls with output parameters
    marshall a message like on client side and sends it back; client
    receives them from its own [recvr](../common/server.c) thread, and
    received synchronously

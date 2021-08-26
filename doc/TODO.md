@@ -73,7 +73,7 @@
 - [x] readable indentation
 - improve usability
   - [ ] handle window size, create windows on demand, not just a fixed one
-        (addrsses: non-stub eglInitialize
+        (addresses: non-stub eglInitialize)
   - [ ] get rid of "local window"
   - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - improve code quality
@@ -95,7 +95,7 @@
   - [x] find out which EGL and GLES standard version are precisely covered today
   - [x] fix texture support
   - [x] funky issues around glCullFace: GL_BACK rejected as GL_INVALID_ENUM
-  - [ ] server leaks non-freed resources (caused by lack of context management ?)
+  - [x] server leaks non-freed resources
   - [ ] let eglQuerySurface do all size queries except for the window one, don't stub
         all of them
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS

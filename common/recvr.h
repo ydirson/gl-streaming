@@ -56,6 +56,7 @@ typedef struct
   int sock_fd;
 } recvr_context_t;
 
-void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port);
+void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
+                        void(*handle_child)(recvr_context_t*));
 void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port);
 void recvr_stop(recvr_context_t* c);

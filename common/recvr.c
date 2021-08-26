@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fastlog.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -87,12 +88,13 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
 }
 
 
-static void socket_to_fifo_loop(recvr_context_t* rc)
+static void* socket_to_fifo_loop(void* data)
 {
+  recvr_context_t* rc = data;
   {
     int sockopt = 1;
     if (setsockopt(rc->sock_fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
-      fprintf(stderr, "GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
+      LOGE("GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
       exit(EXIT_FAILURE);
     }
   }
@@ -183,25 +185,9 @@ static void socket_to_fifo_loop(recvr_context_t* rc)
 
     fifo_push_ptr_next(&rc->fifo);
   }
-}
 
-static void* recvr_server_thread(void* data)
-{
-  recvr_context_t* rc = (recvr_context_t*)data;
-  int listen_fd = rc->sock_fd;
-  int quit = 0;
-  while (!quit) {
-    rc->peer.addrlen = sizeof(rc->peer.addr);
-    rc->sock_fd = accept4(listen_fd, &rc->peer.addr, &rc->peer.addrlen, SOCK_CLOEXEC);
-    if (rc->sock_fd < 0) {
-      LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
-      break;
-    }
-
-    socket_to_fifo_loop(rc);
-  }
-
-  return NULL;
+  // whether in client or dedicated server process, this is the end
+  exit(EXIT_FAILURE);
 }
 
 static void* recvr_client_thread(void* data)
@@ -212,7 +198,8 @@ static void* recvr_client_thread(void* data)
 }
 
 
-void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port)
+void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
+                        void(*handle_child)(recvr_context_t*))
 {
   recvr_init(rc);
 
@@ -236,8 +223,35 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
     exit(EXIT_FAILURE);
   }
 
-  pthread_create(&rc->recvr_th, NULL, recvr_server_thread, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  int listen_fd = rc->sock_fd;
+  int quit = 0;
+  while (!quit) {
+    rc->peer.addrlen = sizeof(rc->peer.addr);
+    rc->sock_fd = accept4(listen_fd, &rc->peer.addr, &rc->peer.addrlen, 0);
+    if (rc->sock_fd < 0) {
+      LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
+      break;
+    }
+
+    switch(fork()) {
+    case -1:
+      LOGE("GLS ERROR: %s: fork failed: %s\n", __FUNCTION__, strerror(errno));
+      break;
+    case 0: {
+      if (fcntl(rc->sock_fd, F_SETFD, FD_CLOEXEC) < 0) {
+        LOGE("GLS ERROR: fcntl(FD_CLOEXEC) failed: %s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
+      pthread_setname_np(rc->recvr_th, "gls-recvr");
+      handle_child(rc);
+      return;
+    }
+    default:
+      close(rc->sock_fd);
+      // ... loop and wait for a new client
+    }
+  }
 }
 
 void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)

@@ -66,8 +66,7 @@ int main(int argc, char* argv[])
   glsurfaceview_height = 720;
 #endif
 
-  recvr_server_start(&rc, my_ip, my_port);
-  glserver_handle_packets(&rc);
+  recvr_server_start(&rc, my_ip, my_port, glserver_handle_packets);
   recvr_stop(&rc);
 
   return 0;
