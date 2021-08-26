@@ -51,8 +51,6 @@ const char* var_file_vertex_shader;
 
 EGLConfig config;
 
-static void make_egl_base(graphics_context_t* gc);
-
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value;
 const char* eglGetErrorString(EGLint err)
@@ -135,10 +133,6 @@ void init_egl(graphics_context_t* gc)
   gc->screen_height = glsurfaceview_height; // (gc->d_rect.bottom - gc->d_rect.top);
   // gc->d_window = glsurfaceview_window;
   // assert (glsurfaceview_window != NULL);
-
-#ifdef USE_X11
-  make_egl_base(gc);
-#endif
 }
 
 
@@ -146,7 +140,6 @@ void release_egl(graphics_context_t* gc)
 {
   eglMakeCurrent(gc->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
   eglDestroyContext(gc->display, gc->context);
-  eglTerminate(gc->display);
   eglReleaseThread();
 }
 
@@ -164,14 +157,6 @@ void release_egl(graphics_context_t* gc)
  */
 
 #ifdef USE_X11
-static void make_egl_base(graphics_context_t* gc)
-{
-  if (!eglInitialize(gc->display, NULL, NULL)) {
-    fprintf(stderr, "Error: eglInitialize() failed\n");
-    exit(1);
-  }
-}
-
 void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
 {
   XSetWindowAttributes attr;

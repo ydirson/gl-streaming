@@ -226,13 +226,17 @@ void glse_eglGetError(gls_command_t* buf)
 
 void glse_eglInitialize(gls_command_t* buf)
 {
-  (void)buf;
-  EGLBoolean success = EGL_TRUE; // Current stub instead of real init
-  // GLSE_SET_COMMAND_PTR(c, eglInitialize);
-  // eglInitialize((EGLDisplay)c->dpy, c->major, c->minor);
-
+  GLSE_SET_COMMAND_PTR(c, eglInitialize);
   GLSE_SET_RET_PTR(ret, eglInitialize);
-  ret->major = 1; ret->minor = 4; // matches EGL_VERSION
+  EGLint major, minor;
+  EGLBoolean success = eglInitialize((EGLDisplay)c->dpy, &major, &minor);
+
+  // FIXME EGL_VERSION should be generated from this
+  if (major > 1 || minor > 4) minor = 4;
+  if (major > 1) major = 1;
+
+  ret->major = major;
+  ret->minor = minor;
   ret->success = success;
   GLSE_SEND_RET(ret, eglInitialize);
 }
@@ -279,7 +283,7 @@ void glse_eglQueryString(gls_command_t* buf)
     break;
   case EGL_VERSION:
     // wrong but glmark2 wont work without 1.4
-    strcpy(ret->params, "1.4 GLS"); // matches eglInitialize
+    strcpy(ret->params, "1.4 GLS"); // FIXME should match eglInitialize
     ret->success = TRUE;
     break;
   case EGL_VENDOR: {
@@ -325,12 +329,9 @@ void glse_eglSwapBuffers(gls_command_t* buf)
 
 void glse_eglTerminate(gls_command_t* buf)
 {
-  (void)buf;
+  GLSE_SET_COMMAND_PTR(c, eglTerminate);
   GLSE_SET_RET_PTR(ret, eglTerminate);
-  ret->success = EGL_TRUE; // Current stub instead of real init
-  // GLSE_SET_COMMAND_PTR(c, eglTerminate);
-  // eglTerminate((EGLDisplay)c->dpy);
-
+  ret->success = eglTerminate((EGLDisplay)c->dpy);
   GLSE_SEND_RET(ret, eglTerminate);
 }
 
