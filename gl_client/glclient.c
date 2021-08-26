@@ -223,6 +223,15 @@ static int gls_cmd_HANDSHAKE()
   return TRUE;
 }
 
+void gls_cmd_CREATE_WINDOW(unsigned width, unsigned height)
+{
+  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, CREATE_WINDOW);
+  c->width = width;
+  c->height = height;
+  GLS_SEND_PACKET(CREATE_WINDOW);
+}
 
 void gls_init_library()
 {

@@ -13,9 +13,7 @@
 
 #if defined(USE_X11)
 Display* xDisplay;
-# if !defined(USE_SERVER_SIZE)
 Window xWindow;
-# endif
 #endif
 
 static inline unsigned SEND_ATTRIB_DATA(const EGLint* attrib_list)
@@ -117,13 +115,23 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig 
 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint* attrib_list )
 {
-#if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
+  // send information about local window so server can recreate it
+#if defined(USE_X11)
   if (xWindow && xWindow != window) {
     fprintf(stderr, "GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
     client_egl_error = EGL_BAD_NATIVE_WINDOW;
     return EGL_NO_SURFACE;
   }
+
   xWindow = window;
+  XWindowAttributes xWindowAttrs;
+  if (!XGetWindowAttributes(xDisplay, xWindow, &xWindowAttrs)) {
+    fprintf(stderr, "GLS ERROR: XGetWindowAttributes failed\n");
+    client_egl_error = EGL_BAD_NATIVE_WINDOW;
+    return EGL_NO_SURFACE;
+  }
+
+  gls_cmd_CREATE_WINDOW(xWindowAttrs.width, xWindowAttrs.height);
 #endif
 
   gls_cmd_flush();
@@ -445,31 +453,6 @@ EGLAPI const char* EGLAPIENTRY eglQueryString(EGLDisplay dpy, EGLint name)
 
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface( EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint* value )
 {
-#if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
-  // Take the size of client-side window instead of server-side surface.
-  // Avoids assertion on size-checking (and unwanted scaling if commenting out
-  // assertion) eg. in `es2tri`
-  if (xDisplay != NULL && xWindow != 0 && (attribute == EGL_WIDTH || attribute == EGL_HEIGHT)) {
-    // FIXME this kludge should only be done for the window surface!
-    fprintf(stderr, "GLS: eglQuerySurface: querying client window\n");
-    XWindowAttributes xWindowAttrs;
-    if (!XGetWindowAttributes(xDisplay, xWindow /* XDefaultRootWindow(xDisplay) */, &xWindowAttrs)) {
-      printf("Warning: XGetWindowAttributes failed!");
-    } else {
-      // printf("WIDTH=%d    HEIGHT=%d\n", xWindowAttrs.width, xWindowAttrs.height);
-      switch (attribute) {
-      case EGL_WIDTH:
-        *value = xWindowAttrs.width;
-        return EGL_TRUE;
-      case EGL_HEIGHT:
-        *value = xWindowAttrs.height;
-        return EGL_TRUE;
-      }
-    }
-  }
-#endif
-
-  fprintf(stderr, "GLS: eglQuerySurface: querying server window\n");
   gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, eglQuerySurface);
   c->dpy = (uint64_t)dpy;
