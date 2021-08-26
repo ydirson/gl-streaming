@@ -7,7 +7,8 @@ using a GPU.  Any display operations are done by the server, on its
 own screen.
 
 It is expected to get extended in the future to support more graphics
-APIs (eg. desktop OpenGL, GLX, Vulkan).
+APIs (eg. desktop OpenGL, GLX, Vulkan), as very few apps work with
+GLES2.
 
 The motivation for this project is to provide GPU acceleration to
 virtual machines, with rendering on their host, especially to be
@@ -24,31 +25,51 @@ platforms.
 
 This is still a work in progress, notably:
 
-* despite all the work previously done, only very simple applications
-  work (eg. es2gears, es2tri, some glmark2 benchmarks).
+* In addition to small test programs (eg. es2gears, es2tri, some
+  glmark2 benchmarks), some real-life applications do properly
+  display, although a number of APIs are still stubbed, and some are
+  known to have bugs -- very few are usable, read on for details.
 
-  A number of APIs are present but only as stubs, some are known to
-  have bugs.
+* The server creates a fixed-size window at startup (it only appears
+  when an app makes its first GL calls), used for all clients
+  rendering.
 
-  APIs for EGL 1.4 are present, though some 1.1 and 1.2 APIs are not
-  even stubbed.
+* The client still creates a window on its own, which is used for
+  interaction with the app (input events, window resize, etc).  When
+  running locally (ie. GPU server and app on the same display) it gets
+  quite awkward, as both windows must share the same screen.
 
-* the server creates a fixed-size window at startup, used for all
-  client rendering.  The client still creates a window on its own,
-  which is used for interaction with the app (input events, window
-  resize, etc), which is quite awkward.
+  Applications making use of relative mouse movements (eg. [Blobby
+  Volley 2](http://sourceforge.net/projects/blobby/), [Chocolate
+  Doom](http://chocolate-doom.org/)) can be used to some extent as
+  long as the "input window" keeps the focus (but even with a "click
+  to focus" wm policy, the focus can naturally be taken away with a
+  click).
 
-* there are security concerns about the usage of pointer types in the
-  protocol.
+  Applications making use of absolute mouse position
+  (eg. [Gigalomania](http://gigalomania.sourceforge.net), [Planet
+  Blupi](http://blupi.org)) are much harder to use, especially when
+  they do not draw their own mouse cursor.
 
-* usage of pointer types in the protocol also implies that only 64bit
+  Both application classes can be easier to use remotely.
+
+* APIs for EGL 1.4 are present, though some 1.1 and 1.2 APIs are not
+  even stubbed.  1.4 is advertised as a hack for glmark2.
+
+* There are security concerns, notably:
+  * usage of pointer types in the protocol must be cured
+  * when the server listens, any app can connect (somewhat mitigated
+    by listening only on `localhost` by default, but you'd better
+    trust other users of a system before launching `gl_server` on it)
+
+* Usage of pointer types in the protocol also implies that only 64bit
   builds can work now.  We should not only be able to build 32bit
   versions too, but to have them interoperate.
 
-* no protocol extension is supported yet, until proper generic
+* No protocol extension is supported yet, until proper generic
   extension support gets implemented.
 
-* [a rather unsorted TODO list](TODO.md) has a summary of things to be
+* [A rather unsorted TODO list](TODO.md) has a summary of things to be
   done, as well as those already done: it's important to see that
   despite the large amount of work to be done, things are really
   progressing.
@@ -58,10 +79,7 @@ This is still a work in progress, notably:
 
 # Performance and conformance information
 
-... will be published once we reach a reasonable coverage of glmark2
-tests.  It is hoped that performance will appear to be quite
-reasonable.
-
+Very few [preliminary benchmarks](benchmarks/) were run.
 
 # Other sources of information
 
