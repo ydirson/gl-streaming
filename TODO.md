@@ -63,8 +63,12 @@
       - [x] fragment-loop=false:fragment-steps=5:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=false:vertex-steps=5
       - [x] fragment-steps=5:fragment-uniform=true:vertex-steps=5
-  - SDL2 programs with a GLE2-only libSDL
+  - SDL2 programs with a GLES2-only libSDL
     - [x] blobby
+    - [x] chocolate-doom
+    - [.] gigalomania: seems to work, but limited by use of absolute mouse coordinates
+          and lack of window resizing
+    - [.] planetblupi: seems to work, but limited by use of absolute mouse coordinates
 - [x] readable indentation
 - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - [x] work on native 64bit platforms
