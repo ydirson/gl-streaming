@@ -14,7 +14,9 @@ gl_server
 
 Optionally, use `-s` flags to specify non-default server `ip:port`
 (default `127.0.0.1:18145`).  The port can be omitted, and defaults to
-`18145`.
+`18145`.  Use `-s 0.0.0.0` to listen for connections over the network,
+but keep in mind there is absolutely no way today to authorize
+individual connections.
 
 # Launch client
 
