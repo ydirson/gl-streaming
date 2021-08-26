@@ -49,7 +49,6 @@ typedef struct
   uint32_t screen_width;
   uint32_t screen_height;
   EGLDisplay display;
-  EGLContext context;
 #ifdef USE_X11
   struct
   {

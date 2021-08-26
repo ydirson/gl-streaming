@@ -139,7 +139,6 @@ void init_egl(graphics_context_t* gc)
 void release_egl(graphics_context_t* gc)
 {
   eglMakeCurrent(gc->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-  eglDestroyContext(gc->display, gc->context);
   eglReleaseThread();
 }
 
