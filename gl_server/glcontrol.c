@@ -51,7 +51,7 @@ const char* var_file_vertex_shader;
 
 EGLConfig config;
 
-static void make_egl_base(graphics_context_t* gc, const char* name, int x, int y, int width, int height);
+static void make_egl_base(graphics_context_t* gc);
 
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value;
@@ -137,8 +137,8 @@ void init_egl(graphics_context_t* gc)
   // assert (glsurfaceview_window != NULL);
 
 #ifdef USE_X11
-  make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
-  XMapWindow(gc->x.display, gc->x.window);
+  make_egl_base(gc);
+  gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
 #endif
 }
 
@@ -165,13 +165,16 @@ void release_egl(graphics_context_t* gc)
  */
 
 #ifdef USE_X11
-static void make_egl_base(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
+static void make_egl_base(graphics_context_t* gc)
 {
   if (!eglInitialize(gc->display, NULL, NULL)) {
     fprintf(stderr, "Error: eglInitialize() failed\n");
     exit(1);
   }
+}
 
+void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
+{
   XSetWindowAttributes attr;
   unsigned long mask;
   Window root;
@@ -213,6 +216,7 @@ static void make_egl_base(graphics_context_t* gc, const char* name, int x, int y
   }
 
   XFree(visInfo);
+  XMapWindow(gc->x.display, gc->x.window);
 }
 #else
 #error "GLS FIXME: only supporting server on X11 platform"

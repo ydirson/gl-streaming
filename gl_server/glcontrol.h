@@ -73,3 +73,7 @@ extern EGLConfig config;
 
 void init_egl(graphics_context_t* gc);
 void release_egl(graphics_context_t* gc);
+
+#if USE_X11
+void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height);
+#endif
