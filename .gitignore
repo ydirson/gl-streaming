@@ -1,6 +1,5 @@
 # Object files
 *.o
-*.ko
 
 # Libraries
 *.lib
@@ -18,3 +17,6 @@
 *.app
 /gl_server/gl_server
 /gl_client/samples/sample[0-9]
+
+# astyle backups
+*.orig
