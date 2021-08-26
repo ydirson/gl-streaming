@@ -246,7 +246,7 @@ efficiently implemented by a network transport.
 However, in the case of a virtual machine, we can study the
 implications of establishing real memory sharing.
 
-### displays, windows
+### displays, windows, input
 
 Currently a single window on a single display is supported.  Since the
 window creation by client app is out of the EGL scope, it is today not
@@ -255,9 +255,22 @@ intercepted, and gets shown with a background that will stay black.
 On server side, a fixed-sized window (today hardcoded with size
 1280x720) is created at server startup.
 
-For transparent usage, we will need to intercept the window creation
-to prevent it to happen locally and get the events on the server
-window propagated back.  This seems hardly reasonable for
-manually-created X11 windows, but can be studied for common
-window-handling frameworks like GLFW and SDL2, which would then be
-taught a new backend alongside X11.
+There are several options for proper window/input operation, including:
+* intercept the creation of local window and of further calls
+  targetting it, and forward events back: this is the best-performance
+  option on GPU side, but requires one of:
+  * X11-level proxying
+  * GLS support feature allowing GLS-awareness in window-managing
+  layers (GLFW, SDL2, ...)
+* change render to happen in an offscreen GPU buffer and stream it
+  back to local window: definitely less complex than window
+  interception, and we can think of shared-memory optimization for the
+  local case, but will require to make use of hardware video
+  (de)compression to be of use through the network
+* arrange for the GPU to display the buffer over the window, keeping
+  both low GPU impact and avoidance of window interception: naturally
+  not possible for remote usage, likely not transparent eg. when
+  moving windows
+* in QubesOS case with sys-gui-gpu the wm already runs on server side,
+  so it should be possible to integrate at this level with minimal
+  overhead
