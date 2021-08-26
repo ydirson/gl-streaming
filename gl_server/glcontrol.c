@@ -131,12 +131,10 @@ void init_egl(graphics_context_t* gc)
   assert(gc->display != EGL_NO_DISPLAY);
   check_gl_err(eglGetDisplay);
 
-#if defined(GLS_SERVER)
   gc->screen_width = glsurfaceview_width; // (gc->d_rect.right - gc->d_rect.left);
   gc->screen_height = glsurfaceview_height; // (gc->d_rect.bottom - gc->d_rect.top);
   // gc->d_window = glsurfaceview_window;
   // assert (glsurfaceview_window != NULL);
-#endif
 
 #ifdef USE_X11
   make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
