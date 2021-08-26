@@ -118,8 +118,11 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface( EGLDisplay dpy, EGLConfig 
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint* attrib_list )
 {
 #if defined(USE_X11) && defined(GLS_USE_CLTSIZE)
-  if (xWindow && xWindow != window)
-    fprintf(stderr, "GLS WARNING: eglCreateWindowSurface: changing X11 Window\n");
+  if (xWindow && xWindow != window) {
+    fprintf(stderr, "GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
+    client_egl_error = EGL_BAD_NATIVE_WINDOW;
+    return EGL_NO_SURFACE;
+  }
   xWindow = window;
 #endif
 
