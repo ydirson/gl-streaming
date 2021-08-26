@@ -51,6 +51,6 @@ This will likely only be useful to developers.
 
 ## Client
 ### USE_X11
-- Enable support for X11 apps.
-- Enabled by default.
-- Sample side doesn't use X11 so not enabled.
+- Enable on client side for support for X11 apps
+- Enable on server side to render in X11 window
+- Enabled by default
