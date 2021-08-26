@@ -90,13 +90,13 @@ typedef struct
 {
   gls_bufpool_t pool;
   recvr_context_t* rc;
-  graphics_context_t *gc;
+  graphics_context_t* gc;
 } glse_context_t;
 
 extern glse_context_t glsec_global;
 void glserver_handle_packets(recvr_context_t* rc);
 
-int glse_cmd_send_data(uint32_t size, void *data);
+int glse_cmd_send_data(uint32_t size, void* data);
 
-int egl_executeCommand(gls_command_t *c);
-int gles_executeCommand(gls_command_t *c);
+int egl_executeCommand(gls_command_t* c);
+int gles_executeCommand(gls_command_t* c);

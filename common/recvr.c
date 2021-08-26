@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define FIFO_PACKET_SIZE_ORDER 10
 #endif
 
-static void recvr_init(recvr_context_t *rc)
+static void recvr_init(recvr_context_t* rc)
 {
   fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
   rc->sleep_usec = SLEEP_USEC;
@@ -82,7 +82,7 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
 
     assert ((unsigned)recv_size <= size);
     size -= recv_size;
-  } while(size);
+  } while (size);
   return 1;
 }
 
@@ -166,7 +166,7 @@ static void socket_to_fifo_loop(recvr_context_t* rc)
 
       remaining -= recv_size;
       dest += recv_size;
-    } while(remaining);
+    } while (remaining);
 
     if (c->cmd_size <= rc->fifo.fifo_packet_size && c->cmd == GLSC_SEND_DATA) {
       gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
@@ -207,7 +207,7 @@ static void* recvr_client_thread(void* data)
 }
 
 
-void recvr_server_start(recvr_context_t *rc, const char* listen_addr, uint16_t listen_port)
+void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port)
 {
   recvr_init(rc);
 
@@ -221,7 +221,7 @@ void recvr_server_start(recvr_context_t *rc, const char* listen_addr, uint16_t l
   sai.sin_family = AF_INET;
   sai.sin_port = htons(listen_port);
   sai.sin_addr.s_addr = inet_addr(listen_addr);
-  if (bind(rc->sock_fd, (struct sockaddr *)&sai, sizeof(sai)) < 0) {
+  if (bind(rc->sock_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: bind failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
@@ -235,7 +235,7 @@ void recvr_server_start(recvr_context_t *rc, const char* listen_addr, uint16_t l
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
-void recvr_client_start(recvr_context_t *rc, const char* connect_addr, uint16_t connect_port)
+void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)
 {
   recvr_init(rc);
 
@@ -243,7 +243,7 @@ void recvr_client_start(recvr_context_t *rc, const char* connect_addr, uint16_t 
   sai.sin_family = AF_INET;
   sai.sin_port = htons(connect_port);
   sai.sin_addr.s_addr = inet_addr(connect_addr);
-  if (connect(rc->sock_fd, (struct sockaddr *)&sai, sizeof(sai)) < 0) {
+  if (connect(rc->sock_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: connect failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
@@ -252,7 +252,7 @@ void recvr_client_start(recvr_context_t *rc, const char* connect_addr, uint16_t 
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
-void recvr_stop(recvr_context_t *rc)
+void recvr_stop(recvr_context_t* rc)
 {
   pthread_cancel(rc->recvr_th);
   close(rc->sock_fd);

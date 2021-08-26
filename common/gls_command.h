@@ -288,21 +288,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define X(func) GLSC_##func,
 enum GL_Server_Command
 {
- GLSC_GLS_UNDEF = 0,
- GLS_GLS_COMMANDS()
- GLSC_GLS_LASTCMD = GLSC_PROTOCOL_GLS | 0x0000ffff,
- GLS_EGL_COMMANDS()
- GLSC_EGL_LASTCMD = GLSC_PROTOCOL_EGL | 0x0000ffff,
- GLS_GLES2_COMMANDS()
- GLSC_GLES2_LASTCMD = GLSC_PROTOCOL_GLES2 | 0x0000ffff,
- GLS_GLES2_EXT_COMMANDS()
+  GLSC_GLS_UNDEF = 0,
+  GLS_GLS_COMMANDS()
+  GLSC_GLS_LASTCMD = GLSC_PROTOCOL_GLS | 0x0000ffff,
+  GLS_EGL_COMMANDS()
+  GLSC_EGL_LASTCMD = GLSC_PROTOCOL_EGL | 0x0000ffff,
+  GLS_GLES2_COMMANDS()
+  GLSC_GLES2_LASTCMD = GLSC_PROTOCOL_GLES2 | 0x0000ffff,
+  GLS_GLES2_EXT_COMMANDS()
 };
 #undef X
 
 #define X(func) case GLSC_##func: return #func;
 static inline const char* GLSC_tostring(enum GL_Server_Command e)
 {
-  switch(e) {
+  switch (e) {
     GLS_COMMANDS()
   default:
     return "unknown command";

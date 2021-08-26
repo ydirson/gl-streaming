@@ -59,46 +59,44 @@ static int gls_init()
   const char* env_isDebugStr = getenv("GLS_DEBUG");
   int env_isDebug;
   if (env_isDebugStr == NULL) {
-      env_isDebug = FALSE;
+    env_isDebug = FALSE;
   } else {
-      env_isDebug = atoi(env_isDebugStr);
+    env_isDebug = atoi(env_isDebugStr);
   }
   if (env_isDebug == 0 || env_isDebug == 1) {
-      glsc_global.is_debug = env_isDebug;
+    glsc_global.is_debug = env_isDebug;
   } else {
-      fprintf(stderr, "gls error: GLS_DEBUG variable must be 0 or 1\n");
-      exit(EXIT_FAILURE);
-      return FALSE;
+    fprintf(stderr, "gls error: GLS_DEBUG variable must be 0 or 1\n");
+    exit(EXIT_FAILURE);
+    return FALSE;
   }
-  
+
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
   glsc_global.screen_width = 1280;
   glsc_global.screen_height = 720;
-  glsc_global.pool.out_buf.buf = (char *)malloc(GLS_OUT_BUFFER_SIZE);
-  if (glsc_global.pool.out_buf.buf == NULL)
-  {
+  glsc_global.pool.out_buf.buf = (char*)malloc(GLS_OUT_BUFFER_SIZE);
+  if (glsc_global.pool.out_buf.buf == NULL) {
     return FALSE;
   }
-  glsc_global.pool.tmp_buf.buf = (char *)malloc(GLS_TMP_BUFFER_SIZE);
-  if (glsc_global.pool.tmp_buf.buf == NULL)
-  {
+  glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
+  if (glsc_global.pool.tmp_buf.buf == NULL) {
     free(glsc_global.pool.out_buf.buf);
     return FALSE;
   }
   glsc_global.pool.out_buf.size = GLS_OUT_BUFFER_SIZE;
   glsc_global.pool.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
-  
+
   return TRUE;
 }
 
 
 static int gls_free()
 {
-    free(glsc_global.pool.out_buf.buf);
-    free(glsc_global.pool.tmp_buf.buf);
-  
-    return TRUE;
+  free(glsc_global.pool.out_buf.buf);
+  free(glsc_global.pool.tmp_buf.buf);
+
+  return TRUE;
 }
 
 
@@ -132,14 +130,14 @@ int send_packet()
 }
 
 
-int wait_for_data(char *str)
+int wait_for_data(char* str)
 {
   if (glsc_global.is_debug) fprintf(stderr, "wait_for_data(%s)\n", str);
   struct timeval start_time, end_time;
   gettimeofday(&start_time, NULL);
   int quit = 0;
   while (!quit) {
-    void *popptr = (void *)fifo_pop_ptr_get(&glsc_global.rc.fifo);
+    void* popptr = (void*)fifo_pop_ptr_get(&glsc_global.rc.fifo);
     if (popptr == NULL) {
       gettimeofday(&end_time, NULL);
       float diff_time = get_diff_time(start_time, end_time);
@@ -152,33 +150,35 @@ int wait_for_data(char *str)
       continue;
     }
 
-    gls_command_t *c = (gls_command_t *)popptr;
+    gls_command_t* c = (gls_command_t*)popptr;
     switch (c->cmd) {
-      case GLSC_SEND_DATA:
-        if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
-          quit = TRUE;
-        break;
-      default:
-        fprintf(stderr, "GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
-                c->cmd, GLSC_tostring(c->cmd));
-        break;
-      }
+    case GLSC_SEND_DATA:
+      if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
+        quit = TRUE;
+      break;
+    default:
+      fprintf(stderr, "GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
+              c->cmd, GLSC_tostring(c->cmd));
+      break;
+    }
     fifo_pop_ptr_next(&glsc_global.rc.fifo);
   }
   return TRUE;
 }
 
 
-int gls_cmd_send_data(uint32_t size, const void *data)
+int gls_cmd_send_data(uint32_t size, const void* data)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsc_global.pool.out_buf.buf;
+  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsc_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
   c->zero = 0;
 
-  struct iovec iov[2] = { { c, sizeof(gls_cmd_send_data_t) },
-                          { (void*)data, size } };
+  struct iovec iov[2] = {
+    { c, sizeof(gls_cmd_send_data_t) },
+    { (void*)data, size }
+  };
   struct msghdr msg = { .msg_iov = iov, .msg_iovlen = 2 };
 
   if (sendmsg(glsc_global.rc.sock_fd, &msg, 0) < 0) {
@@ -199,9 +199,8 @@ static int gls_cmd_HANDSHAKE()
     return FALSE;
 
   wait_for_data("gls_HANDSHAKE");
-  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsc_global.pool.tmp_buf.buf;
-  if (ret->cmd == GLSC_HANDSHAKE)
-  {
+  gls_ret_HANDSHAKE_t* ret = (gls_ret_HANDSHAKE_t*)glsc_global.pool.tmp_buf.buf;
+  if (ret->cmd == GLSC_HANDSHAKE) {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
     fprintf(stderr, "GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
@@ -216,32 +215,32 @@ static int gls_cmd_HANDSHAKE()
 
 void gls_init_library()
 {
-    static int init = FALSE;
-    if(init)
-        return;
-    char his_ip[30]; // GLS_STRING_SIZE_PLUS
-    uint16_t his_port = 18145;
-    
-    const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
-    if (env_serverAddr == NULL) {
-        strncpy(his_ip, "127.0.0.1", 10);
-    } else {
-        size_t addrlen = strcspn(env_serverAddr, ":");
-        assert(addrlen < sizeof(his_ip));
-        strncpy(his_ip, env_serverAddr, addrlen);
-        his_ip[addrlen] = '\0';
+  static int init = FALSE;
+  if (init)
+    return;
+  char his_ip[30]; // GLS_STRING_SIZE_PLUS
+  uint16_t his_port = 18145;
 
-        if (env_serverAddr[addrlen] == ':' && env_serverAddr[addrlen+1] != '\0')
-            his_port = atoi(env_serverAddr + addrlen + 1);
-    }
-    fprintf(stderr, "GLS INFO: connecting to %s:%u\n", his_ip, his_port);
+  const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
+  if (env_serverAddr == NULL) {
+    strncpy(his_ip, "127.0.0.1", 10);
+  } else {
+    size_t addrlen = strcspn(env_serverAddr, ":");
+    assert(addrlen < sizeof(his_ip));
+    strncpy(his_ip, env_serverAddr, addrlen);
+    his_ip[addrlen] = '\0';
 
-    recvr_client_start(&glsc_global.rc, his_ip, his_port);
-    gls_init();
-    if (!gls_cmd_HANDSHAKE())
-        exit(EXIT_FAILURE);
+    if (env_serverAddr[addrlen] == ':' && env_serverAddr[addrlen + 1] != '\0')
+      his_port = atoi(env_serverAddr + addrlen + 1);
+  }
+  fprintf(stderr, "GLS INFO: connecting to %s:%u\n", his_ip, his_port);
 
-    init = TRUE;
+  recvr_client_start(&glsc_global.rc, his_ip, his_port);
+  gls_init();
+  if (!gls_cmd_HANDSHAKE())
+    exit(EXIT_FAILURE);
+
+  init = TRUE;
 }
 
 void gls_cleanup_library()

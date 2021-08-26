@@ -45,18 +45,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 glse_context_t glsec_global;
 
 
-int glse_cmd_send_data(uint32_t size, void *data)
+int glse_cmd_send_data(uint32_t size, void* data)
 {
 #ifdef GL_DEBUG
   fprintf(stderr, "GLS: glse_cmd_send_data sending data back\n");
 #endif
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)glsec_global.pool.out_buf.buf;
+  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsec_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
   c->zero = 0;
 
-  struct iovec iov[2] = { { c, sizeof(gls_cmd_send_data_t) },
-                          { (void*)data, size } };
+  struct iovec iov[2] = {
+    { c, sizeof(gls_cmd_send_data_t) },
+    { (void*)data, size }
+  };
   struct msghdr msg = { .msg_iov = iov, .msg_iovlen = 2 };
 
   if (sendmsg(glsec_global.rc->sock_fd, &msg, 0) < 0) {
@@ -69,10 +71,10 @@ int glse_cmd_send_data(uint32_t size, void *data)
 
 void glse_cmd_HANDSHAKE(gls_command_t* buf)
 {
-  gls_HANDSHAKE_t *c = (gls_HANDSHAKE_t *)buf;
-  graphics_context_t *gc = glsec_global.gc;
+  gls_HANDSHAKE_t* c = (gls_HANDSHAKE_t*)buf;
+  graphics_context_t* gc = glsec_global.gc;
 
-  gls_ret_HANDSHAKE_t *ret = (gls_ret_HANDSHAKE_t *)glsec_global.pool.tmp_buf.buf;
+  gls_ret_HANDSHAKE_t* ret = (gls_ret_HANDSHAKE_t*)glsec_global.pool.tmp_buf.buf;
   ret->cmd = c->cmd;
   ret->cmd_size = sizeof(gls_ret_HANDSHAKE_t);
   ret->screen_width = gc->screen_width = glsurfaceview_width;
@@ -93,19 +95,19 @@ void glserver_handle_packets(recvr_context_t* rc)
 
   glsec_global.rc = rc;
   glsec_global.gc = &gc;
-  glsec_global.pool.tmp_buf.buf = (char *)malloc(GLSE_TMP_BUFFER_SIZE);
+  glsec_global.pool.tmp_buf.buf = (char*)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
-  glsec_global.pool.out_buf.buf = (char *)malloc(GLSE_OUT_BUFFER_SIZE);
+  glsec_global.pool.out_buf.buf = (char*)malloc(GLSE_OUT_BUFFER_SIZE);
   glsec_global.pool.out_buf.size = GLSE_OUT_BUFFER_SIZE;
-  
+
   while (!quit) {
-    void *popptr = (void *)fifo_pop_ptr_get(&rc->fifo);
+    void* popptr = (void*)fifo_pop_ptr_get(&rc->fifo);
     if (popptr == NULL) {
       usleep(rc->sleep_usec);
       continue;
     }
 
-    gls_command_t *c = (gls_command_t *)popptr;
+    gls_command_t* c = (gls_command_t*)popptr;
 #ifdef GL_DEBUG
     fprintf(stderr, "GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
             c->cmd, GLSC_tostring(c->cmd));
@@ -121,15 +123,15 @@ void glserver_handle_packets(recvr_context_t* rc)
 #endif
       glse_cmd_HANDSHAKE(c);
       break;
-          
-    default: {
-      int result = FALSE;
-      if (!result) result = gles_executeCommand(c);
-      if (!result) result = egl_executeCommand(c);
 
-      if (!result)
-        LOGE("GLS ERROR: Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
-    }
+    default: {
+        int result = FALSE;
+        if (!result) result = gles_executeCommand(c);
+        if (!result) result = egl_executeCommand(c);
+
+        if (!result)
+          LOGE("GLS ERROR: Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+      }
     }
     fifo_pop_ptr_next(&rc->fifo);
   }

@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdlib.h>
 
-int fifo_init(fifo_t *fifo, unsigned int fifo_size_order,
+int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
               unsigned int fifo_packet_size_order)
 {
   fifo->fifo_size = 1 << fifo_size_order;
@@ -42,13 +42,13 @@ int fifo_init(fifo_t *fifo, unsigned int fifo_size_order,
 #if 0
   // aligned malloc ?  Do we gain anything ?
   unsigned int alignment = fifo->fifo_packet_size;
-  fifo->buffer = (char *)aligned_alloc(alignment, fifo->fifo_size * fifo->fifo_packet_size);
+  fifo->buffer = (char*)aligned_alloc(alignment, fifo->fifo_size * fifo->fifo_packet_size);
   if (fifo->buffer == NULL) {
     fprintf(stderr, "GLS ERROR: FIFO allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 #else
-  fifo->buffer = (char *)malloc(fifo->fifo_size * fifo->fifo_packet_size);
+  fifo->buffer = (char*)malloc(fifo->fifo_size * fifo->fifo_packet_size);
 #endif
 
   fifo->idx_reader = 0;
@@ -56,7 +56,7 @@ int fifo_init(fifo_t *fifo, unsigned int fifo_size_order,
   return 0;
 }
 
-int fifo_delete(fifo_t *fifo)
+int fifo_delete(fifo_t* fifo)
 {
   free(fifo->buffer);
   fifo->buffer = NULL;

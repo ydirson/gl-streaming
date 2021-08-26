@@ -9,11 +9,12 @@
 
 typedef struct
 {
-  char *buf;
+  char* buf;
   size_t size;
 } gls_buffer_t;
 
-typedef struct {
+typedef struct
+{
   gls_buffer_t tmp_buf; // in_buf
   gls_buffer_t out_buf;
   int has_data;
@@ -30,7 +31,7 @@ static inline int fifobuf_data_to_bufpool(gls_bufpool_t* pool, fifo_t* fifo, gls
     free(pool->mallocated);
     pool->mallocated = NULL;
   }
-  gls_cmd_send_data_t *c = (gls_cmd_send_data_t *)buf;
+  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)buf;
   if (c->dataptr) {
     // large malloc'd zone, copy pointer not data
     pool->mallocated = c->dataptr; // transfer ownership

@@ -169,8 +169,8 @@ void glse_glCompileShader(gls_command_t* buf)
 
 void glse_glCopyTexSubImage2D(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glCopyTexSubImage2D);
-    glCopyTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->x, c->y, c->width, c->height);
+  GLSE_SET_COMMAND_PTR(c, glCopyTexSubImage2D);
+  glCopyTexSubImage2D(c->target, c->level, c->xoffset, c->yoffset, c->x, c->y, c->width, c->height);
 }
 
 
@@ -455,10 +455,10 @@ void glse_glGetProgramInfoLog(gls_command_t* buf)
 
 void glse_glGetProgramiv(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
-    GLSE_SET_RET_PTR(ret, glGetProgramiv);
-    glGetProgramiv(c->program, c->pname, &ret->params);
-    GLSE_SEND_RET(ret, glGetProgramiv);
+  GLSE_SET_COMMAND_PTR(c, glGetProgramiv);
+  GLSE_SET_RET_PTR(ret, glGetProgramiv);
+  glGetProgramiv(c->program, c->pname, &ret->params);
+  GLSE_SEND_RET(ret, glGetProgramiv);
 }
 
 
@@ -511,13 +511,12 @@ void glse_glGetString(gls_command_t* buf)
     ret->success = TRUE;
     break;
   case GL_VENDOR:
-    // Change vendor name to gl-streaming.
-    // If want to get hardware vendor, comment out below
-    // return "gl-streaming wrapper";
-    // break;
-  default:
-    {
-      const unsigned char *params = glGetString(c->name);
+  // Change vendor name to gl-streaming.
+  // If want to get hardware vendor, comment out below
+  // return "gl-streaming wrapper";
+  // break;
+  default: {
+      const unsigned char* params = glGetString(c->name);
       if (params) {
         strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
         ret->success = TRUE;
@@ -624,10 +623,10 @@ void glse_glShaderSource(gls_command_t* buf)
 
   for (i = 0; i < c->count; i++)
     strings[i] = dat->data + dat->offsets[i];
-  
+
   if (0) { // Debug: print shader to log
     LOGD("\n ----- BEGIN SHADER CONTENT -----\n");
-  
+
     for (i = 0; i < c->count; i++) {
       size_t strsize = dat->length[i];
       if (strsize == 0)
@@ -714,15 +713,15 @@ IMPLEM_glUniformMatrixNX(glUniform4i, c->x, c->y, c->z, c->w);
   FUNC(c->location, c->count, (const TYPE*) c->v);               \
   }
 
-IMPLEM_glUniformNXv(glUniform1fv,GLfloat);
-IMPLEM_glUniformNXv(glUniform2fv,GLfloat);
-IMPLEM_glUniformNXv(glUniform3fv,GLfloat);
-IMPLEM_glUniformNXv(glUniform4fv,GLfloat);
+IMPLEM_glUniformNXv(glUniform1fv, GLfloat);
+IMPLEM_glUniformNXv(glUniform2fv, GLfloat);
+IMPLEM_glUniformNXv(glUniform3fv, GLfloat);
+IMPLEM_glUniformNXv(glUniform4fv, GLfloat);
 
-IMPLEM_glUniformNXv(glUniform1iv,GLint);
-IMPLEM_glUniformNXv(glUniform2iv,GLint);
-IMPLEM_glUniformNXv(glUniform3iv,GLint);
-IMPLEM_glUniformNXv(glUniform4iv,GLint);
+IMPLEM_glUniformNXv(glUniform1iv, GLint);
+IMPLEM_glUniformNXv(glUniform2iv, GLint);
+IMPLEM_glUniformNXv(glUniform3iv, GLint);
+IMPLEM_glUniformNXv(glUniform4iv, GLint);
 
 
 #define IMPLEM_glUniformMatrixNXv(FUNC)                                 \
@@ -739,8 +738,8 @@ IMPLEM_glUniformMatrixNXv(glUniformMatrix4fv);
 
 void glse_glUseProgram(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glUseProgram);
-    glUseProgram(c->program);
+  GLSE_SET_COMMAND_PTR(c, glUseProgram);
+  glUseProgram(c->program);
 }
 
 
@@ -748,27 +747,27 @@ void glse_glUseProgram(gls_command_t* buf)
 #define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY); break
 void glse_glVertexAttribFloat(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
-    GLSE_SET_DATA_PTR(dat, glVertexAttribFloat, 1);
+  GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
+  GLSE_SET_DATA_PTR(dat, glVertexAttribFloat, 1);
 
-    if (c->call_arr) {
-        switch (c->num_float) {
-            // FIXME improve this code
-            CASE_VTXATTR_FLOAT_ARR(c->index, 1, dat->arr);
-            CASE_VTXATTR_FLOAT_ARR(c->index, 2, dat->arr);
-            CASE_VTXATTR_FLOAT_ARR(c->index, 3, dat->arr);
-            CASE_VTXATTR_FLOAT_ARR(c->index, 4, dat->arr);
-        }
-    } else {
-        switch (c->num_float) {
-            // FIXME improve this code
-            CASE_VTXATTR_FLOAT(c->index, 1, dat->arr[0]);
-            CASE_VTXATTR_FLOAT(c->index, 2, dat->arr[0], dat->arr[1]);
-            CASE_VTXATTR_FLOAT(c->index, 3, dat->arr[0], dat->arr[1], dat->arr[2]);
-            CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
-        }
+  if (c->call_arr) {
+    switch (c->num_float) {
+      // FIXME improve this code
+      CASE_VTXATTR_FLOAT_ARR(c->index, 1, dat->arr);
+      CASE_VTXATTR_FLOAT_ARR(c->index, 2, dat->arr);
+      CASE_VTXATTR_FLOAT_ARR(c->index, 3, dat->arr);
+      CASE_VTXATTR_FLOAT_ARR(c->index, 4, dat->arr);
     }
-    GLSE_RELEASE_DATA();
+  } else {
+    switch (c->num_float) {
+      // FIXME improve this code
+      CASE_VTXATTR_FLOAT(c->index, 1, dat->arr[0]);
+      CASE_VTXATTR_FLOAT(c->index, 2, dat->arr[0], dat->arr[1]);
+      CASE_VTXATTR_FLOAT(c->index, 3, dat->arr[0], dat->arr[1], dat->arr[2]);
+      CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
+    }
+  }
+  GLSE_RELEASE_DATA();
 }
 #undef CASE_VTXATTR_FLOAT
 #undef CASE_VTXATTR_FLOAT_ARR
@@ -776,16 +775,16 @@ void glse_glVertexAttribFloat(gls_command_t* buf)
 
 void glse_glVertexAttribPointer(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
-    glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride,
-                          (void*)c->ptr_uint);
+  GLSE_SET_COMMAND_PTR(c, glVertexAttribPointer);
+  glVertexAttribPointer(c->indx, c->size, c->type, c->normalized, c->stride,
+                        (void*)c->ptr_uint);
 }
 
 
 void glse_glViewport(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glViewport);
-    glViewport(c->x, c->y, c->width, c->height);
+  GLSE_SET_COMMAND_PTR(c, glViewport);
+  glViewport(c->x, c->y, c->width, c->height);
 }
 
 
@@ -795,8 +794,8 @@ void glse_glViewport(gls_command_t* buf)
  */
 void glse_glMapBufferOES(gls_command_t* buf)
 {
-    GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
-    glMapBufferOES(c->target, c->access);
+  GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
+  glMapBufferOES(c->target, c->access);
 }
 
 
@@ -830,152 +829,153 @@ void glse_()
 #define CASE_BATCH_CMD(FUNCNAME) \
   CASE_EXEC_CMD(FUNCNAME)
 
-int gles_executeCommand(gls_command_t *c) {
+int gles_executeCommand(gls_command_t* c)
+{
 #ifdef DEBUG
-    LOGD("gles_executeCommand: Executing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+  LOGD("gles_executeCommand: Executing command %d (%s)\n", c->cmd, GLSC_tostring(c->cmd));
 #endif
-    switch (c->cmd) {
-        CASE_BATCH_CMD(glActiveTexture);
-        CASE_BATCH_CMD(glAttachShader);
-        CASE_BATCH_CMD(glBindAttribLocation);
-        CASE_BATCH_CMD(glBindBuffer);
-        CASE_BATCH_CMD(glBindFramebuffer);
-        CASE_BATCH_CMD(glBindRenderbuffer);
-        CASE_BATCH_CMD(glBindTexture);
-        //CASE_BATCH_CMD(glBlendColor);
-        //CASE_BATCH_CMD(glBlendEquation);
-        CASE_BATCH_CMD(glBlendEquationSeparate);
-        CASE_BATCH_CMD(glBlendFunc);
-        CASE_BATCH_CMD(glBlendFuncSeparate);
-        CASE_EXEC_CMD(glBufferData);
-        CASE_EXEC_CMD(glBufferSubData);
-        CASE_EXEC_CMD(glCheckFramebufferStatus);
-        CASE_BATCH_CMD(glClear);
-        CASE_BATCH_CMD(glClearColor);
-        CASE_BATCH_CMD(glClearDepthf);
-        //CASE_BATCH_CMD(glClearStencil);
-        CASE_BATCH_CMD(glColorMask);
-        CASE_BATCH_CMD(glCompileShader);
-        //CASE_EXEC_CMD(glCompressedTexImage2D);
-        //CASE_EXEC_CMD(glCompressedTexSubImage2D);
-        //CASE_BATCH_CMD(glCopyTexImage2D);
-        CASE_BATCH_CMD(glCopyTexSubImage2D);
-        CASE_EXEC_CMD(glCreateProgram);
-        CASE_EXEC_CMD(glCreateShader);
-        CASE_BATCH_CMD(glCullFace);
-        CASE_EXEC_CMD(glDeleteBuffers);
-        CASE_BATCH_CMD(glDeleteFramebuffers);
-        CASE_BATCH_CMD(glDeleteProgram);
-        CASE_BATCH_CMD(glDeleteRenderbuffers);
-        CASE_BATCH_CMD(glDeleteShader);
-        CASE_BATCH_CMD(glDeleteTextures);
-        CASE_BATCH_CMD(glDepthFunc);
-        CASE_BATCH_CMD(glDepthMask);
-        CASE_BATCH_CMD(glDepthRangef);
-        //CASE_BATCH_CMD(glDetachShader);
-        CASE_BATCH_CMD(glDisable);
-        CASE_BATCH_CMD(glDisableVertexAttribArray);
-        CASE_BATCH_CMD(glDrawArrays);
-        CASE_BATCH_CMD(glDrawElements);
-        CASE_BATCH_CMD(glEnable);
-        CASE_BATCH_CMD(glEnableVertexAttribArray);
-        CASE_EXEC_CMD(glFinish);
-        CASE_BATCH_CMD(glFlush);
-        CASE_BATCH_CMD(glFramebufferRenderbuffer);
-        CASE_EXEC_CMD(glFramebufferTexture2D);
-        //CASE_EXEC_CMD(glFrontFace);
-        CASE_EXEC_CMD(glGenBuffers);
-        CASE_BATCH_CMD(glGenerateMipmap);
-        CASE_EXEC_CMD(glGenFramebuffers);
-        CASE_EXEC_CMD(glGenRenderbuffers);
-        CASE_EXEC_CMD(glGenTextures);
-        CASE_EXEC_CMD(glGetActiveAttrib);
-        CASE_EXEC_CMD(glGetActiveUniform);
-        //CASE_EXEC_CMD(glGetAttachedShaders);
-        CASE_EXEC_CMD(glGetAttribLocation);
-        //CASE_EXEC_CMD(glGetBooleanv);
-        //CASE_EXEC_CMD(glGetBufferParameteriv);
-        CASE_EXEC_CMD(glGetError);
-        CASE_EXEC_CMD(glGetFloatv);
-        //CASE_EXEC_CMD(glGetFramebufferAttachmentParameteriv);
-        CASE_EXEC_CMD(glGetIntegerv);
-        CASE_EXEC_CMD(glGetProgramiv);
-        CASE_EXEC_CMD(glGetProgramInfoLog);
-        //CASE_EXEC_CMD(glGetRenderbufferParameteriv);
-        CASE_EXEC_CMD(glGetShaderiv);
-        CASE_EXEC_CMD(glGetShaderInfoLog);
-        //CASE_EXEC_CMD(glGetShaderPrecisionFormat);
-        //CASE_EXEC_CMD(glGetShaderSource);
-        CASE_EXEC_CMD(glGetString);
-        //CASE_EXEC_CMD(glGetTexParameterfv);
-        //CASE_EXEC_CMD(glGetTexParameteriv);
-        //CASE_EXEC_CMD(glGetUniformfv);
-        //CASE_EXEC_CMD(glGetUniformiv);
-        CASE_EXEC_CMD(glGetUniformLocation);
-        //CASE_EXEC_CMD(glGetVertexAttribfv);
-        //CASE_EXEC_CMD(glGetVertexAttribiv);
-        //CASE_EXEC_CMD(glGetVertexAttribPointerv);
-        CASE_BATCH_CMD(glHint);
-        CASE_EXEC_CMD(glIsBuffer);
-        CASE_EXEC_CMD(glIsEnabled);
-        //CASE_EXEC_CMD(glIsFramebuffer);
-        //CASE_EXEC_CMD(glIsProgram);
-        //CASE_EXEC_CMD(glIsRenderbuffer);
-        //CASE_EXEC_CMD(glIsShader);
-        //CASE_EXEC_CMD(glIsTexture);
-        CASE_BATCH_CMD(glLineWidth);
-        CASE_BATCH_CMD(glLinkProgram);
-        CASE_BATCH_CMD(glPixelStorei);
-        CASE_BATCH_CMD(glPolygonOffset);
-        CASE_EXEC_CMD(glReadPixels);
-        //CASE_BATCH_CMD(glReleaseShaderCompiler);
-        CASE_BATCH_CMD(glRenderbufferStorage);
-        //CASE_BATCH_CMD(glSampleCoverage);
-        //CASE_BATCH_CMD(glScissor);
-        //CASE_EXEC_CMD(glShaderBinary);
-        CASE_EXEC_CMD(glShaderSource);
-        CASE_BATCH_CMD(glStencilFunc);
-        //CASE_BATCH_CMD(glStencilFuncSeparate);
-        CASE_BATCH_CMD(glStencilMask);
-        //CASE_BATCH_CMD(glStencilMaskSeparate);
-        CASE_BATCH_CMD(glStencilOp);
-        //CASE_BATCH_CMD(glStencilOpSeparate);
-        CASE_EXEC_CMD(glTexImage2D);
-        //CASE_BATCH_CMD(glTexParameterf);
-        //CASE_BATCH_CMD(glTexParameterfv);
-        CASE_BATCH_CMD(glTexParameteri);
-        //CASE_BATCH_CMD(glTexParameteriv);
-        CASE_EXEC_CMD(glTexSubImage2D);
-        CASE_BATCH_CMD(glUniform1f);
-        CASE_BATCH_CMD(glUniform1fv);
-        CASE_BATCH_CMD(glUniform1i);
-        CASE_BATCH_CMD(glUniform1iv);
-        CASE_BATCH_CMD(glUniform2f);
-        CASE_BATCH_CMD(glUniform2fv);
-        CASE_BATCH_CMD(glUniform2i);
-        CASE_BATCH_CMD(glUniform2iv);
-        CASE_BATCH_CMD(glUniform3f);
-        CASE_BATCH_CMD(glUniform3fv);
-        CASE_BATCH_CMD(glUniform3i);
-        CASE_BATCH_CMD(glUniform3iv);
-        CASE_BATCH_CMD(glUniform4f);
-        CASE_BATCH_CMD(glUniform4fv);
-        CASE_BATCH_CMD(glUniform4i);
-        CASE_BATCH_CMD(glUniform4iv);
-        CASE_BATCH_CMD(glUniformMatrix2fv);
-        CASE_BATCH_CMD(glUniformMatrix3fv);
-        CASE_BATCH_CMD(glUniformMatrix4fv);
-        CASE_BATCH_CMD(glUseProgram);
-        //CASE_BATCH_CMD(glValidateProgram);
-        CASE_EXEC_CMD(glVertexAttribFloat);
-        CASE_BATCH_CMD(glVertexAttribPointer);
-        CASE_BATCH_CMD(glViewport);
+  switch (c->cmd) {
+    CASE_BATCH_CMD(glActiveTexture);
+    CASE_BATCH_CMD(glAttachShader);
+    CASE_BATCH_CMD(glBindAttribLocation);
+    CASE_BATCH_CMD(glBindBuffer);
+    CASE_BATCH_CMD(glBindFramebuffer);
+    CASE_BATCH_CMD(glBindRenderbuffer);
+    CASE_BATCH_CMD(glBindTexture);
+    //CASE_BATCH_CMD(glBlendColor);
+    //CASE_BATCH_CMD(glBlendEquation);
+    CASE_BATCH_CMD(glBlendEquationSeparate);
+    CASE_BATCH_CMD(glBlendFunc);
+    CASE_BATCH_CMD(glBlendFuncSeparate);
+    CASE_EXEC_CMD(glBufferData);
+    CASE_EXEC_CMD(glBufferSubData);
+    CASE_EXEC_CMD(glCheckFramebufferStatus);
+    CASE_BATCH_CMD(glClear);
+    CASE_BATCH_CMD(glClearColor);
+    CASE_BATCH_CMD(glClearDepthf);
+    //CASE_BATCH_CMD(glClearStencil);
+    CASE_BATCH_CMD(glColorMask);
+    CASE_BATCH_CMD(glCompileShader);
+    //CASE_EXEC_CMD(glCompressedTexImage2D);
+    //CASE_EXEC_CMD(glCompressedTexSubImage2D);
+    //CASE_BATCH_CMD(glCopyTexImage2D);
+    CASE_BATCH_CMD(glCopyTexSubImage2D);
+    CASE_EXEC_CMD(glCreateProgram);
+    CASE_EXEC_CMD(glCreateShader);
+    CASE_BATCH_CMD(glCullFace);
+    CASE_EXEC_CMD(glDeleteBuffers);
+    CASE_BATCH_CMD(glDeleteFramebuffers);
+    CASE_BATCH_CMD(glDeleteProgram);
+    CASE_BATCH_CMD(glDeleteRenderbuffers);
+    CASE_BATCH_CMD(glDeleteShader);
+    CASE_BATCH_CMD(glDeleteTextures);
+    CASE_BATCH_CMD(glDepthFunc);
+    CASE_BATCH_CMD(glDepthMask);
+    CASE_BATCH_CMD(glDepthRangef);
+    //CASE_BATCH_CMD(glDetachShader);
+    CASE_BATCH_CMD(glDisable);
+    CASE_BATCH_CMD(glDisableVertexAttribArray);
+    CASE_BATCH_CMD(glDrawArrays);
+    CASE_BATCH_CMD(glDrawElements);
+    CASE_BATCH_CMD(glEnable);
+    CASE_BATCH_CMD(glEnableVertexAttribArray);
+    CASE_EXEC_CMD(glFinish);
+    CASE_BATCH_CMD(glFlush);
+    CASE_BATCH_CMD(glFramebufferRenderbuffer);
+    CASE_EXEC_CMD(glFramebufferTexture2D);
+    //CASE_EXEC_CMD(glFrontFace);
+    CASE_EXEC_CMD(glGenBuffers);
+    CASE_BATCH_CMD(glGenerateMipmap);
+    CASE_EXEC_CMD(glGenFramebuffers);
+    CASE_EXEC_CMD(glGenRenderbuffers);
+    CASE_EXEC_CMD(glGenTextures);
+    CASE_EXEC_CMD(glGetActiveAttrib);
+    CASE_EXEC_CMD(glGetActiveUniform);
+    //CASE_EXEC_CMD(glGetAttachedShaders);
+    CASE_EXEC_CMD(glGetAttribLocation);
+    //CASE_EXEC_CMD(glGetBooleanv);
+    //CASE_EXEC_CMD(glGetBufferParameteriv);
+    CASE_EXEC_CMD(glGetError);
+    CASE_EXEC_CMD(glGetFloatv);
+    //CASE_EXEC_CMD(glGetFramebufferAttachmentParameteriv);
+    CASE_EXEC_CMD(glGetIntegerv);
+    CASE_EXEC_CMD(glGetProgramiv);
+    CASE_EXEC_CMD(glGetProgramInfoLog);
+    //CASE_EXEC_CMD(glGetRenderbufferParameteriv);
+    CASE_EXEC_CMD(glGetShaderiv);
+    CASE_EXEC_CMD(glGetShaderInfoLog);
+    //CASE_EXEC_CMD(glGetShaderPrecisionFormat);
+    //CASE_EXEC_CMD(glGetShaderSource);
+    CASE_EXEC_CMD(glGetString);
+    //CASE_EXEC_CMD(glGetTexParameterfv);
+    //CASE_EXEC_CMD(glGetTexParameteriv);
+    //CASE_EXEC_CMD(glGetUniformfv);
+    //CASE_EXEC_CMD(glGetUniformiv);
+    CASE_EXEC_CMD(glGetUniformLocation);
+    //CASE_EXEC_CMD(glGetVertexAttribfv);
+    //CASE_EXEC_CMD(glGetVertexAttribiv);
+    //CASE_EXEC_CMD(glGetVertexAttribPointerv);
+    CASE_BATCH_CMD(glHint);
+    CASE_EXEC_CMD(glIsBuffer);
+    CASE_EXEC_CMD(glIsEnabled);
+    //CASE_EXEC_CMD(glIsFramebuffer);
+    //CASE_EXEC_CMD(glIsProgram);
+    //CASE_EXEC_CMD(glIsRenderbuffer);
+    //CASE_EXEC_CMD(glIsShader);
+    //CASE_EXEC_CMD(glIsTexture);
+    CASE_BATCH_CMD(glLineWidth);
+    CASE_BATCH_CMD(glLinkProgram);
+    CASE_BATCH_CMD(glPixelStorei);
+    CASE_BATCH_CMD(glPolygonOffset);
+    CASE_EXEC_CMD(glReadPixels);
+    //CASE_BATCH_CMD(glReleaseShaderCompiler);
+    CASE_BATCH_CMD(glRenderbufferStorage);
+    //CASE_BATCH_CMD(glSampleCoverage);
+    //CASE_BATCH_CMD(glScissor);
+    //CASE_EXEC_CMD(glShaderBinary);
+    CASE_EXEC_CMD(glShaderSource);
+    CASE_BATCH_CMD(glStencilFunc);
+    //CASE_BATCH_CMD(glStencilFuncSeparate);
+    CASE_BATCH_CMD(glStencilMask);
+    //CASE_BATCH_CMD(glStencilMaskSeparate);
+    CASE_BATCH_CMD(glStencilOp);
+    //CASE_BATCH_CMD(glStencilOpSeparate);
+    CASE_EXEC_CMD(glTexImage2D);
+    //CASE_BATCH_CMD(glTexParameterf);
+    //CASE_BATCH_CMD(glTexParameterfv);
+    CASE_BATCH_CMD(glTexParameteri);
+    //CASE_BATCH_CMD(glTexParameteriv);
+    CASE_EXEC_CMD(glTexSubImage2D);
+    CASE_BATCH_CMD(glUniform1f);
+    CASE_BATCH_CMD(glUniform1fv);
+    CASE_BATCH_CMD(glUniform1i);
+    CASE_BATCH_CMD(glUniform1iv);
+    CASE_BATCH_CMD(glUniform2f);
+    CASE_BATCH_CMD(glUniform2fv);
+    CASE_BATCH_CMD(glUniform2i);
+    CASE_BATCH_CMD(glUniform2iv);
+    CASE_BATCH_CMD(glUniform3f);
+    CASE_BATCH_CMD(glUniform3fv);
+    CASE_BATCH_CMD(glUniform3i);
+    CASE_BATCH_CMD(glUniform3iv);
+    CASE_BATCH_CMD(glUniform4f);
+    CASE_BATCH_CMD(glUniform4fv);
+    CASE_BATCH_CMD(glUniform4i);
+    CASE_BATCH_CMD(glUniform4iv);
+    CASE_BATCH_CMD(glUniformMatrix2fv);
+    CASE_BATCH_CMD(glUniformMatrix3fv);
+    CASE_BATCH_CMD(glUniformMatrix4fv);
+    CASE_BATCH_CMD(glUseProgram);
+    //CASE_BATCH_CMD(glValidateProgram);
+    CASE_EXEC_CMD(glVertexAttribFloat);
+    CASE_BATCH_CMD(glVertexAttribPointer);
+    CASE_BATCH_CMD(glViewport);
 
-    default:
-            return FALSE;
-    }
-    check_gl_err_cmd(c->cmd);
-    return TRUE;
+  default:
+    return FALSE;
+  }
+  check_gl_err_cmd(c->cmd);
+  return TRUE;
 }
 
 #undef CASE_EXEC_CMD

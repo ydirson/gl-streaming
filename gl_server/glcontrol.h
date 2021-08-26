@@ -51,7 +51,8 @@ typedef struct
   EGLDisplay display;
   EGLContext context;
 #ifdef USE_X11
-  struct {
+  struct
+  {
     Display* display;
     Window window;
   } x;
@@ -70,5 +71,5 @@ void base_check_gl_err(const char* funcname);
 
 extern EGLConfig config;
 
-void init_egl(graphics_context_t *gc);
-void release_egl(graphics_context_t *gc);
+void init_egl(graphics_context_t* gc);
+void release_egl(graphics_context_t* gc);

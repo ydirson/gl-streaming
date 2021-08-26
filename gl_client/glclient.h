@@ -39,7 +39,8 @@ typedef struct
 {
   gls_bufpool_t pool;
   recvr_context_t rc;
-  struct {
+  struct
+  {
     struct sockaddr addr;
     socklen_t addrlen;
   } server;
@@ -110,7 +111,7 @@ typedef struct
 #define push_batch_command(SIZE) send_packet(SIZE)
 #define gls_cmd_flush() do {} while(0)
 
-static inline int check_batch_overflow(size_t size, const char *msg)
+static inline int check_batch_overflow(size_t size, const char* msg)
 {
   if (size > GLS_OUT_BUFFER_SIZE) {
     fprintf(stderr, "GLS ERROR: %s data too large\n", msg);
@@ -143,5 +144,5 @@ void gls_cleanup_library(void);
 
 extern gls_context_t glsc_global;
 int send_packet(void);
-int gls_cmd_send_data(uint32_t size, const void *data);
-int wait_for_data(char *str);
+int gls_cmd_send_data(uint32_t size, const void* data);
+int wait_for_data(char* str);

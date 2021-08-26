@@ -44,7 +44,8 @@ typedef struct
   fifo_t fifo;
   useconds_t sleep_usec;
 
-  struct {
+  struct
+  {
     struct sockaddr addr;
     socklen_t addrlen;
   } peer;
@@ -55,6 +56,6 @@ typedef struct
   int sock_fd;
 } recvr_context_t;
 
-void recvr_server_start(recvr_context_t *rc, const char* listen_addr, uint16_t listen_port);
-void recvr_client_start(recvr_context_t *rc, const char* connect_addr, uint16_t connect_port);
-void recvr_stop(recvr_context_t *c);
+void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port);
+void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port);
+void recvr_stop(recvr_context_t* c);
