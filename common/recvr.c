@@ -157,16 +157,21 @@ static void socket_to_fifo_loop(recvr_context_t* rc)
       if (recv_size < 0) {
         LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
         close(rc->sock_fd);
+        endsession = 1;
         break;
       } else if (recv_size == 0) {
         LOGI("GLS INFO: connection closed\n\n");
         close(rc->sock_fd);
+        endsession = 1;
         break;
       }
 
       remaining -= recv_size;
       dest += recv_size;
     } while (remaining);
+
+    if (endsession)
+      break;
 
     if (c->cmd_size <= rc->fifo.fifo_packet_size && c->cmd == GLSC_SEND_DATA) {
       gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
