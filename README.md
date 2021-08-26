@@ -77,9 +77,27 @@ This is still a work in progress, notably:
 * Essentially tested both client and server sides on GNU/Linux.
 
 
+# High-level roadmap
+
+This is my own personal roadmap.  Contributors welcome, to help with
+those items or add their own in the picture.
+
+* [ ] bring EGL/GLES2 support to a satisfying state
+  * [ ] add extension support
+  * [ ] solve structural security issues
+    * [ ] pointers in protocol
+    * [ ] connection authorization
+  * [ ] implement a satisfying window/input experience
+    * [ ] on-demand window, properly sized
+    * [ ] no extra client-side window
+  * [ ] bring to decent performance level
+* [ ] add Vulkan support
+
+
 # Performance and conformance information
 
 Very few [preliminary benchmarks](benchmarks/) were run.
+
 
 # Other sources of information
 

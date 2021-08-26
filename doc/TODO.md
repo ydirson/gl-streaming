@@ -17,7 +17,7 @@
       - xeglthreads support
         - [ ] `xeglthreads -n 1` (needs glMatrixMode)
         - [ ] `xeglthreads` (needs multiple contexts)
-  - glmark2 coverage
+  - glmark2 coverage (could use `EGL_EXT_platform_base` for `eglGetPlatformDisplayEXT`)
     - build
       - [x] use-vbo=false
       - [x] use-vbo=true
@@ -43,15 +43,15 @@
       - [x] blur-radius=5:effect=blur:passes=1:separable=true:windows=4
       - [x] effect=shadow:windows=4
     - buffer
-      - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
+      - [ ] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs `GL_OES_mapbuffer`)
       - [x] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata
-      - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs GL_OES_mapbuffer)
+      - [ ] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map (needs `GL_OES_mapbuffer`)
     - ideas
       - [.] speed=duration (no error, but missing some objects)
     - [x] jellyfish
     - [x] terrain
-    - [ ] shadow (needs "depth texture extension")
-    - [ ] refract ("Unsupported")
+    - [ ] shadow (needs `GL_OES_depth_texture`)
+    - [ ] refract (needs `GL_OES_depth_texture`)
     - conditionals
       - [x] fragment-steps=0:vertex-steps=0
       - [x] fragment-steps=5:vertex-steps=0
@@ -70,7 +70,6 @@
           and lack of window resizing
     - [.] planetblupi: seems to work, but limited by use of absolute mouse coordinates
   - [x] work on native 64bit platforms
-    - [ ] as a first step include word-size in protocol if needed
 - [x] readable indentation
 - improve usability
   - [ ] handle window size, create windows on demand, not just a fixed one
@@ -79,7 +78,7 @@
   - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - improve code quality
   - [x] take compiler warnings into account
-  - [ ] more readable idioms
+  - [x] more readable idioms
   - [ ] audit string/data-size usages
   - [ ] replace custom window creation with a standard portable library
 - improve performance
@@ -87,7 +86,6 @@
   - [ ] zero-copy when possible
     - [ ] replace 2-buffers design by a buffer pool instead of memcpy'ing between
           network layer and queue layer
-  - [ ] reduce malloc/free
 - fixes
   - [x] non-implemented functions (eg. glIsEnabled) cause client to segfault because
         symbol is NULL, core functions must all be provided
