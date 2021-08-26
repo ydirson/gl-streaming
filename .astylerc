@@ -1,0 +1,10 @@
+--style=mozilla
+--indent=spaces=2
+--indent-cases
+--pad-oper
+--pad-header
+--align-pointer=type
+--keep-one-line-statements
+
+#--remove-braces
+#--indent-preproc-block
