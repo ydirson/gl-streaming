@@ -20,7 +20,7 @@ better.
    startup, in [glcontrol](../gl_server/glcontrol.c) (this will have to
    change for better window management)
 
-4. Server receives packets with [server](../common/recvr.c) in a
+4. Server receives packets with [recvr](../common/recvr.c) in a
    dedicated thread, managed from [glserver](../gl_server/glserver.c) and
    puts them in a [FIFO queue](../common/fifo.h)
 
@@ -31,7 +31,7 @@ better.
 
 6. Serverside implementations for calls with output parameters
    marshall a message like on client side and sends it back; client
-   receives them from its own [server](../common/server.c) thread, and
+   receives them from its own [recvr](../common/server.c) thread, and
    received synchronously
 
 
@@ -106,7 +106,7 @@ results from `tmp_buf` just like the server does with large inputs.
 Upstream used a batching mechanism to send several API calls in a
 single UDP packet.  This has been culled from the current codebase
 as premature optimisation and because of inherent limitations (see [older
-INTERNALS](https://github.com/ydirson/gl-streaming/blob/346d1b58e6e3a220c7cae28c3afce02cf2fdd83f/INTERNALS.md)).
+INTERNALS](https://github.com/ydirson/gl-streaming/blob/346d1b58e6e3a220c7cae28c3afce02cf2fdd83f/INTERNALS.md#batched-commands)).
 
 
 ## special client work
