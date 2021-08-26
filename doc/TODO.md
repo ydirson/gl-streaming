@@ -69,10 +69,14 @@
     - [.] gigalomania: seems to work, but limited by use of absolute mouse coordinates
           and lack of window resizing
     - [.] planetblupi: seems to work, but limited by use of absolute mouse coordinates
+  - [x] work on native 64bit platforms
+    - [ ] as a first step include word-size in protocol if needed
 - [x] readable indentation
-- [ ] work on native 32bit linux (now broken by hacking in 64bit support)
-- [x] work on native 64bit platforms
-  - [ ] as a first step include word-size in protocol if needed
+- improve usability
+  - [ ] handle window size, create windows on demand, not just a fixed one
+        (addrsses: non-stub eglInitialize
+  - [ ] get rid of "local window"
+  - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - improve code quality
   - [x] take compiler warnings into account
   - [ ] more readable idioms
@@ -97,11 +101,9 @@
   - [ ] let eglQuerySurface do all size queries except for the window one, don't stub
         all of them
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
-  - [ ] non-stub eglInitialize
   - [ ] ensure non-modification of output params on error (API compliance)
   - [ ] don't use GLint in protocol? (specified as platform-dependant, even though
         Mesa uses 32bit even on 64bit platforms)
-  - [ ] handle window size, create windows on demand, not just a fixed one
   - [x] apitrace loops, requesting GLES3 items with glGetIntegerv
 - improve coverage
   - [ ] full EGL core
