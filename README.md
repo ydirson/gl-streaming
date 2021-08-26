@@ -39,17 +39,19 @@ This is still a work in progress, notably:
   running locally (ie. GPU server and app on the same display) it gets
   quite awkward, as both windows must share the same screen.
 
-  Applications making use of relative mouse movements (eg. [Blobby
-  Volley 2](http://sourceforge.net/projects/blobby/), [Chocolate
+  Applications not making heavy use of the mouse, and drawing their
+  own mouse cursor. (eg. [Blobby Volley
+  2](http://sourceforge.net/projects/blobby/), [Chocolate
   Doom](http://chocolate-doom.org/)) can be used to some extent as
-  long as the "input window" keeps the focus (but even with a "click
-  to focus" wm policy, the focus can naturally be taken away with a
-  click).
+  long as the "input window" keeps the focus.
 
-  Applications making use of absolute mouse position
+  Applications making real use of the mouse
   (eg. [Gigalomania](http://gigalomania.sourceforge.net), [Planet
-  Blupi](http://blupi.org)) are much harder to use, especially when
-  they do not draw their own mouse cursor.
+  Blupi](http://blupi.org)) are much harder to use, as the user will
+  want to keep the "input" window focused, and possibly its entire
+  surface reachable by the mouse pointer, while also seeing the entire
+  render window.  It gets even worse with apps that do not draw their
+  own mouse cursor.
 
   Both application classes can be easier to use remotely.
 
