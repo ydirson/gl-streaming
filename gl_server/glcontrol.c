@@ -37,9 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 
-int glsurfaceview_width;
-int glsurfaceview_height;
-
 int   var_server_port;
 int   var_client_port;
 const char* var_client_addr;
@@ -128,11 +125,6 @@ void init_egl(graphics_context_t* gc)
 #endif
   assert(gc->display != EGL_NO_DISPLAY);
   check_gl_err(eglGetDisplay);
-
-  gc->screen_width = glsurfaceview_width; // (gc->d_rect.right - gc->d_rect.left);
-  gc->screen_height = glsurfaceview_height; // (gc->d_rect.bottom - gc->d_rect.top);
-  // gc->d_window = glsurfaceview_window;
-  // assert (glsurfaceview_window != NULL);
 }
 
 

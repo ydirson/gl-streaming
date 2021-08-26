@@ -333,8 +333,6 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t server_version;
-  uint32_t screen_width;
-  uint32_t screen_height;
 } gls_ret_HANDSHAKE_t;
 
 

@@ -32,9 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <EGL/egl.h>
 
-extern int glsurfaceview_width;
-extern int glsurfaceview_height;
-
 extern int   var_server_port;
 extern int   var_client_port;
 extern const char* var_client_addr;
@@ -46,8 +43,6 @@ extern const char* var_file_vertex_shader;
 
 typedef struct
 {
-  uint32_t screen_width;
-  uint32_t screen_height;
   EGLDisplay display;
 #ifdef USE_X11
   struct

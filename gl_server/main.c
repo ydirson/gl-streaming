@@ -60,11 +60,6 @@ int main(int argc, char* argv[])
       return 0;
     }
   }
-#ifdef USE_X11
-  // FIXME: this is hardcoded in several places
-  glsurfaceview_width = 1280;
-  glsurfaceview_height = 720;
-#endif
 
   recvr_server_start(&rc, my_ip, my_port, glserver_handle_packets);
   recvr_stop(&rc);
