@@ -9,29 +9,29 @@ better.
 ## basic high-level structure
 
 1. Application makes EGL/GLES2 API calls, implemented by the
-   [clientegl](gl_client/clientegl.c) and
-   [clientgles](gl_client/clientgles.c) modules
+   [clientegl](../gl_client/clientegl.c) and
+   [clientgles](../gl_client/clientgles.c) modules
 
 2. API calls are marshalled into messages, described in
-   [gls_command.h](common/gls_command.h), sent using TCP, and possibly
+   [gls_command.h](../common/gls_command.h), sent using TCP, and possibly
    wait for a reply before the API returns control to the application
 
 3. Server initializes GLES2 using EGL and creates a static window on
-   startup, in [glcontrol](gl_server/glcontrol.c) (this will have to
+   startup, in [glcontrol](../gl_server/glcontrol.c) (this will have to
    change for better window management)
 
-4. Server receives packets with [server](common/recvr.c) in a
-   dedicated thread, managed from [glserver](gl_server/glserver.c) and
-   puts them in a [FIFO queue](common/fifo.h)
+4. Server receives packets with [server](../common/recvr.c) in a
+   dedicated thread, managed from [glserver](../gl_server/glserver.c) and
+   puts them in a [FIFO queue](../common/fifo.h)
 
-5. A server thread from [glserver](gl_server/glserver.c) executes
+5. A server thread from [glserver](../gl_server/glserver.c) executes
    commands from the FIFO, with implementations from
-   [serveregl](gl_server/serveregl.c) and
-   [servergles](gl_server/servergles.c) modules
+   [serveregl](../gl_server/serveregl.c) and
+   [servergles](../gl_server/servergles.c) modules
 
 6. Serverside implementations for calls with output parameters
    marshall a message like on client side and sends it back; client
-   receives them from its own [server](common/server.c) thread, and
+   receives them from its own [server](../common/server.c) thread, and
    received synchronously
 
 
@@ -43,7 +43,7 @@ Client-side API implementations are essentially forwarding the call
 parameters to the server (and receiving output data if any).
 
 Every command message contains a command identifier, defined in
-[gls_command.h](common/gls_command.h), which in most cases uniquely
+[gls_command.h](../common/gls_command.h), which in most cases uniquely
 map to an API call.
 
 Small fixed-sized input parameters are filled into a per-API-call data
@@ -106,7 +106,7 @@ results from `tmp_buf` just like the server does with large inputs.
 Upstream used a batching mechanism to send several API calls in a
 single UDP packet.  This has been culled from the current codebase
 as premature optimisation and because of inherent limitations (see [older
-INTERNALS](https://github.com/ydirson/gl-streaming/blob/master/INTERNALS.md#batched-commands)).
+INTERNALS](https://github.com/ydirson/gl-streaming/blob/346d1b58e6e3a220c7cae28c3afce02cf2fdd83f/INTERNALS.md)).
 
 
 ## special client work

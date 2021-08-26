@@ -69,9 +69,9 @@ This is still a work in progress, notably:
 * No protocol extension is supported yet, until proper generic
   extension support gets implemented.
 
-* [A rather unsorted TODO list](TODO.md) has a summary of things to be
-  done, as well as those already done: it's important to see that
-  despite the large amount of work to be done, things are really
+* [A rather unsorted TODO list](doc/TODO.md) has a summary of things
+  to be done, as well as those already done: it's important to see
+  that despite the large amount of work to be done, things are really
   progressing.
 
 * Essentially tested both client and server sides on GNU/Linux.
@@ -83,10 +83,10 @@ Very few [preliminary benchmarks](benchmarks/) were run.
 
 # Other sources of information
 
-* [Usage informations](USAGE.md), though still a bit terse
-* [An overview of inner workings](INTERNALS.md)
-* [Historical information](README.shodruky-rhyammer.md) from author of
-  the original project, including a nice visual explanation
+* [Usage informations](doc/USAGE.md), though still a bit terse
+* [An overview of inner workings](doc/INTERNALS.md)
+* [Historical information](doc/README.shodruky-rhyammer.md) from
+  author of the original project, including a nice visual explanation
 
 
 # Thanks

@@ -1,13 +1,13 @@
 # gl-streaming
 
-![GLStreaming](https://github.com/khanhduytran0/gl-streaming/raw/master/www/GLStreaming.png)
+![GLStreaming](images/GLStreaming.png)
 
 Streaming opengl commands over network
 
 A fast, simple, lightweight and low latency framework suitable for embedded systems.
 
 > - Original image
-> ![gl-streaming summary](https://raw.github.com/shodruky-rhyammer/gl-streaming/master/www/gl-streaming_small.png)
+> ![gl-streaming summary](images/gl-streaming_small.png)
 
 * gl_client : client framework and sample program
  
