@@ -114,6 +114,9 @@ void glse_eglCreateWindowSurface(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
   fprintf(stderr, "GLS WARNING: eglCreateWindowSurface ignoring window parameter\n");
+
+  gls_create_x11_window(glsec_global.gc, "OpenGL ES 2.x streaming", 0, 0,
+                        glsurfaceview_width, glsurfaceview_height);
   EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
                        glsec_global.gc->x.window, // FIXME
                        dat);

@@ -138,7 +138,6 @@ void init_egl(graphics_context_t* gc)
 
 #ifdef USE_X11
   make_egl_base(gc);
-  gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
 #endif
 }
 
