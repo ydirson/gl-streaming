@@ -273,6 +273,9 @@ void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t 
 
 void recvr_stop(recvr_context_t* rc)
 {
+  // FIXME should rather signal to socket_to_fifo_loop to finish
+  // properly, feat. timeout-enabled poll() rather than blocking in
+  // recv()
   pthread_cancel(rc->recvr_th);
   close(rc->sock_fd);
   fifo_delete(&rc->fifo);
