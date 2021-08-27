@@ -276,8 +276,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EG
   c->ctx = (uint64_t)ctx;
   GLS_SEND_PACKET(eglMakeCurrent);
 
-  wait_for_data("eglMakeCurrent");
-  gls_ret_eglMakeCurrent_t* ret = (gls_ret_eglMakeCurrent_t*)glsc_global.pool.tmp_buf.buf;
+  GLS_WAIT_SET_RET_PTR(ret, eglMakeCurrent);
   return ret->success;
 }
 
@@ -488,8 +487,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers( EGLDisplay dpy, EGLSurface draw )
   c->draw = (uint64_t)draw;
   GLS_SEND_PACKET(eglSwapBuffers);
 
-  wait_for_data("eglSwapBuffers");
-  gls_ret_eglSwapBuffers_t* ret = (gls_ret_eglSwapBuffers_t*)glsc_global.pool.tmp_buf.buf;
+  GLS_WAIT_SET_RET_PTR(ret, eglSwapBuffers);
   GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 

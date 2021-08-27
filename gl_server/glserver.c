@@ -71,17 +71,16 @@ int glse_cmd_send_data(uint32_t size, void* data)
 
 void glse_cmd_HANDSHAKE(gls_command_t* buf)
 {
-  gls_HANDSHAKE_t* c = (gls_HANDSHAKE_t*)buf;
+  //GLSE_SET_COMMAND_PTR(c, HANDSHAKE);
+  (void)buf;
   graphics_context_t* gc = glsec_global.gc;
 
-  gls_ret_HANDSHAKE_t* ret = (gls_ret_HANDSHAKE_t*)glsec_global.pool.tmp_buf.buf;
-  ret->cmd = c->cmd;
+  GLSE_SET_RET_PTR(ret, HANDSHAKE);
   ret->cmd_size = sizeof(gls_ret_HANDSHAKE_t);
   ret->screen_width = gc->screen_width = glsurfaceview_width;
   ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;
-  size_t size = sizeof(gls_ret_HANDSHAKE_t);
-  glse_cmd_send_data(size, glsec_global.pool.tmp_buf.buf);
+  GLSE_SEND_RET(ret, HANDSHAKE);
 }
 
 

@@ -198,17 +198,18 @@ static int gls_cmd_HANDSHAKE()
   if (!send_packet())
     return FALSE;
 
-  wait_for_data("gls_HANDSHAKE");
-  gls_ret_HANDSHAKE_t* ret = (gls_ret_HANDSHAKE_t*)glsc_global.pool.tmp_buf.buf;
+  GLS_WAIT_SET_RET_PTR(ret, HANDSHAKE);
   if (ret->cmd == GLSC_HANDSHAKE) {
     glsc_global.screen_width = ret->screen_width;
     glsc_global.screen_height = ret->screen_height;
     fprintf(stderr, "GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
     if (ret->server_version != GLS_VERSION) {
       fprintf(stderr, "GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
+      GLS_RELEASE_RET();
       return FALSE;
     }
   }
+  GLS_RELEASE_RET();
   return TRUE;
 }
 
