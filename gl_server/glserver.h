@@ -77,6 +77,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GLSE_SET_RET_PTR(PTR, FUNCNAME)                         \
   GLSE_SET_RAWRET_PTR(PTR, gls_ret_##FUNCNAME##_t);             \
   ret->cmd = GLSC_##FUNCNAME;                                   \
+  ret->cmd_size = sizeof(gls_ret_##FUNCNAME##_t);               \
   //
 #define GLSE_SEND_RAWRET(PTR, SIZE)                             \
   glse_cmd_send_data(SIZE, PTR);                                \
