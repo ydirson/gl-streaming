@@ -940,37 +940,6 @@ typedef struct
 /*
  * OES / EXT extension commands
  */
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t target;
-  uint32_t internalformat;
-  int32_t width;
-  uint32_t format;
-  uint32_t type;
-  char image[GLS_STRING_SIZE_PLUS];
-} gls_glConvolutionFilter1D_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t target;
-  uint32_t access;
-} gls_glMapBufferOES_t;
-
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t target;
-} gls_glUnmapBufferOES_t;
-
-typedef struct
-{
-  GLSCOMMAND_FIELDS();
-  uint32_t success;
-} gls_ret_glUnmapBufferOES_t;
 
 
 /*

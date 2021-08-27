@@ -1618,26 +1618,8 @@ GL_APICALL void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei
 
 
 /*
- * OES / EXT extension commands
+ * extension commands
  */
-GL_APICALL void GL_APIENTRY glMapBufferOES(GLenum target, GLenum access)
-{
-  GLS_SET_COMMAND_PTR(c, glMapBufferOES);
-  c->target = target;
-  c->access = access;
-  GLS_SEND_PACKET(glMapBufferOES);
-}
-
-
-GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
-{
-  GLS_SET_COMMAND_PTR(c, glUnmapBufferOES);
-  c->target = target;
-  GLS_SEND_PACKET(glUnmapBufferOES);
-
-  GLS_WAIT_SET_RET_PTR(ret, glUnmapBufferOES);
-  GLS_RELEASE_RETURN_RET(int, ret, success);
-}
 
 
 // Used for return void commands

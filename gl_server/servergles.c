@@ -812,28 +812,6 @@ void glse_glViewport(gls_command_t* buf)
 }
 
 
-#if 0
-/*
- * OES / EXT extension commands
- */
-void glse_glMapBufferOES(gls_command_t* buf)
-{
-  GLSE_SET_COMMAND_PTR(c, glMapBufferOES);
-  glMapBufferOES(c->target, c->access);
-}
-
-
-void glse_glUnmapBufferOES(gls_command_t* buf)
-{
-  GLSE_SET_COMMAND_PTR(c, glUnmapBufferOES);
-  GLboolean success = glUnmapBufferOES(c->target);
-  GLSE_SET_RET_PTR(ret, glUnmapBufferOES);
-  ret->success = success;
-  GLSE_SEND_RET(ret, glUnmapBufferOES);
-}
-#endif
-
-
 /*
 void glse_()
 {

@@ -277,8 +277,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLS_GLES2_EXT_COMMANDS()                \
   EMPTY()                                       \
-    X(glMapBufferOES)                           \
-    X(glUnmapBufferOES)                         \
   //
 
 #define GLSC_PROTOCOL_MASK  0x000F0000
