@@ -50,8 +50,8 @@
       - [.] speed=duration (no error, but missing some objects)
     - [x] jellyfish
     - [x] terrain
-    - [ ] shadow (needs `GL_OES_depth_texture`)
-    - [ ] refract (needs `GL_OES_depth_texture`)
+    - [x] shadow
+    - [x] refract
     - conditionals
       - [x] fragment-steps=0:vertex-steps=0
       - [x] fragment-steps=5:vertex-steps=0
