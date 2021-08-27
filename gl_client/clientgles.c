@@ -376,12 +376,8 @@ GL_APICALL void GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* frame
 {
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR(c, glDeleteFramebuffers);
-  c->cmd_size += datasize;
-  if (!check_batch_overflow(c->cmd_size, "glDeleteFramebuffers")) {
-    return;
-  }
   c->n = n;
-  memcpy(c->framebuffers, framebuffers, datasize);
+  GLS_VARIABLE_PAYLOAD(c, framebuffers, datasize);
   send_packet();
 }
 
@@ -398,12 +394,8 @@ GL_APICALL void GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* rend
 {
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR(c, glDeleteRenderbuffers);
-  c->cmd_size += datasize;
-  if (!check_batch_overflow(c->cmd_size, "glDeleteRenderbuffers")) {
-    return;
-  }
   c->n = n;
-  memcpy(c->renderbuffers, renderbuffers, datasize);
+  GLS_VARIABLE_PAYLOAD(c, renderbuffers, datasize);
   send_packet();
 }
 
@@ -420,12 +412,8 @@ GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
 {
   uint32_t datasize = n * sizeof(uint32_t);
   GLS_SET_COMMAND_PTR(c, glDeleteTextures);
-  c->cmd_size += datasize;
-  if (!check_batch_overflow(c->cmd_size, "glDeleteTextures")) {
-    return;
-  }
   c->n = n;
-  memcpy(c->textures, textures, datasize);
+  GLS_VARIABLE_PAYLOAD(c, textures, datasize);
   send_packet();
 }
 
@@ -1483,12 +1471,9 @@ IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x
   {                                                                     \
   uint32_t datasize = count * N * sizeof(TYPE);                         \
   GLS_SET_COMMAND_PTR(c, FUNC);                                         \
-  c->cmd_size += datasize;                                              \
-  if (!check_batch_overflow(c->cmd_size, #FUNC))                        \
-    return;                                                             \
   c->location = location;                                               \
   c->count = count;                                                     \
-  memcpy(c->v, v, datasize);                                            \
+  GLS_VARIABLE_PAYLOAD(c, v, datasize);                                 \
   send_packet();                                                        \
   }
 
@@ -1508,13 +1493,10 @@ IMPLEM_glUniformNXv(glUniform4iv, 4, GLint);
   {                                                                     \
     uint32_t datasize = count * N * N * sizeof(TYPE);                   \
     GLS_SET_COMMAND_PTR(c, FUNC);                                       \
-    c->cmd_size += datasize;                                            \
-    if (!check_batch_overflow(c->cmd_size, #FUNC))                      \
-      return;                                                           \
     c->location = location;                                             \
     c->count = count;                                                   \
     c->transpose = transpose;                                           \
-    memcpy(c->value, value, datasize);                                  \
+    GLS_VARIABLE_PAYLOAD(c, value, datasize);                           \
     send_packet();                                                      \
   }
 

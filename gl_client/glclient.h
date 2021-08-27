@@ -66,6 +66,18 @@ typedef struct
             #FUNCNAME, GLSC_##FUNCNAME);                                \
   //
 
+#define GLS_ENOUGH_SIZE(PTR) (PTR->cmd_size <= GLS_OUT_BUFFER_SIZE)
+#define GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE)                          \
+  do {                                                                  \
+    PTR->cmd_size += SIZE;                                              \
+    if (!GLS_ENOUGH_SIZE(PTR)) {                                        \
+      fprintf(stderr, "GLS ERROR: %s data too large\n", __FUNCTION__);  \
+      return;                                                           \
+    }                                                                   \
+    memcpy(PTR->FIELD, FIELD, SIZE);                                    \
+  } while (0)                                                           \
+  //
+
 #define GLS_SEND_PACKET(FUNCNAME) send_packet()
 
 #define GLS_WAIT_RET(TYPE, FUNCNAME)                            \
@@ -102,15 +114,6 @@ typedef struct
     return tmp;                                         \
   } while(0)
 
-
-static inline int check_batch_overflow(size_t size, const char* msg)
-{
-  if (size > GLS_OUT_BUFFER_SIZE) {
-    fprintf(stderr, "GLS ERROR: %s data too large\n", msg);
-    return 0;
-  }
-  return 1;
-}
 
 #define WARN_ONCE(FMT, ...) do {         \
     static int shown = 0;                \
