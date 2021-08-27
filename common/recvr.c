@@ -233,20 +233,20 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
       break;
     }
 
-    switch(fork()) {
+    switch (fork()) {
     case -1:
       LOGE("GLS ERROR: %s: fork failed: %s\n", __FUNCTION__, strerror(errno));
       break;
     case 0: {
-      if (fcntl(rc->sock_fd, F_SETFD, FD_CLOEXEC) < 0) {
-        LOGE("GLS ERROR: fcntl(FD_CLOEXEC) failed: %s\n", strerror(errno));
-        exit(EXIT_FAILURE);
+        if (fcntl(rc->sock_fd, F_SETFD, FD_CLOEXEC) < 0) {
+          LOGE("GLS ERROR: fcntl(FD_CLOEXEC) failed: %s\n", strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+        pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
+        pthread_setname_np(rc->recvr_th, "gls-recvr");
+        handle_child(rc);
+        return;
       }
-      pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
-      pthread_setname_np(rc->recvr_th, "gls-recvr");
-      handle_child(rc);
-      return;
-    }
     default:
       close(rc->sock_fd);
       // ... loop and wait for a new client

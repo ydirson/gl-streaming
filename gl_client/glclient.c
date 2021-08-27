@@ -151,19 +151,19 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
     gls_command_t* c = (gls_command_t*)popptr;
     switch (c->cmd) {
     case GLSC_SEND_DATA: {
-      gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)c;
-      if (data->dataptr)
-        data = (gls_cmd_send_data_t*)data->dataptr;
-      gls_command_t* ret = (gls_command_t*)data->data;
-      if (cmd != GLSC_GLS_UNDEF && ret->cmd != cmd) {
-        fprintf(stderr,
-                "GLS ERROR: received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
-                ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
-        break; // ignore packet and try again, but no luck
-      }
-      if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
-        quit = TRUE;
-      break;
+        gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)c;
+        if (data->dataptr)
+          data = (gls_cmd_send_data_t*)data->dataptr;
+        gls_command_t* ret = (gls_command_t*)data->data;
+        if (cmd != GLSC_GLS_UNDEF && ret->cmd != cmd) {
+          fprintf(stderr,
+                  "GLS ERROR: received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
+                  ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
+          break; // ignore packet and try again, but no luck
+        }
+        if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
+          quit = TRUE;
+        break;
       }
     default:
       fprintf(stderr, "GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
