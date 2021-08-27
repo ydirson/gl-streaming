@@ -937,7 +937,7 @@ static const GLubyte* GL_APIENTRY _real_glGetString(GLenum name)
     GLS_RELEASE_RET();
     return NULL;
   }
-  // must defer ret freeing until after copy
+  // emulating static buffer: must defer freeing until after copied
   return (GLubyte*)ret->params;
 }
 

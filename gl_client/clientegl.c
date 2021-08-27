@@ -303,6 +303,7 @@ static const char* EGLAPIENTRY _real_eglQueryString(EGLDisplay dpy, EGLint name)
     GLS_RELEASE_RET();
     return NULL;
   }
+  // emulating static buffer: must defer freeing until after copied
   return ret->params;
 }
 
