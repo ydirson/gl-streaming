@@ -732,7 +732,7 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
   }
   GLS_SEND_PACKET(glGetActiveAttrib);
 
-  GLS_WAIT_RET(glGetActiveAttrib);
+  GLS_WAIT_RET(GLSC_glGetActiveAttrib, glGetActiveAttrib);
 
   if (length != NULL) {
     *length = ret->length;
@@ -765,7 +765,7 @@ GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GL
   }
   GLS_SEND_PACKET(glGetActiveUniform);
 
-  GLS_WAIT_RET(glGetActiveUniform);
+  GLS_WAIT_RET(GLSC_glGetActiveUniform, glGetActiveUniform);
 
   if (length != NULL) {
     *length = ret->length;

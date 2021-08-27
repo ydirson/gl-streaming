@@ -70,8 +70,8 @@ typedef struct
 
 #define GLS_SEND_PACKET(FUNCNAME) send_packet()
 
-#define GLS_WAIT_RET(FUNCNAME)                                  \
-  wait_for_data(#FUNCNAME);                                     \
+#define GLS_WAIT_RET(TYPE, FUNCNAME)                            \
+  wait_for_data(TYPE, #FUNCNAME);                               \
   //
 #define GLS_SET_RAWRET_PTR(PTR, TYPE, FUNCNAME)                 \
   TYPE* PTR;                                                    \
@@ -84,11 +84,11 @@ typedef struct
   GLS_SET_RAWRET_PTR(PTR, gls_ret_##FUNCNAME##_t, FUNCNAME);    \
   //
 #define GLS_WAIT_SET_RAWRET_PTR(PTR, TYPE, FUNCNAME)            \
-  GLS_WAIT_RET(FUNCNAME);                                       \
+  GLS_WAIT_RET(GLSC_GLS_UNDEF, FUNCNAME);                       \
   GLS_SET_RAWRET_PTR(PTR, TYPE, FUNCNAME);                      \
   //
 #define GLS_WAIT_SET_RET_PTR(PTR, FUNCNAME)                     \
-  GLS_WAIT_RET(FUNCNAME);                                       \
+  GLS_WAIT_RET(GLSC_##FUNCNAME, FUNCNAME);                      \
   GLS_SET_RET_PTR(PTR, FUNCNAME);                               \
   //
 #define GLS_RELEASE_RET()                                       \
@@ -145,4 +145,4 @@ void gls_cleanup_library(void);
 extern gls_context_t glsc_global;
 int send_packet(void);
 int gls_cmd_send_data(uint32_t size, const void* data);
-int wait_for_data(char* str);
+int wait_for_data(enum GL_Server_Command, char* str);
