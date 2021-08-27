@@ -32,9 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <EGL/egl.h>
 
-extern int glsurfaceview_width;
-extern int glsurfaceview_height;
-
 extern int   var_server_port;
 extern int   var_client_port;
 extern const char* var_client_addr;
@@ -46,10 +43,7 @@ extern const char* var_file_vertex_shader;
 
 typedef struct
 {
-  uint32_t screen_width;
-  uint32_t screen_height;
   EGLDisplay display;
-  EGLContext context;
 #ifdef USE_X11
   struct
   {
@@ -73,3 +67,7 @@ extern EGLConfig config;
 
 void init_egl(graphics_context_t* gc);
 void release_egl(graphics_context_t* gc);
+
+#if USE_X11
+void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height);
+#endif

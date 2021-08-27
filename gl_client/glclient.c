@@ -73,8 +73,6 @@ static int gls_init()
 
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
-  glsc_global.screen_width = 1280;
-  glsc_global.screen_height = 720;
   glsc_global.pool.out_buf.buf = (char*)malloc(GLS_OUT_BUFFER_SIZE);
   if (glsc_global.pool.out_buf.buf == NULL) {
     return FALSE;
@@ -210,9 +208,6 @@ static int gls_cmd_HANDSHAKE()
     return FALSE;
 
   GLS_WAIT_SET_RET_PTR(ret, HANDSHAKE);
-  glsc_global.screen_width = ret->screen_width;
-  glsc_global.screen_height = ret->screen_height;
-  fprintf(stderr, "GLS INFO: width=%i, height=%i\n", ret->screen_width, ret->screen_height);
   if (ret->server_version != GLS_VERSION) {
     fprintf(stderr, "GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
     GLS_RELEASE_RET();
@@ -223,6 +218,15 @@ static int gls_cmd_HANDSHAKE()
   return TRUE;
 }
 
+void gls_cmd_CREATE_WINDOW(unsigned width, unsigned height)
+{
+  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
+  gls_cmd_flush();
+  GLS_SET_COMMAND_PTR(c, CREATE_WINDOW);
+  c->width = width;
+  c->height = height;
+  GLS_SEND_PACKET(CREATE_WINDOW);
+}
 
 void gls_init_library()
 {

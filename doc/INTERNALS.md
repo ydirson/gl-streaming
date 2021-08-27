@@ -19,20 +19,16 @@ better.
 3. The main server process just listens for connections, and forks a
    dedicated "child" process to handle each incoming client.
 
-4. Server "child" initializes GLES2 using EGL and creates a static window on
-   startup, in [glcontrol](../gl_server/glcontrol.c) (this will have to
-   change for better window management)
-
-5. Server "child" receives packets with [recvr](../common/recvr.c) in a
+4. Server "child" receives packets with [recvr](../common/recvr.c) in a
    dedicated thread, managed from [glserver](../gl_server/glserver.c) and
    puts them in a [FIFO queue](../common/fifo.h)
 
-6. A server thread from [glserver](../gl_server/glserver.c) executes
+5. A server thread from [glserver](../gl_server/glserver.c) executes
    commands from the FIFO, with implementations from
    [serveregl](../gl_server/serveregl.c) and
    [servergles](../gl_server/servergles.c) modules
 
-7. Serverside implementations for calls with output parameters
+6. Serverside implementations for calls with output parameters
    marshall a message like on client side and sends it back; client
    receives them from its own [recvr](../common/server.c) thread, and
    received synchronously
@@ -149,6 +145,13 @@ errors.
 
 For lack of a generic error code, we often use EGL_BAD_ACCESS.
 
+### `eglCreateWindowSurface`
+
+GLS cannot know which window is going to be used for rendering, before
+the client app creates a Window Surface for it.  At this point we
+inspect the window, and send a `CREATE_WINDOW` message so the server
+can emulate what was already done on client side.
+
 ### `glVertexAttribPointer` client-array case
 
 `glVertexAttribPointer` interprets differently its `pointer` parameter,
@@ -255,8 +258,8 @@ Currently a single window on a single display is supported.  Since the
 window creation by client app is out of the EGL scope, it is today not
 intercepted, and gets shown with a background that will stay black.
 
-On server side, a fixed-sized window (today hardcoded with size
-1280x720) is created at server startup.
+On server side, the rendering window is created when we know the size
+we want it to get, ie. when the client app calls `eglCreateWindowSurface`.
 
 There are several options for proper window/input operation, including:
 * intercept the creation of local window and of further calls

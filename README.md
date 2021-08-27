@@ -30,10 +30,6 @@ This is still a work in progress, notably:
   display, although a number of APIs are still stubbed, and some are
   known to have bugs -- very few are usable, read on for details.
 
-* The server creates a fixed-size window at startup (it only appears
-  when an app makes its first GL calls), used for all clients
-  rendering.
-
 * The client still creates a window on its own, which is used for
   interaction with the app (input events, window resize, etc).  When
   running locally (ie. GPU server and app on the same display) it gets
@@ -91,7 +87,7 @@ those items or add their own in the picture.
     * [ ] pointers in protocol
     * [ ] connection authorization
   * [ ] implement a satisfying window/input experience
-    * [ ] on-demand window, properly sized
+    * [x] on-demand window, properly sized
     * [ ] no extra client-side window
   * [ ] bring to decent performance level
 * [ ] add Vulkan support

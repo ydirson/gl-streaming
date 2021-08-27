@@ -72,7 +72,7 @@
   - [x] work on native 64bit platforms
 - [x] readable indentation
 - improve usability
-  - [ ] handle window size, create windows on demand, not just a fixed one
+  - [x] handle window size, create windows on demand, not just a fixed one
         (addresses: non-stub eglInitialize)
   - [ ] get rid of "local window"
   - [ ] work on native 32bit linux (now broken by hacking in 64bit support)

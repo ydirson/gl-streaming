@@ -58,6 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   EMPTY()                                       \
     X(HANDSHAKE)                                \
     X(SEND_DATA)                                \
+    X(CREATE_WINDOW)                            \
   //
 
 #define GLS_EGL_COMMANDS()                      \
@@ -332,9 +333,15 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t server_version;
-  uint32_t screen_width;
-  uint32_t screen_height;
 } gls_ret_HANDSHAKE_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t width;
+  uint32_t height;
+} gls_CREATE_WINDOW_t;
 
 
 typedef struct

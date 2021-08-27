@@ -12,9 +12,6 @@ endif
 # Use X11
 CFLAGS+=-DUSE_X11
 
-# Fake surface size from client-side window
-CFLAGS+=-DGLS_USE_CLTSIZE
-
 LIBS=-pthread -ldl -lX11
 OBJS=fifo.o recvr.o clientegl.o clientgles.o glclient.o
 

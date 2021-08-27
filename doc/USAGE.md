@@ -51,13 +51,6 @@ This will likely only be useful to developers.
 
 ## Client
 ### USE_X11
-- Enable support for X11 apps.
-- Enabled by default.
-- Sample side doesn't use X11 so not enabled.
-
-### GLS_USE_CLTSIZE
-- Use client X11 window size as surface size (instead of querying server
-  and getting the fixed window size we currently have)
-- Only meaningful if USE_X11 is enabled.
-- Enabled by default.
-- May be useful to disable scaling of rendering to server window size.
+- Enable on client side for support for X11 apps
+- Enable on server side to render in X11 window
+- Enabled by default

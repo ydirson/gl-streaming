@@ -37,9 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 
-int glsurfaceview_width;
-int glsurfaceview_height;
-
 int   var_server_port;
 int   var_client_port;
 const char* var_client_addr;
@@ -50,12 +47,6 @@ const char* var_file_vertex_shader;
 */
 
 EGLConfig config;
-
-#ifdef USE_X11
-static void make_egl_base(graphics_context_t* gc, const char* name, int x, int y, int width, int height);
-#else
-static void make_egl_base(graphics_context_t* gc);
-#endif
 
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value;
@@ -134,28 +125,12 @@ void init_egl(graphics_context_t* gc)
 #endif
   assert(gc->display != EGL_NO_DISPLAY);
   check_gl_err(eglGetDisplay);
-
-#if defined(GLS_SERVER)
-  gc->screen_width = glsurfaceview_width; // (gc->d_rect.right - gc->d_rect.left);
-  gc->screen_height = glsurfaceview_height; // (gc->d_rect.bottom - gc->d_rect.top);
-  // gc->d_window = glsurfaceview_window;
-  // assert (glsurfaceview_window != NULL);
-#endif
-
-#ifdef USE_X11
-  make_egl_base(gc, "OpenGL ES 2.x streaming", 0, 0, glsurfaceview_width, glsurfaceview_height);
-  XMapWindow(gc->x.display, gc->x.window);
-#else
-  make_egl_base(gc);
-#endif
 }
 
 
 void release_egl(graphics_context_t* gc)
 {
   eglMakeCurrent(gc->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-  eglDestroyContext(gc->display, gc->context);
-  eglTerminate(gc->display);
   eglReleaseThread();
 }
 
@@ -173,17 +148,8 @@ void release_egl(graphics_context_t* gc)
  */
 
 #ifdef USE_X11
-static void make_egl_base(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
-#else
-static void make_egl_base(graphics_context_t* gc)
-#endif
+void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
 {
-  if (!eglInitialize(gc->display, NULL, NULL)) {
-    fprintf(stderr, "Error: eglInitialize() failed\n");
-    exit(1);
-  }
-
-#ifdef USE_X11
   XSetWindowAttributes attr;
   unsigned long mask;
   Window root;
@@ -225,10 +191,8 @@ static void make_egl_base(graphics_context_t* gc)
   }
 
   XFree(visInfo);
-#else
-  fprintf(stderr, "GLS FIXME: only supporting server on X11 platform\n");
-  exit(1);
-#endif
+  XMapWindow(gc->x.display, gc->x.window);
 }
-
-
+#else
+#error "GLS FIXME: only supporting server on X11 platform"
+#endif

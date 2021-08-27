@@ -73,13 +73,18 @@ void glse_cmd_HANDSHAKE(gls_command_t* buf)
 {
   //GLSE_SET_COMMAND_PTR(c, HANDSHAKE);
   (void)buf;
-  graphics_context_t* gc = glsec_global.gc;
 
   GLSE_SET_RET_PTR(ret, HANDSHAKE);
-  ret->screen_width = gc->screen_width = glsurfaceview_width;
-  ret->screen_height = gc->screen_height = glsurfaceview_height;
   ret->server_version = GLS_VERSION;
   GLSE_SEND_RET(ret, HANDSHAKE);
+}
+
+
+void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
+{
+  gls_CREATE_WINDOW_t* c = (gls_CREATE_WINDOW_t*)buf;
+  graphics_context_t* gc = glsec_global.gc;
+  gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, c->width, c->height);
 }
 
 
@@ -120,6 +125,12 @@ void glserver_handle_packets(recvr_context_t* rc)
       fprintf(stderr, "GLS Exec: Handshake...\n");
 #endif
       glse_cmd_HANDSHAKE(c);
+      break;
+    case GLSC_CREATE_WINDOW:
+#ifdef GL_DEBUG
+      fprintf(stderr, "GLS Exec: Create window...\n");
+#endif
+      glse_cmd_CREATE_WINDOW(c);
       break;
 
     default: {
