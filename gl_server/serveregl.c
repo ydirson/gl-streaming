@@ -35,6 +35,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#define DEBUG
 
+static const char* GLS_EGL_EXTENSIONS[] =
+  {
+   NULL,
+  };
+
 // EGL 1.0
 
 void glse_eglChooseConfig(gls_command_t* buf)
@@ -264,13 +269,36 @@ void glse_eglQueryString(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglQueryString);
   GLSE_SET_RET_PTR(ret, eglQueryString);
 
+  const char* params = eglQueryString((EGLDisplay)c->dpy, c->name);
+
   switch (c->name) {
-  case EGL_EXTENSIONS:
-    // we don't support any right now
-    // FIXME later will need to query and filter those we support
-    strcpy(ret->params, "EGL_GLS_dummy");
-    ret->success = TRUE;
-    break;
+  case EGL_EXTENSIONS: {
+      size_t outlen = 0;
+      while (1) {
+        size_t len = strcspn(params, " ");
+        if (!len) break;
+        if (glse_extension_supported(GLS_EGL_EXTENSIONS, params, len)) {
+          if (outlen + len + 1 > GLSE_OUT_BUFFER_SIZE - sizeof(gls_ret_eglQueryString_t)) {
+            fprintf(stderr,
+                    "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+                    __FUNCTION__);
+            break;
+          }
+          strncpy(ret->params + outlen, params, len);
+          ret->params[outlen + len] = ' ';
+          outlen += len + 1;
+        }
+        // skip this ext and any sep
+        params += len;
+        params += strspn(params, " ");
+      }
+      if (outlen)
+        // overwrite last space
+        ret->params[outlen - 1] = '\0';
+      else
+        ret->params[0] = '\0';
+      break;
+    }
   case EGL_CLIENT_APIS:
     // FIXME would rather query and filter those we support
     strcpy(ret->params, "OpenGL_ES");
@@ -282,7 +310,6 @@ void glse_eglQueryString(gls_command_t* buf)
     ret->success = TRUE;
     break;
   case EGL_VENDOR: {
-      const char* params = eglQueryString((EGLDisplay)c->dpy, c->name);
       const char prefix[] = "GLS + ";
       if (params) {
         strcpy(ret->params, prefix);

@@ -101,3 +101,5 @@ int glse_cmd_send_data(uint32_t size, void* data);
 
 int egl_executeCommand(gls_command_t* c);
 int gles_executeCommand(gls_command_t* c);
+
+int glse_extension_supported(const char** allowed_list, const char* name, size_t namelen);

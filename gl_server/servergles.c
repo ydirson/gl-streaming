@@ -34,6 +34,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <alloca.h>
 #include <string.h>
 
+static const char* GLS_GLES_EXTENSIONS[] =
+  {
+   NULL,
+  };
 
 void glse_glActiveTexture(gls_command_t* buf)
 {
@@ -488,46 +492,64 @@ void glse_glGetShaderiv(gls_command_t* buf)
 }
 
 
+// we can do complex computations from here, it will be called at most
+// once for each string name
 void glse_glGetString(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetString);
   GLSE_SET_RET_PTR(ret, glGetString);
 
-  switch (c->name) {
-  case GL_EXTENSIONS:
-    // we don't support any right now
-    // FIXME later will need to query and filter those we support
-    strcpy(ret->params, "GL_GLS_dummy");
+  const char* params = (const char*)glGetString(c->name);
+  if (params) {
     ret->success = TRUE;
-    break;
-  case GL_VERSION:
-    // we just don't support more than 2.0
-    strcpy(ret->params, "OpenGL ES 2.0 GLS");
-    ret->success = TRUE;
-    break;
-  case GL_SHADING_LANGUAGE_VERSION:
-    // matches GLES 2.0
-    strcpy(ret->params, "OpenGL ES GLSL ES 1.00 GLS");
-    ret->success = TRUE;
-    break;
-  case GL_VENDOR:
-  // Change vendor name to gl-streaming.
-  // If want to get hardware vendor, comment out below
-  // return "gl-streaming wrapper";
-  // break;
-  default: {
-      const unsigned char* params = glGetString(c->name);
+    switch (c->name) {
+    case GL_EXTENSIONS: {
+      size_t outlen = 0;
+      while (1) {
+        size_t len = strcspn(params, " ");
+        if (!len) break;
+        if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
+          if (outlen + len + 1 > GLSE_OUT_BUFFER_SIZE - sizeof(gls_ret_glGetString_t)) {
+            fprintf(stderr,
+                    "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+                    __FUNCTION__);
+            break;
+          }
+          strncpy(ret->params + outlen, params, len);
+          ret->params[outlen + len] = ' ';
+          outlen += len + 1;
+        }
+        // skip this ext and any sep
+        params += len;
+        params += strspn(params, " ");
+      }
+      if (outlen)
+        // overwrite last space
+        ret->params[outlen - 1] = '\0';
+      else
+        ret->params[0] = '\0';
+      break;
+    }
+    case GL_VERSION:
+      // we just don't support more than 2.0
+      strcpy(ret->params, "OpenGL ES 2.0 GLS");
+      break;
+    case GL_SHADING_LANGUAGE_VERSION:
+      // matches GLES 2.0
+      strcpy(ret->params, "OpenGL ES GLSL ES 1.00 GLS");
+      break;
+    case GL_VENDOR:
+    default: {
       if (params) {
         strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
-        ret->success = TRUE;
-      } else {
-        ret->params[0] = '\0';
-        ret->success = FALSE;
       }
     }
+    }
+  } else {
+    ret->params[0] = '\0';
+    ret->success = FALSE;
   }
-  // LOGD("Client asking for %i, return %s\n", c->name, params);
-  // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
+
   GLSE_SEND_RET(ret, glGetString);
 }
 

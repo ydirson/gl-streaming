@@ -153,3 +153,13 @@ void glserver_handle_packets(recvr_context_t* rc)
 }
 
 
+int glse_extension_supported(const char** allowed_list, const char* name, size_t namelen)
+{
+  while(*allowed_list) {
+    // match exactly, not just as a prefix
+    if (strncmp(*allowed_list, name, namelen) == 0 && (*allowed_list)[namelen] == '\0')
+      return 1;
+    allowed_list++;
+  }
+  return 0;
+}
