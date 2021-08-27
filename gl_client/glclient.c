@@ -202,7 +202,6 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 static int gls_cmd_HANDSHAKE()
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
   if (!send_packet())
     return FALSE;
@@ -221,7 +220,6 @@ static int gls_cmd_HANDSHAKE()
 void gls_cmd_CREATE_WINDOW(unsigned width, unsigned height)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, CREATE_WINDOW);
   c->width = width;
   c->height = height;

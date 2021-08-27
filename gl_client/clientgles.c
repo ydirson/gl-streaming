@@ -76,24 +76,24 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
 
 GL_APICALL void GL_APIENTRY glActiveTexture (GLenum texture)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glActiveTexture);
+  GLS_SET_COMMAND_PTR(c, glActiveTexture);
   c->texture = texture;
-  GLS_PUSH_BATCH(glActiveTexture);
+  GLS_SEND_PACKET(glActiveTexture);
 }
 
 
 GL_APICALL void GL_APIENTRY glAttachShader (GLuint program, GLuint shader)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glAttachShader);
+  GLS_SET_COMMAND_PTR(c, glAttachShader);
   c->program = program;
   c->shader = shader;
-  GLS_PUSH_BATCH(glAttachShader);
+  GLS_SEND_PACKET(glAttachShader);
 }
 
 
 GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, const GLchar* name)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBindAttribLocation);
+  GLS_SET_COMMAND_PTR(c, glBindAttribLocation);
   c->program = program;
   c->index = index;
   if (strlen(name) + 1 > sizeof(c->name)) {
@@ -103,16 +103,16 @@ GL_APICALL void GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, 
     return;
   }
   strcpy(c->name, name);
-  GLS_PUSH_BATCH(glBindAttribLocation);
+  GLS_SEND_PACKET(glBindAttribLocation);
 }
 
 
 GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBindBuffer);
+  GLS_SET_COMMAND_PTR(c, glBindBuffer);
   c->target = target;
   c->buffer = buffer;
-  GLS_PUSH_BATCH(glBindBuffer);
+  GLS_SEND_PACKET(glBindBuffer);
 
   // FIXME: should we wait and check for error ?
   if (target == GL_ARRAY_BUFFER) {
@@ -126,28 +126,28 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer)
 
 GL_APICALL void GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBindFramebuffer);
+  GLS_SET_COMMAND_PTR(c, glBindFramebuffer);
   c->target = target;
   c->framebuffer = framebuffer;
-  GLS_PUSH_BATCH(glBindFramebuffer);
+  GLS_SEND_PACKET(glBindFramebuffer);
 }
 
 
 GL_APICALL void GL_APIENTRY glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBindRenderbuffer);
+  GLS_SET_COMMAND_PTR(c, glBindRenderbuffer);
   c->target = target;
   c->renderbuffer = renderbuffer;
-  GLS_PUSH_BATCH(glBindRenderbuffer);
+  GLS_SEND_PACKET(glBindRenderbuffer);
 }
 
 
 GL_APICALL void GL_APIENTRY glBindTexture (GLenum target, GLuint texture)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBindTexture);
+  GLS_SET_COMMAND_PTR(c, glBindTexture);
   c->target = target;
   c->texture = texture;
-  GLS_PUSH_BATCH(glBindTexture);
+  GLS_SEND_PACKET(glBindTexture);
 }
 
 
@@ -167,36 +167,35 @@ GL_APICALL void GL_APIENTRY glBlendEquation ( GLenum mode )
 
 GL_APICALL void GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBlendEquationSeparate);
+  GLS_SET_COMMAND_PTR(c, glBlendEquationSeparate);
   c->modeRGB = modeRGB;
   c->modeAlpha = modeAlpha;
-  GLS_PUSH_BATCH(glBlendEquationSeparate);
+  GLS_SEND_PACKET(glBlendEquationSeparate);
 }
 
 
 GL_APICALL void GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBlendFunc);
+  GLS_SET_COMMAND_PTR(c, glBlendFunc);
   c->sfactor = sfactor;
   c->dfactor = dfactor;
-  GLS_PUSH_BATCH(glBlendFunc);
+  GLS_SEND_PACKET(glBlendFunc);
 }
 
 
 GL_APICALL void GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glBlendFuncSeparate);
+  GLS_SET_COMMAND_PTR(c, glBlendFuncSeparate);
   c->srcRGB = srcRGB;
   c->dstRGB = dstRGB;
   c->srcAlpha = srcAlpha;
   c->dstAlpha = dstAlpha;
-  GLS_PUSH_BATCH(glBlendFuncSeparate);
+  GLS_SEND_PACKET(glBlendFuncSeparate);
 }
 
 
 GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage)
 {
-  gls_cmd_flush();
   if (data)
     gls_cmd_send_data((uint32_t)size, (void*)data);
   GLS_SET_COMMAND_PTR(c, glBufferData);
@@ -210,7 +209,6 @@ GL_APICALL void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const 
 
 GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data)
 {
-  gls_cmd_flush();
   if (data)
     gls_cmd_send_data((uint32_t)size, (void*)data);
 
@@ -225,7 +223,6 @@ GL_APICALL void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLs
 
 GL_APICALL GLenum GL_APIENTRY glCheckFramebufferStatus (GLenum target)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glCheckFramebufferStatus);
   c->target = target;
   GLS_SEND_PACKET(glCheckFramebufferStatus);
@@ -237,54 +234,54 @@ GL_APICALL GLenum GL_APIENTRY glCheckFramebufferStatus (GLenum target)
 
 GL_APICALL void GL_APIENTRY glClear (GLbitfield mask)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClear);
+  GLS_SET_COMMAND_PTR(c, glClear);
   c->mask = mask;
-  GLS_PUSH_BATCH(glClear);
+  GLS_SEND_PACKET(glClear);
 }
 
 
 GL_APICALL void GL_APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClearColor);
+  GLS_SET_COMMAND_PTR(c, glClearColor);
   c->red = red;
   c->green = green;
   c->blue = blue;
   c->alpha = alpha;
-  GLS_PUSH_BATCH(glClearColor);
+  GLS_SEND_PACKET(glClearColor);
 }
 
 GL_APICALL void GL_APIENTRY glClearDepthf (GLclampf depth)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClearDepthf);
+  GLS_SET_COMMAND_PTR(c, glClearDepthf);
   c->depth = depth;
-  GLS_PUSH_BATCH(glClearDepthf);
+  GLS_SEND_PACKET(glClearDepthf);
 }
 
 
 GL_APICALL void GL_APIENTRY glClearStencil (GLint s)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glClearStencil);
+  GLS_SET_COMMAND_PTR(c, glClearStencil);
   c->s = s;
-  GLS_PUSH_BATCH(glClearStencil);
+  GLS_SEND_PACKET(glClearStencil);
 }
 
 
 GL_APICALL void GL_APIENTRY glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glColorMask);
+  GLS_SET_COMMAND_PTR(c, glColorMask);
   c->red = red;
   c->green = green;
   c->blue = blue;
   c->alpha = alpha;
-  GLS_PUSH_BATCH(glColorMask);
+  GLS_SEND_PACKET(glColorMask);
 }
 
 
 GL_APICALL void GL_APIENTRY glCompileShader (GLuint shader)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glCompileShader);
+  GLS_SET_COMMAND_PTR(c, glCompileShader);
   c->shader = shader;
-  GLS_PUSH_BATCH(glCompileShader);
+  GLS_SEND_PACKET(glCompileShader);
 }
 
 
@@ -313,7 +310,7 @@ GL_APICALL void GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum
 
 GL_APICALL void GL_APIENTRY glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glCopyTexSubImage2D);
+  GLS_SET_COMMAND_PTR(c, glCopyTexSubImage2D);
   c->target = target;
   c->level = level;
   c->xoffset = xoffset;
@@ -322,13 +319,12 @@ GL_APICALL void GL_APIENTRY glCopyTexSubImage2D(GLenum target, GLint level, GLin
   c->y = y;
   c->width = width;
   c->height = height;
-  GLS_PUSH_BATCH(glCopyTexSubImage2D);
+  GLS_SEND_PACKET(glCopyTexSubImage2D);
 }
 
 
 GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glCreateProgram);
   GLS_SEND_PACKET(glCreateProgram);
 
@@ -339,7 +335,6 @@ GL_APICALL GLuint GL_APIENTRY glCreateProgram (void)
 
 GL_APICALL GLuint GL_APIENTRY glCreateShader (GLenum type)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glCreateShader);
   c->type = type;
   GLS_SEND_PACKET(glCreateShader);
@@ -351,15 +346,14 @@ GL_APICALL GLuint GL_APIENTRY glCreateShader (GLenum type)
 
 GL_APICALL void GL_APIENTRY glCullFace (GLenum mode)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glCullFace);
+  GLS_SET_COMMAND_PTR(c, glCullFace);
   c->mode = mode;
-  GLS_PUSH_BATCH(glCullFace);
+  GLS_SEND_PACKET(glCullFace);
 }
 
 
 GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 {
-  gls_cmd_flush();
   _Static_assert(sizeof(GLuint) == sizeof(uint32_t), "int size mismatch");
 
   if (buffer_objs.vbo || buffer_objs.ibo)
@@ -381,86 +375,83 @@ GL_APICALL void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers)
 GL_APICALL void GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)
 {
   uint32_t datasize = n * sizeof(uint32_t);
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteFramebuffers);
+  GLS_SET_COMMAND_PTR(c, glDeleteFramebuffers);
   c->cmd_size += datasize;
   if (!check_batch_overflow(c->cmd_size, "glDeleteFramebuffers")) {
     return;
   }
   c->n = n;
   memcpy(c->framebuffers, framebuffers, datasize);
-  push_batch_command();
-  gls_cmd_flush();
+  send_packet();
 }
 
 
 GL_APICALL void GL_APIENTRY glDeleteProgram (GLuint program)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteProgram);
+  GLS_SET_COMMAND_PTR(c, glDeleteProgram);
   c->program = program;
-  GLS_PUSH_BATCH(glDeleteProgram);
+  GLS_SEND_PACKET(glDeleteProgram);
 }
 
 
 GL_APICALL void GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)
 {
   uint32_t datasize = n * sizeof(uint32_t);
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteRenderbuffers);
+  GLS_SET_COMMAND_PTR(c, glDeleteRenderbuffers);
   c->cmd_size += datasize;
   if (!check_batch_overflow(c->cmd_size, "glDeleteRenderbuffers")) {
     return;
   }
   c->n = n;
   memcpy(c->renderbuffers, renderbuffers, datasize);
-  push_batch_command();
-  gls_cmd_flush();
+  send_packet();
 }
 
 
 GL_APICALL void GL_APIENTRY glDeleteShader (GLuint shader)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteShader);
+  GLS_SET_COMMAND_PTR(c, glDeleteShader);
   c->shader = shader;
-  GLS_PUSH_BATCH(glDeleteShader);
+  GLS_SEND_PACKET(glDeleteShader);
 }
 
 
 GL_APICALL void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures)
 {
   uint32_t datasize = n * sizeof(uint32_t);
-  GLS_SET_COMMAND_PTR_BATCH(c, glDeleteTextures);
+  GLS_SET_COMMAND_PTR(c, glDeleteTextures);
   c->cmd_size += datasize;
   if (!check_batch_overflow(c->cmd_size, "glDeleteTextures")) {
     return;
   }
   c->n = n;
   memcpy(c->textures, textures, datasize);
-  push_batch_command();
-  gls_cmd_flush();
+  send_packet();
 }
 
 
 GL_APICALL void GL_APIENTRY glDepthFunc (GLenum func)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDepthFunc);
+  GLS_SET_COMMAND_PTR(c, glDepthFunc);
   c->func = func;
-  GLS_PUSH_BATCH(glDepthFunc);
+  GLS_SEND_PACKET(glDepthFunc);
 }
 
 
 GL_APICALL void GL_APIENTRY glDepthMask (GLboolean flag)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDepthMask);
+  GLS_SET_COMMAND_PTR(c, glDepthMask);
   c->flag = flag;
-  GLS_PUSH_BATCH(glDepthMask);
+  GLS_SEND_PACKET(glDepthMask);
 }
 
 
 GL_APICALL void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDepthRangef);
+  GLS_SET_COMMAND_PTR(c, glDepthRangef);
   c->zNear = zNear;
   c->zFar = zFar;
-  GLS_PUSH_BATCH(glDepthRangef);
+  GLS_SEND_PACKET(glDepthRangef);
 }
 
 
@@ -473,17 +464,17 @@ GL_APICALL void GL_APIENTRY glDetachShader (GLuint program, GLuint shader)
 
 GL_APICALL void GL_APIENTRY glDisable (GLenum cap)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDisable);
+  GLS_SET_COMMAND_PTR(c, glDisable);
   c->cap = cap;
-  GLS_PUSH_BATCH(glDisable);
+  GLS_SEND_PACKET(glDisable);
 }
 
 
 GL_APICALL void GL_APIENTRY glDisableVertexAttribArray (GLuint index)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glDisableVertexAttribArray);
+  GLS_SET_COMMAND_PTR(c, glDisableVertexAttribArray);
   c->index = index;
-  GLS_PUSH_BATCH(glDisableVertexAttribArray);
+  GLS_SEND_PACKET(glDisableVertexAttribArray);
 
   // FIXME: should we wait and check for error ?
   buffer_objs.attrib_pointer[index].isenabled = GL_FALSE;
@@ -497,7 +488,7 @@ static void _send_glVertexAttribPointer(
   GLuint indx, GLint size, GLenum type, GLboolean normalized,
   GLsizei stride, const GLvoid* ptr)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glVertexAttribPointer);
+  GLS_SET_COMMAND_PTR(c, glVertexAttribPointer);
   c->indx = indx;
   c->size = size;
   c->type = type;
@@ -505,7 +496,7 @@ static void _send_glVertexAttribPointer(
   c->stride = stride;
 
   c->ptr_uint = (uint64_t)ptr;
-  GLS_PUSH_BATCH(glVertexAttribPointer);
+  GLS_SEND_PACKET(glVertexAttribPointer);
 }
 
 static void defered_vertex_attrib_pointer(int i, int count)
@@ -542,11 +533,11 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
     defered_vertex_attrib_pointer(i, first + count);
   glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 
-  GLS_SET_COMMAND_PTR_BATCH(c, glDrawArrays);
+  GLS_SET_COMMAND_PTR(c, glDrawArrays);
   c->mode = mode;
   c->first = first;
   c->count = count;
-  GLS_PUSH_BATCH(glDrawArrays);
+  GLS_SEND_PACKET(glDrawArrays);
 
   // FIXME should free VBO's emulating client arrays
 }
@@ -577,12 +568,12 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeoftype, indices, GL_STREAM_DRAW);
   }
 
-  GLS_SET_COMMAND_PTR_BATCH(c, glDrawElements);
+  GLS_SET_COMMAND_PTR(c, glDrawElements);
   c->mode = mode;
   c->count = count;
   c->type = type;
 
-  GLS_PUSH_BATCH(glDrawElements);
+  GLS_SEND_PACKET(glDrawElements);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_bkp);
   glBindBuffer(GL_ARRAY_BUFFER, vbo_bkp);
@@ -593,17 +584,17 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 
 GL_APICALL void GL_APIENTRY glEnable (GLenum cap)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glEnable);
+  GLS_SET_COMMAND_PTR(c, glEnable);
   c->cap = cap;
-  GLS_PUSH_BATCH(glEnable);
+  GLS_SEND_PACKET(glEnable);
 }
 
 
 GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glEnableVertexAttribArray);
+  GLS_SET_COMMAND_PTR(c, glEnableVertexAttribArray);
   c->index = index;
-  GLS_PUSH_BATCH(glEnableVertexAttribArray);
+  GLS_SEND_PACKET(glEnableVertexAttribArray);
 
   // FIXME: should we wait and check for error ?
   buffer_objs.attrib_pointer[index].isenabled = GL_TRUE;
@@ -612,7 +603,6 @@ GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 
 GL_APICALL void GL_APIENTRY glFinish (void)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glFinish);
   GLS_SEND_PACKET(glFinish);
 }
@@ -620,30 +610,30 @@ GL_APICALL void GL_APIENTRY glFinish (void)
 
 GL_APICALL void GL_APIENTRY glFlush (void)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glFlush);
-  GLS_PUSH_BATCH(glFlush);
+  GLS_SET_COMMAND_PTR(c, glFlush);
+  GLS_SEND_PACKET(glFlush);
 }
 
 GL_APICALL void GL_APIENTRY glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glFramebufferRenderbuffer);
+  GLS_SET_COMMAND_PTR(c, glFramebufferRenderbuffer);
   c->target = target;
   c->attachment = attachment;
   c->renderbuffertarget = renderbuffertarget;
   c->renderbuffer = renderbuffer;
-  GLS_PUSH_BATCH(glFramebufferRenderbuffer);
+  GLS_SEND_PACKET(glFramebufferRenderbuffer);
 }
 
 
 GL_APICALL void GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glFramebufferTexture2D);
+  GLS_SET_COMMAND_PTR(c, glFramebufferTexture2D);
   c->target = target;
   c->attachment = attachment;
   c->textarget = textarget;
   c->texture = texture;
   c->level = level;
-  GLS_PUSH_BATCH(glFramebufferTexture2D);
+  GLS_SEND_PACKET(glFramebufferTexture2D);
 }
 
 
@@ -656,7 +646,6 @@ GL_APICALL void GL_APIENTRY glFrontFace (GLenum mode)
 
 GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGenBuffers);
   c->n = n;
   GLS_SEND_PACKET(glGenBuffers);
@@ -669,15 +658,14 @@ GL_APICALL void GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers)
 
 GL_APICALL void GL_APIENTRY glGenerateMipmap (GLenum target)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glGenerateMipmap);
+  GLS_SET_COMMAND_PTR(c, glGenerateMipmap);
   c->target = target;
-  GLS_PUSH_BATCH(glGenerateMipmap);
+  GLS_SEND_PACKET(glGenerateMipmap);
 }
 
 
 GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGenFramebuffers);
   c->n = n;
   GLS_SEND_PACKET(glGenFramebuffers);
@@ -690,7 +678,6 @@ GL_APICALL void GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)
 
 GL_APICALL void GL_APIENTRY glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGenRenderbuffers);
   c->n = n;
   GLS_SEND_PACKET(glGenRenderbuffers);
@@ -703,7 +690,6 @@ GL_APICALL void GL_APIENTRY glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 
 GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGenTextures);
   c->n = n;
   GLS_SEND_PACKET(glGenTextures);
@@ -717,7 +703,6 @@ GL_APICALL void GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures)
 GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
   WARN_UNTESTED();
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetActiveAttrib);
   c->program = program;
   c->index = index;
@@ -750,7 +735,6 @@ GL_APICALL void GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLs
 GL_APICALL void GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)
 {
   WARN_UNTESTED();
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetActiveUniform);
   c->program = program;
   c->index = index;
@@ -790,7 +774,6 @@ GL_APICALL void GL_APIENTRY glGetAttachedShaders (GLuint program, GLsizei maxcou
 
 GL_APICALL GLint GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
   c->program = program;
   if (strlen(name) + 1 > sizeof(c->name)) {
@@ -825,7 +808,6 @@ GL_APICALL GLenum GL_APIENTRY glGetError()
   if (client_gles_error != GL_NO_ERROR)
     return client_gles_error;
 
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetError);
   GLS_SEND_PACKET(glGetError);
 
@@ -836,7 +818,6 @@ GL_APICALL GLenum GL_APIENTRY glGetError()
 
 GL_APICALL void GL_APIENTRY glGetFloatv(GLenum name, GLfloat* params)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetFloatv);
   c->name = name;
   GLS_SEND_PACKET(glGetFloatv);
@@ -856,7 +837,6 @@ GL_APICALL void GL_APIENTRY glGetFramebufferAttachmentParameteriv (GLenum target
 
 GL_APICALL void GL_APIENTRY glGetIntegerv(GLenum name, GLint* params)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetIntegerv);
   c->name = name;
   GLS_SEND_PACKET(glGetIntegerv);
@@ -869,7 +849,6 @@ GL_APICALL void GL_APIENTRY glGetIntegerv(GLenum name, GLint* params)
 
 GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetProgramiv);
   c->program = program;
   c->pname = pname;
@@ -884,7 +863,6 @@ GL_APICALL void GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint*
 GL_APICALL void GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)
 {
   WARN_UNTESTED();
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetProgramInfoLog);
   c->program = program;
   c->bufsize = bufsize;
@@ -913,7 +891,6 @@ GL_APICALL void GL_APIENTRY glGetRenderbufferParameteriv (GLenum target, GLenum 
 
 GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetShaderiv);
   c->shader = shader;
   c->pname = pname;
@@ -927,7 +904,6 @@ GL_APICALL void GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* p
 GL_APICALL void GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog)
 {
   WARN_UNTESTED();
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetShaderInfoLog);
   c->shader = shader;
   c->bufsize = bufsize;
@@ -964,7 +940,6 @@ GL_APICALL void GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, G
 
 static const GLubyte* GL_APIENTRY _real_glGetString(GLenum name)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetString);
   c->name = name;
   GLS_SEND_PACKET(glGetString);
@@ -1103,7 +1078,6 @@ GL_APICALL void GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLin
 GL_APICALL int GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* name)
 {
   WARN_ONCE("GLS WARNING: %s should be totally rewritten\n", __FUNCTION__);
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glGetUniformLocation);
   c->program = program;
   // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
@@ -1145,16 +1119,15 @@ GL_APICALL void GL_APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pnam
 
 GL_APICALL void GL_APIENTRY glHint (GLenum target, GLenum mode)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glHint);
+  GLS_SET_COMMAND_PTR(c, glHint);
   c->target = target;
   c->mode = mode;
-  GLS_PUSH_BATCH(glHint);
+  GLS_SEND_PACKET(glHint);
 }
 
 
 GL_APICALL GLboolean GL_APIENTRY glIsBuffer (GLuint buffer)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glIsBuffer);
   c->buffer = buffer;
   GLS_SEND_PACKET(glIsBuffer);
@@ -1165,7 +1138,6 @@ GL_APICALL GLboolean GL_APIENTRY glIsBuffer (GLuint buffer)
 
 GL_APICALL GLboolean GL_APIENTRY glIsEnabled (GLenum cap)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glIsEnabled);
   c->cap = cap;
   GLS_SEND_PACKET(glIsEnabled);
@@ -1216,17 +1188,17 @@ GL_APICALL GLboolean GL_APIENTRY glIsTexture (GLuint texture)
 
 GL_APICALL void GL_APIENTRY glLineWidth (GLfloat width)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glLineWidth);
+  GLS_SET_COMMAND_PTR(c, glLineWidth);
   c->width = width;
-  GLS_PUSH_BATCH(glLineWidth);
+  GLS_SEND_PACKET(glLineWidth);
 }
 
 
 GL_APICALL void GL_APIENTRY glLinkProgram (GLuint program)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glLinkProgram);
+  GLS_SET_COMMAND_PTR(c, glLinkProgram);
   c->program = program;
-  GLS_PUSH_BATCH(glLinkProgram);
+  GLS_SEND_PACKET(glLinkProgram);
 }
 
 
@@ -1242,19 +1214,19 @@ GL_APICALL void GL_APIENTRY glPixelStorei (GLenum pname, GLint param)
   default:
     fprintf(stderr, "GLS WARNING: %s called with unknown pname 0x%x\n", __FUNCTION__, pname);
   }
-  GLS_SET_COMMAND_PTR_BATCH(c, glPixelStorei);
+  GLS_SET_COMMAND_PTR(c, glPixelStorei);
   c->pname = pname;
   c->param = param;
-  GLS_PUSH_BATCH(glPixelStorei);
+  GLS_SEND_PACKET(glPixelStorei);
 }
 
 
 GL_APICALL void GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glPolygonOffset);
+  GLS_SET_COMMAND_PTR(c, glPolygonOffset);
   c->factor = factor;
   c->units = units;
-  GLS_PUSH_BATCH(glPolygonOffset);
+  GLS_SEND_PACKET(glPolygonOffset);
 }
 
 
@@ -1262,7 +1234,6 @@ GL_APICALL void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsiz
 {
   WARN_ONCE("GLS WARNING: %s likely to buffer overflow on both server and client\n",
             __FUNCTION__);
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glReadPixels);
   c->x = x;
   c->y = y;
@@ -1289,12 +1260,12 @@ GL_APICALL void GL_APIENTRY glReleaseShaderCompiler (void)
 
 GL_APICALL void GL_APIENTRY glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glRenderbufferStorage);
+  GLS_SET_COMMAND_PTR(c, glRenderbufferStorage);
   c->target = target;
   c->internalformat = internalformat;
   c->width = width;
   c->height = height;
-  GLS_PUSH_BATCH(glRenderbufferStorage);
+  GLS_SEND_PACKET(glRenderbufferStorage);
 }
 
 
@@ -1321,7 +1292,6 @@ GL_APICALL void GL_APIENTRY glShaderBinary (GLsizei n, const GLuint* shaders, GL
 
 GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length)
 {
-  gls_cmd_flush();
   if (count > 10240) { // 256
     fprintf(stderr, "GLS WARNING: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
     return;
@@ -1367,11 +1337,11 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
 
 GL_APICALL void GL_APIENTRY glStencilFunc(GLenum func, GLint r, GLuint m)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glStencilFunc);
+  GLS_SET_COMMAND_PTR(c, glStencilFunc);
   c->func = func;
   c->r = r;
   c->m = m;
-  GLS_PUSH_BATCH(glStencilFunc);
+  GLS_SEND_PACKET(glStencilFunc);
 }
 
 
@@ -1384,9 +1354,9 @@ GL_APICALL void GL_APIENTRY glStencilFuncSeparate (GLenum face, GLenum func, GLi
 
 GL_APICALL void GL_APIENTRY glStencilMask (GLuint mask)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glStencilMask);
+  GLS_SET_COMMAND_PTR(c, glStencilMask);
   c->mask = mask;
-  GLS_PUSH_BATCH(glStencilMask);
+  GLS_SEND_PACKET(glStencilMask);
 }
 
 
@@ -1399,11 +1369,11 @@ GL_APICALL void GL_APIENTRY glStencilMaskSeparate (GLenum face, GLuint mask)
 
 GL_APICALL void GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glStencilOp);
+  GLS_SET_COMMAND_PTR(c, glStencilOp);
   c->fail = fail;
   c->zfail = zfail;
   c->zpass = zpass;
-  GLS_PUSH_BATCH(glStencilOp);
+  GLS_SEND_PACKET(glStencilOp);
 }
 
 
@@ -1416,7 +1386,6 @@ GL_APICALL void GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenu
 
 GL_APICALL void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  gls_cmd_flush();
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
@@ -1453,11 +1422,11 @@ GL_APICALL void GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const
 
 GL_APICALL void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glTexParameteri);
+  GLS_SET_COMMAND_PTR(c, glTexParameteri);
   c->target = target;
   c->pname = pname;
   c->param = param;
-  GLS_PUSH_BATCH(glTexParameteri);
+  GLS_SEND_PACKET(glTexParameteri);
 }
 
 
@@ -1470,14 +1439,13 @@ GL_APICALL void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const
 
 GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels)
 {
-  gls_cmd_flush();
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
     gls_cmd_send_data(linebytes * height, pixels);
   }
 
-  GLS_SET_COMMAND_PTR_BATCH(c, glTexSubImage2D);
+  GLS_SET_COMMAND_PTR(c, glTexSubImage2D);
   c->target = target;
   c->level = level;
   c->xoffset = xoffset;
@@ -1494,10 +1462,10 @@ GL_APICALL void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint x
 #define IMPLEM_glUniformNX(FUNC, COPYARGS, ...)                         \
   GL_APICALL void GL_APIENTRY FUNC(GLint location, __VA_ARGS__)         \
   {                                                                     \
-    GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                 \
+    GLS_SET_COMMAND_PTR(c, FUNC);                                       \
     c->location = location;                                             \
     COPYARGS;                                                           \
-    GLS_PUSH_BATCH(glUniform1f);                                        \
+    GLS_SEND_PACKET(glUniform1f);                                       \
   }
 
 IMPLEM_glUniformNX(glUniform1f, c->x = x;, GLfloat x);
@@ -1514,14 +1482,14 @@ IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x
   GL_APICALL void GL_APIENTRY FUNC(GLint location, GLsizei count, const TYPE* v) \
   {                                                                     \
   uint32_t datasize = count * N * sizeof(TYPE);                         \
-  GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                   \
+  GLS_SET_COMMAND_PTR(c, FUNC);                                         \
   c->cmd_size += datasize;                                              \
   if (!check_batch_overflow(c->cmd_size, #FUNC))                        \
     return;                                                             \
   c->location = location;                                               \
   c->count = count;                                                     \
   memcpy(c->v, v, datasize);                                            \
-  push_batch_command();                                                 \
+  send_packet();                                                        \
   }
 
 IMPLEM_glUniformNXv(glUniform1fv, 1, GLfloat);
@@ -1539,7 +1507,7 @@ IMPLEM_glUniformNXv(glUniform4iv, 4, GLint);
   GL_APICALL void GL_APIENTRY FUNC(GLint location, GLsizei count, GLboolean transpose, const TYPE* value) \
   {                                                                     \
     uint32_t datasize = count * N * N * sizeof(TYPE);                   \
-    GLS_SET_COMMAND_PTR_BATCH(c, FUNC);                                 \
+    GLS_SET_COMMAND_PTR(c, FUNC);                                       \
     c->cmd_size += datasize;                                            \
     if (!check_batch_overflow(c->cmd_size, #FUNC))                      \
       return;                                                           \
@@ -1547,7 +1515,7 @@ IMPLEM_glUniformNXv(glUniform4iv, 4, GLint);
     c->count = count;                                                   \
     c->transpose = transpose;                                           \
     memcpy(c->value, value, datasize);                                  \
-    push_batch_command();                                               \
+    send_packet();                                                      \
   }
 
 IMPLEM_glUniformMatrixNXv(glUniformMatrix2fv, 2, GLfloat);
@@ -1557,15 +1525,14 @@ IMPLEM_glUniformMatrixNXv(glUniformMatrix4fv, 4, GLfloat);
 
 GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glUseProgram);
+  GLS_SET_COMMAND_PTR(c, glUseProgram);
   c->program = program;
-  GLS_PUSH_BATCH(glUseProgram);
+  GLS_SEND_PACKET(glUseProgram);
 }
 
 
 static void _glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_arr, const GLfloat* arr)
 {
-  gls_cmd_flush();
   gls_data_glVertexAttribFloat_t* dat = (gls_data_glVertexAttribFloat_t*)glsc_global.pool.tmp_buf.buf;
   memcpy(dat->arr, arr, num_float);
   // It's small so use GLS_DATA_SIZE
@@ -1659,12 +1626,12 @@ GL_APICALL void GL_APIENTRY glVertexAttribPointer(
 
 GL_APICALL void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glViewport);
+  GLS_SET_COMMAND_PTR(c, glViewport);
   c->x = x;
   c->y = y;
   c->width = width;
   c->height = height;
-  GLS_PUSH_BATCH(glViewport);
+  GLS_SEND_PACKET(glViewport);
 }
 
 
@@ -1673,16 +1640,15 @@ GL_APICALL void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei
  */
 GL_APICALL void GL_APIENTRY glMapBufferOES(GLenum target, GLenum access)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glMapBufferOES);
+  GLS_SET_COMMAND_PTR(c, glMapBufferOES);
   c->target = target;
   c->access = access;
-  GLS_PUSH_BATCH(glMapBufferOES);
+  GLS_SEND_PACKET(glMapBufferOES);
 }
 
 
 GL_APICALL int GL_APIENTRY glUnmapBufferOES (GLenum target)
 {
-  gls_cmd_flush();
   GLS_SET_COMMAND_PTR(c, glUnmapBufferOES);
   c->target = target;
   GLS_SEND_PACKET(glUnmapBufferOES);
@@ -1700,9 +1666,9 @@ GL_APICALL void GL_APIENTRY glCommand (GLparam param)
 }
 GL_APICALL void GL_APIENTRY glCommand (GLparam param)
 {
-  GLS_SET_COMMAND_PTR_BATCH(c, glCommand);
+  GLS_SET_COMMAND_PTR(c, glCommand);
   c->param = param;
-  GLS_PUSH_BATCH(glCommand);
+  GLS_SEND_PACKET(glCommand);
 }
  */
 

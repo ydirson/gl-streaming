@@ -103,12 +103,6 @@ typedef struct
   } while(0)
 
 
-// aliases/stubs for potentially-batchable commands
-#define GLS_SET_COMMAND_PTR_BATCH(PTR, FUNCNAME) GLS_SET_COMMAND_PTR(PTR, FUNCNAME)
-#define GLS_PUSH_BATCH(FUNCNAME) GLS_SEND_PACKET(FUNCNAME)
-#define push_batch_command(SIZE) send_packet(SIZE)
-#define gls_cmd_flush() do {} while(0)
-
 static inline int check_batch_overflow(size_t size, const char* msg)
 {
   if (size > GLS_OUT_BUFFER_SIZE) {
