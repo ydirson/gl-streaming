@@ -3,7 +3,7 @@
 #include "gls_command_egl.h"
 #include "glclient.h"
 
-#include "EGL/egl.h"
+#include <EGL/egl.h>
 
 #include <assert.h>
 #include <dlfcn.h>

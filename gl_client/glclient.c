@@ -30,8 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glclient.h"
 
-#include "EGL/egl.h"
-#include "GLES2/gl2.h"
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
 
 #include <errno.h>
 #include <stdio.h>

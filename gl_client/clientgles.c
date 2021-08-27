@@ -2,7 +2,8 @@
 
 #include "gls_command_gles2.h"
 #include "glclient.h"
-#include "GLES2/gl2.h"
+
+#include <GLES2/gl2.h>
 
 #include <assert.h>
 #include <errno.h>

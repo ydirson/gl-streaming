@@ -1,6 +1,6 @@
 WARNINGS = -Wall -Wextra -Werror
 OPT = -O3 -g
-CFLAGS = $(WARNINGS) $(OPT) -I../common -I. -I./include -fPIC
+CFLAGS = $(WARNINGS) $(OPT) -I../common -I. -fPIC
 
 #SANFLAGS = -fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope
 CFLAGS += $(SANFLAGS)
@@ -35,10 +35,10 @@ fifo.o: ../common/fifo.c ../common/fifo.h
 recvr.o: ../common/recvr.c ../common/recvr.h fifo.o
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-clientegl.o: clientegl.c include/EGL/egl.h
+clientegl.o: clientegl.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-clientgles.o: clientgles.c include/GLES2/gl2.h
+clientgles.o: clientgles.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 glclient.o: glclient.c glclient.h ../common/gls_command.h recvr.o
