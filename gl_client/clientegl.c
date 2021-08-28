@@ -4,6 +4,8 @@
 #include "glclient.h"
 
 #include <EGL/egl.h>
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/eglext.h>
 
 #include <assert.h>
 #include <dlfcn.h>
@@ -246,7 +248,8 @@ EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( c
 {
   // Do not stream this command
   // FIXME: should query and return NULL when the server does
-  return dlsym(dlopen(NULL, RTLD_LOCAL), procname);
+  void* proc = dlsym(NULL, procname);
+  return proc;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint* major, EGLint* minor )
