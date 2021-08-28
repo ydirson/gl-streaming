@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glserver.h"
 #include "fastlog.h"
 
+#include <EGL/eglext.h>
+
 #include <alloca.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,10 +42,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const char* GLS_EGL_EXTENSIONS[] =
   {
    "EGL_KHR_config_attribs",        // 1
+   "EGL_EXT_platform_base",         // 57
    "EGL_EXT_client_extensions",     // 58
+   "EGL_EXT_platform_x11",          // 59
+   //"EGL_MESA_platform_gbm",         // 62
    "EGL_KHR_context_flush_control", // 102
+   "EGL_MESA_platform_surfaceless", // 104
    NULL,
   };
+
+static struct {
+  // EGL_EXT_platform_base
+  PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
+  PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC eglCreatePlatformWindowSurfaceEXT;
+  PFNEGLCREATEPLATFORMPIXMAPSURFACEEXTPROC eglCreatePlatformPixmapSurfaceEXT;
+} egl_context;
 
 // EGL 1.0
 
@@ -426,11 +439,67 @@ static void glse_eglGetCurrentContext(gls_command_t* buf)
   GLSE_SEND_RET(ret, eglGetCurrentContext);
 }
 
+// EGL_EXT_platform_base
+
+void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, eglGetPlatformDisplayEXT);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
+  EGLDisplay display;
+
+  if (!egl_context.eglGetPlatformDisplayEXT) {
+    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    display = EGL_NO_DISPLAY;
+    goto end;
+  }
+
+  switch (c->native_display) {
+  case GLS_EGL_NATIVE_DISPLAY_DEFAULT:
+    display = egl_context.eglGetPlatformDisplayEXT(c->platform,
+                                                   GLS_EGL_NATIVE_DISPLAY_DEFAULT,
+                                                   dat);
+    break;
+  case GLS_EGL_NATIVE_DISPLAY_NATIVE:
+    display = egl_context.eglGetPlatformDisplayEXT(c->platform,
+                                                   glsec_global.gc->x.display,
+                                                   dat);
+    break;
+  default:
+    display = EGL_NO_DISPLAY;
+  }
+
+ end: ;
+  GLSE_SET_RET_PTR(ret, eglGetPlatformDisplayEXT);
+  ret->display = (uint64_t)display;
+  GLSE_SEND_RET(ret, eglGetPlatformDisplayEXT);
+}
+
+
+static void glse_eglCreatePlatformWindowSurfaceEXT(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, eglCreatePlatformWindowSurfaceEXT);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
+  EGLSurface surface;
+
+  if (!egl_context.eglCreatePlatformWindowSurfaceEXT) {
+    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    surface = EGL_NO_SURFACE;
+    goto end;
+  }
+
+  surface = egl_context.eglCreatePlatformWindowSurfaceEXT((EGLDisplay)c->dpy, (EGLConfig)c->config,
+                                                          &glsec_global.gc->x.window, dat);
+ end: ;
+  GLSE_RELEASE_DATA();
+  GLSE_SET_RET_PTR(ret, eglCreatePlatformWindowSurfaceEXT);
+  ret->surface = (uint64_t)surface;
+  GLSE_SEND_RET(ret, eglCreatePlatformWindowSurfaceEXT);
+}
+
 // eglGetProcAddress support
 
 void glse_GetEglProcAddress(const char* procname, void* proc)
 {
-  (void)procname; (void)proc;
   if (0) {}
 #define X(FUNC)                                 \
   else if (strcmp(procname, #FUNC) == 0)        \
@@ -501,6 +570,11 @@ int egl_executeCommand(gls_command_t* c)
   //CASE_EXEC_CMD(eglCreatePlatformPixmapSurface);
   //CASE_EXEC_CMD(eglCreatePlatformWindowSurface);
   //CASE_EXEC_CMD(eglWaitSync);
+
+// EGL_EXT_platform_base
+    CASE_EXEC_CMD(eglGetPlatformDisplayEXT);
+    CASE_EXEC_CMD(eglCreatePlatformWindowSurfaceEXT);
+    //CASE_EXEC_CMD(eglCreatePlatformPixmapSurfaceEXT);
   default:
     return FALSE;
   }

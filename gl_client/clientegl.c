@@ -155,6 +155,7 @@ static EGLint gls_request_window(NativeWindowType window)
   return EGL_SUCCESS;
 }
 
+// near-dup of eglCreatePlatformWindowSurfaceEXT
 GLS_DEF_CORE_API(EGLSurface, eglCreateWindowSurface,  EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint* attrib_list )
 {
   {
@@ -710,6 +711,55 @@ GLS_DEF_CORE_API(EGLBoolean, eglWaitSync, EGLDisplay dpy, EGLSync sync, EGLint f
   WARN_STUBBED();
   return EGL_FALSE;
 }
+
+
+// Extensions
+
+#ifdef EGL_EXT_platform_base
+EGLAPI EGLDisplay EGLAPIENTRY __GLS_eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attrib_list)
+{
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglGetPlatformDisplayEXT);
+  c->platform = platform;
+  if (gls_wire_native_display(native_display, &c->native_display) < 0)
+    return EGL_NO_DISPLAY; // but no error, spec says
+  c->has_attribs = has_attribs;
+  GLS_SEND_PACKET(eglGetPlatformDisplayEXT);
+
+  GLS_WAIT_SET_RET_PTR(ret, eglGetPlatformDisplayEXT);
+  GLS_RELEASE_RETURN_RET(EGLDisplay, ret, display);
+}
+
+// near-dup of eglCreateWindowSurface
+EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformWindowSurfaceEXT (EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attrib_list)
+{
+  {
+    EGLint err = gls_request_window(*(NativeWindowType*)native_window);
+    if (err != EGL_SUCCESS) {
+      client_egl_error = err;
+      return EGL_NO_SURFACE;
+    }
+  }
+
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglCreatePlatformWindowSurfaceEXT);
+  c->has_attribs = has_attribs;
+  c->dpy = (uint64_t)dpy;
+  c->config = (uint64_t)config;
+  c->window = 0; // window; FIXME
+  GLS_SEND_PACKET(eglCreatePlatformWindowSurfaceEXT);
+
+  GLS_WAIT_SET_RET_PTR(ret, eglCreatePlatformWindowSurfaceEXT);
+  GLS_RELEASE_RETURN_RET(EGLSurface, ret, surface);
+}
+
+EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformPixmapSurfaceEXT (EGLDisplay dpy, EGLConfig config, void *native_pixmap, const EGLint *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_pixmap; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+#endif
 
 
 // eglGetProcAddress support

@@ -17,7 +17,7 @@
       - xeglthreads support
         - [ ] `xeglthreads -n 1` (needs glMatrixMode)
         - [ ] `xeglthreads` (needs multiple contexts)
-  - glmark2 coverage (could use `EGL_EXT_platform_base` for `eglGetPlatformDisplayEXT`)
+  - glmark2 coverage
     - build
       - [x] use-vbo=false
       - [x] use-vbo=true

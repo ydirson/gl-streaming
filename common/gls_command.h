@@ -143,6 +143,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // EGL Extensions
 #define GLS_EGL_EXT_COMMANDS()                  \
   EMPTY()                                       \
+    COMMENT(EGL_EXT_platform_base)              \
+    X(eglGetPlatformDisplayEXT)                 \
+    X(eglCreatePlatformWindowSurfaceEXT)        \
+    X(eglCreatePlatformPixmapSurfaceEXT)        \
   //
 
 
