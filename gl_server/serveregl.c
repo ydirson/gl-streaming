@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const char* GLS_EGL_EXTENSIONS[] =
   {
    "EGL_KHR_config_attribs",        // 1
+   "EGL_EXT_platform_base",         // 57
    "EGL_KHR_context_flush_control", // 102
    NULL,
   };

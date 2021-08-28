@@ -587,3 +587,35 @@ EGLAPI EGLContext EGLAPIENTRY eglGetCurrentContext(void)
   GLS_WAIT_SET_RET_PTR(ret, eglGetCurrentContext);
   GLS_RELEASE_RETURN_RET(EGLContext, ret, context);
 }
+
+
+// Extensions
+
+#ifdef EGL_EXT_platform_base
+EGLAPI EGLDisplay EGLAPIENTRY eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attrib_list)
+{
+  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglGetPlatformDisplayEXT);
+  c->platform = platform;
+  c->native_display = (uint64_t)native_display;
+  c->has_attribs = has_attribs;
+  GLS_SEND_PACKET(eglGetPlatformDisplayEXT);
+
+  GLS_WAIT_SET_RET_PTR(ret, eglGetPlatformDisplayEXT);
+  GLS_RELEASE_RETURN_RET(EGLDisplay, ret, display);
+}
+
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurfaceEXT (EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_window; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformPixmapSurfaceEXT (EGLDisplay dpy, EGLConfig config, void *native_pixmap, const EGLint *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_pixmap; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+#endif

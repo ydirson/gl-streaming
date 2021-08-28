@@ -438,6 +438,20 @@ typedef struct
 
 // EGL extensions
 
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t platform;
+  uint64_t native_display;
+  uint32_t has_attribs;
+} gls_eglGetPlatformDisplayEXT_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t display;
+} gls_ret_eglGetPlatformDisplayEXT_t;
+
 /*
 typedef struct
 {
