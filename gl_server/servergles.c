@@ -819,20 +819,22 @@ static void glse_glViewport(gls_command_t* buf)
   glViewport(c->x, c->y, c->width, c->height);
 }
 
+// eglGetProcAddress support
 
-/*
-static void glse_()
+void glse_GetGlesProcAddress(const char* procname, void* proc)
 {
-  GLSE_SET_COMMAND_PTR(c, );
-
+  (void)procname; (void)proc;
+  if (0) {}
+#define X(FUNC)                                 \
+  else if (strcmp(procname, #FUNC) == 0)        \
+    gles_context.FUNC = proc;                   \
+  //
+  GLS_GLES2_EXT_COMMANDS()
+#undef X
+  else {}
 }
 
-  GLSE_SET_RET_PTR(ret, );
-  ret->cmd = GLSC_;
-  ret-> = ;
-  GLSE_SEND_RET(ret, );
-*/
-
+//
 
 #define CASE_EXEC_CMD(FUNCNAME) \
   case GLSC_##FUNCNAME: glse_##FUNCNAME(c); break

@@ -153,6 +153,8 @@ could just check the availability of an implementation in GLS using
 first:
 - we don't want to return a function pointer if the server does not
   implement it
+- when the client will make that call, we want to have the function
+  pointer ready, so the server will use also cache the returned value
 
 ### `eglCreateWindowSurface`
 

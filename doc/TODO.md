@@ -111,11 +111,11 @@
     - [x] non-stub config handling
     - [ ] non-default EGLDisplay handling
     - [x] non-stub context management
-  - [ ] EGL extension support
+  - [x] EGL extension support
   - [ ] proper GL_OES_mapbuffer implementation
   - [ ] separate EGL and GLSclient libs out of libGLES2
   - [ ] full GLES2 core
-  - [ ] GLES2 extension support
+  - [x] GLES2 extension support
   - [ ] GLES3 ?
   - [ ] desktop GL with EGL ?
   - [ ] GLX ?

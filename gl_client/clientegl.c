@@ -4,6 +4,8 @@
 #include "glclient.h"
 
 #include <EGL/egl.h>
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/eglext.h>
 
 #include <assert.h>
 #include <dlfcn.h>

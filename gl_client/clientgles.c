@@ -1660,7 +1660,9 @@ GLS_DEF_CORE_API(void, glViewport, GLint x, GLint y, GLsizei width, GLsizei heig
  */
 
 
-// eglGetProcAddress support
+/*
+ * eglGetProcAddress support
+ */
 
 void* gls_GetGlesProcAddress(const char* procname)
 {

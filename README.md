@@ -93,9 +93,6 @@ This is still a work in progress, notably:
   builds can work now.  We should not only be able to build 32bit
   versions too, but to have them interoperate.
 
-* No protocol extension is supported yet, until proper generic
-  extension support gets implemented.
-
 * [A rather unsorted TODO list](doc/TODO.md) has a summary of things
   to be done, as well as those already done: it's important to see
   that despite the large amount of work to be done, things are really
@@ -110,7 +107,7 @@ This is my own personal roadmap.  Contributors welcome, to help with
 those items or add their own in the picture.
 
 * [ ] bring EGL/GLES2 support to a satisfying state
-  * [ ] add extension support
+  * [x] add extension support
   * [ ] solve structural security issues
     * [x] use separate processes to isolate clients' contexts on server
     * [ ] remove pointers from protocol

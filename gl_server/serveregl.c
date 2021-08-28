@@ -235,6 +235,16 @@ static void glse_eglGetProcAddress(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglGetProcAddress);
   void* proc = eglGetProcAddress(c->procname);
 
+  if (proc) {
+    if (strncmp(c->procname, "egl", 3) == 0)
+      glse_GetEglProcAddress(c->procname, proc);
+    else if (strncmp(c->procname, "gl", 2) == 0)
+      glse_GetGlesProcAddress(c->procname, proc);
+    else
+      fprintf(stderr, "GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
+              __FUNCTION__, c->procname);
+  }
+
   GLSE_SET_RET_PTR(ret, eglGetProcAddress);
   ret->success = (proc != NULL);
   GLSE_SEND_RET(ret, eglGetProcAddress);
@@ -414,6 +424,21 @@ static void glse_eglGetCurrentContext(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, eglGetCurrentContext);
   ret->context = (uint64_t)context;
   GLSE_SEND_RET(ret, eglGetCurrentContext);
+}
+
+// eglGetProcAddress support
+
+void glse_GetEglProcAddress(const char* procname, void* proc)
+{
+  (void)procname; (void)proc;
+  if (0) {}
+#define X(FUNC)                                 \
+  else if (strcmp(procname, #FUNC) == 0)        \
+    egl_context.FUNC = proc;                    \
+  //
+  GLS_EGL_EXT_COMMANDS()
+#undef X
+  else {}
 }
 
 //

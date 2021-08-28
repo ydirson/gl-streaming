@@ -450,3 +450,14 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint64_t context;
 } gls_ret_eglGetCurrentContext_t;
+
+
+// EGL extensions
+
+/*
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t ;
+} gls__t;
+ */
