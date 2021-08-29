@@ -244,14 +244,6 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
   GLS_RELEASE_RETURN_RET(EGLint, ret, error);
 }
 
-EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char* procname )
-{
-  // Do not stream this command
-  // FIXME: should query and return NULL when the server does
-  void* proc = dlsym(NULL, procname);
-  return proc;
-}
-
 EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint* major, EGLint* minor )
 {
   GLS_SET_COMMAND_PTR(c, eglInitialize);

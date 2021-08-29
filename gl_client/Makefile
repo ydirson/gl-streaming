@@ -13,7 +13,7 @@ endif
 CFLAGS+=-DUSE_X11
 
 LIBS=-pthread -ldl -lX11
-OBJS=fifo.o recvr.o clientegl.o clientgles.o glclient.o
+OBJS=fifo.o recvr.o clientegl.o clientgles.o glclient.o getprocaddr.o
 
 LIBGLES2_2 = libGLESv2.so.2
 LIBEGL_1 = libEGL.so.1
@@ -43,6 +43,8 @@ clientgles.o: clientgles.c
 
 glclient.o: glclient.c glclient.h ../common/gls_command.h recvr.o
 	$(CC) -c -o $@ $(CFLAGS) $<
+
+getprocaddr.o: OPT+=-fno-optimize-sibling-calls
 
 $(LIBGLES2_2): $(OBJS)
 	$(CC) -shared -o $(LIBGLES2_2) $(CFLAGS) $(OBJS) -Wl,-init,gls_init_library,-fini,gls_cleanup_library $(LDFLAGS) $(LIBS)
