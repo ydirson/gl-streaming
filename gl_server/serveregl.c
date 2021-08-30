@@ -33,6 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
+#define EGL_MINOR 0
+
 //#define DEBUG
 
 static const char* GLS_EGL_EXTENSIONS[] =
@@ -234,7 +236,7 @@ void glse_eglInitialize(gls_command_t* buf)
   EGLBoolean success = eglInitialize((EGLDisplay)c->dpy, &major, &minor);
 
   // FIXME EGL_VERSION should be generated from this
-  if (major > 1 || minor > 4) minor = 4;
+  if (major > 1 || minor > EGL_MINOR) minor = EGL_MINOR;
   if (major > 1) major = 1;
 
   ret->major = major;
@@ -307,8 +309,7 @@ void glse_eglQueryString(gls_command_t* buf)
     ret->success = TRUE;
     break;
   case EGL_VERSION:
-    // wrong but glmark2 wont work without 1.4
-    strcpy(ret->params, "1.4 GLS"); // FIXME should match eglInitialize
+    sprintf(ret->params, "1.%d GLS", EGL_MINOR);
     ret->success = TRUE;
     break;
   case EGL_VENDOR: {
