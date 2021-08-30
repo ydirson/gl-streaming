@@ -1324,7 +1324,7 @@ GL_APICALL void GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const 
     if (strsize == 0)
       strsize = strlen(strptr);
     size_all += strsize + 1;
-    if (size_all > GLS_TMP_BUFFER_SIZE) {
+    if (size_all > glsc_global.pool.tmp_buf.size) {
       fprintf(stderr, "GLS ERROR: shader buffer size overflow!\n");
       return;
     }

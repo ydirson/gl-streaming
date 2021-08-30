@@ -283,7 +283,7 @@ void glse_eglQueryString(gls_command_t* buf)
         size_t len = strcspn(params, " ");
         if (!len) break;
         if (glse_extension_supported(GLS_EGL_EXTENSIONS, params, len)) {
-          if (outlen + len + 1 > GLSE_OUT_BUFFER_SIZE - sizeof(gls_ret_eglQueryString_t)) {
+          if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_eglQueryString_t)) {
             fprintf(stderr,
                     "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
                     __FUNCTION__);

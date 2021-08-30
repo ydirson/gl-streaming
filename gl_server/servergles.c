@@ -453,7 +453,7 @@ void glse_glGetProgramInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetProgramInfoLog);
   GLSE_SET_RET_PTR(ret, glGetProgramInfoLog);
-  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - sizeof(gls_ret_glGetProgramInfoLog_t);
+  int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetProgramInfoLog_t);
   if (c->bufsize > maxsize) {
     fprintf(stderr, "GLS WARNING: lowering %s buffer size to %u\n",
             __FUNCTION__, maxsize);
@@ -479,7 +479,7 @@ void glse_glGetShaderInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
   GLSE_SET_RET_PTR(ret, glGetShaderInfoLog);
-  int32_t maxsize = GLSE_TMP_BUFFER_SIZE - sizeof(gls_ret_glGetShaderInfoLog_t);
+  int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetShaderInfoLog_t);
   if (c->bufsize > maxsize) {
     fprintf(stderr, "GLS WARNING: lowering %s buffer size to %u\n",
             __FUNCTION__, maxsize);
@@ -518,7 +518,7 @@ void glse_glGetString(gls_command_t* buf)
         size_t len = strcspn(params, " ");
         if (!len) break;
         if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
-          if (outlen + len + 1 > GLSE_OUT_BUFFER_SIZE - sizeof(gls_ret_glGetString_t)) {
+          if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetString_t)) {
             fprintf(stderr,
                     "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
                     __FUNCTION__);
