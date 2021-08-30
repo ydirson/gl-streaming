@@ -11,10 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+static struct {
+  EGLNativeDisplayType native_display;
 #if defined(USE_X11)
-Display* xDisplay;
-Window xWindow;
+  Window x_window;
 #endif
+} egl_clt_context;
 
 static inline unsigned SEND_ATTRIB_DATA(const EGLint* attrib_list)
 {
@@ -113,15 +115,15 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 {
   // send information about local window so server can recreate it
 #if defined(USE_X11)
-  if (xWindow && xWindow != window) {
+  if (egl_clt_context.x_window && egl_clt_context.x_window != window) {
     fprintf(stderr, "GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
     client_egl_error = EGL_BAD_NATIVE_WINDOW;
     return EGL_NO_SURFACE;
   }
 
-  xWindow = window;
+  egl_clt_context.x_window = window;
   XWindowAttributes xWindowAttrs;
-  if (!XGetWindowAttributes(xDisplay, xWindow, &xWindowAttrs)) {
+  if (!XGetWindowAttributes(egl_clt_context.native_display, egl_clt_context.x_window, &xWindowAttrs)) {
     fprintf(stderr, "GLS ERROR: XGetWindowAttributes failed\n");
     client_egl_error = EGL_BAD_NATIVE_WINDOW;
     return EGL_NO_SURFACE;
@@ -215,14 +217,15 @@ EGLAPI EGLSurface EGLAPIENTRY eglGetCurrentSurface(EGLint readdraw)
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 {
-#ifdef USE_X11
-  if (xDisplay && xDisplay != native_display)
-    fprintf(stderr, "GLS WARNING: eglGetDisplay: changing X11 Display\n");
-  xDisplay = native_display;
-#endif
+  if (native_display != EGL_DEFAULT_DISPLAY) {
+    if (egl_clt_context.native_display && egl_clt_context.native_display != native_display) {
+      fprintf(stderr, "GLS ERROR: eglGetDisplay: only support one native display\n");
+      return EGL_NO_DISPLAY; // but no error, spec says
+    }
+    egl_clt_context.native_display = native_display;
+  }
+
   GLS_SET_COMMAND_PTR(c, eglGetDisplay);
-  if (native_display != EGL_DEFAULT_DISPLAY)
-    fprintf(stderr, "GLS WARNING: eglGetDisplay: native_display != EGL_DEFAULT_DISPLAY, forcing EGL_DEFAULT_DISPLAY\n");
   c->native_display = (uint64_t)EGL_DEFAULT_DISPLAY;
   GLS_SEND_PACKET(eglGetDisplay);
 
