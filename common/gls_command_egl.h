@@ -234,6 +234,19 @@ typedef struct
 typedef struct
 {
   GLSCOMMAND_FIELDS();
+  char procname[];
+} gls_eglGetProcAddress_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int success;
+} gls_ret_eglGetProcAddress_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
   uint64_t dpy;
 } gls_eglInitialize_t;
 

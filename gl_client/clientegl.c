@@ -256,9 +256,34 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
 
 EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char* procname )
 {
-  // Do not stream this command
-  // FIXME: should query and return NULL when the server does
-  return dlsym(dlopen(NULL, RTLD_LOCAL), procname);
+  size_t procname_len = strlen(procname);
+  if (sizeof(gls_eglGetProcAddress_t) + procname_len + 1 >
+      glsc_global.pool.out_buf.size) {
+    fprintf(stderr, "GLS ERRROR: %s: procname '%s' too long for buffer\n",
+            __FUNCTION__, procname);
+    return NULL;
+  }
+
+  GLS_SET_COMMAND_PTR(c, eglGetProcAddress);
+  _GLS_VARIABLE_PAYLOAD(c, procname, procname_len, return NULL);
+  GLS_SEND_PACKET(eglGetProcAddress);
+  GLS_WAIT_SET_RET_PTR(ret, eglGetProcAddress);
+  void* proc;
+  if (ret) {
+    proc = dlsym(NULL, procname);
+    // WARNING: make sure this does not result in a dlsym tail-cail, see
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66826
+    // This conditional error is sufficient.
+    if (!proc)
+      fprintf(stderr, "GLS WARNING: %s: %s available on server but not supported (%s)\n",
+              __FUNCTION__, procname, dlerror());
+  } else {
+    // hide the symbol even if GLS supports it
+    proc = NULL;
+  }
+
+  GLS_RELEASE_RET();
+  return proc;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint* major, EGLint* minor )

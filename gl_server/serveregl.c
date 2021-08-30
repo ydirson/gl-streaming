@@ -228,6 +228,16 @@ static void glse_eglGetError(gls_command_t* buf)
   GLSE_SEND_RET(ret, eglGetError);
 }
 
+static void glse_eglGetProcAddress(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, eglGetProcAddress);
+  void* proc = eglGetProcAddress(c->procname);
+
+  GLSE_SET_RET_PTR(ret, eglGetProcAddress);
+  ret->success = (proc != NULL);
+  GLSE_SEND_RET(ret, eglGetProcAddress);
+}
+
 static void glse_eglInitialize(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglInitialize);
@@ -430,7 +440,7 @@ int egl_executeCommand(gls_command_t* c)
     CASE_EXEC_CMD(eglGetCurrentSurface);
     CASE_EXEC_CMD(eglGetDisplay);
     CASE_EXEC_CMD(eglGetError);
-    //CASE_EXEC_CMD(eglGetProcAddress);
+    CASE_EXEC_CMD(eglGetProcAddress);
     CASE_EXEC_CMD(eglInitialize);
     CASE_EXEC_CMD(eglMakeCurrent);
     CASE_EXEC_CMD(eglQueryContext);

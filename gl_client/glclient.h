@@ -49,7 +49,6 @@ typedef struct
   int is_debug;
 } gls_context_t;
 
-
 #define GLS_TMP_BUFFER_SIZE 2097152
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
 #define GLS_TIMEOUT_SEC 3.0f
@@ -68,11 +67,13 @@ typedef struct
 
 #define GLS_ENOUGH_SIZE(PTR) (PTR->cmd_size <= GLS_OUT_BUFFER_SIZE)
 #define GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE)                          \
+  _GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE, return)
+#define _GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE, RETURN_STMT)            \
   do {                                                                  \
     PTR->cmd_size += SIZE;                                              \
     if (!GLS_ENOUGH_SIZE(PTR)) {                                        \
       fprintf(stderr, "GLS ERROR: %s data too large\n", __FUNCTION__);  \
-      return;                                                           \
+      RETURN_STMT;                                                      \
     }                                                                   \
     memcpy(PTR->FIELD, FIELD, SIZE);                                    \
   } while (0)                                                           \
