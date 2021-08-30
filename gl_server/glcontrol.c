@@ -119,19 +119,13 @@ void init_egl(graphics_context_t* gc)
     exit(EXIT_FAILURE);
     return;
   }
-  gc->display = eglGetDisplay(gc->x.display);
-#else
-  gc->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
-  assert(gc->display != EGL_NO_DISPLAY);
-  check_gl_err(eglGetDisplay);
 }
 
 
 void release_egl(graphics_context_t* gc)
 {
-  eglMakeCurrent(gc->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-  eglReleaseThread();
+  (void)gc;
 }
 
 

@@ -18,6 +18,22 @@ static struct {
 #endif
 } egl_clt_context;
 
+static int gls_wire_native_display(EGLNativeDisplayType native_display,
+                                   uint32_t* wire_native_display_p)
+{
+  if (native_display == EGL_DEFAULT_DISPLAY) {
+    *wire_native_display_p = GLS_EGL_NATIVE_DISPLAY_DEFAULT;
+  } else {
+    if (egl_clt_context.native_display && egl_clt_context.native_display != native_display) {
+      fprintf(stderr, "GLS ERROR: only support one native display\n");
+      return -1;
+    }
+    egl_clt_context.native_display = native_display;
+    *wire_native_display_p = GLS_EGL_NATIVE_DISPLAY_NATIVE;
+  }
+  return 0;
+}
+
 static inline unsigned SEND_ATTRIB_DATA(const EGLint* attrib_list)
 {
   if (!attrib_list || attrib_list[0] == EGL_NONE) return 0;
@@ -217,16 +233,9 @@ EGLAPI EGLSurface EGLAPIENTRY eglGetCurrentSurface(EGLint readdraw)
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 {
-  if (native_display != EGL_DEFAULT_DISPLAY) {
-    if (egl_clt_context.native_display && egl_clt_context.native_display != native_display) {
-      fprintf(stderr, "GLS ERROR: eglGetDisplay: only support one native display\n");
-      return EGL_NO_DISPLAY; // but no error, spec says
-    }
-    egl_clt_context.native_display = native_display;
-  }
-
   GLS_SET_COMMAND_PTR(c, eglGetDisplay);
-  c->native_display = (uint64_t)EGL_DEFAULT_DISPLAY;
+  if (gls_wire_native_display(native_display, &c->native_display) < 0)
+    return EGL_NO_DISPLAY; // but no error, spec says
   GLS_SEND_PACKET(eglGetDisplay);
 
   GLS_WAIT_SET_RET_PTR(ret, eglGetDisplay);

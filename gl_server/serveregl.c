@@ -198,17 +198,16 @@ static void glse_eglGetDisplay(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetDisplay);
   EGLDisplay display;
-  if (c->native_display != (uint64_t)EGL_DEFAULT_DISPLAY) {
-    fprintf(stderr, "eglGetDisplay: ERROR, only supports EGL_DEFAULT_DISPLAY\n");
+
+  switch (c->native_display) {
+  case GLS_EGL_NATIVE_DISPLAY_DEFAULT:
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    break;
+  case GLS_EGL_NATIVE_DISPLAY_NATIVE:
+    display = eglGetDisplay(glsec_global.gc->x.display);
+    break;
+  default:
     display = EGL_NO_DISPLAY;
-  } else {
-    if (0)
-      display = eglGetDisplay((EGLNativeDisplayType)c->native_display);
-    else {
-      // FIXME stub to remove when eglInitialize gets unstubbed
-      fprintf(stderr, "eglGetDisplay: faking for single-window mode\n");
-      display = glsec_global.gc->display;
-    }
   }
 
   // FIXME should keep track of EGLDisplay values the client is allowed to use

@@ -91,7 +91,7 @@
 - fixes
   - [x] non-implemented functions (eg. glIsEnabled) cause client to segfault because
         symbol is NULL, core functions must all be provided
-  - [ ] stop passing any kind of pointer over the wire (huge security issue, although
+  - [.] stop passing any kind of pointer over the wire (huge security issue, although
         we could mitigate that aspect by tracking valid pointer values, but also
         problematic for 64bit platforms, when casting pointers into 32bit integers...)
   - [x] find out which EGL and GLES standard version are precisely covered today
