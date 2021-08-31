@@ -11,8 +11,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GLS_DEF_CORE_API(RET, FUNC, ...) \
-  EGLAPI RET EGLAPIENTRY FUNC (__VA_ARGS__)
+// Define core API functions as __GLS_##FUNC with FUNC exported as alias
+#define GLS_DEF_CORE_API(RET, FUNC, ...)                                \
+  __asm__(".global " #FUNC "; .set " #FUNC ", __GLS_"#FUNC);            \
+  static EGLAPI RET EGLAPIENTRY __GLS_##FUNC (__VA_ARGS__)
 
 static struct {
   EGLNativeDisplayType native_display;
@@ -271,19 +273,18 @@ GLS_DEF_CORE_API(__eglMustCastToProperFunctionPointerType, eglGetProcAddress,  c
   _GLS_VARIABLE_PAYLOAD(c, procname, procname_len, return NULL);
   GLS_SEND_PACKET(eglGetProcAddress);
   GLS_WAIT_SET_RET_PTR(ret, eglGetProcAddress);
-  void* proc;
+
+  void* proc = NULL;
   if (ret) {
-    proc = dlsym(NULL, procname);
-    // WARNING: make sure this does not result in a dlsym tail-cail, see
-    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66826
-    // This conditional error is sufficient.
-    if (!proc)
-      fprintf(stderr, "GLS WARNING: %s: %s available on server but not supported (%s)\n",
-              __FUNCTION__, procname, dlerror());
-  } else {
-    // hide the symbol even if GLS supports it
-    proc = NULL;
+    if (strncmp(procname, "egl", 3) == 0)
+      proc = gls_GetEglProcAddress(procname);
+    else if (strncmp(procname, "gl", 2) == 0)
+      proc = gls_GetGlesProcAddress(procname);
+    else
+      fprintf(stderr, "GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
+              __FUNCTION__, procname);
   }
+  // else hide the symbol even if GLS supports it
 
   GLS_RELEASE_RET();
   return proc;
@@ -696,4 +697,28 @@ GLS_DEF_CORE_API(EGLBoolean, eglWaitSync, EGLDisplay dpy, EGLSync sync, EGLint f
   (void)dpy; (void)sync; (void)flags;
   WARN_STUBBED();
   return EGL_FALSE;
+}
+
+
+// eglGetProcAddress support
+
+void* gls_GetEglProcAddress(const char* procname)
+{
+  void* proc;
+  if (0) {}
+#define X(FUNC)                            \
+  else if (strcmp(procname, #FUNC) == 0) { \
+    proc = __GLS_##FUNC;                   \
+  }                                        \
+  //
+  GLS_EGL_COMMANDS()
+  GLS_EGL_EXT_COMMANDS()
+#undef X
+  else {
+    fprintf(stderr, "GLS WARNING: %s: %s available on server but not supported\n",
+            __FUNCTION__, procname);
+    proc = NULL;
+  }
+
+  return proc;
 }

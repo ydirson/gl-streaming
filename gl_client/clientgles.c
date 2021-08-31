@@ -11,8 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GLS_DEF_CORE_API(RET, FUNC, ...) \
-  GL_APICALL RET GL_APIENTRY FUNC (__VA_ARGS__)
+// Define core API functions as __GLS_##FUNC with FUNC exported as alias
+#define GLS_DEF_CORE_API(RET, FUNC, ...)                                \
+  __asm__(".global " #FUNC "; .set " #FUNC ", __GLS_"#FUNC);            \
+  static GL_APICALL RET GL_APIENTRY __GLS_##FUNC (__VA_ARGS__)
 
 static struct
 {
@@ -1657,6 +1659,29 @@ GLS_DEF_CORE_API(void, glViewport, GLint x, GLint y, GLsizei width, GLsizei heig
  * extension commands
  */
 
+
+// eglGetProcAddress support
+
+void* gls_GetGlesProcAddress(const char* procname)
+{
+  void* proc;
+  if (0) {}
+#define X(FUNC)                            \
+  else if (strcmp(procname, #FUNC) == 0) { \
+    proc = __GLS_##FUNC;                   \
+  }                                        \
+  //
+  GLS_GLES2_COMMANDS()
+  GLS_GLES2_EXT_COMMANDS()
+#undef X
+  else {
+    fprintf(stderr, "GLS WARNING: %s: %s available on server but not supported\n",
+            __FUNCTION__, procname);
+    proc = NULL;
+  }
+
+  return proc;
+}
 
 // Used for return void commands
 /*

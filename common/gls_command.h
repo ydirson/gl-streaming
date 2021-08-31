@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   EMPTY()                                       \
     GLS_GLS_COMMANDS()                          \
     GLS_EGL_COMMANDS()                          \
+    GLS_EGL_EXT_COMMANDS()                      \
     GLS_GLES2_COMMANDS()                        \
     GLS_GLES2_EXT_COMMANDS()                    \
   //
@@ -135,6 +136,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(eglCreatePlatformWindowSurface)           \
     X(eglWaitSync)                              \
   //
+
+// EGL Extensions
+#define GLS_EGL_EXT_COMMANDS()                  \
+  EMPTY()                                       \
+  //
+
+
+// GLES2
 
 #define GLS_GLES2_COMMANDS()                    \
   EMPTY()                                       \

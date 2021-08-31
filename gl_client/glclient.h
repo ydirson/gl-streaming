@@ -142,3 +142,6 @@ int send_packet(void);
 int gls_cmd_send_data(uint32_t size, const void* data);
 int wait_for_data(enum GL_Server_Command, char* str);
 void gls_cmd_CREATE_WINDOW(unsigned width, unsigned height);
+
+void* gls_GetEglProcAddress(const char* procname);
+void* gls_GetGlesProcAddress(const char* procname);
