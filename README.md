@@ -30,6 +30,12 @@ This is still a work in progress, notably:
   display, although a number of APIs are still stubbed, and some are
   known to have bugs -- very few are usable, read on for details.
 
+  Note some programs need fixes:
+  * glmark2 2021.02 would segfault, for which they have a fix in
+    master branch
+  * es2tri requires [removal of an abusive
+    assertion](https://gitlab.freedesktop.org/mesa/demos/-/merge_requests/46)
+
 * The client still creates a window on its own, which is used for
   interaction with the app (input events, window resize, etc).  When
   running locally (ie. GPU server and app on the same display) it gets
