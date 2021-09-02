@@ -1546,18 +1546,17 @@ GL_APICALL void GL_APIENTRY glValidateProgram (GLuint program)
 }
 
 
-static void _glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_arr, const GLfloat* arr)
+static void _glVertexAttribFloat(enum GL_Server_Command cmd,
+                                 GLuint index, GLint num_float,
+                                 const GLfloat* arr)
 {
   gls_data_glVertexAttribFloat_t* dat = (gls_data_glVertexAttribFloat_t*)glsc_global.pool.tmp_buf.buf;
   memcpy(dat->arr, arr, num_float);
   // It's small so use GLS_DATA_SIZE
   gls_cmd_send_data(GLS_DATA_SIZE, glsc_global.pool.tmp_buf.buf);
 
-  GLS_SET_COMMAND_PTR(c, glVertexAttribFloat);
+  _GLS_SET_COMMAND_PTR(c, glVertexAttribFloat, cmd);
   c->index = index;
-  c->num_float = num_float;
-  // If TRUE, call to glVertexAttrib*fv instead of glVertexAttrib*f
-  c->call_arr = call_arr;
   GLS_SEND_PACKET(glVertexAttribFloat);
 }
 
@@ -1565,52 +1564,52 @@ static void _glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_a
 GL_APICALL void GL_APIENTRY glVertexAttrib1f(GLuint index, GLfloat v0)
 {
   GLfloat arr[1] = {v0};
-  _glVertexAttribFloat(index, 1, GL_FALSE, arr);
+  _glVertexAttribFloat(GLSC_glVertexAttrib1f, index, 1, arr);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib2f(GLuint index, GLfloat v0, GLfloat v1)
 {
   GLfloat arr[2] = {v0, v1};
-  _glVertexAttribFloat(index, 2, GL_FALSE, arr);
+  _glVertexAttribFloat(GLSC_glVertexAttrib2f, index, 2, arr);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib3f(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2)
 {
   GLfloat arr[3] = {v0, v1, v2};
-  _glVertexAttribFloat(index, 3, GL_FALSE, arr);
+  _glVertexAttribFloat(GLSC_glVertexAttrib3f, index, 3, arr);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib4f(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
 {
   GLfloat arr[4] = {v0, v1, v2, v3};
-  _glVertexAttribFloat(index, 4, GL_FALSE, arr);
+  _glVertexAttribFloat(GLSC_glVertexAttrib4f, index, 4, arr);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib1fv(GLuint index, const GLfloat* v)
 {
-  _glVertexAttribFloat(index, 1, GL_TRUE, v);
+  _glVertexAttribFloat(GLSC_glVertexAttrib1fv, index, 1, v);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib2fv(GLuint index, const GLfloat* v)
 {
-  _glVertexAttribFloat(index, 2, GL_TRUE, v);
+  _glVertexAttribFloat(GLSC_glVertexAttrib2fv, index, 2, v);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib3fv(GLuint index, const GLfloat* v)
 {
-  _glVertexAttribFloat(index, 3, GL_TRUE, v);
+  _glVertexAttribFloat(GLSC_glVertexAttrib3fv, index, 3, v);
 }
 
 
 GL_APICALL void GL_APIENTRY glVertexAttrib4fv(GLuint index, const GLfloat* v)
 {
-  _glVertexAttribFloat(index, 4, GL_TRUE, v);
+  _glVertexAttribFloat(GLSC_glVertexAttrib4fv, index, 4, v);
 }
 
 

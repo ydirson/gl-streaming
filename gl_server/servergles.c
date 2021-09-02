@@ -774,34 +774,35 @@ static void glse_glUseProgram(gls_command_t* buf)
 }
 
 
-#define CASE_VTXATTR_FLOAT(INDEX, FLOAT_INDX, ...) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##f(INDEX, __VA_ARGS__); break
-#define CASE_VTXATTR_FLOAT_ARR(INDEX, FLOAT_INDX, ARRAY) case FLOAT_INDX: glVertexAttrib##FLOAT_INDX##fv(INDEX, ARRAY); break
 static void glse_glVertexAttribFloat(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glVertexAttribFloat);
   GLSE_SET_DATA_PTR(dat, glVertexAttribFloat, 1);
 
-  if (c->call_arr) {
-    switch (c->num_float) {
-      // FIXME improve this code
-      CASE_VTXATTR_FLOAT_ARR(c->index, 1, dat->arr);
-      CASE_VTXATTR_FLOAT_ARR(c->index, 2, dat->arr);
-      CASE_VTXATTR_FLOAT_ARR(c->index, 3, dat->arr);
-      CASE_VTXATTR_FLOAT_ARR(c->index, 4, dat->arr);
-    }
-  } else {
-    switch (c->num_float) {
-      // FIXME improve this code
-      CASE_VTXATTR_FLOAT(c->index, 1, dat->arr[0]);
-      CASE_VTXATTR_FLOAT(c->index, 2, dat->arr[0], dat->arr[1]);
-      CASE_VTXATTR_FLOAT(c->index, 3, dat->arr[0], dat->arr[1], dat->arr[2]);
-      CASE_VTXATTR_FLOAT(c->index, 4, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]);
-    }
+  switch (c->cmd) {
+  case GLSC_glVertexAttrib1f:
+    glVertexAttrib1f(c->index, dat->arr[0]); break;
+  case GLSC_glVertexAttrib2f:
+    glVertexAttrib2f(c->index, dat->arr[0], dat->arr[1]); break;
+  case GLSC_glVertexAttrib3f:
+    glVertexAttrib3f(c->index, dat->arr[0], dat->arr[1], dat->arr[2]); break;
+  case GLSC_glVertexAttrib4f:
+    glVertexAttrib4f(c->index, dat->arr[0], dat->arr[1], dat->arr[2], dat->arr[3]); break;
+  case GLSC_glVertexAttrib1fv:
+    glVertexAttrib1fv(c->index, dat->arr); break;
+  case GLSC_glVertexAttrib2fv:
+    glVertexAttrib2fv(c->index, dat->arr); break;
+  case GLSC_glVertexAttrib3fv:
+    glVertexAttrib3fv(c->index, dat->arr); break;
+  case GLSC_glVertexAttrib4fv:
+    glVertexAttrib4fv(c->index, dat->arr); break;
+  default:
+    LOGE("GLS ERROR: %s: unsupported command 0x%x (%s)\n", __FUNCTION__,
+         c->cmd, GLSC_tostring(c->cmd));
   }
+
   GLSE_RELEASE_DATA();
 }
-#undef CASE_VTXATTR_FLOAT
-#undef CASE_VTXATTR_FLOAT_ARR
 
 
 static void glse_glVertexAttribPointer(gls_command_t* buf)
@@ -974,7 +975,16 @@ int gles_executeCommand(gls_command_t* c)
     CASE_EXEC_CMD(glUniformMatrix4fv);
     CASE_EXEC_CMD(glUseProgram);
     //CASE_EXEC_CMD(glValidateProgram);
-    CASE_EXEC_CMD(glVertexAttribFloat);
+
+  case GLSC_glVertexAttrib1f: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib2f: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib3f: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib4f: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib1fv: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib2fv: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib3fv: glse_glVertexAttribFloat(c); break;
+  case GLSC_glVertexAttrib4fv: glse_glVertexAttribFloat(c); break;
+
     CASE_EXEC_CMD(glVertexAttribPointer);
     CASE_EXEC_CMD(glViewport);
 

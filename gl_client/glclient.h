@@ -53,16 +53,15 @@ typedef struct
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
 #define GLS_TIMEOUT_SEC 3.0f
 
-// gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.pool.out_buf.buf;
-// c->cmd = GLSC_glFunctionName;
-// c->cmd = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
+  _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME)
+#define _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, CMD)                        \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.pool.out_buf.buf; \
-  PTR->cmd = GLSC_##FUNCNAME;                                           \
+  PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
     fprintf(stderr, "gls debug: handling %s (cmd=0x%x)\n",              \
-            #FUNCNAME, GLSC_##FUNCNAME);                                \
+            #FUNCNAME, CMD);                                            \
   //
 
 #define GLS_ENOUGH_SIZE(PTR) (PTR->cmd_size <= GLS_OUT_BUFFER_SIZE)

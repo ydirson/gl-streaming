@@ -905,8 +905,6 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t index;
-  uint32_t num_float;
-  uint32_t call_arr;
 } gls_glVertexAttribFloat_t;
 
 typedef struct
