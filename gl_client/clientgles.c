@@ -1539,6 +1539,13 @@ GL_APICALL void GL_APIENTRY glUseProgram (GLuint program)
 }
 
 
+GL_APICALL void GL_APIENTRY glValidateProgram (GLuint program)
+{
+  (void)program;
+  WARN_STUBBED();
+}
+
+
 static void _glVertexAttribFloat(GLuint index, GLint num_float, GLboolean call_arr, const GLfloat* arr)
 {
   gls_data_glVertexAttribFloat_t* dat = (gls_data_glVertexAttribFloat_t*)glsc_global.pool.tmp_buf.buf;
