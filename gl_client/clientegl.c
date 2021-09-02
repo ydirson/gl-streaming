@@ -621,3 +621,76 @@ EGLAPI EGLContext EGLAPIENTRY eglGetCurrentContext(void)
   GLS_WAIT_SET_RET_PTR(ret, eglGetCurrentContext);
   GLS_RELEASE_RETURN_RET(EGLContext, ret, context);
 }
+
+
+// EGL 1.5
+
+EGLAPI EGLSync EGLAPIENTRY eglCreateSync (EGLDisplay dpy, EGLenum type, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)type; (void)attrib_list;
+  WARN_STUBBED();
+  return  EGL_NO_SYNC;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglDestroySync (EGLDisplay dpy, EGLSync sync)
+{
+  (void)dpy; (void)sync;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLint EGLAPIENTRY eglClientWaitSync (EGLDisplay dpy, EGLSync sync, EGLint flags, EGLTime timeout)
+{
+  (void)dpy; (void)sync; (void)flags; (void)timeout;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglGetSyncAttrib (EGLDisplay dpy, EGLSync sync, EGLint attribute, EGLAttrib *value)
+{
+  (void)dpy; (void)sync; (void)attribute; (void)value;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLImage EGLAPIENTRY eglCreateImage (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)ctx; (void)target; (void)buffer; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_IMAGE;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglDestroyImage (EGLDisplay dpy, EGLImage image)
+{
+  (void)dpy; (void)image;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLDisplay EGLAPIENTRY eglGetPlatformDisplay (EGLenum platform, void *native_display, const EGLAttrib *attrib_list)
+{
+  (void)platform; (void)native_display; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_DISPLAY;
+}
+
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurface (EGLDisplay dpy, EGLConfig config, void *native_window, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_window; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformPixmapSurface (EGLDisplay dpy, EGLConfig config, void *native_pixmap, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_pixmap; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglWaitSync (EGLDisplay dpy, EGLSync sync, EGLint flags)
+{
+  (void)dpy; (void)sync; (void)flags;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
