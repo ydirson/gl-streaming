@@ -536,11 +536,7 @@ GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei coun
 
 GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
-  uint32_t sizeoftype;
-  if (type == GL_UNSIGNED_BYTE)
-    sizeoftype = sizeof(GLubyte);
-  else // GL_UNSIGNED_SHORT
-    sizeoftype = sizeof(GLushort);
+  uint32_t sizeoftype = _type_bytesize(type);
 
   int vbo_bkp = buffer_objs.vbo;
   int ibo_bkp = buffer_objs.ibo;
