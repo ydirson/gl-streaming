@@ -548,7 +548,7 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   if (!buffer_objs.vbo)
     WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
   for (i = 0; i < 16; i++) {
-    defered_vertex_attrib_pointer(i, 65536); // FIXME count
+    defered_vertex_attrib_pointer(i, count);
   }
   if (!buffer_objs.ibo) {
     WARN_ONCE("GLS WARNING: %s uses client-data index buffer, consider using an IBO\n", __FUNCTION__);
