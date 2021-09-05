@@ -921,9 +921,9 @@ typedef struct
   uint32_t indx;
   int32_t size;
   uint32_t type;
-  uint32_t normalized;
   int32_t stride;
-  uint64_t ptr_uint;
+  uint64_t ptr_uint; // aligned
+  uint32_t normalized;
 } gls_glVertexAttribPointer_t;
 
 
