@@ -508,6 +508,9 @@ static void defered_vertex_attrib_pointer(int i, int count)
   if (stride == 0)
     stride = attrib->size * _type_bytesize(attrib->type);
 
+  if (glsc_global.is_debug)
+    fprintf(stderr, "GLS DBG: %s: uploading %u bytes to emulation VBO\n", __FUNCTION__,
+            count * stride);
   glBindBuffer(GL_ARRAY_BUFFER, attrib->emul_vbo_id);
   glBufferData(GL_ARRAY_BUFFER, count * stride, (void*)attrib->ptr, GL_STREAM_DRAW);
   _send_glVertexAttribPointer(i, attrib->size, attrib->type, attrib->normalized, attrib->stride, 0);
@@ -552,6 +555,9 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
     if ( !buffer_objs.ibo_emu ) {
       glGenBuffers(1, &buffer_objs.ibo_emu);
     }
+    if (glsc_global.is_debug)
+      fprintf(stderr, "GLS DBG: %s: uploading %u bytes to emulation IBO\n", __FUNCTION__,
+              count * sizeoftype);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeoftype, indices, GL_STREAM_DRAW);
   }
