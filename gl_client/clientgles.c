@@ -501,6 +501,12 @@ static void defered_vertex_attrib_pointer(int i, int count)
     // uses a VBO, already sent
     return;
 
+  if (buffer_objs.ibo && !attrib->vbo_id)
+      // FIXME: could be done, would require scanning scanning IBO,
+      // which requires work in in glBuffer(Sub)Data ... but who needs
+      // that for real ?
+      WARN_ONCE("GLS WARNING: %s use of client-data vertex buffer together with an IBO is not implemented\n", __FUNCTION__);
+
   if (!attrib->emul_vbo_id)
     glGenBuffers(1, &attrib->emul_vbo_id);
 
@@ -545,10 +551,22 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
   GLuint vbo_bkp = buffer_objs.vbo;
   GLuint ibo_bkp = buffer_objs.ibo;
   int i;
-  if (!buffer_objs.vbo)
-    WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
+  // how much client-data is needed depends on max index in indices
+  int max_idx = -1;
+  if (!buffer_objs.ibo) {
+    for (i = 0; i < count; i++) {
+      int idx = GL_UNSIGNED_BYTE ? ((unsigned char*)indices)[i] : ((unsigned short*)indices)[i];
+      if (idx > max_idx) max_idx = idx;
+    }
+    if (max_idx < 0) {
+      client_gles_error = GL_INVALID_OPERATION;
+      fprintf(stderr, "GLS ERROR: %s: failed to compute max index in IBO\n", __FUNCTION__);
+      return;
+    }
+  }
+  // transfer client-data
   for (i = 0; i < 16; i++) {
-    defered_vertex_attrib_pointer(i, count);
+    defered_vertex_attrib_pointer(i, max_idx + 1);
   }
   if (!buffer_objs.ibo) {
     WARN_ONCE("GLS WARNING: %s uses client-data index buffer, consider using an IBO\n", __FUNCTION__);
