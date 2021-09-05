@@ -159,6 +159,13 @@ void glse_glClearDepthf(gls_command_t* buf)
 }
 
 
+void glse_glClearStencil(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glClearStencil);
+  glClearStencil(c->s);
+}
+
+
 void glse_glColorMask(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glColorMask);
@@ -853,7 +860,7 @@ int gles_executeCommand(gls_command_t* c)
     CASE_EXEC_CMD(glClear);
     CASE_EXEC_CMD(glClearColor);
     CASE_EXEC_CMD(glClearDepthf);
-    //CASE_EXEC_CMD(glClearStencil);
+    CASE_EXEC_CMD(glClearStencil);
     CASE_EXEC_CMD(glColorMask);
     CASE_EXEC_CMD(glCompileShader);
     //CASE_EXEC_CMD(glCompressedTexImage2D);
