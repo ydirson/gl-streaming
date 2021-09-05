@@ -11,9 +11,13 @@ local vs_commands = {
    [0] = "UNDEF",
    [1] = "HANDSHAKE",
    [2] = "SEND_DATA",
+   [3] = "CREATE_WINDOW",
 
    [0x10000] = "eglChooseConfig",
    [0x10008] = "eglGetConfigAttrib",
+   [0x10009] = "eglGetConfigs",
+   [0x1000c] = "eglGetDisplay",
+   [0x1000e] = "eglGetProcAddress",
    [0x10012] = "eglQueryString",
    [0x10015] = "eglTerminate",
    [0x1001f] = "eglReleaseThread",
@@ -24,6 +28,12 @@ local vs_commands = {
    [0x2000c] = "glBufferData",
    [0x2000d] = "glBufferSubData",
    [0x2000e] = "glCheckFramebufferStatus",
+   [0x20010] = "glClearColor",
+   [0x20011] = "glClearDepthf",
+   [0x20012] = "glClearStencil",
+   [0x2001a] = "glCreateShader",
+   [0x20029] = "glDrawElements",
+   [0x2002b] = "glEnableVertexAttribArray",
    [0x20033] = "glGenFramebuffers",
    [0x20035] = "glGenTextures",
    [0x2003c] = "glGetError",
@@ -34,6 +44,12 @@ local vs_commands = {
    [0x20062] = "glShaderSource",
    [0x20069] = "glTexImage2D",
    [0x2006c] = "glTexParameteri",
+   [0x20085] = "glVertexAttribPointer",
+   [0x20086] = "glViewport",
+}
+
+local gl_enum = {
+   [0x1406] = "GL_FLOAT",
 }
 
 -- SEND_DATA
@@ -51,6 +67,29 @@ function p_gls_senddata.dissector(buf, pkt, tree)
    subtree:add(f_data_chunk, buf(8))
 end
 
+-- glVertexAttribPointer
+local p_gls_glVertexAttribPointer = Proto("gls.glVertexAttribPointer", "GL-Streaming glVertexAttribPointer")
+local f_index = ProtoField.uint32("gls.glVertexAttribPointer.index", "Attribute index", base.DEC)
+local f_size = ProtoField.int32("gls.glVertexAttribPointer.size", "Attribute size", base.DEC)
+local f_type = ProtoField.uint32("gls.glVertexAttribPointer.type", "Attribute type", base.HEX, gl_enum)
+local f_normalized = ProtoField.uint32("gls.glVertexAttribPointer.normalized", "Attribute normalized flag", base.HEX)
+local f_stride = ProtoField.int32("gls.glVertexAttribPointer.stride", "Attribute buffer stride", base.DEC)
+local f_offset = ProtoField.uint64("gls.glVertexAttribPointer.offset", "Offset of first attribute in buffer", base.DEC)
+p_gls_senddata.fields = { f_index, f_size, f_type, f_normalized, f_stride, f_offset }
+
+function p_gls_glVertexAttribPointer.dissector(buf, pkt, tree)
+   length = buf:len()
+   if length == 0 then return end
+
+   local subtree = tree:add(p_gls_senddata, buf())
+   subtree:add_le(f_index, buf(0,4))
+   subtree:add_le(f_size, buf(4,4))
+   subtree:add_le(f_type, buf(8,4))
+   subtree:add_le(f_stride, buf(12,4))
+   subtree:add_le(f_offset, buf(16,8))
+   subtree:add_le(f_normalized, buf(24,4))
+end
+
 -- GLS
 local f_cmd = ProtoField.uint32("gls.command", "Command", base.HEX, vs_commands)
 local f_pktsize = ProtoField.uint32("gls.pktsize", "Packet size", base.DEC)
@@ -60,6 +99,7 @@ local data_dis = Dissector.get("data")
 
 protos = {
    [2] = p_gls_senddata,
+   [0x20085] = p_gls_glVertexAttribPointer,
 }
 
 function p_gls.dissector(buf, pinfo, tree)
