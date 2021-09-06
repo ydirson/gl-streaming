@@ -155,6 +155,18 @@ void glserver_handle_packets(recvr_context_t* rc)
 
 int glse_extension_supported(const char** allowed_list, const char* name, size_t namelen)
 {
+  static int dont_filter = -1;
+  if (dont_filter == -1) {
+    const char* envstr = getenv("GLS_DONT_FILTER");
+    if (!envstr || atoi(envstr) == 0) {
+      dont_filter = 0;
+    } else {
+      dont_filter = 1;
+      LOGI("GLS: not filtering unsupported extensions, expect breakage\n");
+    }
+  }
+  if (dont_filter)
+    return 1;
   while(*allowed_list) {
     // match exactly, not just as a prefix
     if (strncmp(*allowed_list, name, namelen) == 0 && (*allowed_list)[namelen] == '\0')
