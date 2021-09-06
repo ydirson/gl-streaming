@@ -617,6 +617,7 @@ GL_APICALL void GL_APIENTRY glEnableVertexAttribArray (GLuint index)
 
 GL_APICALL void GL_APIENTRY glFinish (void)
 {
+  WARN_STUBBED(); // wrong semantics
   GLS_SET_COMMAND_PTR(c, glFinish);
   GLS_SEND_PACKET(glFinish);
 }
