@@ -687,11 +687,20 @@ GLS_DEF_CORE_API(EGLBoolean, eglDestroyImage, EGLDisplay dpy, EGLImage image)
   return EGL_FALSE;
 }
 
+// near-dup of eglGetPlatformDisplayEXT
 GLS_DEF_CORE_API(EGLDisplay, eglGetPlatformDisplay, EGLenum platform, void *native_display, const EGLAttrib *attrib_list)
 {
-  (void)platform; (void)native_display; (void)attrib_list;
-  WARN_STUBBED();
-  return EGL_NO_DISPLAY;
+  WARN_UNTESTED(); // ... though eglGetPlatformDisplayEXT was
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
+  GLS_SET_COMMAND_PTR(c, eglGetPlatformDisplay);
+  c->platform = platform;
+  if (gls_wire_native_display(native_display, &c->native_display) < 0)
+    return EGL_NO_DISPLAY; // but no error, spec says
+  c->has_attribs = has_attribs;
+  GLS_SEND_PACKET(eglGetPlatformDisplay);
+
+  GLS_WAIT_SET_RET_PTR(ret, eglGetPlatformDisplay);
+  GLS_RELEASE_RETURN_RET(EGLDisplay, ret, display);
 }
 
 GLS_DEF_CORE_API(EGLSurface, eglCreatePlatformWindowSurface, EGLDisplay dpy, EGLConfig config, void *native_window, const EGLAttrib *attrib_list)
@@ -719,6 +728,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglWaitSync, EGLDisplay dpy, EGLSync sync, EGLint f
 // Extensions
 
 #ifdef EGL_EXT_platform_base
+// near-dup of eglGetPlatformDisplay
 EGLAPI EGLDisplay EGLAPIENTRY __GLS_eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attrib_list)
 {
   SEND_ATTRIB_DATA(has_attribs, attrib_list);

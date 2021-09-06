@@ -439,6 +439,34 @@ static void glse_eglGetCurrentContext(gls_command_t* buf)
   GLSE_SEND_RET(ret, eglGetCurrentContext);
 }
 
+// EGL 1.5
+
+void glse_eglGetPlatformDisplay(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, eglGetPlatformDisplay);
+  GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
+  EGLDisplay display;
+
+  switch (c->native_display) {
+  case GLS_EGL_NATIVE_DISPLAY_DEFAULT:
+    display = eglGetPlatformDisplay(c->platform,
+                                    GLS_EGL_NATIVE_DISPLAY_DEFAULT,
+                                    dat);
+    break;
+  case GLS_EGL_NATIVE_DISPLAY_NATIVE:
+    display = eglGetPlatformDisplay(c->platform,
+                                    glsec_global.gc->x.display,
+                                    dat);
+    break;
+  default:
+    display = EGL_NO_DISPLAY;
+  }
+
+  GLSE_SET_RET_PTR(ret, eglGetPlatformDisplay);
+  ret->display = (uint64_t)display;
+  GLSE_SEND_RET(ret, eglGetPlatformDisplay);
+}
+
 // EGL_EXT_platform_base
 
 void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
@@ -566,7 +594,7 @@ int egl_executeCommand(gls_command_t* c)
   //CASE_EXEC_CMD(eglGetSyncAttrib);
   //CASE_EXEC_CMD(eglCreateImage);
   //CASE_EXEC_CMD(eglDestroyImage);
-  //CASE_EXEC_CMD(eglGetPlatformDisplay);
+  CASE_EXEC_CMD(eglGetPlatformDisplay);
   //CASE_EXEC_CMD(eglCreatePlatformPixmapSurface);
   //CASE_EXEC_CMD(eglCreatePlatformWindowSurface);
   //CASE_EXEC_CMD(eglWaitSync);
