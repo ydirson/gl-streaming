@@ -25,10 +25,14 @@ platforms.
 
 This is still a work in progress, notably:
 
-* In addition to small test programs (eg. es2gears, es2tri, some
-  glmark2 benchmarks), some real-life applications do properly
-  display, although a number of APIs are still stubbed, and some are
-  known to have bugs -- very few are usable, read on for details.
+* Basic test programs (eg. [EGL-X11/ES2 programs
+  mesa-demos](https://gitlab.freedesktop.org/mesa/demos), [examples
+  from the book "OpenGL ES 2.0 Programming
+  Guide"](https://github.com/danginsburg/opengles-book-samples.git))
+  as well as the more sophisticated [glmark2
+  benchmarks](https://github.com/glmark2/glmark2/) will run (with the
+  notable exception of those depending on the `GL_OES_mapbuffer`
+  extension).
 
   Note some programs need fixes:
   * glmark2 2021.02 would segfault, for which they have a fix in
@@ -36,29 +40,44 @@ This is still a work in progress, notably:
   * es2tri requires [removal of an abusive
     assertion](https://gitlab.freedesktop.org/mesa/demos/-/merge_requests/46)
 
+* Some real-life applications were tested with some success, although
+  a number of APIs are still stubbed, and some are known to have bugs
+  -- read on for details.
+
 * The client still creates a window on its own, which is used for
   interaction with the app (input events, window resize, etc).  When
   running locally (ie. GPU server and app on the same display) it gets
-  quite awkward, as both windows must share the same screen.
+  quite awkward, as both windows must share the same screen.  However,
+  resizing the local window will allow some apps to be used, at the
+  cost of using a smaller window so they both fit into the screen, as
+  long as the "input window" keeps the focus.  This can be used to
+  play eg:
 
-  Applications not making heavy use of the mouse, and drawing their
-  own mouse cursor. (eg. [Blobby Volley
-  2](http://sourceforge.net/projects/blobby/), [Chocolate
-  Doom](http://chocolate-doom.org/)) can be used to some extent as
-  long as the "input window" keeps the focus.
+  * [Blobby Volley 2](http://sourceforge.net/projects/blobby/)
+  * [Gigalomania](http://gigalomania.sourceforge.net)
 
-  Applications making real use of the mouse
-  (eg. [Gigalomania](http://gigalomania.sourceforge.net), [Planet
-  Blupi](http://blupi.org)) are much harder to use, as the user will
-  want to keep the "input" window focused, and possibly its entire
-  surface reachable by the mouse pointer, while also seeing the entire
-  render window.  It gets even worse with apps that do not draw their
-  own mouse cursor.
+  This trick can be extended to apps that don't use the mouse at all.
+  In this category we find:
+
+  * [Chocolate Doom](http://chocolate-doom.org/))
 
   Both application classes can be easier to use remotely.
 
+  However, applications making real use of the mouse and not drawing
+  their own mouse cursor (eg. [Planet Blupi](http://blupi.org)) cannot
+  realistically be used yet.
+
+* Application relying on SDL2 to get an OpenGL context (eg. Blobby
+  Vlolley, Gigalomania, Chocolate Doom) need an additional trick, as
+  the SDL2 library shipped in most Linux distributions will prefer the
+  use of Desktop OpenGL.  SDL2 ought to obey
+  `SDL_RENDER_DRIVER=opengles2` in the environment but apparently
+  doesn't, so for now we have to build our own libsdl2 without desktop
+  GL support.
+
 * APIs for EGL 1.4 are present, though some 1.1 and 1.2 APIs are not
-  even stubbed.  1.4 is advertised as a hack for glmark2.
+  even stubbed.  Version 1.0 is advertised, even though it is not
+  fully implemented yet.
 
 * There are security concerns, notably:
   * usage of pointer types in the protocol must be cured
@@ -90,8 +109,8 @@ those items or add their own in the picture.
   * [ ] add extension support
   * [ ] solve structural security issues
     * [x] use separate processes to isolate clients' contexts on server
-    * [ ] pointers in protocol
-    * [ ] connection authorization
+    * [ ] remove pointers from protocol
+    * [ ] add some connection authorization
   * [ ] implement a satisfying window/input experience
     * [x] on-demand window, properly sized
     * [ ] no extra client-side window

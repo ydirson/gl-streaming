@@ -102,6 +102,7 @@
         all of them
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
   - [ ] ensure non-modification of output params on error (API compliance)
+  - [ ] proper *GetError semantics
   - [ ] don't use GLint in protocol? (specified as platform-dependant, even though
         Mesa uses 32bit even on 64bit platforms)
   - [x] apitrace loops, requesting GLES3 items with glGetIntegerv
@@ -111,7 +112,7 @@
     - [ ] non-default EGLDisplay handling
     - [x] non-stub context management
   - [ ] EGL extension support
-    - [ ] proper GL_OES_mapbuffer implementation
+  - [ ] proper GL_OES_mapbuffer implementation
   - [ ] separate EGL and GLSclient libs out of libGLES2
   - [ ] full GLES2 core
   - [ ] GLES2 extension support
@@ -120,14 +121,14 @@
   - [ ] GLX ?
   - [ ] Vulkan !
 - [x] update README
-- [ ] consistent coding style
+- [x] consistent coding style
 
 ## medium priority
 
 - [ ] regression testing
 - performance
   - [ ] bench
-  - [ ] avoid repeated eglGetCurrentDisplay() calls in serveregl
+  - [x] avoid repeated eglGetCurrentDisplay() calls in serveregl
 - [ ] consider migrating this inside Mesa and upstreaming
 
 ## low priority
