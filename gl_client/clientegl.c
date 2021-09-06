@@ -41,24 +41,27 @@ static int gls_wire_native_display(EGLNativeDisplayType native_display,
   return 0;
 }
 
-static inline unsigned SEND_ATTRIB_DATA(const EGLint* attrib_list)
-{
-  if (!attrib_list || attrib_list[0] == EGL_NONE) return 0;
-  unsigned num_attribs;
-  unsigned data_size;
-  for (num_attribs = 0; attrib_list[2 * num_attribs] != EGL_NONE; num_attribs++);
-  data_size = (num_attribs * 2 + 1) * sizeof(EGLint);
-  assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));
-  memcpy(glsc_global.pool.tmp_buf.buf, attrib_list, data_size);
-  gls_cmd_send_data(data_size, glsc_global.pool.tmp_buf.buf);
-  return num_attribs;
-}
+#define SEND_ATTRIB_DATA(FLAG, ATTRIB_LIST)                             \
+  uint32_t FLAG;                                                        \
+  if (!ATTRIB_LIST || ATTRIB_LIST[0] == EGL_NONE) {                     \
+    FLAG = 0;                                                           \
+  } else {                                                              \
+    unsigned num_attribs;                                               \
+    unsigned data_size;                                                 \
+    for (num_attribs = 0; ATTRIB_LIST[2 * num_attribs] != EGL_NONE; num_attribs++); \
+    data_size = (num_attribs * 2 + 1) * sizeof(EGLint);                 \
+    assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));                 \
+    memcpy(glsc_global.pool.tmp_buf.buf, ATTRIB_LIST, data_size);       \
+    gls_cmd_send_data(data_size, glsc_global.pool.tmp_buf.buf);         \
+    FLAG = (num_attribs != 0);                                          \
+  }                                                                     \
+  //
 
 // EGL 1.0
 
 GLS_DEF_CORE_API(EGLBoolean, eglChooseConfig,  EGLDisplay dpy, const EGLint* attrib_list, EGLConfig* configs, EGLint config_size, EGLint* num_config )
 {
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglChooseConfig);
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
@@ -88,7 +91,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglCopyBuffers,  EGLDisplay dpy, EGLSurface surface
 
 GLS_DEF_CORE_API(EGLContext, eglCreateContext,  EGLDisplay dpy, EGLConfig config, EGLContext share_list, const EGLint* attrib_list )
 {
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglCreateContext);
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
@@ -102,7 +105,7 @@ GLS_DEF_CORE_API(EGLContext, eglCreateContext,  EGLDisplay dpy, EGLConfig config
 
 GLS_DEF_CORE_API(EGLSurface, eglCreatePbufferSurface,  EGLDisplay dpy, EGLConfig config, const EGLint* attrib_list )
 {
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglCreatePbufferSurface);
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
@@ -116,7 +119,7 @@ GLS_DEF_CORE_API(EGLSurface, eglCreatePbufferSurface,  EGLDisplay dpy, EGLConfig
 GLS_DEF_CORE_API(EGLSurface, eglCreatePixmapSurface,  EGLDisplay dpy, EGLConfig config, NativePixmapType pixmap, const EGLint* attrib_list )
 {
 #if 0
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglCreatePixmapSurface);
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
@@ -166,7 +169,7 @@ GLS_DEF_CORE_API(EGLSurface, eglCreateWindowSurface,  EGLDisplay dpy, EGLConfig 
     }
   }
 
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglCreateWindowSurface);
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
@@ -718,7 +721,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglWaitSync, EGLDisplay dpy, EGLSync sync, EGLint f
 #ifdef EGL_EXT_platform_base
 EGLAPI EGLDisplay EGLAPIENTRY __GLS_eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attrib_list)
 {
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglGetPlatformDisplayEXT);
   c->platform = platform;
   if (gls_wire_native_display(native_display, &c->native_display) < 0)
@@ -741,7 +744,7 @@ EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformWindowSurfaceEXT (EGLDispla
     }
   }
 
-  uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
+  SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglCreatePlatformWindowSurfaceEXT);
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
