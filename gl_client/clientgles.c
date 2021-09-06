@@ -516,13 +516,14 @@ static void defered_vertex_attrib_pointer(int i, int count)
 
 GL_APICALL void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count)
 {
-  int vbo_bkp = buffer_objs.vbo;
+  GLuint vbo_bkp = buffer_objs.vbo;
   int i;
   if (!buffer_objs.vbo)
     WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
   for (i = 0; i < 16; i++)
     defered_vertex_attrib_pointer(i, first + count);
-  glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
+  if (vbo_bkp != buffer_objs.vbo)
+    glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
 
   GLS_SET_COMMAND_PTR(c, glDrawArrays);
   c->mode = mode;
@@ -538,8 +539,8 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 {
   uint32_t sizeoftype = _type_bytesize(type);
 
-  int vbo_bkp = buffer_objs.vbo;
-  int ibo_bkp = buffer_objs.ibo;
+  GLuint vbo_bkp = buffer_objs.vbo;
+  GLuint ibo_bkp = buffer_objs.ibo;
   int i;
   if (!buffer_objs.vbo)
     WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
@@ -562,8 +563,10 @@ GL_APICALL void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum t
 
   GLS_SEND_PACKET(glDrawElements);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_bkp);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo_bkp);
+  if (ibo_bkp != buffer_objs.ibo)
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_bkp);
+  if (vbo_bkp != buffer_objs.vbo)
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_bkp);
 
   // FIXME should free VBO's and IBO emulating client arrays
 }
