@@ -59,7 +59,8 @@ This is still a work in progress, notably:
   This trick can be extended to apps that don't use the mouse at all.
   In this category we find:
 
-  * [Chocolate Doom](http://chocolate-doom.org/))
+  * [Chocolate Doom](http://chocolate-doom.org/)
+  * [prBoom+](http://prboom-plus.sourceforge.net/)
 
   Both application classes can be easier to use remotely.
 
@@ -74,6 +75,9 @@ This is still a work in progress, notably:
   `SDL_RENDER_DRIVER=opengles2` in the environment but apparently
   doesn't, so for now we have to build our own libsdl2 without desktop
   GL support.
+
+* Unfortunately very few 3D applications for the Desktop use GLES2.
+  Please open a ticket if have one at hand.
 
 * APIs for EGL 1.4 are present, though some 1.1 and 1.2 APIs are not
   even stubbed.  Version 1.0 is advertised, even though it is not
@@ -125,10 +129,18 @@ Very few [preliminary benchmarks](benchmarks/) were run.
 
 # Other sources of information
 
+* [Home page](https://github.com/ydirson/gl-streaming)
 * [Usage informations](doc/USAGE.md), though still a bit terse
 * [An overview of inner workings](doc/INTERNALS.md)
 * [Historical information](doc/README.shodruky-rhyammer.md) from
   author of the original project, including a nice visual explanation
+
+
+# Reporting bugs
+
+If you find a bug, wish to report success/failure with a given app, or
+submit any other relevant item,
+see the [project issues on Github](https://github.com/ydirson/gl-streaming/issues).
 
 
 # Thanks
