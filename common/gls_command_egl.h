@@ -203,10 +203,13 @@ typedef struct
 } gls_ret_eglGetCurrentSurface_t;
 
 
+#define GLS_EGL_NATIVE_DISPLAY_DEFAULT 0
+#define GLS_EGL_NATIVE_DISPLAY_NATIVE  1
+
 typedef struct
 {
   GLSCOMMAND_FIELDS();
-  uint64_t native_display;
+  uint32_t native_display;
 } gls_eglGetDisplay_t;
 
 typedef struct
@@ -226,6 +229,19 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint32_t error;
 } gls_ret_eglGetError_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  char procname[];
+} gls_eglGetProcAddress_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int success;
+} gls_ret_eglGetProcAddress_t;
 
 
 typedef struct

@@ -43,7 +43,6 @@ extern const char* var_file_vertex_shader;
 
 typedef struct
 {
-  EGLDisplay display;
 #ifdef USE_X11
   struct
   {

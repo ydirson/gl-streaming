@@ -145,6 +145,15 @@ errors.
 
 For lack of a generic error code, we often use EGL_BAD_ACCESS.
 
+### `eglGetProcAddress`
+
+What a client app wants is to get a callable function pointer, so we
+could just check the availability of an implementation in GLS using
+`dlsym`.  However there are reasons to make the call on the server
+first:
+- we don't want to return a function pointer if the server does not
+  implement it
+
 ### `eglCreateWindowSurface`
 
 GLS cannot know which window is going to be used for rendering, before

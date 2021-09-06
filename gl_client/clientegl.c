@@ -11,10 +11,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+static struct {
+  EGLNativeDisplayType native_display;
 #if defined(USE_X11)
-Display* xDisplay;
-Window xWindow;
+  Window x_window;
 #endif
+} egl_clt_context;
+
+static int gls_wire_native_display(EGLNativeDisplayType native_display,
+                                   uint32_t* wire_native_display_p)
+{
+  if (native_display == EGL_DEFAULT_DISPLAY) {
+    *wire_native_display_p = GLS_EGL_NATIVE_DISPLAY_DEFAULT;
+  } else {
+    if (egl_clt_context.native_display && egl_clt_context.native_display != native_display) {
+      fprintf(stderr, "GLS ERROR: only support one native display\n");
+      return -1;
+    }
+    egl_clt_context.native_display = native_display;
+    *wire_native_display_p = GLS_EGL_NATIVE_DISPLAY_NATIVE;
+  }
+  return 0;
+}
 
 static inline unsigned SEND_ATTRIB_DATA(const EGLint* attrib_list)
 {
@@ -113,15 +131,15 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface( EGLDisplay dpy, EGLConfig 
 {
   // send information about local window so server can recreate it
 #if defined(USE_X11)
-  if (xWindow && xWindow != window) {
+  if (egl_clt_context.x_window && egl_clt_context.x_window != window) {
     fprintf(stderr, "GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
     client_egl_error = EGL_BAD_NATIVE_WINDOW;
     return EGL_NO_SURFACE;
   }
 
-  xWindow = window;
+  egl_clt_context.x_window = window;
   XWindowAttributes xWindowAttrs;
-  if (!XGetWindowAttributes(xDisplay, xWindow, &xWindowAttrs)) {
+  if (!XGetWindowAttributes(egl_clt_context.native_display, egl_clt_context.x_window, &xWindowAttrs)) {
     fprintf(stderr, "GLS ERROR: XGetWindowAttributes failed\n");
     client_egl_error = EGL_BAD_NATIVE_WINDOW;
     return EGL_NO_SURFACE;
@@ -215,15 +233,9 @@ EGLAPI EGLSurface EGLAPIENTRY eglGetCurrentSurface(EGLint readdraw)
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(NativeDisplayType native_display)
 {
-#ifdef USE_X11
-  if (xDisplay && xDisplay != native_display)
-    fprintf(stderr, "GLS WARNING: eglGetDisplay: changing X11 Display\n");
-  xDisplay = native_display;
-#endif
   GLS_SET_COMMAND_PTR(c, eglGetDisplay);
-  if (native_display != EGL_DEFAULT_DISPLAY)
-    fprintf(stderr, "GLS WARNING: eglGetDisplay: native_display != EGL_DEFAULT_DISPLAY, forcing EGL_DEFAULT_DISPLAY\n");
-  c->native_display = (uint64_t)EGL_DEFAULT_DISPLAY;
+  if (gls_wire_native_display(native_display, &c->native_display) < 0)
+    return EGL_NO_DISPLAY; // but no error, spec says
   GLS_SEND_PACKET(eglGetDisplay);
 
   GLS_WAIT_SET_RET_PTR(ret, eglGetDisplay);
@@ -244,9 +256,34 @@ EGLAPI EGLint EGLAPIENTRY eglGetError( void )
 
 EGLAPI __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress( const char* procname )
 {
-  // Do not stream this command
-  // FIXME: should query and return NULL when the server does
-  return dlsym(dlopen(NULL, RTLD_LOCAL), procname);
+  size_t procname_len = strlen(procname);
+  if (sizeof(gls_eglGetProcAddress_t) + procname_len + 1 >
+      glsc_global.pool.out_buf.size) {
+    fprintf(stderr, "GLS ERRROR: %s: procname '%s' too long for buffer\n",
+            __FUNCTION__, procname);
+    return NULL;
+  }
+
+  GLS_SET_COMMAND_PTR(c, eglGetProcAddress);
+  _GLS_VARIABLE_PAYLOAD(c, procname, procname_len, return NULL);
+  GLS_SEND_PACKET(eglGetProcAddress);
+  GLS_WAIT_SET_RET_PTR(ret, eglGetProcAddress);
+  void* proc;
+  if (ret) {
+    proc = dlsym(NULL, procname);
+    // WARNING: make sure this does not result in a dlsym tail-cail, see
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66826
+    // This conditional error is sufficient.
+    if (!proc)
+      fprintf(stderr, "GLS WARNING: %s: %s available on server but not supported (%s)\n",
+              __FUNCTION__, procname, dlerror());
+  } else {
+    // hide the symbol even if GLS supports it
+    proc = NULL;
+  }
+
+  GLS_RELEASE_RET();
+  return proc;
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglInitialize( EGLDisplay dpy, EGLint* major, EGLint* minor )
@@ -583,4 +620,77 @@ EGLAPI EGLContext EGLAPIENTRY eglGetCurrentContext(void)
 
   GLS_WAIT_SET_RET_PTR(ret, eglGetCurrentContext);
   GLS_RELEASE_RETURN_RET(EGLContext, ret, context);
+}
+
+
+// EGL 1.5
+
+EGLAPI EGLSync EGLAPIENTRY eglCreateSync (EGLDisplay dpy, EGLenum type, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)type; (void)attrib_list;
+  WARN_STUBBED();
+  return  EGL_NO_SYNC;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglDestroySync (EGLDisplay dpy, EGLSync sync)
+{
+  (void)dpy; (void)sync;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLint EGLAPIENTRY eglClientWaitSync (EGLDisplay dpy, EGLSync sync, EGLint flags, EGLTime timeout)
+{
+  (void)dpy; (void)sync; (void)flags; (void)timeout;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglGetSyncAttrib (EGLDisplay dpy, EGLSync sync, EGLint attribute, EGLAttrib *value)
+{
+  (void)dpy; (void)sync; (void)attribute; (void)value;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLImage EGLAPIENTRY eglCreateImage (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)ctx; (void)target; (void)buffer; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_IMAGE;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglDestroyImage (EGLDisplay dpy, EGLImage image)
+{
+  (void)dpy; (void)image;
+  WARN_STUBBED();
+  return EGL_FALSE;
+}
+
+EGLAPI EGLDisplay EGLAPIENTRY eglGetPlatformDisplay (EGLenum platform, void *native_display, const EGLAttrib *attrib_list)
+{
+  (void)platform; (void)native_display; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_DISPLAY;
+}
+
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurface (EGLDisplay dpy, EGLConfig config, void *native_window, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_window; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+
+EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformPixmapSurface (EGLDisplay dpy, EGLConfig config, void *native_pixmap, const EGLAttrib *attrib_list)
+{
+  (void)dpy; (void)config; (void)native_pixmap; (void)attrib_list;
+  WARN_STUBBED();
+  return EGL_NO_SURFACE;
+}
+
+EGLAPI EGLBoolean EGLAPIENTRY eglWaitSync (EGLDisplay dpy, EGLSync sync, EGLint flags)
+{
+  (void)dpy; (void)sync; (void)flags;
+  WARN_STUBBED();
+  return EGL_FALSE;
 }

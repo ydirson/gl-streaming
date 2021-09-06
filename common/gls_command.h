@@ -270,7 +270,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glUniformMatrix4fv)                       \
     X(glUseProgram)                             \
     X(glValidateProgram)                        \
-    X(glVertexAttribFloat)                      \
+    X(glVertexAttrib1f)                         \
+    X(glVertexAttrib2f)                         \
+    X(glVertexAttrib3f)                         \
+    X(glVertexAttrib4f)                         \
+    X(glVertexAttrib1fv)                        \
+    X(glVertexAttrib2fv)                        \
+    X(glVertexAttrib3fv)                        \
+    X(glVertexAttrib4fv)                        \
     X(glVertexAttribPointer)                    \
     X(glViewport)                               \
   //

@@ -49,30 +49,30 @@ typedef struct
   int is_debug;
 } gls_context_t;
 
-
 #define GLS_TMP_BUFFER_SIZE 2097152
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
 #define GLS_TIMEOUT_SEC 3.0f
 
-// gls_glFunctionName_t *c = (gls_glFunctionName_t *)glsc_global.pool.out_buf.buf;
-// c->cmd = GLSC_glFunctionName;
-// c->cmd = sizeof(gls_glFunctionName_t);
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
+  _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME)
+#define _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, CMD)                        \
   gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.pool.out_buf.buf; \
-  PTR->cmd = GLSC_##FUNCNAME;                                           \
+  PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
     fprintf(stderr, "gls debug: handling %s (cmd=0x%x)\n",              \
-            #FUNCNAME, GLSC_##FUNCNAME);                                \
+            #FUNCNAME, CMD);                                            \
   //
 
 #define GLS_ENOUGH_SIZE(PTR) (PTR->cmd_size <= GLS_OUT_BUFFER_SIZE)
 #define GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE)                          \
+  _GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE, return)
+#define _GLS_VARIABLE_PAYLOAD(PTR, FIELD, SIZE, RETURN_STMT)            \
   do {                                                                  \
     PTR->cmd_size += SIZE;                                              \
     if (!GLS_ENOUGH_SIZE(PTR)) {                                        \
       fprintf(stderr, "GLS ERROR: %s data too large\n", __FUNCTION__);  \
-      return;                                                           \
+      RETURN_STMT;                                                      \
     }                                                                   \
     memcpy(PTR->FIELD, FIELD, SIZE);                                    \
   } while (0)                                                           \
