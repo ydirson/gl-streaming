@@ -51,10 +51,14 @@ This is still a work in progress, notably:
   resizing the local window will allow some apps to be used, at the
   cost of using a smaller window so they both fit into the screen, as
   long as the "input window" keeps the focus.  This can be used to
-  play eg:
+  use eg:
 
   * [Blobby Volley 2](http://sourceforge.net/projects/blobby/)
   * [Gigalomania](http://gigalomania.sourceforge.net)
+  * [Weston](https://github.com/wayland-project/weston) (to run
+    wayland apps from the builtin terminal, the native EGL/GLES2 libs
+    must be used -- remove the path to GLS libs from your
+    `LD_LIBRARY_PATH`)
 
   This trick can be extended to apps that don't use the mouse at all.
   In this category we find:

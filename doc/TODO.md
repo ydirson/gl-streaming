@@ -100,6 +100,10 @@
   - [x] server leaks non-freed resources
   - [ ] let eglQuerySurface do all size queries except for the window one, don't stub
         all of them
+  - [ ] window surface creation always creates a new server window
+        even (weston window resizing results in many server windows
+        created)
+  - [ ] `glmark2-es2-wayland` in weston segfaults
   - [.] filter eglQueryString output for EGL_EXTENSIONS and EGL_CLIENT_APIS
   - [ ] ensure non-modification of output params on error (API compliance)
   - [ ] proper *GetError semantics
@@ -107,6 +111,12 @@
         Mesa uses 32bit even on 64bit platforms)
   - [x] apitrace loops, requesting GLES3 items with glGetIntegerv
 - improve coverage
+  - useful to weston
+    - [ ] `GL_EXT_unpack_subimage`, needs special alignment handling
+    - [ ] `EGL_EXT_buffer_age`
+    - [ ] `EGL_EXT_swap_buffers_with_damage`, `EGL_KHR_swap_buffers_with_damage`
+    - [ ] `EGL_ANDROID_native_fence_sync`
+    - [ ] `EGL_KHR_surfaceless_context`
   - [ ] full EGL core
     - [x] non-stub config handling
     - [ ] non-default EGLDisplay handling
