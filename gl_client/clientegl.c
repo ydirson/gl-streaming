@@ -134,26 +134,36 @@ GLS_DEF_CORE_API(EGLSurface, eglCreatePixmapSurface,  EGLDisplay dpy, EGLConfig 
 #endif
 }
 
-GLS_DEF_CORE_API(EGLSurface, eglCreateWindowSurface,  EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint* attrib_list )
+// send information about local window so server can recreate it
+static EGLint gls_request_window(NativeWindowType window)
 {
-  // send information about local window so server can recreate it
 #if defined(USE_X11)
   if (egl_clt_context.x_window && egl_clt_context.x_window != window) {
     fprintf(stderr, "GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
-    client_egl_error = EGL_BAD_NATIVE_WINDOW;
-    return EGL_NO_SURFACE;
+    return EGL_BAD_NATIVE_WINDOW;
   }
 
   egl_clt_context.x_window = window;
   XWindowAttributes xWindowAttrs;
   if (!XGetWindowAttributes(egl_clt_context.native_display, egl_clt_context.x_window, &xWindowAttrs)) {
     fprintf(stderr, "GLS ERROR: XGetWindowAttributes failed\n");
-    client_egl_error = EGL_BAD_NATIVE_WINDOW;
-    return EGL_NO_SURFACE;
+    return EGL_BAD_NATIVE_WINDOW;
   }
 
   gls_cmd_CREATE_WINDOW(xWindowAttrs.width, xWindowAttrs.height);
 #endif
+  return EGL_SUCCESS;
+}
+
+GLS_DEF_CORE_API(EGLSurface, eglCreateWindowSurface,  EGLDisplay dpy, EGLConfig config, NativeWindowType window, const EGLint* attrib_list )
+{
+  {
+    EGLint err = gls_request_window(window);
+    if (err != EGL_SUCCESS) {
+      client_egl_error = err;
+      return EGL_NO_SURFACE;
+    }
+  }
 
   uint32_t has_attribs = SEND_ATTRIB_DATA(attrib_list);
   GLS_SET_COMMAND_PTR(c, eglCreateWindowSurface);
