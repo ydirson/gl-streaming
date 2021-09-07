@@ -30,17 +30,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fastlog.h"
 
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include <alloca.h>
 #include <string.h>
 
 static const char* GLS_GLES_EXTENSIONS[] =
   {
+   "GL_OES_EGL_image",               // 23
    "GL_OES_depth_texture",           // 43
    "GL_EXT_texture_format_BGRA8888", // 51
+   "GL_OES_EGL_image_external",      // 87
    "GL_OES_depth_texture_cube_map",  // 136
    NULL,
   };
+
+static struct {
+  // GL_OES_EGL_image
+  PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES;
+  PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC glEGLImageTargetRenderbufferStorageOES;
+} gles_context;
+
+// GLES 2.0
 
 static void glse_glActiveTexture(gls_command_t* buf)
 {
@@ -820,11 +831,33 @@ static void glse_glViewport(gls_command_t* buf)
   glViewport(c->x, c->y, c->width, c->height);
 }
 
+
+// GL_OES_EGL_image
+
+static void glse_glEGLImageTargetTexture2DOES(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glEGLImageTargetTexture2DOES);
+
+  if (!gles_context.glEGLImageTargetTexture2DOES) {
+    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+  }
+  gles_context.glEGLImageTargetTexture2DOES(c->target, (GLeglImageOES)c->image);
+}
+
+static void glse_glEGLImageTargetRenderbufferStorageOES(gls_command_t* buf)
+{
+  GLSE_SET_COMMAND_PTR(c, glEGLImageTargetRenderbufferStorageOES);
+
+  if (!gles_context.glEGLImageTargetRenderbufferStorageOES) {
+    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+  }
+  gles_context.glEGLImageTargetRenderbufferStorageOES(c->target, (GLeglImageOES)c->image);
+}
+
 // eglGetProcAddress support
 
 void glse_GetGlesProcAddress(const char* procname, void* proc)
 {
-  (void)procname; (void)proc;
   if (0) {}
 #define X(FUNC)                                 \
   else if (strcmp(procname, #FUNC) == 0)        \
@@ -991,6 +1024,9 @@ int gles_executeCommand(gls_command_t* c)
     CASE_EXEC_CMD(glVertexAttribPointer);
     CASE_EXEC_CMD(glViewport);
 
+    // GL_OES_EGL_image
+    CASE_EXEC_CMD(glEGLImageTargetTexture2DOES);
+    CASE_EXEC_CMD(glEGLImageTargetRenderbufferStorageOES);
   default:
     return FALSE;
   }

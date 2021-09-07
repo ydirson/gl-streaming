@@ -939,6 +939,21 @@ typedef struct
  * GLES2 extensions
  */
 
+// GL_OES_EGL_image
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t target;
+  int64_t image;
+} gls_glEGLImageTargetTexture2DOES_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t target;
+  int64_t image;
+} gls_glEGLImageTargetRenderbufferStorageOES_t;
 
 
 /*

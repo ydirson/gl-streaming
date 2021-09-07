@@ -1662,6 +1662,26 @@ GLS_DEF_CORE_API(void, glViewport, GLint x, GLint y, GLsizei width, GLsizei heig
  * extension commands
  */
 
+// GL_OES_EGL_image
+
+GL_APICALL void GL_APIENTRY __GLS_glEGLImageTargetTexture2DOES (GLenum target, GLeglImageOES image)
+{
+  WARN_UNTESTED();
+  GLS_SET_COMMAND_PTR(c, glEGLImageTargetTexture2DOES);
+  c->target = target;
+  c->image = (uint64_t)image;
+  GLS_SEND_PACKET(glEGLImageTargetTexture2DOES);
+}
+
+GL_APICALL void GL_APIENTRY __GLS_glEGLImageTargetRenderbufferStorageOES (GLenum target, GLeglImageOES image)
+{
+  WARN_UNTESTED();
+  GLS_SET_COMMAND_PTR(c, glEGLImageTargetRenderbufferStorageOES);
+  c->target = target;
+  c->image = (uint64_t)image;
+  GLS_SEND_PACKET(glEGLImageTargetRenderbufferStorageOES);
+}
+
 
 /*
  * eglGetProcAddress support
