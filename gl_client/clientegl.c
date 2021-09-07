@@ -200,7 +200,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigs( EGLDisplay dpy, EGLConfig* configs,
 {
   GLS_SET_COMMAND_PTR(c, eglGetConfigs);
   c->dpy = (uint64_t)dpy;
-  c->config_size = config_size;
+  c->config_size = configs ? config_size : 0;
   GLS_SEND_PACKET(eglGetConfigs);
 
   GLS_WAIT_SET_RET_PTR(ret, eglGetConfigs);

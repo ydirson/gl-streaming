@@ -168,7 +168,9 @@ static void glse_eglGetConfigs(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglGetConfigs);
   GLSE_SET_RET_PTR(ret, eglGetConfigs);
 
-  EGLBoolean success = eglGetConfigs((EGLDisplay)c->dpy, (EGLConfig*)ret->configs, c->config_size, &ret->num_config);
+  EGLBoolean success = eglGetConfigs((EGLDisplay)c->dpy,
+                                     c->config_size ? (EGLConfig*)ret->configs : NULL,
+                                     c->config_size, &ret->num_config);
 
   ret->success = success;
   GLSE_SEND_RET(ret, eglGetConfigs);
