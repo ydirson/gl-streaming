@@ -4,6 +4,7 @@
 #include "glclient.h"
 
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -65,6 +66,8 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
       return 1;
     case GL_LUMINANCE_ALPHA:
       return 2;
+    case GL_BGRA_EXT:
+      return 4;
     default:
       fprintf(stderr, "GLS WARNING: unhandled pixel format %x\n", format);
       return 4;

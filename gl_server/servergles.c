@@ -36,8 +36,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const char* GLS_GLES_EXTENSIONS[] =
   {
-   "GL_OES_depth_texture",          // 43
-   "GL_OES_depth_texture_cube_map", // 136
+   "GL_OES_depth_texture",           // 43
+   "GL_EXT_texture_format_BGRA8888", // 51
+   "GL_OES_depth_texture_cube_map",  // 136
    NULL,
   };
 
