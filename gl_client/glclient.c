@@ -53,7 +53,7 @@ static float get_diff_time(struct timeval start, struct timeval end)
 static int gls_init()
 {
   if (GLS_VERSION & 1)
-    fprintf(stderr, "WARNING: this is a development GLS protocol, "
+    fprintf(stderr, "GLS WARNING: this is a development GLS protocol, "
             "make sure client and server match\n");
 
   const char* env_isDebugStr = getenv("GLS_DEBUG");
@@ -66,7 +66,7 @@ static int gls_init()
   if (env_isDebug == 0 || env_isDebug == 1) {
     glsc_global.is_debug = env_isDebug;
   } else {
-    fprintf(stderr, "gls error: GLS_DEBUG variable must be 0 or 1\n");
+    fprintf(stderr, "GLS ERROR: GLS_DEBUG variable must be 0 or 1\n");
     exit(EXIT_FAILURE);
     return FALSE;
   }

@@ -60,7 +60,7 @@ typedef struct
   PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
-    fprintf(stderr, "gls debug: handling %s (cmd=0x%x)\n",              \
+    fprintf(stderr, "GLS DEBUG: handling %s (cmd=0x%x)\n",              \
             #FUNCNAME, CMD);                                            \
   //
 

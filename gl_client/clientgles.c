@@ -40,7 +40,7 @@ static unsigned _type_bytesize(GLenum type)
   case GL_FIXED: return sizeof(GLfixed);
   case GL_FLOAT: return sizeof(GLfloat);
   default:
-    fprintf(stderr, "%s: unhandled data type %x\n", __FUNCTION__, type);
+    fprintf(stderr, "GLS WARNING: %s: unhandled data type %x\n", __FUNCTION__, type);
     assert(0);
   }
 }
@@ -61,7 +61,7 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
     case GL_LUMINANCE_ALPHA:
       return 2;
     default:
-      fprintf(stderr, "WARNING: unhandled pixel format %x\n", format);
+      fprintf(stderr, "GLS WARNING: unhandled pixel format %x\n", format);
       return 4;
     }
   case GL_UNSIGNED_SHORT_5_6_5:
@@ -71,7 +71,7 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
   case GL_UNSIGNED_SHORT_5_5_5_1:
     return 2;
   default:
-    fprintf(stderr, "WARNING: unhandled pixel type %x\n", type);
+    fprintf(stderr, "GLS WARNING: unhandled pixel type %x\n", type);
     return 4;
   }
 }
