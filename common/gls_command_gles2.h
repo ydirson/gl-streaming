@@ -936,8 +936,24 @@ typedef struct
 
 
 /*
- * OES / EXT extension commands
+ * GLES2 extensions
  */
+
+// GL_OES_EGL_image
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t target;
+  int64_t image;
+} gls_glEGLImageTargetTexture2DOES_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  int32_t target;
+  int64_t image;
+} gls_glEGLImageTargetRenderbufferStorageOES_t;
 
 
 /*
@@ -946,22 +962,4 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint32_t ;
 } gls__t;
-
-typedef void             GLvoid;
-typedef char             GLchar;
-typedef unsigned int     GLenum;
-typedef unsigned char    GLboolean;
-typedef unsigned int     GLbitfield;
-typedef signed   char    GLbyte;
-typedef short            GLshort;
-typedef int              GLint;
-typedef int              GLsizei;
-typedef unsigned char    GLubyte;
-typedef unsigned short   GLushort;
-typedef unsigned int     GLuint;
-typedef float            GLfloat;
-typedef float            GLclampf;
-typedef int32_t          GLfixed;
-typedef signed long int  GLintptr;
-typedef signed long int  GLsizeiptr;
  */

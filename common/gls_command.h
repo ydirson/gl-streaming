@@ -46,10 +46,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // lack of separator in the lists
 #define EMPTY()
 
+// documentation helper
+#define COMMENT(TEXT)
+
 #define GLS_COMMANDS()                          \
   EMPTY()                                       \
     GLS_GLS_COMMANDS()                          \
     GLS_EGL_COMMANDS()                          \
+    GLS_EGL_EXT_COMMANDS()                      \
     GLS_GLES2_COMMANDS()                        \
     GLS_GLES2_EXT_COMMANDS()                    \
   //
@@ -135,6 +139,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(eglCreatePlatformWindowSurface)           \
     X(eglWaitSync)                              \
   //
+
+// EGL Extensions
+#define GLS_EGL_EXT_COMMANDS()                  \
+  EMPTY()                                       \
+    COMMENT(EGL_EXT_platform_base)              \
+    X(eglGetPlatformDisplayEXT)                 \
+    X(eglCreatePlatformWindowSurfaceEXT)        \
+    X(eglCreatePlatformPixmapSurfaceEXT)        \
+  //
+
+
+// GLES2
 
 #define GLS_GLES2_COMMANDS()                    \
   EMPTY()                                       \
@@ -284,6 +300,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLS_GLES2_EXT_COMMANDS()                \
   EMPTY()                                       \
+    COMMENT(GL_OES_EGL_image)                   \
+    X(glEGLImageTargetTexture2DOES)             \
+    X(glEGLImageTargetRenderbufferStorageOES)   \
   //
 
 #define GLSC_PROTOCOL_MASK  0x000F0000
@@ -297,11 +316,16 @@ enum GL_Server_Command
   GLSC_GLS_UNDEF = 0,
   GLS_GLS_COMMANDS()
   GLSC_GLS_LASTCMD = GLSC_PROTOCOL_GLS | 0x0000ffff,
+
   GLS_EGL_COMMANDS()
-  GLSC_EGL_LASTCMD = GLSC_PROTOCOL_EGL | 0x0000ffff,
+  GLSC_EGL_LASTCMD = GLSC_PROTOCOL_EGL | 0x00008fff,
+  GLS_EGL_EXT_COMMANDS()
+  GLSC_EGL_EXT_LASTCMD = GLSC_PROTOCOL_EGL | 0x0000ffff,
+
   GLS_GLES2_COMMANDS()
-  GLSC_GLES2_LASTCMD = GLSC_PROTOCOL_GLES2 | 0x0000ffff,
+  GLSC_GLES2_LASTCMD = GLSC_PROTOCOL_GLES2 | 0x00008fff,
   GLS_GLES2_EXT_COMMANDS()
+  GLSC_GLES2_EXT_LASTCMD = GLSC_PROTOCOL_GLES2 | 0x0000ffff,
 };
 #undef X
 

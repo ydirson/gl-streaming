@@ -18,6 +18,15 @@ Optionally, use `-s` flags to specify non-default server `ip:port`
 but keep in mind there is absolutely no way today to authorize
 individual connections.
 
+## Environment variables
+
+- `GLS_DONT_FILTER=1`: don't filter API extensions exposed on the
+  server (by default we filter to only expose the subset supported by
+  GLS).  This is meant to help finding out which optional extensions
+  client apps would use, through subsequent `GetGlesProcAddress` which
+  will then be logged on the client as "available on server but not
+  supported".
+
 # Launch client
 
 - Override system libraries

@@ -103,3 +103,6 @@ int egl_executeCommand(gls_command_t* c);
 int gles_executeCommand(gls_command_t* c);
 
 int glse_extension_supported(const char** allowed_list, const char* name, size_t namelen);
+
+void glse_GetEglProcAddress(const char* procname, void* proc);
+void glse_GetGlesProcAddress(const char* procname, void* proc);

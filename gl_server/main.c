@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
   recvr_context_t rc = {};
 
   if (GLS_VERSION & 1)
-    fprintf(stderr, "WARNING: this is a development GLS protocol, "
+    fprintf(stderr, "GLS WARNING: this is a development GLS protocol, "
             "make sure client and server match\n");
 
   char my_ip[255];

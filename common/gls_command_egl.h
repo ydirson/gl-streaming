@@ -450,3 +450,45 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint64_t context;
 } gls_ret_eglGetCurrentContext_t;
+
+
+// EGL 1.5
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t platform;
+  uint32_t native_display;
+  uint32_t has_attribs;
+} gls_eglGetPlatformDisplay_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t display;
+} gls_ret_eglGetPlatformDisplay_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t dpy;
+  uint64_t config;
+  uint32_t window;
+  uint32_t has_attribs;
+} gls_eglCreatePlatformWindowSurfaceEXT_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint64_t surface;
+} gls_ret_eglCreatePlatformWindowSurfaceEXT_t;
+
+/*
+ * EGL extensions
+ */
+
+// EGL_EXT_platform_base
+
+typedef gls_eglGetPlatformDisplay_t gls_eglGetPlatformDisplayEXT_t;
+typedef gls_ret_eglGetPlatformDisplay_t gls_ret_eglGetPlatformDisplayEXT_t;
