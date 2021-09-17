@@ -25,7 +25,11 @@ platforms.
 
 This is still a work in progress.  See [current software support
 status](doc/software-support.md) for detailed per-application
-compatibility information.
+compatibility information.  While the core functionnality (support for
+forwarding GL calls) is there, the problem with window handling
+(described below) is critical enough to postpone work on security
+improvements.  In short: consider this version as a PoC, test in
+controlled environment, and **don't deploy it**.
 
 Notable information:
 
