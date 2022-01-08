@@ -60,6 +60,7 @@ This will likely only be useful to developers.
 
 ## Client
 ### USE_X11
+- legacy conditional, should always be set
 - Enable on client side for support for X11 apps
 - Enable on server side to render in X11 window
 - Enabled by default

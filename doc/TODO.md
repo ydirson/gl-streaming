@@ -4,7 +4,7 @@
   - [x] disable server GLES extensions, symbols not exported by standard libs
   - [x] default window size
   - [x] proper line endings in logs
-  - [x] proper server logging, not hardcoded /sdcard/
+  - [x] proper server logging, not hardcoded `/sdcard/`
   - [x] full mesa-demos EGL/GLES2 coverage
   - full glmark2 coverage
     - [ ] ideas (scene misses several objects)

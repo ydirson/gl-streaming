@@ -138,7 +138,7 @@ a Linux-based server.
 
 [Mittorn](https://github.com/mittorn/gl-streaming.git) implemented
 emulation of client arrays with VBO's (later apparently reused by Duy
-Tran Khanh without mentionning author of original code).
+Tran Khanh forgetting to credit the author of original code).
 
 [Duy Tran
 Khanh](https://github.com/khanhduytran0/android-gl-streaming) greatly
