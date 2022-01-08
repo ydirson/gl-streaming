@@ -1,15 +1,20 @@
-# Setup streaming environment
+# Build and setup streaming environment
 
 No installation is required to test the software.
 
-Use `make` in either one directory `gl_server` or `gl_client`, or from
-toplevel to build both at the same time.  If you need to tweek the
-code, beware that source dependency tracking is not available yet.
+To build from source you will need [`meson`](https://mesonbuild.com/)
+and [`ninja`](https://ninja-build.org/), both commonly found on
+current Linux distros:
+
+```
+meson . build/
+ninja -C build
+```
 
 # Launch server
 
 ```
-gl_server
+build/gl_server/gl_server
 ```
 
 Optionally, use `-s` flags to specify non-default server `ip:port`
@@ -29,9 +34,9 @@ individual connections.
 
 # Launch client
 
-- Override system libraries
+- Override system libraries (tune with your own build dir)
   ```
-  export LD_LIBRARY_PATH=/path/to/gl-streaming/gl_client:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=$(realpath build/gl_client):$LD_LIBRARY_PATH
   ```
 - Use test programs: run `eglinfo`, `es2_info`, `es2gears`, `es2tri`, `glmark2`, etc.
 - Run a real program using OpenGL ES

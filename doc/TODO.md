@@ -71,7 +71,7 @@
     - [x] non-stub context management
   - [x] EGL extension support
   - [ ] proper `GL_OES_mapbuffer` implementation
-  - [ ] separate EGL and GLSclient libs out of libGLES2
+  - [x] separate EGL and GLSclient libs out of libGLES2
   - [ ] full GLES2 core
   - [x] GLES2 extension support
   - [ ] GLES3 ?
