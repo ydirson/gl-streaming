@@ -54,6 +54,52 @@ Disabled by default.  Valid values:
 Default value: `127.0.0.1:18145`.
 
 
+# QubesOS test setup
+
+Be sure you understand the security implications before trying this:
+this software is experimental, has known security issues, and you're
+going to run it in a sensible area of your QubesOS system.
+
+## in GPU domain (`dom0` or `sys-gui-gpu`)
+
+### declare a Qubes RPC service
+
+As root, create a script, eg. `/etc/qubes-rpc/xqubes.GLS`, and make it
+executable executable.  After sending a desktop notification for
+safety, it will forward the connection to a `gl_server` running on its
+default port:
+
+```
+#!/bin/sh
+notify-send "dom0: GLS access from $QREXEC_REMOTE_DOMAIN"
+socat - TCP:localhost:18145
+```
+
+### transfer `gl_server` from your build qube to GPU domain
+
+```
+$ qvm-run -p perso-dev 'tar -zc gl_server' | tar -xz
+```
+
+### launch `gl_server`
+
+Since this software is experimental, you want to launch it by hand
+(not as a permanent service), and not as root.
+
+```
+$ ./gl_server
+```
+
+## in client qube
+
+Just setup a TCP-to-qrexec bridge as follows, and launch your apps as
+previously described.
+
+```
+$ socat "TCP-LISTEN:18145,fork" "EXEC:qrexec-client-vm dom0 xqubes.GLS"
+```
+
+
 # C preprocessor contionnals
 
 This will likely only be useful to developers.

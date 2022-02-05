@@ -35,17 +35,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <alloca.h>
 #include <string.h>
 
-static const char* GLS_GLES_EXTENSIONS[] =
-  {
-   "GL_OES_EGL_image",               // 23
-   "GL_OES_depth_texture",           // 43
-   "GL_EXT_texture_format_BGRA8888", // 51
-   "GL_OES_EGL_image_external",      // 87
-   "GL_OES_depth_texture_cube_map",  // 136
-   NULL,
-  };
+static const char* GLS_GLES_EXTENSIONS[] = {
+  "GL_OES_EGL_image",               // 23
+  "GL_OES_depth_texture",           // 43
+  "GL_EXT_texture_format_BGRA8888", // 51
+  "GL_OES_EGL_image_external",      // 87
+  "GL_OES_depth_texture_cube_map",  // 136
+  NULL,
+};
 
-static struct {
+static struct
+{
   // GL_OES_EGL_image
   PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES;
   PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC glEGLImageTargetRenderbufferStorageOES;
@@ -525,32 +525,32 @@ static void glse_glGetString(gls_command_t* buf)
     ret->success = TRUE;
     switch (c->name) {
     case GL_EXTENSIONS: {
-      size_t outlen = 0;
-      while (1) {
-        size_t len = strcspn(params, " ");
-        if (!len) break;
-        if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
-          if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetString_t)) {
-            fprintf(stderr,
-                    "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
-                    __FUNCTION__);
-            break;
+        size_t outlen = 0;
+        while (1) {
+          size_t len = strcspn(params, " ");
+          if (!len) break;
+          if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
+            if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetString_t)) {
+              fprintf(stderr,
+                      "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+                      __FUNCTION__);
+              break;
+            }
+            strncpy(ret->params + outlen, params, len);
+            ret->params[outlen + len] = ' ';
+            outlen += len + 1;
           }
-          strncpy(ret->params + outlen, params, len);
-          ret->params[outlen + len] = ' ';
-          outlen += len + 1;
+          // skip this ext and any sep
+          params += len;
+          params += strspn(params, " ");
         }
-        // skip this ext and any sep
-        params += len;
-        params += strspn(params, " ");
+        if (outlen)
+          // overwrite last space
+          ret->params[outlen - 1] = '\0';
+        else
+          ret->params[0] = '\0';
+        break;
       }
-      if (outlen)
-        // overwrite last space
-        ret->params[outlen - 1] = '\0';
-      else
-        ret->params[0] = '\0';
-      break;
-    }
     case GL_VERSION:
       // we just don't support more than 2.0
       strcpy(ret->params, "OpenGL ES 2.0 GLS");
@@ -561,10 +561,10 @@ static void glse_glGetString(gls_command_t* buf)
       break;
     case GL_VENDOR:
     default: {
-      if (params) {
-        strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
+        if (params) {
+          strncpy((char*)ret->params, (char*)params, GLS_STRING_SIZE);
+        }
       }
-    }
     }
   } else {
     ret->params[0] = '\0';
@@ -1010,7 +1010,7 @@ int gles_executeCommand(gls_command_t* c)
     CASE_EXEC_CMD(glUniformMatrix3fv);
     CASE_EXEC_CMD(glUniformMatrix4fv);
     CASE_EXEC_CMD(glUseProgram);
-    //CASE_EXEC_CMD(glValidateProgram);
+  //CASE_EXEC_CMD(glValidateProgram);
 
   case GLSC_glVertexAttrib1f: glse_glVertexAttribFloat(c); break;
   case GLSC_glVertexAttrib2f: glse_glVertexAttribFloat(c); break;

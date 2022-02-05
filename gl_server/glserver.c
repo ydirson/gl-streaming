@@ -167,7 +167,7 @@ int glse_extension_supported(const char** allowed_list, const char* name, size_t
   }
   if (dont_filter)
     return 1;
-  while(*allowed_list) {
+  while (*allowed_list) {
     // match exactly, not just as a prefix
     if (strncmp(*allowed_list, name, namelen) == 0 && (*allowed_list)[namelen] == '\0')
       return 1;

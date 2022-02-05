@@ -39,19 +39,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#define DEBUG
 
-static const char* GLS_EGL_EXTENSIONS[] =
-  {
-   "EGL_KHR_config_attribs",        // 1
-   "EGL_EXT_platform_base",         // 57
-   "EGL_EXT_client_extensions",     // 58
-   "EGL_EXT_platform_x11",          // 59
-   //"EGL_MESA_platform_gbm",         // 62
-   "EGL_KHR_context_flush_control", // 102
-   "EGL_MESA_platform_surfaceless", // 104
-   NULL,
-  };
+static const char* GLS_EGL_EXTENSIONS[] = {
+  "EGL_KHR_config_attribs",        // 1
+  "EGL_EXT_platform_base",         // 57
+  "EGL_EXT_client_extensions",     // 58
+  "EGL_EXT_platform_x11",          // 59
+  //"EGL_MESA_platform_gbm",         // 62
+  "EGL_KHR_context_flush_control", // 102
+  "EGL_MESA_platform_surfaceless", // 104
+  NULL,
+};
 
-static struct {
+static struct
+{
   // EGL_EXT_platform_base
   PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
   PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC eglCreatePlatformWindowSurfaceEXT;
@@ -137,7 +137,7 @@ static void glse_eglCreateWindowSurface(gls_command_t* buf)
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
   EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
-                                              glsec_global.gc->x.window, dat);
+                       glsec_global.gc->x.window, dat);
   GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreateWindowSurface);
   ret->surface = (uint64_t)surface;
@@ -484,19 +484,19 @@ void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
   switch (c->native_display) {
   case GLS_EGL_NATIVE_DISPLAY_DEFAULT:
     display = egl_context.eglGetPlatformDisplayEXT(c->platform,
-                                                   GLS_EGL_NATIVE_DISPLAY_DEFAULT,
-                                                   dat);
+              GLS_EGL_NATIVE_DISPLAY_DEFAULT,
+              dat);
     break;
   case GLS_EGL_NATIVE_DISPLAY_NATIVE:
     display = egl_context.eglGetPlatformDisplayEXT(c->platform,
-                                                   glsec_global.gc->x.display,
-                                                   dat);
+              glsec_global.gc->x.display,
+              dat);
     break;
   default:
     display = EGL_NO_DISPLAY;
   }
 
- end: ;
+end: ;
   GLSE_SET_RET_PTR(ret, eglGetPlatformDisplayEXT);
   ret->display = (uint64_t)display;
   GLSE_SEND_RET(ret, eglGetPlatformDisplayEXT);
@@ -516,8 +516,8 @@ static void glse_eglCreatePlatformWindowSurfaceEXT(gls_command_t* buf)
   }
 
   surface = egl_context.eglCreatePlatformWindowSurfaceEXT((EGLDisplay)c->dpy, (EGLConfig)c->config,
-                                                          &glsec_global.gc->x.window, dat);
- end: ;
+            &glsec_global.gc->x.window, dat);
+end: ;
   GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreatePlatformWindowSurfaceEXT);
   ret->surface = (uint64_t)surface;
@@ -588,21 +588,21 @@ int egl_executeCommand(gls_command_t* c)
 // EGL 1.4
     CASE_EXEC_CMD(eglGetCurrentContext);
 // EGL 1.5
-  //CASE_EXEC_CMD(eglCreateSync);
-  //CASE_EXEC_CMD(eglDestroySync);
-  //CASE_EXEC_CMD(eglClientWaitSync);
-  //CASE_EXEC_CMD(eglGetSyncAttrib);
-  //CASE_EXEC_CMD(eglCreateImage);
-  //CASE_EXEC_CMD(eglDestroyImage);
-  CASE_EXEC_CMD(eglGetPlatformDisplay);
-  //CASE_EXEC_CMD(eglCreatePlatformPixmapSurface);
-  //CASE_EXEC_CMD(eglCreatePlatformWindowSurface);
-  //CASE_EXEC_CMD(eglWaitSync);
+    //CASE_EXEC_CMD(eglCreateSync);
+    //CASE_EXEC_CMD(eglDestroySync);
+    //CASE_EXEC_CMD(eglClientWaitSync);
+    //CASE_EXEC_CMD(eglGetSyncAttrib);
+    //CASE_EXEC_CMD(eglCreateImage);
+    //CASE_EXEC_CMD(eglDestroyImage);
+    CASE_EXEC_CMD(eglGetPlatformDisplay);
+    //CASE_EXEC_CMD(eglCreatePlatformPixmapSurface);
+    //CASE_EXEC_CMD(eglCreatePlatformWindowSurface);
+    //CASE_EXEC_CMD(eglWaitSync);
 
 // EGL_EXT_platform_base
     CASE_EXEC_CMD(eglGetPlatformDisplayEXT);
     CASE_EXEC_CMD(eglCreatePlatformWindowSurfaceEXT);
-    //CASE_EXEC_CMD(eglCreatePlatformPixmapSurfaceEXT);
+  //CASE_EXEC_CMD(eglCreatePlatformPixmapSurfaceEXT);
   default:
     return FALSE;
   }

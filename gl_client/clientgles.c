@@ -510,10 +510,10 @@ static void defered_vertex_attrib_pointer(int i, int count)
     return;
 
   if (buffer_objs.ibo && !attrib->vbo_id)
-      // FIXME: could be done, would require scanning scanning IBO,
-      // which requires work in in glBuffer(Sub)Data ... but who needs
-      // that for real ?
-      WARN_ONCE("GLS WARNING: %s use of client-data vertex buffer together with an IBO is not implemented\n", __FUNCTION__);
+    // FIXME: could be done, would require scanning scanning IBO,
+    // which requires work in in glBuffer(Sub)Data ... but who needs
+    // that for real ?
+    WARN_ONCE("GLS WARNING: %s use of client-data vertex buffer together with an IBO is not implemented\n", __FUNCTION__);
 
   if (!attrib->emul_vbo_id)
     glGenBuffers(1, &attrib->emul_vbo_id);
@@ -1623,8 +1623,8 @@ GLS_DEF_CORE_API(void, glVertexAttrib4fv, GLuint index, const GLfloat* v)
 
 
 GLS_DEF_CORE_API(void, glVertexAttribPointer,
-  GLuint indx, GLint size, GLenum type, GLboolean normalized,
-  GLsizei stride, const GLvoid* ptr)
+                 GLuint indx, GLint size, GLenum type, GLboolean normalized,
+                 GLsizei stride, const GLvoid* ptr)
 {
   if (buffer_objs.vbo) {
     // VBO: send now
