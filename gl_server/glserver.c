@@ -97,7 +97,6 @@ void glserver_handle_packets(recvr_context_t* rc)
 {
   int quit = FALSE;
   static graphics_context_t gc;
-  memset(&glsec_global, 0, sizeof(glsec_global));
   memset(&gc, 0, sizeof(gc));
   init_egl(&gc);
 
