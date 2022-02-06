@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glserver.h"
 
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,6 +59,14 @@ int main(int argc, char* argv[])
     default:
       printf("Usage: %s [-s my_ip_address:port]\n", argv[0]);
       return 0;
+    }
+  }
+
+  { // let forked processes be reaped for us
+    struct sigaction sa = {.sa_handler=SIG_IGN};
+    if (sigaction(SIGCHLD, &sa, NULL) < 0) {
+      perror("sigaction(SIGCHLD)");
+      return 1;
     }
   }
 
