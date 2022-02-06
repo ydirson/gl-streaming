@@ -76,7 +76,7 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
       close(fd);
       return 0;
     } else if (recv_size == 0) {
-      LOGI("GLS INFO: connection closed\n\n");
+      LOGI("GLS INFO: connection closed while discarding\n\n");
       close(fd);
       return 0;
     }
@@ -162,7 +162,7 @@ static void* socket_to_fifo_loop(void* data)
         endsession = 1;
         break;
       } else if (recv_size == 0) {
-        LOGI("GLS INFO: connection closed\n\n");
+        LOGI("GLS INFO: connection closed on data\n\n");
         close(rc->sock_fd);
         endsession = 1;
         break;
