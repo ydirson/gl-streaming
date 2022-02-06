@@ -95,7 +95,6 @@ void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
 
 void glserver_handle_packets(recvr_context_t* rc)
 {
-  int quit = FALSE;
   static graphics_context_t gc;
   memset(&gc, 0, sizeof(gc));
   init_egl(&gc);
@@ -106,7 +105,7 @@ void glserver_handle_packets(recvr_context_t* rc)
   glsec_global.pool.out_buf.buf = (char*)malloc(GLSE_OUT_BUFFER_SIZE);
   glsec_global.pool.out_buf.size = GLSE_OUT_BUFFER_SIZE;
 
-  while (!quit) {
+  while (1) {
     void* popptr = (void*)fifo_pop_ptr_get(&rc->fifo);
     if (popptr == NULL) {
       usleep(rc->sleep_usec);
