@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
     }
   }
 
+  glsec_global.rc = &rc;
   recvr_server_start(&rc, my_ip, my_port, glserver_handle_packets);
   recvr_stop(&rc);
 

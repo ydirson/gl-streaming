@@ -100,7 +100,6 @@ void glserver_handle_packets(recvr_context_t* rc)
   memset(&gc, 0, sizeof(gc));
   init_egl(&gc);
 
-  glsec_global.rc = rc;
   glsec_global.gc = &gc;
   glsec_global.pool.tmp_buf.buf = (char*)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
