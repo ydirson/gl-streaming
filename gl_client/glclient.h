@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include <stdio.h>
+#include <EGL/eglplatform.h>
 
 #include "bufpool.h"
 #include "recvr.h"
@@ -141,7 +142,7 @@ extern gls_context_t glsc_global;
 int send_packet(void);
 int gls_cmd_send_data(uint32_t size, const void* data);
 int wait_for_data(enum GL_Server_Command, char* str);
-void gls_cmd_CREATE_WINDOW(unsigned width, unsigned height);
+void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height);
 
 void* gls_GetEglProcAddress(const char* procname);
 void* gls_GetGlesProcAddress(const char* procname);

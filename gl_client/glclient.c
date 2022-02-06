@@ -217,10 +217,11 @@ static int gls_cmd_HANDSHAKE()
   return TRUE;
 }
 
-void gls_cmd_CREATE_WINDOW(unsigned width, unsigned height)
+void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
 {
   if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, CREATE_WINDOW);
+  c->window = w;
   c->width = width;
   c->height = height;
   GLS_SEND_PACKET(CREATE_WINDOW);

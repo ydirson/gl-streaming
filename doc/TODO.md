@@ -15,6 +15,7 @@
     - [x] gigalomania
     - [ ] planetblupi: works, but limited by lack of in-game mouse cursor
   - [x] work on native 64bit platforms
+  - [.] support for more than one window per client (not fully tesed)
 - [x] readable indentation
 - improve usability
   - [x] handle window size, create windows on demand, not just a fixed one

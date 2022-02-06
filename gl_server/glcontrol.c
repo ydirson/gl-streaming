@@ -106,7 +106,11 @@ void init_egl(graphics_context_t* gc)
   if (!gc->x.display) {
     fprintf(stderr, "GLS ERROR: couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
-    return;
+  }
+  gc->x.remote2local = list_new();
+  if (!gc->x.remote2local) {
+    fprintf(stderr, "GLS ERROR: couldn't allocate window list\n");
+    exit(EXIT_FAILURE);
   }
 #endif
 }
@@ -179,6 +183,15 @@ Window gls_create_x11_window(graphics_context_t* gc, const char* name, int x, in
 
   return window;
 }
+
+Window gls_local_x11_window(graphics_context_t* gc, Window vmwindow)
+{
+  struct genlist* l = list_lookup(gc->x.remote2local, vmwindow);
+  if (!l)
+    return None;
+  return (Window)(l->data);
+}
+
 #else
 #error "GLS FIXME: only supporting server on X11 platform"
 #endif

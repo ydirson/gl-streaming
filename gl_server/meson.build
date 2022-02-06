@@ -4,6 +4,7 @@ gles2_dep = dependency('glesv2')
 executable('gl_server',
            sources: ['main.c', 'glcontrol.c', 'glserver.c',
                      'serveregl.c', 'servergles.c',
+                     'list.c',
                      common_srcs,
                     ],
            include_directories : [common_incdir],

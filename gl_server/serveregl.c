@@ -136,8 +136,16 @@ static void glse_eglCreateWindowSurface(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, eglCreateWindowSurface);
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
+  if (!c->window)
+    // invalid at X11 level, here mostly a safeguard for previous single-window code
+    LOGW("GLS WARNING: eglCreateWindowSurface referencing NULL Window");
+  Window window = gls_local_x11_window(glsec_global.gc, c->window);
+  if (!window)
+    // invalid at X11 level, here mostly a safeguard for previous single-window code
+    LOGE("GLS ERROR: eglCreateWindowSurface referencing unknown Window 0x%08x\n",
+         c->window);
   EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
-                       glsec_global.gc->x.window, dat);
+                       window, dat);
   GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreateWindowSurface);
   ret->surface = (uint64_t)surface;
@@ -515,8 +523,16 @@ static void glse_eglCreatePlatformWindowSurfaceEXT(gls_command_t* buf)
     goto end;
   }
 
+  if (!c->window)
+    // invalid at X11 level, here mostly a safeguard for previous single-window code
+    LOGW("GLS WARNING: eglCreatePlatformWindowSurfaceEXT referencing NULL Window");
+  Window window = gls_local_x11_window(glsec_global.gc, c->window);
+  if (!window)
+    // invalid at X11 level, here mostly a safeguard for previous single-window code
+    LOGE("GLS ERROR: eglCreatePlatformWindowSurfaceEXT referencing unknown Window 0x%08x\n",
+         c->window);
   surface = egl_context.eglCreatePlatformWindowSurfaceEXT((EGLDisplay)c->dpy, (EGLConfig)c->config,
-            &glsec_global.gc->x.window, dat);
+                                                          &window, dat);
 end: ;
   GLSE_RELEASE_DATA();
   GLSE_SET_RET_PTR(ret, eglCreatePlatformWindowSurfaceEXT);

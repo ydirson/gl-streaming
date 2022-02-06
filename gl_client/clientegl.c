@@ -154,7 +154,7 @@ static EGLint gls_request_window(NativeWindowType window)
     return EGL_BAD_NATIVE_WINDOW;
   }
 
-  gls_cmd_CREATE_WINDOW(xWindowAttrs.width, xWindowAttrs.height);
+  gls_cmd_CREATE_WINDOW(egl_clt_context.x_window, xWindowAttrs.width, xWindowAttrs.height);
 #endif
   return EGL_SUCCESS;
 }
@@ -175,7 +175,7 @@ GLS_DEF_CORE_API(EGLSurface, eglCreateWindowSurface,  EGLDisplay dpy, EGLConfig 
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
   c->config = (uint64_t)config;
-  c->window = 0; // window; FIXME
+  c->window = window;
   GLS_SEND_PACKET(eglCreateWindowSurface);
 
   GLS_WAIT_SET_RET_PTR(ret, eglCreateWindowSurface);
@@ -760,7 +760,8 @@ EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformWindowSurfaceEXT (EGLDispla
   c->has_attribs = has_attribs;
   c->dpy = (uint64_t)dpy;
   c->config = (uint64_t)config;
-  c->window = 0; // window; FIXME
+  c->window = (uint32_t)(uint64_t)native_window;
+  assert((uint64_t)native_window == c->window);
   GLS_SEND_PACKET(eglCreatePlatformWindowSurfaceEXT);
 
   GLS_WAIT_SET_RET_PTR(ret, eglCreatePlatformWindowSurfaceEXT);

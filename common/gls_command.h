@@ -370,6 +370,7 @@ typedef struct
   GLSCOMMAND_FIELDS();
   uint32_t width;
   uint32_t height;
+  uint32_t window;
 } gls_CREATE_WINDOW_t;
 
 

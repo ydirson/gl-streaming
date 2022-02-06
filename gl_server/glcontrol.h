@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "list.h"
 #include <EGL/egl.h>
 
 typedef struct
@@ -38,7 +39,7 @@ typedef struct
   struct
   {
     Display* display;
-    Window window;
+    struct genlist* remote2local;
   } x;
 #endif
 } graphics_context_t;
@@ -58,4 +59,5 @@ void release_egl(graphics_context_t* gc);
 
 #if USE_X11
 Window gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height);
+Window gls_local_x11_window(graphics_context_t* gc, Window vmwindow);
 #endif
