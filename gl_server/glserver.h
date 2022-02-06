@@ -94,7 +94,9 @@ typedef struct
   graphics_context_t* gc;
 } glse_context_t;
 
+// only to spare a parameter in message handlers
 extern glse_context_t glsec_global;
+
 void glserver_handle_packets(recvr_context_t* rc);
 
 int glse_cmd_send_data(uint32_t size, void* data);

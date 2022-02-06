@@ -118,7 +118,7 @@ void glserver_handle_packets(recvr_context_t* rc)
 
     switch (c->cmd) {
     case GLSC_SEND_DATA:
-      fifobuf_data_to_bufpool(&glsec_global.pool, &glsec_global.rc->fifo, c);
+      fifobuf_data_to_bufpool(&glsec_global.pool, &rc->fifo, c);
       break;
     case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
