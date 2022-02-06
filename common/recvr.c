@@ -99,8 +99,7 @@ static void* socket_to_fifo_loop(void* data)
     }
   }
 
-  int endsession = 0;
-  while (!endsession) {
+  while (1) {
     char* pushptr = fifo_push_ptr_get(&rc->fifo);
     if (pushptr == NULL) {
       LOGW("GLS WARNING: FIFO full!\n");
@@ -154,6 +153,7 @@ static void* socket_to_fifo_loop(void* data)
       ((gls_cmd_send_data_t*)c)->dataptr = dest;
     }
 
+    int endsession = 0;
     do {
       recv_size = recv(rc->sock_fd, dest, remaining, 0);
       if (recv_size < 0) {
