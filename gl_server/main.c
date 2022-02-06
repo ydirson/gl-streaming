@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   char my_ip[255];
   uint16_t my_port = 18145;
   strcpy(my_ip, "127.0.0.1");
-  while ((opt = getopt(argc, argv, "s:c:h")) != -1) {
+  while ((opt = getopt(argc, argv, "s:h")) != -1) {
     switch (opt) {
     case 's':
       strncpy(my_ip, strtok(optarg, ":"), sizeof(my_ip) - 1);
