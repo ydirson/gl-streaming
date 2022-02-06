@@ -190,13 +190,6 @@ static void* socket_to_fifo_loop(void* data)
   exit(EXIT_FAILURE);
 }
 
-static void* recvr_client_thread(void* data)
-{
-  recvr_context_t* rc = (recvr_context_t*)data;
-  socket_to_fifo_loop(rc);
-  return NULL;
-}
-
 
 void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
                         void(*handle_child)(recvr_context_t*))
@@ -267,7 +260,7 @@ void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t 
     exit(EXIT_FAILURE);
   }
 
-  pthread_create(&rc->recvr_th, NULL, (void* (*)(void*))recvr_client_thread, rc);
+  pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
