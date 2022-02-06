@@ -39,6 +39,14 @@ int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
   fifo->fifo_size = 1 << fifo_size_order;
   fifo->fifo_packet_size = 1 << fifo_packet_size_order;
 
+  int pipefds[2];
+  if (pipe2(pipefds, O_CLOEXEC) < 0) {
+    fprintf(stderr, "GLS ERROR: FIFO pipe allocation failure: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  fifo->pipe_rd = pipefds[0];
+  fifo->pipe_wr = pipefds[1];
+
 #if 0
   // aligned malloc ?  Do we gain anything ?
   unsigned int alignment = fifo->fifo_packet_size;
@@ -64,5 +72,9 @@ int fifo_delete(fifo_t* fifo)
   fifo->idx_writer = 0;
   fifo->fifo_size = 0;
   fifo->fifo_packet_size = 0;
+  close(fifo->pipe_wr);
+  fifo->pipe_wr = -1;
+  close(fifo->pipe_rd);
+  fifo->pipe_rd = -1;
   return 0;
 }
