@@ -37,17 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 
-int   var_server_port;
-int   var_client_port;
-const char* var_client_addr;
-/*
-const char* var_path_shadercache;
-const char* var_file_fragment_shader;
-const char* var_file_vertex_shader;
-*/
-
-EGLConfig config;
-
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value;
 const char* eglGetErrorString(EGLint err)

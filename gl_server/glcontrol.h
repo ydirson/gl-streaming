@@ -32,15 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <EGL/egl.h>
 
-extern int   var_server_port;
-extern int   var_client_port;
-extern const char* var_client_addr;
-/*
-extern const char* var_path_shadercache;
-extern const char* var_file_fragment_shader;
-extern const char* var_file_vertex_shader;
-*/
-
 typedef struct
 {
 #ifdef USE_X11
@@ -61,8 +52,6 @@ typedef struct
 extern uint32_t last_cmd;
 void base_check_egl_err(const char* funcname);
 void base_check_gl_err(const char* funcname);
-
-extern EGLConfig config;
 
 void init_egl(graphics_context_t* gc);
 void release_egl(graphics_context_t* gc);
