@@ -88,16 +88,19 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
 }
 
 
+void recvr_setup(recvr_context_t* rc)
+{
+  int sockopt = 1;
+  if (setsockopt(rc->sock_fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
+    LOGE("GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
+
 static void* socket_to_fifo_loop(void* data)
 {
   recvr_context_t* rc = data;
-  {
-    int sockopt = 1;
-    if (setsockopt(rc->sock_fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
-      LOGE("GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
-      exit(EXIT_FAILURE);
-    }
-  }
+  recvr_setup(rc);
 
   while (1) {
     char* pushptr = fifo_push_ptr_get(&rc->fifo);
