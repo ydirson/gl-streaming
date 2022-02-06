@@ -131,8 +131,9 @@ void release_egl(graphics_context_t* gc)
  */
 
 #ifdef USE_X11
-void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
+Window gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height)
 {
+  Window window;
   XSetWindowAttributes attr;
   unsigned long mask;
   Window root;
@@ -156,9 +157,9 @@ void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int 
   attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
   mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
-  gc->x.window = XCreateWindow( gc->x.display, root, 0, 0, width, height,
-                                0, visInfo->depth, InputOutput,
-                                visInfo->visual, mask, &attr );
+  window = XCreateWindow(gc->x.display, root, 0, 0, width, height,
+                         0, visInfo->depth, InputOutput,
+                         visInfo->visual, mask, &attr);
 
   /* set hints and properties */
   {
@@ -168,13 +169,15 @@ void gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int 
     sizehints.width  = width;
     sizehints.height = height;
     sizehints.flags = USSize | USPosition;
-    XSetNormalHints(gc->x.display, gc->x.window, &sizehints);
-    XSetStandardProperties(gc->x.display, gc->x.window, name, name,
+    XSetNormalHints(gc->x.display, window, &sizehints);
+    XSetStandardProperties(gc->x.display, window, name, name,
                            None, (char**)NULL, 0, &sizehints);
   }
 
   XFree(visInfo);
-  XMapWindow(gc->x.display, gc->x.window);
+  XMapWindow(gc->x.display, window);
+
+  return window;
 }
 #else
 #error "GLS FIXME: only supporting server on X11 platform"

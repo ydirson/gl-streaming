@@ -84,7 +84,7 @@ void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, CREATE_WINDOW);
   graphics_context_t* gc = glsec_global.gc;
-  gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, c->width, c->height);
+  gc->x.window = gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, c->width, c->height);
 }
 
 
