@@ -72,7 +72,7 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
   do {
     int recv_size = recv(fd, scratch, scratch_size, 0);
     if (recv_size < 0) {
-      LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+      LOGE("GLS ERROR: receiver socket recv (discarding): %s\n", strerror(errno));
       close(fd);
       return 0;
     } else if (recv_size == 0) {
@@ -111,7 +111,7 @@ static void* socket_to_fifo_loop(void* data)
     // look at message header to know its size and decide what to do
     int recv_size = recv(rc->sock_fd, pushptr, sizeof(gls_command_t), MSG_PEEK | MSG_WAITALL);
     if (recv_size < 0) {
-      LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+      LOGE("GLS ERROR: receiver socket recv header: %s\n", strerror(errno));
       close(rc->sock_fd);
       break;
     } else if (recv_size == 0) {
@@ -157,7 +157,7 @@ static void* socket_to_fifo_loop(void* data)
     do {
       recv_size = recv(rc->sock_fd, dest, remaining, 0);
       if (recv_size < 0) {
-        LOGE("GLS ERROR: receiver socket recv: %s\n", strerror(errno));
+        LOGE("GLS ERROR: receiver socket recv data: %s\n", strerror(errno));
         close(rc->sock_fd);
         endsession = 1;
         break;
