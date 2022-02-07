@@ -144,7 +144,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
         exit(EXIT_FAILURE);
         return FALSE;
       }
-      usleep(glsc_global.rc.sleep_usec);
+      usleep(SLEEP_USEC);
       continue;
     }
 

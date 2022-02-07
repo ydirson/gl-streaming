@@ -52,18 +52,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define FIFO_PACKET_SIZE_ORDER 10
 #endif
 
-static void recvr_init(recvr_context_t* rc)
-{
-  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-  rc->sleep_usec = SLEEP_USEC;
-
-  rc->sock_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
-  if (rc->sock_fd < 0) {
-    fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
-  }
-}
-
 
 // read everything into a scratch buffer to discard data
 static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size)
@@ -119,7 +107,7 @@ int recvr_handle_packet(recvr_context_t* rc)
   char* pushptr = fifo_push_ptr_get(&rc->fifo);
   if (pushptr == NULL) {
     LOGW("GLS WARNING: FIFO full!\n");
-    usleep(rc->sleep_usec);
+    usleep(SLEEP_USEC);
     return 0;
   }
 
@@ -207,10 +195,14 @@ int recvr_handle_packet(recvr_context_t* rc)
 void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
                         void(*handle_child)(recvr_context_t*))
 {
-  recvr_init(rc);
+  int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  if (listen_fd < 0) {
+    fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
 
   int sockopt = 1;
-  if (setsockopt(rc->sock_fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+  if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
     LOGE("GLS ERROR: setsockopt(SO_REUSEADDR) failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
@@ -219,17 +211,16 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
   sai.sin_family = AF_INET;
   sai.sin_port = htons(listen_port);
   sai.sin_addr.s_addr = inet_addr(listen_addr);
-  if (bind(rc->sock_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
+  if (bind(listen_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: bind failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
-  if (listen(rc->sock_fd, 1) < 0) {
+  if (listen(listen_fd, 1) < 0) {
     LOGE("GLS ERROR: listen failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
-  int listen_fd = rc->sock_fd;
   int quit = 0;
   while (!quit) {
     rc->peer.addrlen = sizeof(rc->peer.addr);
@@ -244,6 +235,7 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
       LOGE("GLS ERROR: %s: fork failed: %s\n", __FUNCTION__, strerror(errno));
       break;
     case 0: {
+        fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
         if (fcntl(rc->sock_fd, F_SETFD, FD_CLOEXEC) < 0) {
           LOGE("GLS ERROR: fcntl(FD_CLOEXEC) failed: %s\n", strerror(errno));
           exit(EXIT_FAILURE);
@@ -262,7 +254,13 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
 
 void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)
 {
-  recvr_init(rc);
+  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
+
+  rc->sock_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  if (rc->sock_fd < 0) {
+    fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
 
   struct sockaddr_in sai;
   sai.sin_family = AF_INET;

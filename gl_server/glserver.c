@@ -108,7 +108,7 @@ void glserver_handle_packets(recvr_context_t* rc)
   while (1) {
     void* popptr = (void*)fifo_pop_ptr_get(&rc->fifo);
     if (popptr == NULL) {
-      usleep(rc->sleep_usec);
+      usleep(SLEEP_USEC);
       continue;
     }
 

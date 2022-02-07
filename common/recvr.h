@@ -40,9 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
   pthread_t recvr_th;
-
   fifo_t fifo;
-  useconds_t sleep_usec;
 
   struct
   {
@@ -50,9 +48,6 @@ typedef struct
     socklen_t addrlen;
   } peer;
 
-  // On server side, sock_fd is first used for the listening socket,
-  // until we start the accept loop, where it takes the communication
-  // FD as on client side.  FIXME: maybe avoid that juggling.
   int sock_fd;
 } recvr_context_t;
 
