@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -90,12 +91,43 @@ static void* socket_to_fifo_loop(void* data)
   recvr_context_t* rc = data;
   recvr_setup(rc);
 
+  enum {
+    POLLFD_TRANSPORT,
+  };
+  struct pollfd pollfds[] = {
+    [POLLFD_TRANSPORT] = {
+      .fd = rc->sock_fd,
+      .events = POLLIN
+    },
+  };
+
   while (1) {
-    int ret = recvr_handle_packet(rc);
-    if (ret < 0)
-      exit(EXIT_FAILURE);
-    if (ret > 0)
+    int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
+    if (ret < 0) {
+      LOGE("GLS ERROR: FIFO poll failed: %s\n", strerror(errno));
       break;
+    }
+
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLHUP) {
+      LOGI("GLS INFO: TRANSPORT poll hangup\n");
+      break;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLERR) {
+      LOGE("GLS ERROR: TRANSPORT poll error\n");
+      break;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLIN) {
+      int ret = recvr_handle_packet(rc);
+      if (ret < 0)
+        exit(EXIT_FAILURE);
+      if (ret > 0) {
+        //LOGD("GLS DEBUG: recvr_handle_packet said stop\n");
+        break;
+      }
+      pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents)
+      LOGW("GLS WARNING: FIFO poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
   }
 
   // end of thread
