@@ -186,7 +186,6 @@ void glserver_handle_packets(recvr_context_t* rc)
 
   free(glsec_global.pool.tmp_buf.buf);
   free(glsec_global.pool.out_buf.buf);
-  pthread_exit(NULL);
 }
 
 
