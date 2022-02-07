@@ -86,9 +86,11 @@ void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGW("CREATE_WINDOW referencing NULL Window");
   if (glsec_global.qubes_domain) {
-    LOGI("waiting for window creation by qubes-guid\n");
+    LOGI("[%d] waiting for window creation (remote=0x%x) by qubes-guid\n",
+         getpid(), c->window);
     while (list_lookup(gc->x.remote2local, c->window) == 0)
       usleep(100);
+    LOGI("got window creation by qubes-guid\n");
     return;
   }
   Window w = gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, c->width, c->height);
@@ -124,6 +126,10 @@ static void glse_handle_ring_packet(recvr_context_t* rc)
 #ifdef GL_DEBUG
     LOGD("executing: Create window...\n");
 #endif
+//    if (glsec_global.qubes_domain) {
+//      LOGD("SKIP glse_cmd_CREATE_WINDOW\n");
+//      break;
+//    }
     glse_cmd_CREATE_WINDOW(c);
     break;
 
