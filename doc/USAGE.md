@@ -20,6 +20,12 @@ build/gl_server/gl_server
 Optionally, use `-t` flag to select a non-default transport, and `-s`
 flag to select a non-default server address (see below).
 
+The `-n` flag starts a TCP server in "no fork" mode: instead of
+forking a separate process to handle an incoming connection, and then
+getting ready to handle additional connections, the incoming
+connection will be handled in the same process and will exit when the
+client disconnects.  Use this for easier debugging.
+
 ## Environment variables
 
 - `GLS_DONT_FILTER=1`: don't filter API extensions exposed on the

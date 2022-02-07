@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FIFO_SIZE_ORDER 12
 #define FIFO_PACKET_SIZE_ORDER 15
 
+static int nofork;
+
 static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
@@ -69,18 +71,23 @@ static void recvr_server_start(recvr_context_t* rc, const char* server_addr,
       break;
     LOGI("new client\n");
 
-    switch (fork()) {
-    case -1:
-      LOGE("%s: fork failed: %s\n", __FUNCTION__, strerror(errno));
-      break;
-    case 0:
+    if (nofork) {
       free(srv);
       child_process(rc, handle_child);
       exit(EXIT_SUCCESS);
-    default:
-      tport_close(rc->cnx);
-      // ... loop and wait for a new client
-    }
+    } else
+      switch (fork()) {
+      case -1:
+        LOGE("%s: fork failed: %s\n", __FUNCTION__, strerror(errno));
+        break;
+      case 0:
+        free(srv);
+        child_process(rc, handle_child);
+        exit(EXIT_SUCCESS);
+      default:
+        tport_close(rc->cnx);
+        // ... loop and wait for a new client
+      }
   }
   free(srv);
 }
@@ -103,7 +110,7 @@ int main(int argc, char* argv[])
     LOGW("this is a development GLS protocol, "
          "make sure client and server match\n");
 
-  while ((opt = getopt(argc, argv, "t:s:h")) != -1) {
+  while ((opt = getopt(argc, argv, "nt:s:h")) != -1) {
     switch (opt) {
     case 't':
       my_transport = optarg;
@@ -111,9 +118,12 @@ int main(int argc, char* argv[])
     case 's':
       my_addr = optarg;
       break;
+    case 'n':
+      nofork = 1;
+      break;
     case 'h':
     default:
-      printf("Usage: %s [-t transport] [-s address]\n", argv[0]);
+      printf("Usage: %s [-n] [-t transport] [-s address]\n", argv[0]);
       return EXIT_SUCCESS;
     }
   }
