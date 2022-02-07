@@ -98,8 +98,9 @@ static void* socket_to_fifo_loop(void* data)
       break;
   }
 
-  // whether in client or dedicated server process, this is the end
-  exit(EXIT_SUCCESS);
+  // end of thread
+  fifo_writer_close(&rc->fifo);
+  return NULL;
 }
 
 int recvr_handle_packet(recvr_context_t* rc)
@@ -243,6 +244,8 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
         pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
         pthread_setname_np(rc->recvr_th, "gls-recvr");
         handle_child(rc);
+        if (pthread_join(rc->recvr_th, NULL) != 0)
+          LOGE("GLS ERROR: pthread_join failed\n");
         return;
       }
     default:

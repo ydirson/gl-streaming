@@ -86,6 +86,13 @@ static inline void fifo_pop_ptr_next(fifo_t* fifo)
   fifo->idx_reader = next_idx;
 }
 
+static inline void fifo_writer_close(fifo_t* fifo)
+{
+  // signal end of data to reader
+  if (close(fifo->pipe_wr) < 0)
+    fprintf(stderr, "GLS ERROR: FIFO close of notification pipe: %s\n", strerror(errno));
+}
+
 
 int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
               unsigned int fifo_packet_size_order);
