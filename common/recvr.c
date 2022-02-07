@@ -102,12 +102,16 @@ static void* socket_to_fifo_loop(void* data)
   recvr_context_t* rc = data;
   recvr_setup(rc);
 
-  while (1)
-    if (recvr_handle_packet(rc) < 0)
+  while (1) {
+    int ret = recvr_handle_packet(rc);
+    if (ret < 0)
+      exit(EXIT_FAILURE);
+    if (ret > 0)
       break;
+  }
 
   // whether in client or dedicated server process, this is the end
-  exit(EXIT_FAILURE);
+  exit(EXIT_SUCCESS);
 }
 
 int recvr_handle_packet(recvr_context_t* rc)
@@ -128,7 +132,7 @@ int recvr_handle_packet(recvr_context_t* rc)
   } else if (recv_size == 0) {
     LOGI("GLS INFO: connection closed\n\n");
     close(rc->sock_fd);
-    return -1;
+    return 1;
   } else if (recv_size != sizeof(gls_command_t)) {
     LOGE("GLS ERROR: receiver socket recv: requested %zu bytes, read %d\n",
          sizeof(gls_command_t), recv_size);
@@ -171,7 +175,7 @@ int recvr_handle_packet(recvr_context_t* rc)
     if (recv_size < 0) {
       LOGE("GLS ERROR: receiver socket recv data: %s\n", strerror(errno));
       close(rc->sock_fd);
-      endsession = 1;
+      endsession = -1;
       break;
     } else if (recv_size == 0) {
       LOGI("GLS INFO: connection closed on data\n\n");
@@ -185,7 +189,7 @@ int recvr_handle_packet(recvr_context_t* rc)
   } while (remaining);
 
   if (endsession)
-    return -1;
+    return endsession;
 
   if (c->cmd_size <= rc->fifo.fifo_packet_size && c->cmd == GLSC_SEND_DATA) {
     gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
