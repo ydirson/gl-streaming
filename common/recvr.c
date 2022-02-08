@@ -262,6 +262,7 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
       LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
       break;
     }
+    LOGI("GLS INFO: new client\n");
 
     switch (fork()) {
     case -1:
