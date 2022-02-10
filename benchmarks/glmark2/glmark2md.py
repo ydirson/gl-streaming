@@ -39,7 +39,8 @@ for key in REFDATA.keys():
             try:
                 score = int(data)
                 if i:
-                    data += " (%+d%%)" % (score * 100 / int(REFDATA[key]) - 100)
+                    data += " (/%g %+d%%)" % (int(REFDATA[key]) / score,
+                                               score * 100 / int(REFDATA[key]) - 100)
             except ValueError:
                 pass # nota number, no stat
 
