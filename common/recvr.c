@@ -281,7 +281,7 @@ int tport_server_create(const char* listen_addr, uint16_t listen_port)
 int tport_server_wait_connection(int listen_fd, struct sockaddr* addr, socklen_t* addrlen)
 {
   *addrlen = sizeof(*addr);
-  int fd = accept4(listen_fd, addr, addrlen, 0);
+  int fd = accept4(listen_fd, addr, addrlen, SOCK_CLOEXEC);
   if (fd < 0) {
     LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
     return -1;
@@ -310,10 +310,6 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
       break;
     case 0: {
         fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-        if (fcntl(rc->sock_fd, F_SETFD, FD_CLOEXEC) < 0) {
-          LOGE("GLS ERROR: fcntl(FD_CLOEXEC) failed: %s\n", strerror(errno));
-          exit(EXIT_FAILURE);
-        }
         pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
         pthread_setname_np(rc->recvr_th, "gls-recvr");
         handle_child(rc);
