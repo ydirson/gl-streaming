@@ -278,6 +278,17 @@ int tport_server_create(const char* listen_addr, uint16_t listen_port)
   return listen_fd;
 }
 
+int tport_server_wait_connection(int listen_fd, struct sockaddr* addr, socklen_t* addrlen)
+{
+  *addrlen = sizeof(*addr);
+  int fd = accept4(listen_fd, addr, addrlen, 0);
+  if (fd < 0) {
+    LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
+    return -1;
+  }
+  return fd;
+}
+
 void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
                         void(*handle_child)(recvr_context_t*))
 {
@@ -288,11 +299,9 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
   int quit = 0;
   while (!quit) {
     rc->peer.addrlen = sizeof(rc->peer.addr);
-    rc->sock_fd = accept4(listen_fd, &rc->peer.addr, &rc->peer.addrlen, 0);
-    if (rc->sock_fd < 0) {
-      LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
+    rc->sock_fd = tport_server_wait_connection(listen_fd, &rc->peer.addr, &rc->peer.addrlen);
+    if (rc->sock_fd < 0)
       break;
-    }
     LOGI("GLS INFO: new client\n");
 
     switch (fork()) {
