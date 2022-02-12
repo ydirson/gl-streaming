@@ -324,24 +324,33 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
   }
 }
 
-void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)
+int tport_client_create(const char* connect_addr, uint16_t connect_port)
 {
-  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-
-  rc->sock_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
-  if (rc->sock_fd < 0) {
+  int fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  if (fd < 0) {
     fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   struct sockaddr_in sai;
   sai.sin_family = AF_INET;
   sai.sin_port = htons(connect_port);
   sai.sin_addr.s_addr = inet_addr(connect_addr);
-  if (connect(rc->sock_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
+  if (connect(fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: connect failed: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
+
+  return fd;
+}
+
+void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)
+{
+  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
+
+  rc->sock_fd = tport_client_create(connect_addr, connect_port);
+  if (rc->sock_fd < 0)
+    exit(EXIT_FAILURE);
 
   pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
