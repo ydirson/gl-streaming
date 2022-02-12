@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "glclient.h"
+#include "transport.h"
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
@@ -112,8 +113,7 @@ int send_packet()
     break;
   }
 
-  if (send(glsc_global.rc.sock_fd, glsc_global.pool.out_buf.buf, c->cmd_size, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_packet(%u) failure: %s\n", c->cmd_size, strerror(errno));
+  if (tport_write(glsc_global.rc.sock_fd, glsc_global.pool.out_buf.buf, c->cmd_size) < 0) {
     switch (c->cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
       client_egl_error = EGL_BAD_ACCESS; // dubious but eh

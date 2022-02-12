@@ -89,6 +89,15 @@ int tport_server_wait_connection(int listen_fd, struct sockaddr* addr, socklen_t
   return fd;
 }
 
+ssize_t tport_write(int fd, void* buffer, size_t size)
+{
+  ssize_t ret = send(fd, buffer, size, 0);
+  if (ret < 0)
+    LOGE("GLS ERROR: send_packet(%zu) failure: %s\n", size, strerror(errno));
+
+  return ret;
+}
+
 ssize_t tport_read(int fd, void* buffer, size_t bufsize)
 {
   ssize_t recv_size = recv(fd, buffer, bufsize, 0);
