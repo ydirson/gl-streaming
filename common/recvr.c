@@ -59,7 +59,7 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
 {
   LOGW("GLS ERROR: discarding large packet (%zu bytes)\n", size);
   do {
-    int recv_size = recv(fd, scratch, scratch_size, 0);
+    ssize_t recv_size = recv(fd, scratch, scratch_size, 0);
     if (recv_size < 0) {
       LOGE("GLS ERROR: receiver socket recv (discarding): %s\n", strerror(errno));
       close(fd);
@@ -70,7 +70,7 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
       return 0;
     }
 
-    assert ((unsigned)recv_size <= size);
+    assert ((size_t)recv_size <= size);
     size -= recv_size;
   } while (size);
   return 1;
@@ -145,7 +145,7 @@ int recvr_handle_packet(recvr_context_t* rc)
   }
 
   // look at message header to know its size and decide what to do
-  int recv_size = recv(rc->sock_fd, pushptr, sizeof(gls_command_t), MSG_PEEK | MSG_WAITALL);
+  ssize_t recv_size = recv(rc->sock_fd, pushptr, sizeof(gls_command_t), MSG_PEEK | MSG_WAITALL);
   if (recv_size < 0) {
     LOGE("GLS ERROR: receiver socket recv header: %s\n", strerror(errno));
     close(rc->sock_fd);
@@ -155,7 +155,7 @@ int recvr_handle_packet(recvr_context_t* rc)
     close(rc->sock_fd);
     return 1;
   } else if (recv_size != sizeof(gls_command_t)) {
-    LOGE("GLS ERROR: receiver socket recv: requested %zu bytes, read %d\n",
+    LOGE("GLS ERROR: receiver socket recv: requested %zu bytes, read %zd\n",
          sizeof(gls_command_t), recv_size);
     close(rc->sock_fd);
     return -1;
