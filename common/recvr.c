@@ -54,18 +54,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 
+ssize_t tport_read(int fd, void* buffer, size_t bufsize)
+{
+  ssize_t recv_size = recv(fd, buffer, bufsize, 0);
+  if (recv_size < 0)
+    LOGE("GLS ERROR: transport socket recv: %s\n", strerror(errno));
+  else if (recv_size == 0)
+    LOGI("GLS INFO: transport socket closed\n");
+
+  return recv_size;
+}
+
 // read everything into a scratch buffer to discard data
 static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size)
 {
   LOGW("GLS ERROR: discarding large packet (%zu bytes)\n", size);
   do {
-    ssize_t recv_size = recv(fd, scratch, scratch_size, 0);
-    if (recv_size < 0) {
-      LOGE("GLS ERROR: receiver socket recv (discarding): %s\n", strerror(errno));
-      close(fd);
-      return 0;
-    } else if (recv_size == 0) {
-      LOGI("GLS INFO: connection closed while discarding\n\n");
+    size_t recv_size = tport_read(fd, scratch, scratch_size);
+    if (recv_size <= 0) {
       close(fd);
       return 0;
     }
