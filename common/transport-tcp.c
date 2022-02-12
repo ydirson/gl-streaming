@@ -98,6 +98,17 @@ ssize_t tport_write(int fd, void* buffer, size_t size)
   return ret;
 }
 
+ssize_t tport_writev(int fd, struct iovec *iov, int iovcnt)
+{
+  struct msghdr msg = { .msg_iov = iov, .msg_iovlen = iovcnt };
+
+  ssize_t ret = sendmsg(fd, &msg, 0);
+  if (ret < 0)
+    LOGE("GLS ERROR: tcp_writev failure: %s\n", strerror(errno));
+
+  return ret;
+}
+
 ssize_t tport_read(int fd, void* buffer, size_t bufsize)
 {
   ssize_t recv_size = recv(fd, buffer, bufsize, 0);

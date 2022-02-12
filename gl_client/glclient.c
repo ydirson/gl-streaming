@@ -188,10 +188,8 @@ int gls_cmd_send_data(uint32_t size, const void* data)
     { c, sizeof(gls_cmd_send_data_t) },
     { (void*)data, size }
   };
-  struct msghdr msg = { .msg_iov = iov, .msg_iovlen = sizeof(iov)/sizeof(iov[0]) };
 
-  if (sendmsg(glsc_global.rc.sock_fd, &msg, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_data sendmsg(%u) failure: %s\n", c->cmd_size, strerror(errno));
+  if (tport_writev(glsc_global.rc.sock_fd, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
   }
