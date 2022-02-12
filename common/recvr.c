@@ -247,20 +247,18 @@ int recvr_handle_packet(recvr_context_t* rc)
   return 0;
 }
 
-
-void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
-                        void(*handle_child)(recvr_context_t*))
+int tport_server_create(const char* listen_addr, uint16_t listen_port)
 {
   int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (listen_fd < 0) {
     fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   int sockopt = 1;
   if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
     LOGE("GLS ERROR: setsockopt(SO_REUSEADDR) failed: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   struct sockaddr_in sai;
@@ -269,13 +267,23 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
   sai.sin_addr.s_addr = inet_addr(listen_addr);
   if (bind(listen_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: bind failed: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   if (listen(listen_fd, 1) < 0) {
     LOGE("GLS ERROR: listen failed: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
+
+  return listen_fd;
+}
+
+void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
+                        void(*handle_child)(recvr_context_t*))
+{
+  int listen_fd = tport_server_create(listen_addr, listen_port);
+  if (listen_fd < 0)
+    exit(EXIT_FAILURE);
 
   int quit = 0;
   while (!quit) {
