@@ -198,14 +198,12 @@ int recvr_handle_packet(recvr_context_t* rc)
 
   int endsession = 0;
   do {
-    recv_size = recv(rc->sock_fd, dest, remaining, 0);
+    recv_size = tport_read(rc->sock_fd, dest, remaining);
     if (recv_size < 0) {
-      LOGE("GLS ERROR: receiver socket recv data: %s\n", strerror(errno));
       close(rc->sock_fd);
       endsession = -1;
       break;
     } else if (recv_size == 0) {
-      LOGI("GLS INFO: connection closed on data\n\n");
       close(rc->sock_fd);
       endsession = 1;
       break;
