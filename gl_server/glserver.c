@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "glserver.h"
+#include "transport.h"
 #include "fastlog.h"
 
 #include <errno.h>
@@ -60,12 +61,10 @@ int glse_cmd_send_data(uint32_t size, void* data)
     { c, sizeof(gls_cmd_send_data_t) },
     { (void*)data, size }
   };
-  struct msghdr msg = { .msg_iov = iov, .msg_iovlen = sizeof(iov)/sizeof(iov[0]) };
 
-  if (sendmsg(glsec_global.rc->sock_fd, &msg, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_data sendmsg(%u) failure: %s\n", c->cmd_size, strerror(errno));
+  if (tport_writev(glsec_global.rc->sock_fd, iov, sizeof(iov)/sizeof(iov[0])) < 0)
     return FALSE;
-  }
+
   return TRUE;
 }
 
