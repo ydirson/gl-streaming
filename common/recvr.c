@@ -167,27 +167,26 @@ int recvr_handle_packet(recvr_context_t* rc)
   }
 
   // look at message header to know its size and decide what to do
-  ssize_t recv_size = recv(rc->sock_fd, pushptr, sizeof(gls_command_t), MSG_PEEK | MSG_WAITALL);
+  ssize_t recv_size = recvr_read(rc->sock_fd, pushptr, sizeof(gls_command_t));
   if (recv_size < 0) {
-    LOGE("GLS ERROR: receiver socket recv header: %s\n", strerror(errno));
     close(rc->sock_fd);
     return -1;
   } else if (recv_size == 0) {
-    LOGI("GLS INFO: connection closed\n\n");
     close(rc->sock_fd);
-    return 1;
+    return 1; // EOF
   } else if (recv_size != sizeof(gls_command_t)) {
-    LOGE("GLS ERROR: receiver socket recv: requested %zu bytes, read %zd\n",
-         sizeof(gls_command_t), recv_size);
+    // internal error: transport should handle that
+    LOGE("GLS ERROR: short read %zu != %zu\n", recv_size, sizeof(gls_command_t));
     close(rc->sock_fd);
     return -1;
   }
 
   gls_command_t* c = (gls_command_t*)pushptr;
   assert(c->cmd_size >= sizeof(gls_command_t)); // minimum sanity
+  size_t remaining = c->cmd_size - sizeof(gls_command_t);
 
+  // setup `dest` to point to a proper buffer depending on packet size ...
   char* dest;
-  size_t remaining = c->cmd_size;
   if (c->cmd_size <= rc->fifo.fifo_packet_size) {
     dest = pushptr;
   } else {
@@ -208,13 +207,17 @@ int recvr_handle_packet(recvr_context_t* rc)
       else
         return -1;
     }
+    // copy the header into the malloc'd area
+    memcpy(dest, pushptr, sizeof(gls_command_t));
     // advertized malloc'd zone
     ((gls_cmd_send_data_t*)c)->dataptr = dest;
   }
+  // ... and adjust it for the data already read
+  dest += sizeof(gls_command_t);
 
   int endsession = 0;
-  do {
-    recv_size = recvr_read(rc->sock_fd, dest, remaining);
+  while (remaining) {
+    ssize_t recv_size = recvr_read(rc->sock_fd, dest, remaining);
     if (recv_size < 0) {
       close(rc->sock_fd);
       endsession = -1;
@@ -227,7 +230,7 @@ int recvr_handle_packet(recvr_context_t* rc)
 
     remaining -= recv_size;
     dest += recv_size;
-  } while (remaining);
+  }
 
   if (endsession)
     return endsession;
