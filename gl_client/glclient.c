@@ -113,7 +113,7 @@ int send_packet()
     break;
   }
 
-  if (tport_write(glsc_global.rc.sock_fd, glsc_global.pool.out_buf.buf, c->cmd_size) < 0) {
+  if (tport_write(glsc_global.rc.cnx, glsc_global.pool.out_buf.buf, c->cmd_size) < 0) {
     switch (c->cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
       client_egl_error = EGL_BAD_ACCESS; // dubious but eh
@@ -189,7 +189,7 @@ int gls_cmd_send_data(uint32_t size, const void* data)
     { (void*)data, size }
   };
 
-  if (tport_writev(glsc_global.rc.sock_fd, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
+  if (tport_writev(glsc_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
   }

@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "fifo.h"
+#include "transport.h"
 
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -42,13 +43,7 @@ typedef struct
   pthread_t recvr_th;
   fifo_t fifo;
 
-  struct
-  {
-    struct sockaddr addr;
-    socklen_t addrlen;
-  } peer;
-
-  int sock_fd;
+  struct gls_connection* cnx;
 } recvr_context_t;
 
 void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,

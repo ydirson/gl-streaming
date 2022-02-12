@@ -54,13 +54,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 // read everything into a scratch buffer to discard data
-static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size)
+static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch, size_t scratch_size)
 {
   LOGW("GLS ERROR: discarding large packet (%zu bytes)\n", size);
   do {
-    size_t recv_size = tport_read(fd, scratch, scratch_size);
+    size_t recv_size = tport_read(cnx, scratch, scratch_size);
     if (recv_size <= 0) {
-      close(fd);
+      tport_close(cnx);
       return 0;
     }
 
@@ -79,7 +79,7 @@ static void* socket_to_fifo_loop(void* data)
   };
   struct pollfd pollfds[] = {
     [POLLFD_TRANSPORT] = {
-      .fd = rc->sock_fd,
+      .fd = tport_connection_fd(rc->cnx),
       .events = POLLIN
     },
   };
@@ -118,12 +118,12 @@ static void* socket_to_fifo_loop(void* data)
   return NULL;
 }
 
-ssize_t recvr_read(int fd, void* buffer, size_t size)
+ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
   char* current = buffer;
   size_t remaining = size;
   while (remaining) {
-    ssize_t recv_size = tport_read(fd, current, remaining);
+    ssize_t recv_size = tport_read(cnx, current, remaining);
     if (recv_size == 0)
       return 0;
     if (recv_size < 0)
@@ -144,17 +144,17 @@ int recvr_handle_packet(recvr_context_t* rc)
   }
 
   // look at message header to know its size and decide what to do
-  ssize_t recv_size = recvr_read(rc->sock_fd, pushptr, sizeof(gls_command_t));
+  ssize_t recv_size = recvr_read(rc->cnx, pushptr, sizeof(gls_command_t));
   if (recv_size < 0) {
-    close(rc->sock_fd);
+    tport_close(rc->cnx);
     return -1;
   } else if (recv_size == 0) {
-    close(rc->sock_fd);
+    tport_close(rc->cnx);
     return 1; // EOF
   } else if (recv_size != sizeof(gls_command_t)) {
     // internal error: transport should handle that
     LOGE("GLS ERROR: short read %zu != %zu\n", recv_size, sizeof(gls_command_t));
-    close(rc->sock_fd);
+    tport_close(rc->cnx);
     return -1;
   }
 
@@ -170,7 +170,7 @@ int recvr_handle_packet(recvr_context_t* rc)
     if (c->cmd != GLSC_SEND_DATA) {
       // only SEND_DATA packets may be larger than a fifo packet
       LOGE("GLS ERROR: received large packet, not a SEND_DATA\n");
-      if (discard_bytes(rc->sock_fd, remaining, pushptr, rc->fifo.fifo_packet_size))
+      if (discard_bytes(rc->cnx, remaining, pushptr, rc->fifo.fifo_packet_size))
         return 0;
       else
         return -1;
@@ -179,7 +179,7 @@ int recvr_handle_packet(recvr_context_t* rc)
     dest = malloc(c->cmd_size);
     if (!dest) {
       LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
-      if (discard_bytes(rc->sock_fd, remaining, pushptr, rc->fifo.fifo_packet_size))
+      if (discard_bytes(rc->cnx, remaining, pushptr, rc->fifo.fifo_packet_size))
         return 0;
       else
         return -1;
@@ -194,13 +194,13 @@ int recvr_handle_packet(recvr_context_t* rc)
 
   int endsession = 0;
   while (remaining) {
-    ssize_t recv_size = recvr_read(rc->sock_fd, dest, remaining);
+    ssize_t recv_size = recvr_read(rc->cnx, dest, remaining);
     if (recv_size < 0) {
-      close(rc->sock_fd);
+      tport_close(rc->cnx);
       endsession = -1;
       break;
     } else if (recv_size == 0) {
-      close(rc->sock_fd);
+      tport_close(rc->cnx);
       endsession = 1;
       break;
     }
@@ -224,18 +224,18 @@ int recvr_handle_packet(recvr_context_t* rc)
   return 0;
 }
 
+
 void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
                         void(*handle_child)(recvr_context_t*))
 {
-  int listen_fd = tport_server_create(listen_addr, listen_port);
-  if (listen_fd < 0)
+  struct gls_server* srv = tport_server_create(listen_addr, listen_port);
+  if (!srv)
     exit(EXIT_FAILURE);
 
   int quit = 0;
   while (!quit) {
-    rc->peer.addrlen = sizeof(rc->peer.addr);
-    rc->sock_fd = tport_server_wait_connection(listen_fd, &rc->peer.addr, &rc->peer.addrlen);
-    if (rc->sock_fd < 0)
+    rc->cnx = tport_server_wait_connection(srv);
+    if (!rc->cnx)
       break;
     LOGI("GLS INFO: new client\n");
 
@@ -244,6 +244,7 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
       LOGE("GLS ERROR: %s: fork failed: %s\n", __FUNCTION__, strerror(errno));
       break;
     case 0:
+      free(srv);
       fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
       pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
       pthread_setname_np(rc->recvr_th, "gls-recvr");
@@ -252,18 +253,19 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
         LOGE("GLS ERROR: pthread_join failed\n");
       return;
     default:
-      close(rc->sock_fd);
+      tport_close(rc->cnx);
       // ... loop and wait for a new client
     }
   }
+  free(srv);
 }
 
 void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)
 {
   fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
 
-  rc->sock_fd = tport_client_create(connect_addr, connect_port);
-  if (rc->sock_fd < 0)
+  rc->cnx = tport_client_create(connect_addr, connect_port);
+  if (!rc->cnx)
     exit(EXIT_FAILURE);
 
   pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
@@ -276,6 +278,7 @@ void recvr_stop(recvr_context_t* rc)
   // properly, feat. timeout-enabled poll() rather than blocking in
   // recv()
   pthread_cancel(rc->recvr_th);
-  close(rc->sock_fd);
+  tport_close(rc->cnx);
+  free(rc->cnx);
   fifo_delete(&rc->fifo);
 }
