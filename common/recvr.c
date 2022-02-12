@@ -83,19 +83,19 @@ static int discard_bytes(int fd, size_t size, void* scratch, size_t scratch_size
 }
 
 
-void recvr_setup(recvr_context_t* rc)
+static int tcp_socket_setup(int fd)
 {
   int sockopt = 1;
-  if (setsockopt(rc->sock_fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
+  if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
     LOGE("GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
+  return 0;
 }
 
 static void* socket_to_fifo_loop(void* data)
 {
   recvr_context_t* rc = data;
-  recvr_setup(rc);
 
   enum {
     POLLFD_TRANSPORT,
@@ -286,6 +286,10 @@ int tport_server_wait_connection(int listen_fd, struct sockaddr* addr, socklen_t
     LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
     return -1;
   }
+
+  if (tcp_socket_setup(fd) < 0)
+    return -1;
+
   return fd;
 }
 
@@ -331,6 +335,9 @@ int tport_client_create(const char* connect_addr, uint16_t connect_port)
     fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
     return -1;
   }
+
+  if (tcp_socket_setup(fd) < 0)
+    return -1;
 
   struct sockaddr_in sai;
   sai.sin_family = AF_INET;
