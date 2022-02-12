@@ -29,7 +29,7 @@ struct gls_server* tport_server_create(const char* listen_addr, uint16_t listen_
 {
   int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (listen_fd < 0) {
-    fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
+    LOGE("GLS ERROR: receiver socket open: %s\n", strerror(errno));
     return NULL;
   }
 
@@ -77,7 +77,7 @@ struct gls_connection* tport_client_create(const char* connect_addr, uint16_t co
 {
   int fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd < 0) {
-    fprintf(stderr, "GLS ERROR: receiver socket open: %s\n", strerror(errno));
+    LOGE("GLS ERROR: receiver socket open: %s\n", strerror(errno));
     return NULL;
   }
 
