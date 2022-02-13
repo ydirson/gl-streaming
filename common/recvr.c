@@ -251,7 +251,9 @@ void recvr_server_start(recvr_context_t* rc, const char* server_addr,
       handle_child(rc);
       if (pthread_join(rc->recvr_th, NULL) != 0)
         LOGE("GLS ERROR: pthread_join failed\n");
-      return;
+      recvr_stop(rc);
+      LOGI("GLS INFO: client terminated\n");
+      exit(EXIT_SUCCESS);
     default:
       tport_close(rc->cnx);
       // ... loop and wait for a new client
@@ -274,10 +276,6 @@ void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 
 void recvr_stop(recvr_context_t* rc)
 {
-  // FIXME should rather signal to socket_to_fifo_loop to finish
-  // properly, feat. timeout-enabled poll() rather than blocking in
-  // recv()
-  pthread_cancel(rc->recvr_th);
   tport_close(rc->cnx);
   free(rc->cnx);
   fifo_delete(&rc->fifo);
