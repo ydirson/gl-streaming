@@ -243,15 +243,14 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
     case -1:
       LOGE("GLS ERROR: %s: fork failed: %s\n", __FUNCTION__, strerror(errno));
       break;
-    case 0: {
-        fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-        pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
-        pthread_setname_np(rc->recvr_th, "gls-recvr");
-        handle_child(rc);
-        if (pthread_join(rc->recvr_th, NULL) != 0)
-          LOGE("GLS ERROR: pthread_join failed\n");
-        return;
-      }
+    case 0:
+      fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
+      pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
+      pthread_setname_np(rc->recvr_th, "gls-recvr");
+      handle_child(rc);
+      if (pthread_join(rc->recvr_th, NULL) != 0)
+        LOGE("GLS ERROR: pthread_join failed\n");
+      return;
     default:
       close(rc->sock_fd);
       // ... loop and wait for a new client
