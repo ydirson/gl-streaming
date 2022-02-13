@@ -41,19 +41,16 @@ int main(int argc, char* argv[])
 {
   int opt;
   recvr_context_t rc = {};
+  char* my_addr = NULL;
 
   if (GLS_VERSION & 1)
     fprintf(stderr, "GLS WARNING: this is a development GLS protocol, "
             "make sure client and server match\n");
 
-  char my_ip[255];
-  uint16_t my_port = 18145;
-  strcpy(my_ip, "127.0.0.1");
   while ((opt = getopt(argc, argv, "s:h")) != -1) {
     switch (opt) {
     case 's':
-      strncpy(my_ip, strtok(optarg, ":"), sizeof(my_ip) - 1);
-      my_port = atoi(strtok(NULL, ":"));
+      my_addr = optarg;
       break;
     case 'h':
     default:
@@ -71,7 +68,7 @@ int main(int argc, char* argv[])
   }
 
   glsec_global.rc = &rc;
-  recvr_server_start(&rc, my_ip, my_port, glserver_handle_packets);
+  recvr_server_start(&rc, my_addr, glserver_handle_packets);
   recvr_stop(&rc);
 
   return 0;

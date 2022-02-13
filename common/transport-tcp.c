@@ -53,8 +53,13 @@ static void tcp_parse_address(const char* addr, char** host, uint16_t* port)
   LOGI("GLS INFO: using as server '%s', port %u\n", the_ip, the_port);
 }
 
-struct gls_server* tport_server_create(const char* listen_addr, uint16_t listen_port)
+struct gls_server* tport_server_create(const char* server_addr)
 {
+  char* listen_addr;
+  uint16_t listen_port;
+
+  tcp_parse_address(server_addr, &listen_addr, &listen_port);
+
   int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (listen_fd < 0) {
     LOGE("GLS ERROR: receiver socket open: %s\n", strerror(errno));

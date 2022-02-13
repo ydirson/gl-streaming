@@ -225,10 +225,10 @@ int recvr_handle_packet(recvr_context_t* rc)
 }
 
 
-void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
+void recvr_server_start(recvr_context_t* rc, const char* server_addr,
                         void(*handle_child)(recvr_context_t*))
 {
-  struct gls_server* srv = tport_server_create(listen_addr, listen_port);
+  struct gls_server* srv = tport_server_create(server_addr);
   if (!srv)
     exit(EXIT_FAILURE);
 

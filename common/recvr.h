@@ -46,7 +46,7 @@ typedef struct
   struct gls_connection* cnx;
 } recvr_context_t;
 
-void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t listen_port,
+void recvr_server_start(recvr_context_t* rc, const char* server_addr,
                         void(*handle_child)(recvr_context_t*));
 void recvr_client_start(recvr_context_t* rc, const char* server_addr);
 void recvr_setup(recvr_context_t* rc);
