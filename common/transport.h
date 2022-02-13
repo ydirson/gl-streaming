@@ -11,7 +11,7 @@ struct gls_server;
 struct gls_connection;
 
 struct gls_server* tport_server_create(const char* listen_addr, uint16_t listen_port);
-struct gls_connection* tport_client_create(const char* connect_addr, uint16_t connect_port);
+struct gls_connection* tport_client_create(const char* server_addr);
 struct gls_connection* tport_server_wait_connection(struct gls_server* srv);
 int tport_connection_fd(struct gls_connection*);
 void tport_close(struct gls_connection* cnx);

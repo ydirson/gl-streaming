@@ -25,6 +25,34 @@ struct gls_connection
   int sock_fd;
 };
 
+// FIXME:
+// * needs error checking
+// * needs name resolution
+static void tcp_parse_address(const char* addr, char** host, uint16_t* port)
+{
+  static char the_ip[30];
+  uint16_t the_port = 18145;
+
+  if (addr == NULL)
+    addr = "127.0.0.1"; // 127.0.0.1:18145
+
+  size_t addrlen = strcspn(addr, ":");
+  if (addrlen >= sizeof(the_ip)) {
+    LOGE("GLS ERROR: server address too long (must be numeric IPv4)\n");
+    exit(EXIT_FAILURE);
+  }
+  strncpy(the_ip, addr, addrlen);
+  the_ip[addrlen] = '\0';
+
+  if (addr[addrlen] == ':' && addr[addrlen + 1] != '\0')
+    the_port = atoi(addr + addrlen + 1);
+
+  *host = the_ip;
+  *port = the_port;
+
+  LOGI("GLS INFO: using as server '%s', port %u\n", the_ip, the_port);
+}
+
 struct gls_server* tport_server_create(const char* listen_addr, uint16_t listen_port)
 {
   int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
@@ -77,8 +105,14 @@ static int tcp_socket_setup(int fd)
   return 0;
 }
 
-struct gls_connection* tport_client_create(const char* connect_addr, uint16_t connect_port)
+struct gls_connection* tport_client_create(const char* server_addr)
 {
+  char* connect_addr;
+  uint16_t connect_port;
+
+  LOGI("GLS INFO: initializing TCP transport\n");
+  tcp_parse_address(server_addr, &connect_addr, &connect_port);
+
   int fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd < 0) {
     LOGE("GLS ERROR: receiver socket open: %s\n", strerror(errno));

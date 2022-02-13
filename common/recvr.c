@@ -260,11 +260,11 @@ void recvr_server_start(recvr_context_t* rc, const char* listen_addr, uint16_t l
   free(srv);
 }
 
-void recvr_client_start(recvr_context_t* rc, const char* connect_addr, uint16_t connect_port)
+void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
   fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
 
-  rc->cnx = tport_client_create(connect_addr, connect_port);
+  rc->cnx = tport_client_create(server_addr);
   if (!rc->cnx)
     exit(EXIT_FAILURE);
 

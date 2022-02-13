@@ -232,24 +232,8 @@ void gls_init_library()
   static int init = FALSE;
   if (init)
     return;
-  char his_ip[30]; // GLS_STRING_SIZE_PLUS
-  uint16_t his_port = 18145;
 
-  const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
-  if (env_serverAddr == NULL) {
-    strncpy(his_ip, "127.0.0.1", 10);
-  } else {
-    size_t addrlen = strcspn(env_serverAddr, ":");
-    assert(addrlen < sizeof(his_ip));
-    strncpy(his_ip, env_serverAddr, addrlen);
-    his_ip[addrlen] = '\0';
-
-    if (env_serverAddr[addrlen] == ':' && env_serverAddr[addrlen + 1] != '\0')
-      his_port = atoi(env_serverAddr + addrlen + 1);
-  }
-  fprintf(stderr, "GLS INFO: connecting to %s:%u\n", his_ip, his_port);
-
-  recvr_client_start(&glsc_global.rc, his_ip, his_port);
+  recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
   gls_init();
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
