@@ -41,20 +41,24 @@ int main(int argc, char* argv[])
 {
   int opt;
   recvr_context_t rc = {};
+  char* my_transport = NULL;
   char* my_addr = NULL;
 
   if (GLS_VERSION & 1)
     fprintf(stderr, "GLS WARNING: this is a development GLS protocol, "
             "make sure client and server match\n");
 
-  while ((opt = getopt(argc, argv, "s:h")) != -1) {
+  while ((opt = getopt(argc, argv, "t:s:h")) != -1) {
     switch (opt) {
+    case 't':
+      my_transport = optarg;
+      break;
     case 's':
       my_addr = optarg;
       break;
     case 'h':
     default:
-      printf("Usage: %s [-s my_ip_address:port]\n", argv[0]);
+      printf("Usage: %s [-t transport] [-s address]\n", argv[0]);
       return EXIT_SUCCESS;
     }
   }
@@ -67,7 +71,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  if (tport_select(NULL) < 0) {
+  if (tport_select(my_transport) < 0) {
     fprintf(stderr, "GLS ERROR: cannot select transport\n");
     return EXIT_FAILURE;
   }

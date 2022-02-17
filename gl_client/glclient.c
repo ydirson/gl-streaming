@@ -233,7 +233,7 @@ void gls_init_library()
   if (init)
     return;
 
-  if (tport_select(NULL) < 0) {
+  if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
     fprintf(stderr, "GLS ERROR: cannot select transport\n");
     exit(EXIT_FAILURE);
   }

@@ -17,11 +17,8 @@ ninja -C build
 build/gl_server/gl_server
 ```
 
-Optionally, use `-s` flags to specify non-default server `ip:port`
-(default `127.0.0.1:18145`).  The port can be omitted, and defaults to
-`18145`.  Use `-s 0.0.0.0` to listen for connections over the network,
-but keep in mind there is absolutely no way today to authorize
-individual connections.
+Optionally, use `-t` flag to select a non-default transport, and `-s`
+flag to select a non-default server address (see below).
 
 ## Environment variables
 
@@ -49,9 +46,30 @@ Disabled by default.  Valid values:
 - 0: Disable command logging (default).
 - 1: Enable command logging.
 
-### `GLS_SERVER_ADDR` -- set server IP address and port
+### `GLS_SERVER_ADDR` -- select (transport-specific) server address
+See below.
 
-Default value: `127.0.0.1:18145`.
+### `GLS_TRANSPORT` -- select transport used to connect to server
+See below.
+
+# Available transports
+
+Transport is selected on server side by `-t` option, and on client
+side by `GLS_SERVER_ADDR` environment variable.
+
+Default value: `tcp`.
+
+Allowed values:
+
+- `tcp`: use TCPv4.  Superserver waits for new clients, and forks a
+  dedicated child server to handle the connection to the client.
+  - `GLS_SERVER_ADDR` can be `<IP>` or `<IP>:<port>`
+  - when `<port>` is omited, defaults to `18145`
+  - default value: `127.0.0.1`
+
+  `0.0.0.0` will listen for connections over the network, but keep
+  in mind there is absolutely no way today to authorize individual
+  connections
 
 
 # QubesOS test setup
