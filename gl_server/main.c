@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     case 'h':
     default:
       printf("Usage: %s [-s my_ip_address:port]\n", argv[0]);
-      return 0;
+      return EXIT_SUCCESS;
     }
   }
 
@@ -63,12 +63,12 @@ int main(int argc, char* argv[])
     struct sigaction sa = {.sa_handler=SIG_IGN};
     if (sigaction(SIGCHLD, &sa, NULL) < 0) {
       perror("sigaction(SIGCHLD)");
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
   glsec_global.rc = &rc;
   recvr_server_start(&rc, my_addr, glserver_handle_packets);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
