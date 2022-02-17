@@ -53,7 +53,7 @@ static void tcp_parse_address(const char* addr, char** host, uint16_t* port)
   LOGI("GLS INFO: using as server '%s', port %u\n", the_ip, the_port);
 }
 
-struct gls_server* tport_server_create(const char* server_addr)
+static struct gls_server* tcp_tport_server_create(const char* server_addr)
 {
   char* listen_addr;
   uint16_t listen_port;
@@ -110,7 +110,7 @@ static int tcp_socket_setup(int fd)
   return 0;
 }
 
-struct gls_connection* tport_client_create(const char* server_addr)
+static struct gls_connection* tcp_tport_client_create(const char* server_addr)
 {
   char* connect_addr;
   uint16_t connect_port;
@@ -150,7 +150,7 @@ struct gls_connection* tport_client_create(const char* server_addr)
   return cnx;
 }
 
-struct gls_connection* tport_server_wait_connection(struct gls_server* srv)
+static struct gls_connection* tcp_tport_server_wait_connection(struct gls_server* srv)
 {
   struct
   {
@@ -183,12 +183,12 @@ struct gls_connection* tport_server_wait_connection(struct gls_server* srv)
   return cnx;
 }
 
-int tport_connection_fd(struct gls_connection* cnx)
+static int tcp_tport_connection_fd(struct gls_connection* cnx)
 {
   return cnx->sock_fd;
 }
 
-ssize_t tport_write(struct gls_connection* cnx, void* buffer, size_t size)
+static ssize_t tcp_tport_write(struct gls_connection* cnx, void* buffer, size_t size)
 {
   ssize_t ret = send(cnx->sock_fd, buffer, size, 0);
   if (ret < 0)
@@ -197,7 +197,7 @@ ssize_t tport_write(struct gls_connection* cnx, void* buffer, size_t size)
   return ret;
 }
 
-ssize_t tport_writev(struct gls_connection* cnx, struct iovec *iov, int iovcnt)
+static ssize_t tcp_tport_writev(struct gls_connection* cnx, struct iovec *iov, int iovcnt)
 {
   struct msghdr msg = { .msg_iov = iov, .msg_iovlen = iovcnt };
 
@@ -208,7 +208,7 @@ ssize_t tport_writev(struct gls_connection* cnx, struct iovec *iov, int iovcnt)
   return ret;
 }
 
-ssize_t tport_read(struct gls_connection* cnx, void* buffer, size_t size)
+static ssize_t tcp_tport_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
   ssize_t recv_size = recv(cnx->sock_fd, buffer, size, 0);
   if (recv_size < 0)
@@ -219,7 +219,19 @@ ssize_t tport_read(struct gls_connection* cnx, void* buffer, size_t size)
   return recv_size;
 }
 
-void tport_close(struct gls_connection* cnx)
+static void tcp_tport_close(struct gls_connection* cnx)
 {
   close(cnx->sock_fd);
 }
+
+struct gls_transport gls_tport_tcp = {
+  .name = "tcp",
+  .server_create = tcp_tport_server_create,
+  .client_create = tcp_tport_client_create,
+  .server_wait_connection = tcp_tport_server_wait_connection,
+  .connection_fd = tcp_tport_connection_fd,
+  .write = tcp_tport_write,
+  .writev = tcp_tport_writev,
+  .read = tcp_tport_read,
+  .close = tcp_tport_close,
+};

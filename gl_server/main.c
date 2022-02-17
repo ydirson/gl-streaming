@@ -67,6 +67,11 @@ int main(int argc, char* argv[])
     }
   }
 
+  if (tport_select(NULL) < 0) {
+    fprintf(stderr, "GLS ERROR: cannot select transport\n");
+    return EXIT_FAILURE;
+  }
+
   glsec_global.rc = &rc;
   recvr_server_start(&rc, my_addr, glserver_handle_packets);
 

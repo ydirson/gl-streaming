@@ -19,6 +19,7 @@ common_srcs = files(
   [
     'common/fifo.c',
     'common/recvr.c',
+    'common/transport.c',
     'common/transport-tcp.c',
   ])
 

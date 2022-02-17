@@ -233,6 +233,11 @@ void gls_init_library()
   if (init)
     return;
 
+  if (tport_select(NULL) < 0) {
+    fprintf(stderr, "GLS ERROR: cannot select transport\n");
+    exit(EXIT_FAILURE);
+  }
+
   recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
   gls_init();
   if (!gls_cmd_HANDSHAKE())
