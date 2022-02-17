@@ -21,6 +21,7 @@ common_srcs = files(
     'common/recvr.c',
     'common/transport.c',
     'common/transport-tcp.c',
+    'common/transport-stdio.c',
   ])
 
 thread_dep = dependency('threads')

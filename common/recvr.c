@@ -262,6 +262,22 @@ void recvr_server_start(recvr_context_t* rc, const char* server_addr,
   free(srv);
 }
 
+// FIXME: could use server_addr -- worth it?
+void recvr_connection_start(recvr_context_t* rc,
+                            void(*handle_child)(recvr_context_t*))
+{
+  rc->cnx = tport_connection_create();
+  // FIXME the rest is a cut'n'paste
+  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
+  pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
+  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  handle_child(rc);
+  if (pthread_join(rc->recvr_th, NULL) != 0)
+    LOGE("GLS ERROR: pthread_join failed\n");
+  recvr_stop(rc);
+  LOGI("GLS INFO: client terminated\n");
+}
+
 void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
   fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);

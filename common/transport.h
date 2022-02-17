@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fastlog.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -19,6 +21,7 @@ struct gls_transport
   // API function pointers
   struct gls_server* (*server_create)(const char* server_addr);
   struct gls_connection* (*server_wait_connection)(struct gls_server* srv);
+  struct gls_connection* (*connection_create)(void);
 
   struct gls_connection* (*client_create)(const char* server_addr);
 
@@ -31,14 +34,35 @@ struct gls_transport
 };
 
 extern struct gls_transport gls_tport_tcp;
+extern struct gls_transport gls_tport_stdio;
 extern struct gls_transport* the_tport;
 
 int tport_select(const char* name);
 
-// public APIs, as macro wrappers
+// public APIs, essentially as macro wrappers
+
+static inline int tport_has_server_create()
+{
+  if (!the_tport->server_create)
+    return 0;
+  if (!the_tport->server_wait_connection) {
+    LOGW("GLS WARNING: transport '%s' cannot use server_create"
+         " without server_wait_connection\n", the_tport->name);
+    return 0;
+  }
+  return 1;
+}
+
+static inline int tport_has_connection_create()
+{
+  if (!the_tport->connection_create)
+    return 0;
+  return 1;
+}
 
 #define tport_server_create(server_addr) the_tport->server_create(server_addr)
 #define tport_server_wait_connection(srv) the_tport->server_wait_connection(srv)
+#define tport_connection_create() the_tport->connection_create();
 
 #define tport_client_create(server_addr) the_tport->client_create(server_addr)
 

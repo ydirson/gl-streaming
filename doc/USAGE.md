@@ -71,6 +71,42 @@ Allowed values:
   in mind there is absolutely no way today to authorize individual
   connections
 
+- `stdio`: use stdin/stdout for a direct connection (on server side
+  this implies not using a superserver).  Typically spawned by an
+  external process setting up those file descriptors (eg. by QubesOS
+  qrexec daemon acting as superserver).  Does not use
+  `GLS_SERVER_ADDR`.
+
+  Can be used on client side using `qrexec-client-vm` to setup the
+  file descriptors, but this has several restrictions:
+
+  - the use of stdin/stdout implies that the client app _must not_ use
+    them.  Eg. using glmark2 with such a setup requires patching it to
+    use `cerr` instead of `cout` for its reporting.
+  - `qrexec-client-vm` wants an absolute path to executable
+
+  ```
+   $ GLS_TRANSPORT=stdio LD_LIBRARY_PATH=$PWD/build/gl_client \
+     qrexec-client-vm dom0 qubes.GLS /usr/bin/es2gears
+  ```
+
+  Can also be used as a local debug/comparison tool, using named pipes
+  with a setup such as:
+
+  ```
+  $ mkfifo tosrv
+  $ mkfifo fromsrv
+  $ < tosrv > fromsrv ./build/gl_server/gl_server -t stdio
+  $ > tosrv < fromsrv GLS_TRANSPORT=stdio LD_LIBRARY_PATH=$PWD/build/gl_client es2gears
+  ```
+
+  Beware that the redirections through the named pipes are setup by
+  the shell prior to launching the program, and under Linux the
+  openning them is blocking until the other end is opened too, so:
+  - the redirections must be set up in the same order on both command
+    lines
+  - the server will not start, so cannot notify of progress or syntax
+    error, before the client is launched
 
 # QubesOS test setup
 

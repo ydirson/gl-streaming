@@ -77,7 +77,19 @@ int main(int argc, char* argv[])
   }
 
   glsec_global.rc = &rc;
-  recvr_server_start(&rc, my_addr, glserver_handle_packets);
+  if (tport_has_server_create()) {
+    if (tport_has_connection_create()) { // let's see when it happens
+      fprintf(stderr, "GLS ERROR: transport provides both server and connection mode\n");
+      return EXIT_FAILURE;
+    }
+    recvr_server_start(&rc, my_addr, glserver_handle_packets);
+  } else if (tport_has_connection_create()) {
+    (void)my_addr;
+    recvr_connection_start(&rc, glserver_handle_packets);
+  } else {
+    fprintf(stderr, "GLS ERROR: transport provides neither server nor connection mode\n");
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

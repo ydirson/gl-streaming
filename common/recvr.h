@@ -48,6 +48,8 @@ typedef struct
 
 void recvr_server_start(recvr_context_t* rc, const char* server_addr,
                         void(*handle_child)(recvr_context_t*));
+void recvr_connection_start(recvr_context_t* rc,
+                            void(*handle_child)(recvr_context_t*));
 void recvr_client_start(recvr_context_t* rc, const char* server_addr);
 void recvr_setup(recvr_context_t* rc);
 int recvr_handle_packet(recvr_context_t* rc);
