@@ -22,6 +22,7 @@ common_srcs = files(
     'common/transport.c',
     'common/transport-tcp.c',
     'common/transport-stdio.c',
+    'common/transport-qrexecpipe.c',
   ])
 
 thread_dep = dependency('threads')

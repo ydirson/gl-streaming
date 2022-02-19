@@ -108,6 +108,13 @@ Allowed values:
   - the server will not start, so cannot notify of progress or syntax
     error, before the client is launched
 
+- `qrexecpipe`: for client-side only, communicates with the Qubes
+  qrexec system using pipes to `qrexec-client-vm`
+  - `GLS_SERVER_ADDR` can be `<domain>` or `<domain>:<service>`
+  - when `<service>` is omited, defaults to `qubes.GLS`
+  - default value: `dom0`.  Useful alternate value is `sys-gui-gpu`.
+
+
 # QubesOS test setup
 
 Be sure you understand the security implications before trying this:
