@@ -36,6 +36,7 @@ struct gls_server* tport_server_create(const char* listen_addr, uint16_t listen_
   int sockopt = 1;
   if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
     LOGE("GLS ERROR: setsockopt(SO_REUSEADDR) failed: %s\n", strerror(errno));
+    close(listen_fd);
     return NULL;
   }
 
@@ -45,17 +46,20 @@ struct gls_server* tport_server_create(const char* listen_addr, uint16_t listen_
   sai.sin_addr.s_addr = inet_addr(listen_addr);
   if (bind(listen_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: bind failed: %s\n", strerror(errno));
+    close(listen_fd);
     return NULL;
   }
 
   if (listen(listen_fd, 1) < 0) {
     LOGE("GLS ERROR: listen failed: %s\n", strerror(errno));
+    close(listen_fd);
     return NULL;
   }
 
   struct gls_server* srv = malloc(sizeof(struct gls_server));
   if (!srv) {
     LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    close(listen_fd);
     return NULL;
   }
 
@@ -81,8 +85,10 @@ struct gls_connection* tport_client_create(const char* connect_addr, uint16_t co
     return NULL;
   }
 
-  if (tcp_socket_setup(fd) < 0)
+  if (tcp_socket_setup(fd) < 0) {
+    close(fd);
     return NULL;
+  }
 
   struct sockaddr_in sai;
   sai.sin_family = AF_INET;
@@ -90,12 +96,14 @@ struct gls_connection* tport_client_create(const char* connect_addr, uint16_t co
   sai.sin_addr.s_addr = inet_addr(connect_addr);
   if (connect(fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
     LOGE("GLS ERROR: connect failed: %s\n", strerror(errno));
+    close(fd);
     return NULL;
   }
 
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {
     LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    close(fd);
     return NULL;
   }
 
@@ -118,12 +126,15 @@ struct gls_connection* tport_server_wait_connection(struct gls_server* srv)
     return NULL;
   }
 
-  if (tcp_socket_setup(fd) < 0)
+  if (tcp_socket_setup(fd) < 0) {
+    close(fd);
     return NULL;
+  }
 
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {
     LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    close(fd);
     return NULL;
   }
 

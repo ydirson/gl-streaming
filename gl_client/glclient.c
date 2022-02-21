@@ -122,6 +122,7 @@ int send_packet()
       client_gles_error = GL_INVALID_OPERATION; // dubious but eh
       break;
     }
+    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;
@@ -191,6 +192,7 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 
   if (tport_writev(glsc_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
+    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;
