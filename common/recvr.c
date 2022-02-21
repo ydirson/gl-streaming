@@ -141,6 +141,22 @@ static void* socket_to_fifo_loop(void* data)
   return NULL;
 }
 
+ssize_t recvr_read(int fd, void* buffer, size_t size)
+{
+  char* current = buffer;
+  size_t remaining = size;
+  while (remaining) {
+    ssize_t recv_size = tport_read(fd, current, remaining);
+    if (recv_size == 0)
+      return 0;
+    if (recv_size < 0)
+      break;
+    remaining -= recv_size;
+    current += recv_size;
+  }
+  return size;
+}
+
 int recvr_handle_packet(recvr_context_t* rc)
 {
   char* pushptr = fifo_push_ptr_get(&rc->fifo);
@@ -198,7 +214,7 @@ int recvr_handle_packet(recvr_context_t* rc)
 
   int endsession = 0;
   do {
-    recv_size = tport_read(rc->sock_fd, dest, remaining);
+    recv_size = recvr_read(rc->sock_fd, dest, remaining);
     if (recv_size < 0) {
       close(rc->sock_fd);
       endsession = -1;
