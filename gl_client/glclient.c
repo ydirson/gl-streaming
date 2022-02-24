@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "glclient.h"
+#include "transport.h"
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
@@ -112,8 +113,7 @@ int send_packet()
     break;
   }
 
-  if (send(glsc_global.rc.sock_fd, glsc_global.pool.out_buf.buf, c->cmd_size, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_packet(%u) failure: %s\n", c->cmd_size, strerror(errno));
+  if (tport_write(glsc_global.rc.cnx, glsc_global.pool.out_buf.buf, c->cmd_size) < 0) {
     switch (c->cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
       client_egl_error = EGL_BAD_ACCESS; // dubious but eh
@@ -122,6 +122,7 @@ int send_packet()
       client_gles_error = GL_INVALID_OPERATION; // dubious but eh
       break;
     }
+    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;
@@ -184,15 +185,14 @@ int gls_cmd_send_data(uint32_t size, const void* data)
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
   c->zero = 0;
 
-  struct iovec iov[2] = {
+  struct iovec iov[] = {
     { c, sizeof(gls_cmd_send_data_t) },
     { (void*)data, size }
   };
-  struct msghdr msg = { .msg_iov = iov, .msg_iovlen = 2 };
 
-  if (sendmsg(glsc_global.rc.sock_fd, &msg, 0) < 0) {
-    fprintf(stderr, "GLS ERROR: send_data sendmsg(%u) failure: %s\n", c->cmd_size, strerror(errno));
+  if (tport_writev(glsc_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
+    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;
@@ -232,24 +232,13 @@ void gls_init_library()
   static int init = FALSE;
   if (init)
     return;
-  char his_ip[30]; // GLS_STRING_SIZE_PLUS
-  uint16_t his_port = 18145;
 
-  const char* env_serverAddr = getenv("GLS_SERVER_ADDR");
-  if (env_serverAddr == NULL) {
-    strncpy(his_ip, "127.0.0.1", 10);
-  } else {
-    size_t addrlen = strcspn(env_serverAddr, ":");
-    assert(addrlen < sizeof(his_ip));
-    strncpy(his_ip, env_serverAddr, addrlen);
-    his_ip[addrlen] = '\0';
-
-    if (env_serverAddr[addrlen] == ':' && env_serverAddr[addrlen + 1] != '\0')
-      his_port = atoi(env_serverAddr + addrlen + 1);
+  if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
+    fprintf(stderr, "GLS ERROR: cannot select transport\n");
+    exit(EXIT_FAILURE);
   }
-  fprintf(stderr, "GLS INFO: connecting to %s:%u\n", his_ip, his_port);
 
-  recvr_client_start(&glsc_global.rc, his_ip, his_port);
+  recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
   gls_init();
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);

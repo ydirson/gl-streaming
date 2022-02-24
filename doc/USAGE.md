@@ -17,11 +17,8 @@ ninja -C build
 build/gl_server/gl_server
 ```
 
-Optionally, use `-s` flags to specify non-default server `ip:port`
-(default `127.0.0.1:18145`).  The port can be omitted, and defaults to
-`18145`.  Use `-s 0.0.0.0` to listen for connections over the network,
-but keep in mind there is absolutely no way today to authorize
-individual connections.
+Optionally, use `-t` flag to select a non-default transport, and `-s`
+flag to select a non-default server address (see below).
 
 ## Environment variables
 
@@ -49,9 +46,73 @@ Disabled by default.  Valid values:
 - 0: Disable command logging (default).
 - 1: Enable command logging.
 
-### `GLS_SERVER_ADDR` -- set server IP address and port
+### `GLS_SERVER_ADDR` -- select (transport-specific) server address
+See below.
 
-Default value: `127.0.0.1:18145`.
+### `GLS_TRANSPORT` -- select transport used to connect to server
+See below.
+
+# Available transports
+
+Transport is selected on server side by `-t` option, and on client
+side by `GLS_SERVER_ADDR` environment variable.
+
+Default value: `tcp`.
+
+Allowed values:
+
+- `tcp`: use TCPv4.  Superserver waits for new clients, and forks a
+  dedicated child server to handle the connection to the client.
+  - `GLS_SERVER_ADDR` can be `<IP>` or `<IP>:<port>`
+  - when `<port>` is omited, defaults to `18145`
+  - default value: `127.0.0.1`
+
+  `0.0.0.0` will listen for connections over the network, but keep
+  in mind there is absolutely no way today to authorize individual
+  connections
+
+- `stdio`: use stdin/stdout for a direct connection (on server side
+  this implies not using a superserver).  Typically spawned by an
+  external process setting up those file descriptors (eg. by QubesOS
+  qrexec daemon acting as superserver).  Does not use
+  `GLS_SERVER_ADDR`.
+
+  Can be used on client side using `qrexec-client-vm` to setup the
+  file descriptors, but this has several restrictions:
+
+  - the use of stdin/stdout implies that the client app _must not_ use
+    them.  Eg. using glmark2 with such a setup requires patching it to
+    use `cerr` instead of `cout` for its reporting.
+  - `qrexec-client-vm` wants an absolute path to executable
+
+  ```
+   $ GLS_TRANSPORT=stdio LD_LIBRARY_PATH=$PWD/build/gl_client \
+     qrexec-client-vm dom0 qubes.GLS /usr/bin/es2gears
+  ```
+
+  Can also be used as a local debug/comparison tool, using named pipes
+  with a setup such as:
+
+  ```
+  $ mkfifo tosrv
+  $ mkfifo fromsrv
+  $ < tosrv > fromsrv ./build/gl_server/gl_server -t stdio
+  $ > tosrv < fromsrv GLS_TRANSPORT=stdio LD_LIBRARY_PATH=$PWD/build/gl_client es2gears
+  ```
+
+  Beware that the redirections through the named pipes are setup by
+  the shell prior to launching the program, and under Linux the
+  openning them is blocking until the other end is opened too, so:
+  - the redirections must be set up in the same order on both command
+    lines
+  - the server will not start, so cannot notify of progress or syntax
+    error, before the client is launched
+
+- `qrexecpipe`: for client-side only, communicates with the Qubes
+  qrexec system using pipes to `qrexec-client-vm`
+  - `GLS_SERVER_ADDR` can be `<domain>` or `<domain>:<service>`
+  - when `<service>` is omited, defaults to `qubes.GLS`
+  - default value: `dom0`.  Useful alternate value is `sys-gui-gpu`.
 
 
 # QubesOS test setup

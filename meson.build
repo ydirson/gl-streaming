@@ -15,7 +15,15 @@ add_project_arguments(
   language : 'c')
 
 common_incdir = include_directories('common')
-common_srcs = files(['common/fifo.c', 'common/recvr.c'])
+common_srcs = files(
+  [
+    'common/fifo.c',
+    'common/recvr.c',
+    'common/transport.c',
+    'common/transport-tcp.c',
+    'common/transport-stdio.c',
+    'common/transport-qrexecpipe.c',
+  ])
 
 thread_dep = dependency('threads')
 x11_dep = dependency('x11')
