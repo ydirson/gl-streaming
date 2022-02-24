@@ -55,7 +55,7 @@ static float get_diff_time(struct timeval start, struct timeval end)
 static int gls_init()
 {
   if (GLS_VERSION & 1)
-    LOGW("GLS WARNING: this is a development GLS protocol, "
+    LOGW("this is a development GLS protocol, "
          "make sure client and server match\n");
 
   const char* env_isDebugStr = getenv("GLS_DEBUG");
@@ -68,7 +68,7 @@ static int gls_init()
   if (env_isDebug == 0 || env_isDebug == 1) {
     glsc_global.is_debug = env_isDebug;
   } else {
-    LOGE("GLS ERROR: GLS_DEBUG variable must be 0 or 1\n");
+    LOGE("GLS_DEBUG variable must be 0 or 1\n");
     exit(EXIT_FAILURE);
     return FALSE;
   }
@@ -142,7 +142,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
       gettimeofday(&end_time, NULL);
       float diff_time = get_diff_time(start_time, end_time);
       if (diff_time > GLS_TIMEOUT_SEC) {
-        LOGE("GLS ERROR: timeout:%s\n", str);
+        LOGE("timeout:%s\n", str);
         exit(EXIT_FAILURE);
         return FALSE;
       }
@@ -158,7 +158,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
           data = (gls_cmd_send_data_t*)data->dataptr;
         gls_command_t* ret = (gls_command_t*)data->data;
         if (cmd != GLSC_GLS_UNDEF && ret->cmd != cmd) {
-          LOGE("GLS ERROR: received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
+          LOGE("received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
                ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
           break; // ignore packet and try again, but no luck
         }
@@ -167,7 +167,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
         break;
       }
     default:
-      LOGE("GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
+      LOGE("received non-DATA packet, cmd=0x%x (%s)\n",
            c->cmd, GLSC_tostring(c->cmd));
       break;
     }
@@ -208,7 +208,7 @@ static int gls_cmd_HANDSHAKE()
 
   GLS_WAIT_SET_RET_PTR(ret, HANDSHAKE);
   if (ret->server_version != GLS_VERSION) {
-    LOGE("GLS ERROR: Incompatible version, server version %i but client version %i.\n",
+    LOGE("Incompatible version, server version %i but client version %i.\n",
          ret->server_version, GLS_VERSION);
     GLS_RELEASE_RET();
     return FALSE;
@@ -235,7 +235,7 @@ void gls_init_library()
     return;
 
   if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
-    LOGE("GLS ERROR: cannot select transport\n");
+    LOGE("cannot select transport\n");
     exit(EXIT_FAILURE);
   }
 

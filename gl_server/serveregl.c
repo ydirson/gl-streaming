@@ -138,11 +138,11 @@ static void glse_eglCreateWindowSurface(gls_command_t* buf)
 
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
-    LOGW("GLS WARNING: eglCreateWindowSurface referencing NULL Window");
+    LOGW("eglCreateWindowSurface referencing NULL Window");
   Window window = gls_local_x11_window(glsec_global.gc, c->window);
   if (!window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
-    LOGE("GLS ERROR: eglCreateWindowSurface referencing unknown Window 0x%08x\n",
+    LOGE("eglCreateWindowSurface referencing unknown Window 0x%08x\n",
          c->window);
   EGLSurface surface = eglCreateWindowSurface((EGLDisplay)c->dpy, (EGLConfig)c->config,
                        window, dat);
@@ -262,7 +262,7 @@ static void glse_eglGetProcAddress(gls_command_t* buf)
     else if (strncmp(c->procname, "gl", 2) == 0)
       glse_GetGlesProcAddress(c->procname, proc);
     else
-      LOGW("GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
+      LOGW("%s: called for valid func of unknown API: '%s'\n",
            __FUNCTION__, c->procname);
   }
 
@@ -326,7 +326,7 @@ static void glse_eglQueryString(gls_command_t* buf)
         if (!len) break;
         if (glse_extension_supported(GLS_EGL_EXTENSIONS, params, len)) {
           if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_eglQueryString_t)) {
-            LOGW("GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+            LOGW("%s: not enough buffer space for all extensions, truncating\n",
                  __FUNCTION__);
             break;
           }
@@ -365,7 +365,7 @@ static void glse_eglQueryString(gls_command_t* buf)
     }
     break;
   default:
-    LOGW("GLS WARNING: eglQueryString: unsupported string name 0x%x\n", c->name);
+    LOGW("eglQueryString: unsupported string name 0x%x\n", c->name);
     ret->success = FALSE;
   }
 
@@ -483,7 +483,7 @@ void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
   EGLDisplay display;
 
   if (!egl_context.eglGetPlatformDisplayEXT) {
-    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("%s: no function cached\n", __FUNCTION__);
     display = EGL_NO_DISPLAY;
     goto end;
   }
@@ -517,18 +517,18 @@ static void glse_eglCreatePlatformWindowSurfaceEXT(gls_command_t* buf)
   EGLSurface surface;
 
   if (!egl_context.eglCreatePlatformWindowSurfaceEXT) {
-    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("%s: no function cached\n", __FUNCTION__);
     surface = EGL_NO_SURFACE;
     goto end;
   }
 
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
-    LOGW("GLS WARNING: eglCreatePlatformWindowSurfaceEXT referencing NULL Window");
+    LOGW("eglCreatePlatformWindowSurfaceEXT referencing NULL Window");
   Window window = gls_local_x11_window(glsec_global.gc, c->window);
   if (!window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
-    LOGE("GLS ERROR: eglCreatePlatformWindowSurfaceEXT referencing unknown Window 0x%08x\n",
+    LOGE("eglCreatePlatformWindowSurfaceEXT referencing unknown Window 0x%08x\n",
          c->window);
   surface = egl_context.eglCreatePlatformWindowSurfaceEXT((EGLDisplay)c->dpy, (EGLConfig)c->config,
                                                           &window, dat);

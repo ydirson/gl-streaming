@@ -27,7 +27,7 @@ static inline int fifobuf_data_to_bufpool(gls_bufpool_t* pool, fifo_t* fifo, gls
 {
   (void)fifo;
   if (pool->mallocated) {
-    LOGW("GLS WARNING: previous buffer for large data not freed!\n");
+    LOGW("previous buffer for large data not freed!\n");
     free(pool->mallocated);
     pool->mallocated = NULL;
   }
@@ -38,7 +38,7 @@ static inline int fifobuf_data_to_bufpool(gls_bufpool_t* pool, fifo_t* fifo, gls
     pool->data_payload = pool->mallocated + sizeof(gls_cmd_send_data_t);
   } else {
     if (c->cmd_size > pool->tmp_buf.size) {
-      LOGE("GLS ERROR: data too large for buffer (%u > %zu), dropping\n",
+      LOGE("data too large for buffer (%u > %zu), dropping\n",
            c->cmd_size, pool->tmp_buf.size);
       return 0;
     }

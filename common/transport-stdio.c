@@ -16,7 +16,7 @@ static struct gls_connection* stdio_tport_connection_create()
 {
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {
-    LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    LOGE("malloc failed: %s\n", strerror(errno));
     return NULL;
   }
   cnx->read_fd = STDIN_FILENO;
@@ -26,7 +26,7 @@ static struct gls_connection* stdio_tport_connection_create()
 
 static struct gls_connection* stdio_tport_client_create(const char* server_addr)
 {
-  LOGI("GLS INFO: initializing stdio transport\n");
+  LOGI("initializing stdio transport\n");
   (void)server_addr;
   return tport_connection_create();
 }
@@ -40,7 +40,7 @@ static ssize_t stdio_tport_write(struct gls_connection* cnx, void* buffer, size_
 {
   ssize_t ret = write(cnx->write_fd, buffer, size);
   if (ret < 0)
-    LOGE("GLS ERROR: write failed: %s\n", strerror(errno));
+    LOGE("write failed: %s\n", strerror(errno));
   return ret;
 }
 
@@ -48,7 +48,7 @@ static ssize_t stdio_tport_writev(struct gls_connection* cnx, struct iovec *iov,
 {
   ssize_t ret = writev(cnx->write_fd, iov, iovcnt);
   if (ret < 0)
-    LOGE("GLS ERROR: writev failed: %s\n", strerror(errno));
+    LOGE("writev failed: %s\n", strerror(errno));
   return ret;
 }
 
@@ -56,7 +56,7 @@ static ssize_t stdio_tport_read(struct gls_connection* cnx, void* buffer, size_t
 {
   ssize_t ret = read(cnx->read_fd, buffer, size);
   if (ret < 0)
-    LOGE("GLS ERROR: read failed: %s\n", strerror(errno));
+    LOGE("read failed: %s\n", strerror(errno));
   return ret;
 }
 

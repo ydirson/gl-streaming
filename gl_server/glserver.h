@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   TYPE* PTR;                                                            \
   if (WAITDATA) {                                                       \
     if (!glsec_global.pool.has_data) {                                  \
-      LOGW("GLS WARNING: skipping %s call without data\n", __FUNCTION__); \
+      LOGW("skipping %s call without data\n", __FUNCTION__); \
       return;                                                           \
     }                                                                   \
     if (glsec_global.pool.mallocated)                                   \

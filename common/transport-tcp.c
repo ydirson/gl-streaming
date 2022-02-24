@@ -38,7 +38,7 @@ static void tcp_parse_address(const char* addr, char** host, uint16_t* port)
 
   size_t addrlen = strcspn(addr, ":");
   if (addrlen >= sizeof(the_ip)) {
-    LOGE("GLS ERROR: server address too long (must be numeric IPv4)\n");
+    LOGE("server address too long (must be numeric IPv4)\n");
     exit(EXIT_FAILURE);
   }
   strncpy(the_ip, addr, addrlen);
@@ -50,7 +50,7 @@ static void tcp_parse_address(const char* addr, char** host, uint16_t* port)
   *host = the_ip;
   *port = the_port;
 
-  LOGI("GLS INFO: using as server '%s', port %u\n", the_ip, the_port);
+  LOGI("using as server '%s', port %u\n", the_ip, the_port);
 }
 
 static struct gls_server* tcp_tport_server_create(const char* server_addr)
@@ -62,13 +62,13 @@ static struct gls_server* tcp_tport_server_create(const char* server_addr)
 
   int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (listen_fd < 0) {
-    LOGE("GLS ERROR: receiver socket open: %s\n", strerror(errno));
+    LOGE("receiver socket open: %s\n", strerror(errno));
     return NULL;
   }
 
   int sockopt = 1;
   if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-    LOGE("GLS ERROR: setsockopt(SO_REUSEADDR) failed: %s\n", strerror(errno));
+    LOGE("setsockopt(SO_REUSEADDR) failed: %s\n", strerror(errno));
     close(listen_fd);
     return NULL;
   }
@@ -78,20 +78,20 @@ static struct gls_server* tcp_tport_server_create(const char* server_addr)
   sai.sin_port = htons(listen_port);
   sai.sin_addr.s_addr = inet_addr(listen_addr);
   if (bind(listen_fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
-    LOGE("GLS ERROR: bind failed: %s\n", strerror(errno));
+    LOGE("bind failed: %s\n", strerror(errno));
     close(listen_fd);
     return NULL;
   }
 
   if (listen(listen_fd, 1) < 0) {
-    LOGE("GLS ERROR: listen failed: %s\n", strerror(errno));
+    LOGE("listen failed: %s\n", strerror(errno));
     close(listen_fd);
     return NULL;
   }
 
   struct gls_server* srv = malloc(sizeof(struct gls_server));
   if (!srv) {
-    LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    LOGE("malloc failed: %s\n", strerror(errno));
     close(listen_fd);
     return NULL;
   }
@@ -104,7 +104,7 @@ static int tcp_socket_setup(int fd)
 {
   int sockopt = 1;
   if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt)) < 0) {
-    LOGE("GLS ERROR: setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
+    LOGE("setsockopt(TCP_NODELAY) error: %s\n", strerror(errno));
     return -1;
   }
   return 0;
@@ -115,12 +115,12 @@ static struct gls_connection* tcp_tport_client_create(const char* server_addr)
   char* connect_addr;
   uint16_t connect_port;
 
-  LOGI("GLS INFO: initializing TCP transport\n");
+  LOGI("initializing TCP transport\n");
   tcp_parse_address(server_addr, &connect_addr, &connect_port);
 
   int fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd < 0) {
-    LOGE("GLS ERROR: receiver socket open: %s\n", strerror(errno));
+    LOGE("receiver socket open: %s\n", strerror(errno));
     return NULL;
   }
 
@@ -134,14 +134,14 @@ static struct gls_connection* tcp_tport_client_create(const char* server_addr)
   sai.sin_port = htons(connect_port);
   sai.sin_addr.s_addr = inet_addr(connect_addr);
   if (connect(fd, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
-    LOGE("GLS ERROR: connect failed: %s\n", strerror(errno));
+    LOGE("connect failed: %s\n", strerror(errno));
     close(fd);
     return NULL;
   }
 
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {
-    LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    LOGE("malloc failed: %s\n", strerror(errno));
     close(fd);
     return NULL;
   }
@@ -161,7 +161,7 @@ static struct gls_connection* tcp_tport_server_wait_connection(struct gls_server
   peer.addrlen = sizeof(peer.addr);
   int fd = accept4(srv->listen_fd, &peer.addr, &peer.addrlen, SOCK_CLOEXEC);
   if (fd < 0) {
-    LOGE("GLS ERROR: server accept: %s\n", strerror(errno));
+    LOGE("server accept: %s\n", strerror(errno));
     return NULL;
   }
 
@@ -172,7 +172,7 @@ static struct gls_connection* tcp_tport_server_wait_connection(struct gls_server
 
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {
-    LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    LOGE("malloc failed: %s\n", strerror(errno));
     close(fd);
     return NULL;
   }
@@ -192,7 +192,7 @@ static ssize_t tcp_tport_write(struct gls_connection* cnx, void* buffer, size_t 
 {
   ssize_t ret = send(cnx->sock_fd, buffer, size, 0);
   if (ret < 0)
-    LOGE("GLS ERROR: send_packet(%zu) failure: %s\n", size, strerror(errno));
+    LOGE("send_packet(%zu) failure: %s\n", size, strerror(errno));
 
   return ret;
 }
@@ -203,7 +203,7 @@ static ssize_t tcp_tport_writev(struct gls_connection* cnx, struct iovec *iov, i
 
   ssize_t ret = sendmsg(cnx->sock_fd, &msg, 0);
   if (ret < 0)
-    LOGE("GLS ERROR: tcp_writev failure: %s\n", strerror(errno));
+    LOGE("tcp_writev failure: %s\n", strerror(errno));
 
   return ret;
 }
@@ -212,9 +212,9 @@ static ssize_t tcp_tport_read(struct gls_connection* cnx, void* buffer, size_t s
 {
   ssize_t recv_size = recv(cnx->sock_fd, buffer, size, 0);
   if (recv_size < 0)
-    LOGE("GLS ERROR: transport socket recv: %s\n", strerror(errno));
+    LOGE("transport socket recv: %s\n", strerror(errno));
   else if (recv_size == 0)
-    LOGI("GLS INFO: transport socket closed\n");
+    LOGI("transport socket closed\n");
 
   return recv_size;
 }

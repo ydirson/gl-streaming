@@ -82,7 +82,7 @@ void base_check_egl_err(const char* funcname)
 {
   int error = eglGetError();
   if (error != EGL_SUCCESS) {
-    LOGD("GLS ERROR: eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
+    LOGD("eglGetError(%s) return error %s\n", funcname, eglGetErrorString(error));
   }
 #ifdef DEBUG
   assert(error == 0)
@@ -92,7 +92,7 @@ void base_check_gl_err(const char* funcname)
 {
   int error = glGetError();
   if (error != GL_NO_ERROR) {
-    LOGD("GLS ERROR: glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
+    LOGD("glGetError(%s) return error %s\n", funcname, glGetErrorString(error));
   }
 #ifdef DEBUG
   assert(error == 0)
@@ -104,12 +104,12 @@ void init_egl(graphics_context_t* gc)
 #ifdef USE_X11
   gc->x.display = XOpenDisplay(NULL);
   if (!gc->x.display) {
-    LOGE("GLS ERROR: couldn't open display %s\n", getenv("DISPLAY"));
+    LOGE("couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
   }
   gc->x.remote2local = list_new();
   if (!gc->x.remote2local) {
-    LOGE("GLS ERROR: couldn't allocate window list\n");
+    LOGE("couldn't allocate window list\n");
     exit(EXIT_FAILURE);
   }
 #endif
@@ -150,7 +150,7 @@ Window gls_create_x11_window(graphics_context_t* gc, const char* name, int x, in
   visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(gc->x.display, xScreenId));
   visInfo = XGetVisualInfo(gc->x.display, VisualIDMask, &visTemplate, &num_visuals);
   if (!visInfo) {
-    LOGE("GLS ERROR: couldn't get X visual\n");
+    LOGE("couldn't get X visual\n");
     exit(1);
   }
 

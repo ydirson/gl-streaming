@@ -61,7 +61,7 @@ typedef struct
   PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
-    LOGD("GLS DEBUG: handling %s (cmd=0x%x)\n",                         \
+    LOGD("handling %s (cmd=0x%x)\n",                         \
          #FUNCNAME, CMD);                                               \
   //
 
@@ -72,7 +72,7 @@ typedef struct
   do {                                                                  \
     PTR->cmd_size += SIZE;                                              \
     if (!GLS_ENOUGH_SIZE(PTR)) {                                        \
-      LOGE("GLS ERROR: %s data too large\n", __FUNCTION__);             \
+      LOGE("%s data too large\n", __FUNCTION__);             \
       RETURN_STMT;                                                      \
     }                                                                   \
     memcpy(PTR->FIELD, FIELD, SIZE);                                    \

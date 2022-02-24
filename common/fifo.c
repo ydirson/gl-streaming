@@ -41,7 +41,7 @@ int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
 
   int pipefds[2];
   if (pipe2(pipefds, O_CLOEXEC) < 0) {
-    LOGE("GLS ERROR: FIFO pipe allocation failure: %s\n", strerror(errno));
+    LOGE("FIFO pipe allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
   fifo->pipe_rd = pipefds[0];
@@ -52,7 +52,7 @@ int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
   unsigned int alignment = fifo->fifo_packet_size;
   fifo->buffer = (char*)aligned_alloc(alignment, fifo->fifo_size * fifo->fifo_packet_size);
   if (fifo->buffer == NULL) {
-    LOGE("GLS ERROR: FIFO allocation failure: %s\n", strerror(errno));
+    LOGE("FIFO allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 #else

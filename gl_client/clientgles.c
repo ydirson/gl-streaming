@@ -47,7 +47,7 @@ static unsigned _type_bytesize(GLenum type)
   case GL_FIXED: return sizeof(GLfixed);
   case GL_FLOAT: return sizeof(GLfloat);
   default:
-    LOGE("GLS ERROR: %s: unhandled data type %x\n", __FUNCTION__, type);
+    LOGE("%s: unhandled data type %x\n", __FUNCTION__, type);
     assert(0);
   }
 }
@@ -70,7 +70,7 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
     case GL_BGRA_EXT:
       return 4;
     default:
-      LOGW("GLS WARNING: unhandled pixel format %x\n", format);
+      LOGW("unhandled pixel format %x\n", format);
       return 4;
     }
   case GL_UNSIGNED_SHORT_5_6_5:
@@ -80,7 +80,7 @@ static unsigned _pixelformat_to_bytes(GLenum format, GLenum type)
   case GL_UNSIGNED_SHORT_5_5_5_1:
     return 2;
   default:
-    LOGW("GLS WARNING: unhandled pixel type %x\n", type);
+    LOGW("unhandled pixel type %x\n", type);
     return 4;
   }
 }
@@ -109,7 +109,7 @@ GLS_DEF_CORE_API(void, glBindAttribLocation, GLuint program, GLuint index, const
   c->program = program;
   c->index = index;
   if (strlen(name) + 1 > sizeof(c->name)) {
-    LOGE("GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
+    LOGE("%s passed a name too long for protocol, len(%s) > %zu\n",
          __FUNCTION__, name, sizeof(c->name));
     client_gles_error = GL_INVALID_OPERATION;
     return;
@@ -132,7 +132,7 @@ GLS_DEF_CORE_API(void, glBindBuffer, GLenum target, GLuint buffer)
   } else if (target == GL_ELEMENT_ARRAY_BUFFER) {
     buffer_objs.ibo = buffer;
   } else
-    LOGE("GLS ERROR: unsupported buffer type!\n");
+    LOGE("unsupported buffer type!\n");
 }
 
 
@@ -524,7 +524,7 @@ static void defered_vertex_attrib_pointer(int i, int count)
     stride = attrib->size * _type_bytesize(attrib->type);
 
   if (glsc_global.is_debug)
-    LOGD("GLS DBG: %s: uploading %u bytes to emulation VBO\n", __FUNCTION__,
+    LOGD("%s: uploading %u bytes to emulation VBO\n", __FUNCTION__,
          count * stride);
   glBindBuffer(GL_ARRAY_BUFFER, attrib->emul_vbo_id);
   glBufferData(GL_ARRAY_BUFFER, count * stride, (void*)attrib->ptr, GL_STREAM_DRAW);
@@ -569,7 +569,7 @@ GLS_DEF_CORE_API(void, glDrawElements, GLenum mode, GLsizei count, GLenum type, 
     }
     if (max_idx < 0) {
       client_gles_error = GL_INVALID_OPERATION;
-      LOGE("GLS ERROR: %s: failed to compute max index in IBO\n", __FUNCTION__);
+      LOGE("%s: failed to compute max index in IBO\n", __FUNCTION__);
       return;
     }
   }
@@ -583,7 +583,7 @@ GLS_DEF_CORE_API(void, glDrawElements, GLenum mode, GLsizei count, GLenum type, 
       glGenBuffers(1, &buffer_objs.ibo_emu);
     }
     if (glsc_global.is_debug)
-      LOGD("GLS DBG: %s: uploading %u bytes to emulation IBO\n", __FUNCTION__,
+      LOGD("%s: uploading %u bytes to emulation IBO\n", __FUNCTION__,
            count * sizeoftype);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_objs.ibo_emu);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeoftype, indices, GL_STREAM_DRAW);
@@ -735,7 +735,7 @@ GLS_DEF_CORE_API(void, glGetActiveAttrib, GLuint program, GLuint index, GLsizei 
   GLS_SET_RET_PTR(ret, glGetActiveAttrib);
   if ((unsigned)bufsize > sizeof(ret->name)) {
     c->bufsize = sizeof(ret->name);
-    LOGW("GLS WARNING: %s: buffer for attrib name limited by protocol: %u => %u\n",
+    LOGW("%s: buffer for attrib name limited by protocol: %u => %u\n",
          __FUNCTION__, bufsize, c->bufsize);
   }
   GLS_SEND_PACKET(glGetActiveAttrib);
@@ -766,7 +766,7 @@ GLS_DEF_CORE_API(void, glGetActiveUniform, GLuint program, GLuint index, GLsizei
   GLS_SET_RET_PTR(ret, glGetActiveUniform);
   if ((unsigned)bufsize > sizeof(ret->name)) {
     c->bufsize = sizeof(ret->name);
-    LOGW("GLS WARNING: %s: buffer for uniform name limited by protocol: %u => %u\n",
+    LOGW("%s: buffer for uniform name limited by protocol: %u => %u\n",
          __FUNCTION__, bufsize, c->bufsize);
   }
   GLS_SEND_PACKET(glGetActiveUniform);
@@ -799,7 +799,7 @@ GLS_DEF_CORE_API(GLint, glGetAttribLocation, GLuint program, const GLchar* name)
   GLS_SET_COMMAND_PTR(c, glGetAttribLocation);
   c->program = program;
   if (strlen(name) + 1 > sizeof(c->name)) {
-    LOGE("GLS ERROR: %s passed a name too long for protocol, len(%s) > %zu\n",
+    LOGE("%s passed a name too long for protocol, len(%s) > %zu\n",
          __FUNCTION__, name, sizeof(c->name));
     client_gles_error = GL_INVALID_OPERATION;
     return -1;
@@ -1002,17 +1002,17 @@ static int _registerGlesString(GLenum name, const char** field_p)
   if (!value) {
     GLenum error = glGetError();
     if (error != GL_INVALID_ENUM)
-      LOGE("GLS ERROR: glGetString(0x%x) failed, error 0x%x\n",
+      LOGE("glGetString(0x%x) failed, error 0x%x\n",
            name, error);
     return 0;
   }
   int valuesize = strlen(value) + 1;
   while (gles_strings.nfilled + valuesize > gles_strings.allocated) {
     gles_strings.allocated *= 2;
-    //LOGD("GLS DBG: glGetString reallocating %zu\n", gles_strings.allocated);
+    //LOGD("glGetString reallocating %zu\n", gles_strings.allocated);
     void* newstorage = realloc(gles_strings.storage, gles_strings.allocated);
     if (!newstorage) {
-      LOGE("GLS ERROR: glGetString reallocation failed: %s\n", strerror(errno));
+      LOGE("glGetString reallocation failed: %s\n", strerror(errno));
       exit(EXIT_FAILURE);
     }
     gles_strings.storage = newstorage;
@@ -1031,7 +1031,7 @@ static void _populate_gles_strings()
   gles_strings.allocated = 1024; // rather arbitrary
   gles_strings.storage = malloc(gles_strings.allocated);
   if (!gles_strings.storage) {
-    LOGE("GLS ERROR: glGetString allocation failed: %s\n", strerror(errno));
+    LOGE("glGetString allocation failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
@@ -1107,7 +1107,7 @@ GLS_DEF_CORE_API(int, glGetUniformLocation, GLuint program, const GLchar* name)
   int nameLength = strnlen(name, 0xA00000) + 1;
   /*
     if (nameLength > 100) {
-        LOGE("GLS ERROR: please increase glGetUniformLocation(char name[]) up to %d\n", nameLength);
+        LOGE("please increase glGetUniformLocation(char name[]) up to %d\n", nameLength);
     }
   */
   strncpy(c->name, name, nameLength);
@@ -1234,7 +1234,7 @@ GLS_DEF_CORE_API(void, glPixelStorei, GLenum pname, GLint param)
     glsc_global.unpack_alignment = param;
     break;
   default:
-    LOGW("GLS WARNING: %s called with unknown pname 0x%x\n", __FUNCTION__, pname);
+    LOGW("%s called with unknown pname 0x%x\n", __FUNCTION__, pname);
   }
   GLS_SET_COMMAND_PTR(c, glPixelStorei);
   c->pname = pname;
@@ -1315,7 +1315,7 @@ GLS_DEF_CORE_API(void, glShaderBinary, GLsizei n, const GLuint* shaders, GLenum 
 GLS_DEF_CORE_API(void, glShaderSource, GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length)
 {
   if (count > 10240) { // 256
-    LOGW("GLS WARNING: shader too large, over 10kb, ignoring.\n"); // FIXME why!?
+    LOGW("shader too large, over 10kb, ignoring.\n"); // FIXME why!?
     return;
   }
   gls_data_glShaderSource_t* dat = (gls_data_glShaderSource_t*)glsc_global.pool.tmp_buf.buf;
@@ -1333,7 +1333,7 @@ GLS_DEF_CORE_API(void, glShaderSource, GLuint shader, GLsizei count, const GLcha
       strsize = strlen(strptr);
     size_all += strsize + 1;
     if (size_all > glsc_global.pool.tmp_buf.size) {
-      LOGE("GLS ERROR: shader buffer size overflow!\n");
+      LOGE("shader buffer size overflow!\n");
       return;
     }
     dat->offsets[i] = stroffset;
@@ -1699,7 +1699,7 @@ void* gls_GetGlesProcAddress(const char* procname)
   GLS_GLES2_EXT_COMMANDS()
 #undef X
   else {
-    LOGW("GLS WARNING: %s: %s available on server but not supported\n",
+    LOGW("%s: %s available on server but not supported\n",
          __FUNCTION__, procname);
     proc = NULL;
   }

@@ -467,7 +467,7 @@ static void glse_glGetProgramInfoLog(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, glGetProgramInfoLog);
   int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetProgramInfoLog_t);
   if (c->bufsize > maxsize) {
-    LOGW("GLS WARNING: lowering %s buffer size to %u\n",
+    LOGW("lowering %s buffer size to %u\n",
          __FUNCTION__, maxsize);
     c->bufsize = maxsize;
   }
@@ -493,7 +493,7 @@ static void glse_glGetShaderInfoLog(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, glGetShaderInfoLog);
   int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetShaderInfoLog_t);
   if (c->bufsize > maxsize) {
-    LOGW("GLS WARNING: lowering %s buffer size to %u\n",
+    LOGW("lowering %s buffer size to %u\n",
          __FUNCTION__, maxsize);
     c->bufsize = maxsize;
   }
@@ -531,7 +531,7 @@ static void glse_glGetString(gls_command_t* buf)
           if (!len) break;
           if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
             if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetString_t)) {
-              LOGW("GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+              LOGW("%s: not enough buffer space for all extensions, truncating\n",
                    __FUNCTION__);
               break;
             }
@@ -808,7 +808,7 @@ static void glse_glVertexAttribFloat(gls_command_t* buf)
   case GLSC_glVertexAttrib4fv:
     glVertexAttrib4fv(c->index, dat->arr); break;
   default:
-    LOGE("GLS ERROR: %s: unsupported command 0x%x (%s)\n", __FUNCTION__,
+    LOGE("%s: unsupported command 0x%x (%s)\n", __FUNCTION__,
          c->cmd, GLSC_tostring(c->cmd));
   }
 
@@ -838,7 +838,7 @@ static void glse_glEGLImageTargetTexture2DOES(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glEGLImageTargetTexture2DOES);
 
   if (!gles_context.glEGLImageTargetTexture2DOES) {
-    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("%s: no function cached\n", __FUNCTION__);
   }
   gles_context.glEGLImageTargetTexture2DOES(c->target, (GLeglImageOES)c->image);
 }
@@ -848,7 +848,7 @@ static void glse_glEGLImageTargetRenderbufferStorageOES(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glEGLImageTargetRenderbufferStorageOES);
 
   if (!gles_context.glEGLImageTargetRenderbufferStorageOES) {
-    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("%s: no function cached\n", __FUNCTION__);
   }
   gles_context.glEGLImageTargetRenderbufferStorageOES(c->target, (GLeglImageOES)c->image);
 }

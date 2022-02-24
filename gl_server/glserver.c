@@ -50,7 +50,7 @@ glse_context_t glsec_global;
 int glse_cmd_send_data(uint32_t size, void* data)
 {
 #ifdef GL_DEBUG
-  LOGD("GLS: glse_cmd_send_data sending data back\n");
+  LOGD("glse_cmd_send_data sending data back\n");
 #endif
   gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsec_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
@@ -88,7 +88,7 @@ void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
   graphics_context_t* gc = glsec_global.gc;
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
-    LOGW("GLS WARNING: CREATE_WINDOW referencing NULL Window");
+    LOGW("CREATE_WINDOW referencing NULL Window");
   Window w = gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, c->width, c->height);
   list_insert(gc->x.remote2local, c->window, (void*)w);
   // FIXME we have no DESTROY_WINDOW event to remove the mapping
@@ -98,13 +98,13 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
 {
   void* popptr = (void*)fifo_pop_ptr_get(&rc->fifo);
   if (popptr == NULL) { // should not happen, poll() rocks
-    LOGW("GLS WARNING: glse_handle_fifo_packet called with empty fifo\n");
+    LOGW("glse_handle_fifo_packet called with empty fifo\n");
     return;
   }
 
   gls_command_t* c = (gls_command_t*)popptr;
 #ifdef GL_DEBUG
-  LOGD("GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
+  LOGD("mainloop: Attempting to execute command 0x%x (%s)\n",
           c->cmd, GLSC_tostring(c->cmd));
 #endif
 
@@ -114,13 +114,13 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
     break;
   case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
-    LOGD("GLS Exec: Handshake...\n");
+    LOGD("executing: Handshake...\n");
 #endif
     glse_cmd_HANDSHAKE(c);
     break;
   case GLSC_CREATE_WINDOW:
 #ifdef GL_DEBUG
-    LOGD("GLS Exec: Create window...\n");
+    LOGD("executing: Create window...\n");
 #endif
     glse_cmd_CREATE_WINDOW(c);
     break;
@@ -131,7 +131,7 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
     if (!result) result = egl_executeCommand(c);
 
     if (!result)
-      LOGE("GLS ERROR: Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+      LOGE("Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
   }
   }
   fifo_pop_ptr_next(&rc->fifo);
@@ -162,17 +162,17 @@ void glserver_handle_packets(recvr_context_t* rc)
   while (1) {
     int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
     if (ret < 0) {
-      LOGE("GLS ERROR: poll failed: %s\n", strerror(errno));
+      LOGE("poll failed: %s\n", strerror(errno));
       break;
     }
     assert(!(pollfds[POLLFD_FIFO].revents & POLLNVAL));
 
     if (pollfds[POLLFD_FIFO].revents & POLLERR) {
-      LOGE("GLS ERROR: FIFO poll error\n");
+      LOGE("FIFO poll error\n");
       break;
     }
     if (pollfds[POLLFD_FIFO].revents & POLLHUP) {
-      //LOGD("GLS DEBUG: FIFO poll hangup\n");
+      //LOGD("FIFO poll hangup\n");
       break;
     }
     if (pollfds[POLLFD_FIFO].revents & POLLIN) {
@@ -180,7 +180,7 @@ void glserver_handle_packets(recvr_context_t* rc)
       pollfds[POLLFD_FIFO].revents &= ~POLLIN;
     }
     if (pollfds[POLLFD_FIFO].revents)
-      LOGW("GLS WARNING: FIFO poll revents=0x%x\n", pollfds[POLLFD_FIFO].revents);
+      LOGW("FIFO poll revents=0x%x\n", pollfds[POLLFD_FIFO].revents);
   }
 
   release_egl(&gc);

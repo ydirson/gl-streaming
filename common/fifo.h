@@ -68,7 +68,7 @@ static inline void fifo_push_ptr_next(fifo_t* fifo)
   assert (next_idx != fifo->idx_reader);
   fifo->idx_writer = next_idx;
   if (write(fifo->pipe_wr, "", 1) < 0)
-    LOGE("GLS ERROR: FIFO write to notification pipe: %s\n", strerror(errno));
+    LOGE("FIFO write to notification pipe: %s\n", strerror(errno));
 }
 
 static inline char* fifo_pop_ptr_get(fifo_t* fifo)
@@ -83,7 +83,7 @@ static inline void fifo_pop_ptr_next(fifo_t* fifo)
   assert (fifo->idx_reader != fifo->idx_writer);
   char buf;
   if (read(fifo->pipe_rd, &buf, 1) < 0)
-    LOGE("GLS ERROR: FIFO read from notification pipe: %s\n", strerror(errno));
+    LOGE("FIFO read from notification pipe: %s\n", strerror(errno));
   int next_idx = (fifo->idx_reader + 1) & (fifo->fifo_size - 1);
   fifo->idx_reader = next_idx;
 }
@@ -92,7 +92,7 @@ static inline void fifo_writer_close(fifo_t* fifo)
 {
   // signal end of data to reader
   if (close(fifo->pipe_wr) < 0)
-    LOGE("GLS ERROR: FIFO close of notification pipe: %s\n", strerror(errno));
+    LOGE("FIFO close of notification pipe: %s\n", strerror(errno));
 }
 
 

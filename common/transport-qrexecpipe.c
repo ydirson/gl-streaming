@@ -25,7 +25,7 @@ static void qrexec_parse_address(const char* addr, char** domain, char** service
 
   size_t domainlen = strcspn(addr, ":");
   if (domainlen >= sizeof(the_domain)) {
-    LOGE("GLS ERROR: qrexec server domain name too long (%zd > %zd)\n",
+    LOGE("qrexec server domain name too long (%zd > %zd)\n",
          domainlen, sizeof(the_domain) - 1);
     exit(EXIT_FAILURE);
   }
@@ -36,7 +36,7 @@ static void qrexec_parse_address(const char* addr, char** domain, char** service
   if (addr[domainlen] == ':' && addr[domainlen + 1] != '\0') {
     size_t servicelen = strlen(&addr[domainlen + 1]);
     if (servicelen >= sizeof(the_service)) {
-      LOGE("GLS ERROR: qrexec service name too long (%zd > %zd)\n",
+      LOGE("qrexec service name too long (%zd > %zd)\n",
            servicelen, sizeof(the_service) - 1);
       exit(EXIT_FAILURE);
     }
@@ -45,25 +45,25 @@ static void qrexec_parse_address(const char* addr, char** domain, char** service
   } else
     *service = "qubes.GLS";
 
-  LOGI("GLS INFO: using as domain '%s', service '%s'\n", the_domain, the_service);
+  LOGI("using as domain '%s', service '%s'\n", the_domain, the_service);
 }
 
 static struct gls_connection* qrexecpipe_tport_client_create(const char* server_addr)
 {
   char* gui_domain;
   char* rpc_service;
-   LOGI("GLS INFO: initializing qrexec-pipe transport\n");
+   LOGI("initializing qrexec-pipe transport\n");
 
   qrexec_parse_address(server_addr, &gui_domain, &rpc_service);
 
   int child_stdin[2];
   int child_stdout[2];
   if (pipe(child_stdin) < 0) {
-    LOGE("GLS ERROR: %s: stdin pipe failed: %s\n", __FUNCTION__, strerror(errno));
+    LOGE("%s: stdin pipe failed: %s\n", __FUNCTION__, strerror(errno));
     goto error0;
   }
   if (pipe(child_stdout) < 0) {
-    LOGE("GLS ERROR: %s: stdout pipe failed: %s\n", __FUNCTION__, strerror(errno));
+    LOGE("%s: stdout pipe failed: %s\n", __FUNCTION__, strerror(errno));
     goto error1;
   }
 
@@ -75,15 +75,15 @@ static struct gls_connection* qrexecpipe_tport_client_create(const char* server_
   pid_t child_pid = fork();
   switch (child_pid) {
   case -1:
-    LOGE("GLS ERROR: %s: fork failed: %s\n", __FUNCTION__, strerror(errno));
+    LOGE("%s: fork failed: %s\n", __FUNCTION__, strerror(errno));
     goto error2;
   case 0: // child side
     if (dup2(child_stdin[0], STDIN_FILENO) < 0) {
-      LOGE("GLS ERROR: %s: dup2(stdin) failed: %s\n", __FUNCTION__, strerror(errno));
+      LOGE("%s: dup2(stdin) failed: %s\n", __FUNCTION__, strerror(errno));
       goto error2;
     }
     if (dup2(child_stdout[1], STDOUT_FILENO) < 0) {
-      LOGE("GLS ERROR: %s: dup2(stdout) failed: %s\n", __FUNCTION__, strerror(errno));
+      LOGE("%s: dup2(stdout) failed: %s\n", __FUNCTION__, strerror(errno));
       goto error2;
     }
     close(child_stdout[0]);
@@ -92,7 +92,7 @@ static struct gls_connection* qrexecpipe_tport_client_create(const char* server_
     close(child_stdin[1]);
 
     execv("/usr/bin/qrexec-client-vm", command);
-    LOGE("GLS ERROR: %s: exec(qrexec-client-vm) failed: %s\n", __FUNCTION__, strerror(errno));
+    LOGE("%s: exec(qrexec-client-vm) failed: %s\n", __FUNCTION__, strerror(errno));
     exit(EXIT_FAILURE);
   default:
     ; // parent, continues below
@@ -100,7 +100,7 @@ static struct gls_connection* qrexecpipe_tport_client_create(const char* server_
 
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {
-    LOGE("GLS ERROR: malloc failed: %s\n", strerror(errno));
+    LOGE("malloc failed: %s\n", strerror(errno));
     goto error2;
   }
 
@@ -131,7 +131,7 @@ static ssize_t qrexecpipe_tport_write(struct gls_connection* cnx, void* buffer, 
 {
   ssize_t ret = write(cnx->write_fd, buffer, size);
   if (ret < 0)
-    LOGE("GLS ERROR: write failed: %s\n", strerror(errno));
+    LOGE("write failed: %s\n", strerror(errno));
   return ret;
 }
 
@@ -139,7 +139,7 @@ static ssize_t qrexecpipe_tport_writev(struct gls_connection* cnx, struct iovec 
 {
   ssize_t ret = writev(cnx->write_fd, iov, iovcnt);
   if (ret < 0)
-    LOGE("GLS ERROR: writev failed: %s\n", strerror(errno));
+    LOGE("writev failed: %s\n", strerror(errno));
   return ret;
 }
 
@@ -147,7 +147,7 @@ static ssize_t qrexecpipe_tport_read(struct gls_connection* cnx, void* buffer, s
 {
   ssize_t ret = read(cnx->read_fd, buffer, size);
   if (ret < 0)
-    LOGE("GLS ERROR: read failed: %s\n", strerror(errno));
+    LOGE("read failed: %s\n", strerror(errno));
   return ret;
 }
 

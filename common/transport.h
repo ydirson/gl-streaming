@@ -47,7 +47,7 @@ static inline int tport_has_server_create()
   if (!the_tport->server_create)
     return 0;
   if (!the_tport->server_wait_connection) {
-    LOGW("GLS WARNING: transport '%s' cannot use server_create"
+    LOGW("transport '%s' cannot use server_create"
          " without server_wait_connection\n", the_tport->name);
     return 0;
   }
