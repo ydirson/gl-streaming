@@ -262,8 +262,8 @@ static void glse_eglGetProcAddress(gls_command_t* buf)
     else if (strncmp(c->procname, "gl", 2) == 0)
       glse_GetGlesProcAddress(c->procname, proc);
     else
-      fprintf(stderr, "GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
-              __FUNCTION__, c->procname);
+      LOGW("GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
+           __FUNCTION__, c->procname);
   }
 
   GLSE_SET_RET_PTR(ret, eglGetProcAddress);
@@ -326,9 +326,8 @@ static void glse_eglQueryString(gls_command_t* buf)
         if (!len) break;
         if (glse_extension_supported(GLS_EGL_EXTENSIONS, params, len)) {
           if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_eglQueryString_t)) {
-            fprintf(stderr,
-                    "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
-                    __FUNCTION__);
+            LOGW("GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+                 __FUNCTION__);
             break;
           }
           strncpy(ret->params + outlen, params, len);
@@ -366,7 +365,7 @@ static void glse_eglQueryString(gls_command_t* buf)
     }
     break;
   default:
-    fprintf(stderr, "GLS WARNING: eglQueryString: unsupported string name 0x%x\n", c->name);
+    LOGW("GLS WARNING: eglQueryString: unsupported string name 0x%x\n", c->name);
     ret->success = FALSE;
   }
 
@@ -484,7 +483,7 @@ void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
   EGLDisplay display;
 
   if (!egl_context.eglGetPlatformDisplayEXT) {
-    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
     display = EGL_NO_DISPLAY;
     goto end;
   }
@@ -518,7 +517,7 @@ static void glse_eglCreatePlatformWindowSurfaceEXT(gls_command_t* buf)
   EGLSurface surface;
 
   if (!egl_context.eglCreatePlatformWindowSurfaceEXT) {
-    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
     surface = EGL_NO_SURFACE;
     goto end;
   }

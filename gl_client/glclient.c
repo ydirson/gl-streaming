@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "glclient.h"
 #include "transport.h"
+#include "fastlog.h"
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
@@ -54,8 +55,8 @@ static float get_diff_time(struct timeval start, struct timeval end)
 static int gls_init()
 {
   if (GLS_VERSION & 1)
-    fprintf(stderr, "GLS WARNING: this is a development GLS protocol, "
-            "make sure client and server match\n");
+    LOGW("GLS WARNING: this is a development GLS protocol, "
+         "make sure client and server match\n");
 
   const char* env_isDebugStr = getenv("GLS_DEBUG");
   int env_isDebug;
@@ -67,7 +68,7 @@ static int gls_init()
   if (env_isDebug == 0 || env_isDebug == 1) {
     glsc_global.is_debug = env_isDebug;
   } else {
-    fprintf(stderr, "GLS ERROR: GLS_DEBUG variable must be 0 or 1\n");
+    LOGE("GLS ERROR: GLS_DEBUG variable must be 0 or 1\n");
     exit(EXIT_FAILURE);
     return FALSE;
   }
@@ -131,7 +132,7 @@ int send_packet()
 
 int wait_for_data(enum GL_Server_Command cmd, char* str)
 {
-  if (glsc_global.is_debug) fprintf(stderr, "wait_for_data(%s)\n", str);
+  if (glsc_global.is_debug) LOGD("wait_for_data(%s)\n", str);
   struct timeval start_time, end_time;
   gettimeofday(&start_time, NULL);
   int quit = 0;
@@ -141,7 +142,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
       gettimeofday(&end_time, NULL);
       float diff_time = get_diff_time(start_time, end_time);
       if (diff_time > GLS_TIMEOUT_SEC) {
-        fprintf(stderr, "\nGLS ERROR: timeout:%s\n", str);
+        LOGE("GLS ERROR: timeout:%s\n", str);
         exit(EXIT_FAILURE);
         return FALSE;
       }
@@ -157,9 +158,8 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
           data = (gls_cmd_send_data_t*)data->dataptr;
         gls_command_t* ret = (gls_command_t*)data->data;
         if (cmd != GLSC_GLS_UNDEF && ret->cmd != cmd) {
-          fprintf(stderr,
-                  "GLS ERROR: received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
-                  ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
+          LOGE("GLS ERROR: received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
+               ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
           break; // ignore packet and try again, but no luck
         }
         if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
@@ -167,8 +167,8 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
         break;
       }
     default:
-      fprintf(stderr, "GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
-              c->cmd, GLSC_tostring(c->cmd));
+      LOGE("GLS ERROR: received non-DATA packet, cmd=0x%x (%s)\n",
+           c->cmd, GLSC_tostring(c->cmd));
       break;
     }
     fifo_pop_ptr_next(&glsc_global.rc.fifo);
@@ -179,7 +179,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
 
 int gls_cmd_send_data(uint32_t size, const void* data)
 {
-  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
+  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsc_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
@@ -201,14 +201,15 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 
 static int gls_cmd_HANDSHAKE()
 {
-  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
+  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
   if (!send_packet())
     return FALSE;
 
   GLS_WAIT_SET_RET_PTR(ret, HANDSHAKE);
   if (ret->server_version != GLS_VERSION) {
-    fprintf(stderr, "GLS ERROR: Incompatible version, server version %i but client version %i.\n", ret->server_version, GLS_VERSION);
+    LOGE("GLS ERROR: Incompatible version, server version %i but client version %i.\n",
+         ret->server_version, GLS_VERSION);
     GLS_RELEASE_RET();
     return FALSE;
   }
@@ -219,7 +220,7 @@ static int gls_cmd_HANDSHAKE()
 
 void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
 {
-  if (glsc_global.is_debug) fprintf(stderr, "%s\n", __FUNCTION__);
+  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, CREATE_WINDOW);
   c->window = w;
   c->width = width;
@@ -234,7 +235,7 @@ void gls_init_library()
     return;
 
   if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
-    fprintf(stderr, "GLS ERROR: cannot select transport\n");
+    LOGE("GLS ERROR: cannot select transport\n");
     exit(EXIT_FAILURE);
   }
 

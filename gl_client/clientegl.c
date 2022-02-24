@@ -33,7 +33,7 @@ static int gls_wire_native_display(EGLNativeDisplayType native_display,
     *wire_native_display_p = GLS_EGL_NATIVE_DISPLAY_DEFAULT;
   } else {
     if (egl_clt_context.native_display && egl_clt_context.native_display != native_display) {
-      fprintf(stderr, "GLS ERROR: only support one native display\n");
+      LOGE("GLS ERROR: only support one native display\n");
       return -1;
     }
     egl_clt_context.native_display = native_display;
@@ -143,14 +143,14 @@ static EGLint gls_request_window(NativeWindowType window)
 {
 #if defined(USE_X11)
   if (egl_clt_context.x_window && egl_clt_context.x_window != window) {
-    fprintf(stderr, "GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
+    LOGE("GLS ERROR: %s: supports only one X11 Window\n", __FUNCTION__);
     return EGL_BAD_NATIVE_WINDOW;
   }
 
   egl_clt_context.x_window = window;
   XWindowAttributes xWindowAttrs;
   if (!XGetWindowAttributes(egl_clt_context.native_display, egl_clt_context.x_window, &xWindowAttrs)) {
-    fprintf(stderr, "GLS ERROR: XGetWindowAttributes failed\n");
+    LOGE("GLS ERROR: XGetWindowAttributes failed\n");
     return EGL_BAD_NATIVE_WINDOW;
   }
 
@@ -281,8 +281,8 @@ GLS_DEF_CORE_API(__eglMustCastToProperFunctionPointerType, eglGetProcAddress,  c
   size_t procname_len = strlen(procname);
   if (sizeof(gls_eglGetProcAddress_t) + procname_len + 1 >
       glsc_global.pool.out_buf.size) {
-    fprintf(stderr, "GLS ERRROR: %s: procname '%s' too long for buffer\n",
-            __FUNCTION__, procname);
+    LOGE("GLS ERRROR: %s: procname '%s' too long for buffer\n",
+         __FUNCTION__, procname);
     return NULL;
   }
 
@@ -298,8 +298,8 @@ GLS_DEF_CORE_API(__eglMustCastToProperFunctionPointerType, eglGetProcAddress,  c
     else if (strncmp(procname, "gl", 2) == 0)
       proc = gls_GetGlesProcAddress(procname);
     else
-      fprintf(stderr, "GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
-              __FUNCTION__, procname);
+      LOGW("GLS WARNING: %s: called for valid func of unknown API: '%s'\n",
+           __FUNCTION__, procname);
   }
   // else hide the symbol even if GLS supports it
 
@@ -394,17 +394,17 @@ static int _registerEglString(EGLDisplay dpy, EGLint name, const char** field_p)
   if (!value) {
     EGLint error = eglGetError();
     if (error != EGL_BAD_PARAMETER)
-      fprintf(stderr, "GLS ERROR: eglQueryString(%p, 0x%x) failed, error 0x%x\n",
-              dpy, name, error);
+      LOGE("GLS ERROR: eglQueryString(%p, 0x%x) failed, error 0x%x\n",
+           dpy, name, error);
     return 0;
   }
   int valuesize = strlen(value) + 1;
   while (egl_strings.nfilled + valuesize > egl_strings.allocated) {
     egl_strings.allocated *= 2;
-    //fprintf(stderr, "GLS DBG: eglQueryString reallocating %zu\n", egl_strings.allocated);
+    //LOGD("GLS DBG: eglQueryString reallocating %zu\n", egl_strings.allocated);
     void* newstorage = realloc(egl_strings.storage, egl_strings.allocated);
     if (!newstorage) {
-      fprintf(stderr, "GLS ERROR: eglQueryString reallocation failed: %s\n", strerror(errno));
+      LOGE("GLS ERROR: eglQueryString reallocation failed: %s\n", strerror(errno));
       exit(EXIT_FAILURE);
     }
     egl_strings.storage = newstorage;
@@ -425,7 +425,7 @@ static void _populate_egl_strings(EGLDisplay dpy)
   egl_strings.allocated = 1024; // rather arbitrary
   egl_strings.storage = malloc(egl_strings.allocated);
   if (!egl_strings.storage) {
-    fprintf(stderr, "GLS ERROR: eglQueryString allocation failed: %s\n", strerror(errno));
+    LOGE("GLS ERROR: eglQueryString allocation failed: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
@@ -454,7 +454,7 @@ GLS_DEF_CORE_API(const char*, eglQueryString, EGLDisplay dpy, EGLint name)
       if (!value) return NULL;
       eglquerystring_client_extensions = malloc(strlen(value) + 1);
       if (!eglquerystring_client_extensions) {
-        fprintf(stderr, "GLS ERROR: eglQueryString allocation failed: %s\n", strerror(errno));
+        LOGE("GLS ERROR: eglQueryString allocation failed: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
       }
       strcpy(eglquerystring_client_extensions, value);
@@ -470,7 +470,7 @@ GLS_DEF_CORE_API(const char*, eglQueryString, EGLDisplay dpy, EGLint name)
 
   // check dpy against cache
   if (egl_strings.dpy != dpy) {
-    fprintf(stderr, "GLS ERROR: eglQueryString() called for a second display, values will be wrong\n");
+    LOGE("GLS ERROR: eglQueryString() called for a second display, values will be wrong\n");
     exit(EXIT_FAILURE);
   }
 
@@ -792,8 +792,8 @@ void* gls_GetEglProcAddress(const char* procname)
   GLS_EGL_EXT_COMMANDS()
 #undef X
   else {
-    fprintf(stderr, "GLS WARNING: %s: %s available on server but not supported\n",
-            __FUNCTION__, procname);
+    LOGW("GLS WARNING: %s: %s available on server but not supported\n",
+         __FUNCTION__, procname);
     proc = NULL;
   }
 

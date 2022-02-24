@@ -467,8 +467,8 @@ static void glse_glGetProgramInfoLog(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, glGetProgramInfoLog);
   int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetProgramInfoLog_t);
   if (c->bufsize > maxsize) {
-    fprintf(stderr, "GLS WARNING: lowering %s buffer size to %u\n",
-            __FUNCTION__, maxsize);
+    LOGW("GLS WARNING: lowering %s buffer size to %u\n",
+         __FUNCTION__, maxsize);
     c->bufsize = maxsize;
   }
   _Static_assert(sizeof(GLsizei) == sizeof(ret->length), "int size mismatch");
@@ -493,8 +493,8 @@ static void glse_glGetShaderInfoLog(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, glGetShaderInfoLog);
   int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetShaderInfoLog_t);
   if (c->bufsize > maxsize) {
-    fprintf(stderr, "GLS WARNING: lowering %s buffer size to %u\n",
-            __FUNCTION__, maxsize);
+    LOGW("GLS WARNING: lowering %s buffer size to %u\n",
+         __FUNCTION__, maxsize);
     c->bufsize = maxsize;
   }
   _Static_assert(sizeof(GLsizei) == sizeof(ret->length), "int size mismatch");
@@ -531,9 +531,8 @@ static void glse_glGetString(gls_command_t* buf)
           if (!len) break;
           if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
             if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetString_t)) {
-              fprintf(stderr,
-                      "GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
-                      __FUNCTION__);
+              LOGW("GLS WARNING: %s: not enough buffer space for all extensions, truncating\n",
+                   __FUNCTION__);
               break;
             }
             strncpy(ret->params + outlen, params, len);
@@ -839,7 +838,7 @@ static void glse_glEGLImageTargetTexture2DOES(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glEGLImageTargetTexture2DOES);
 
   if (!gles_context.glEGLImageTargetTexture2DOES) {
-    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
   }
   gles_context.glEGLImageTargetTexture2DOES(c->target, (GLeglImageOES)c->image);
 }
@@ -849,7 +848,7 @@ static void glse_glEGLImageTargetRenderbufferStorageOES(gls_command_t* buf)
   GLSE_SET_COMMAND_PTR(c, glEGLImageTargetRenderbufferStorageOES);
 
   if (!gles_context.glEGLImageTargetRenderbufferStorageOES) {
-    fprintf(stderr, "GLS ERROR: %s: no function cached\n", __FUNCTION__);
+    LOGE("GLS ERROR: %s: no function cached\n", __FUNCTION__);
   }
   gles_context.glEGLImageTargetRenderbufferStorageOES(c->target, (GLeglImageOES)c->image);
 }

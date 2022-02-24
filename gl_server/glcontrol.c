@@ -104,12 +104,12 @@ void init_egl(graphics_context_t* gc)
 #ifdef USE_X11
   gc->x.display = XOpenDisplay(NULL);
   if (!gc->x.display) {
-    fprintf(stderr, "GLS ERROR: couldn't open display %s\n", getenv("DISPLAY"));
+    LOGE("GLS ERROR: couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
   }
   gc->x.remote2local = list_new();
   if (!gc->x.remote2local) {
-    fprintf(stderr, "GLS ERROR: couldn't allocate window list\n");
+    LOGE("GLS ERROR: couldn't allocate window list\n");
     exit(EXIT_FAILURE);
   }
 #endif
@@ -150,7 +150,7 @@ Window gls_create_x11_window(graphics_context_t* gc, const char* name, int x, in
   visTemplate.visualid = XVisualIDFromVisual(XDefaultVisual(gc->x.display, xScreenId));
   visInfo = XGetVisualInfo(gc->x.display, VisualIDMask, &visTemplate, &num_visuals);
   if (!visInfo) {
-    fprintf(stderr, "GLS ERROR: couldn't get X visual\n");
+    LOGE("GLS ERROR: couldn't get X visual\n");
     exit(1);
   }
 

@@ -50,7 +50,7 @@ glse_context_t glsec_global;
 int glse_cmd_send_data(uint32_t size, void* data)
 {
 #ifdef GL_DEBUG
-  fprintf(stderr, "GLS: glse_cmd_send_data sending data back\n");
+  LOGD("GLS: glse_cmd_send_data sending data back\n");
 #endif
   gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsec_global.pool.out_buf.buf;
   c->cmd = GLSC_SEND_DATA;
@@ -104,7 +104,7 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
 
   gls_command_t* c = (gls_command_t*)popptr;
 #ifdef GL_DEBUG
-  fprintf(stderr, "GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
+  LOGD("GLS MainLoop: Attempting to execute command 0x%x (%s)\n",
           c->cmd, GLSC_tostring(c->cmd));
 #endif
 
@@ -114,13 +114,13 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
     break;
   case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
-    fprintf(stderr, "GLS Exec: Handshake...\n");
+    LOGD("GLS Exec: Handshake...\n");
 #endif
     glse_cmd_HANDSHAKE(c);
     break;
   case GLSC_CREATE_WINDOW:
 #ifdef GL_DEBUG
-    fprintf(stderr, "GLS Exec: Create window...\n");
+    LOGD("GLS Exec: Create window...\n");
 #endif
     glse_cmd_CREATE_WINDOW(c);
     break;

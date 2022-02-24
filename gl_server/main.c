@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
   char* my_addr = NULL;
 
   if (GLS_VERSION & 1)
-    fprintf(stderr, "GLS WARNING: this is a development GLS protocol, "
-            "make sure client and server match\n");
+    LOGW("GLS WARNING: this is a development GLS protocol, "
+         "make sure client and server match\n");
 
   while ((opt = getopt(argc, argv, "t:s:h")) != -1) {
     switch (opt) {
@@ -72,14 +72,14 @@ int main(int argc, char* argv[])
   }
 
   if (tport_select(my_transport) < 0) {
-    fprintf(stderr, "GLS ERROR: cannot select transport\n");
+    LOGE("GLS ERROR: cannot select transport\n");
     return EXIT_FAILURE;
   }
 
   glsec_global.rc = &rc;
   if (tport_has_server_create()) {
     if (tport_has_connection_create()) { // let's see when it happens
-      fprintf(stderr, "GLS ERROR: transport provides both server and connection mode\n");
+      LOGE("GLS ERROR: transport provides both server and connection mode\n");
       return EXIT_FAILURE;
     }
     recvr_server_start(&rc, my_addr, glserver_handle_packets);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     (void)my_addr;
     recvr_connection_start(&rc, glserver_handle_packets);
   } else {
-    fprintf(stderr, "GLS ERROR: transport provides neither server nor connection mode\n");
+    LOGE("GLS ERROR: transport provides neither server nor connection mode\n");
     return EXIT_FAILURE;
   }
 

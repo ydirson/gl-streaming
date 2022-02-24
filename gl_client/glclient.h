@@ -61,8 +61,8 @@ typedef struct
   PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
-    fprintf(stderr, "GLS DEBUG: handling %s (cmd=0x%x)\n",              \
-            #FUNCNAME, CMD);                                            \
+    LOGD("GLS DEBUG: handling %s (cmd=0x%x)\n",                         \
+         #FUNCNAME, CMD);                                               \
   //
 
 #define GLS_ENOUGH_SIZE(PTR) (PTR->cmd_size <= GLS_OUT_BUFFER_SIZE)
@@ -72,7 +72,7 @@ typedef struct
   do {                                                                  \
     PTR->cmd_size += SIZE;                                              \
     if (!GLS_ENOUGH_SIZE(PTR)) {                                        \
-      fprintf(stderr, "GLS ERROR: %s data too large\n", __FUNCTION__);  \
+      LOGE("GLS ERROR: %s data too large\n", __FUNCTION__);             \
       RETURN_STMT;                                                      \
     }                                                                   \
     memcpy(PTR->FIELD, FIELD, SIZE);                                    \
@@ -119,7 +119,7 @@ typedef struct
 #define WARN_ONCE(FMT, ...) do {         \
     static int shown = 0;                \
     if (!shown) {                        \
-      fprintf(stderr, FMT, __VA_ARGS__); \
+      LOGW(FMT, __VA_ARGS__);            \
       shown = 1;                         \
     }                                    \
   } while(0);                            \
