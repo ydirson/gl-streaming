@@ -514,7 +514,7 @@ static void defered_vertex_attrib_pointer(int i, int count)
     // FIXME: could be done, would require scanning scanning IBO,
     // which requires work in in glBuffer(Sub)Data ... but who needs
     // that for real ?
-    WARN_ONCE("GLS WARNING: %s use of client-data vertex buffer together with an IBO is not implemented\n", __FUNCTION__);
+    WARN_ONCE("%s use of client-data vertex buffer together with an IBO is not implemented\n", __FUNCTION__);
 
   if (!attrib->emul_vbo_id)
     glGenBuffers(1, &attrib->emul_vbo_id);
@@ -537,7 +537,7 @@ GLS_DEF_CORE_API(void, glDrawArrays, GLenum mode, GLint first, GLsizei count)
   GLuint vbo_bkp = buffer_objs.vbo;
   int i;
   if (!buffer_objs.vbo)
-    WARN_ONCE("GLS WARNING: %s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
+    WARN_ONCE("%s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
   for (i = 0; i < 16; i++)
     defered_vertex_attrib_pointer(i, first + count);
   if (vbo_bkp != buffer_objs.vbo)
@@ -578,7 +578,7 @@ GLS_DEF_CORE_API(void, glDrawElements, GLenum mode, GLsizei count, GLenum type, 
     defered_vertex_attrib_pointer(i, max_idx + 1);
   }
   if (!buffer_objs.ibo) {
-    WARN_ONCE("GLS WARNING: %s uses client-data index buffer, consider using an IBO\n", __FUNCTION__);
+    WARN_ONCE("%s uses client-data index buffer, consider using an IBO\n", __FUNCTION__);
     if ( !buffer_objs.ibo_emu ) {
       glGenBuffers(1, &buffer_objs.ibo_emu);
     }
@@ -1099,7 +1099,7 @@ GLS_DEF_CORE_API(void, glGetUniformiv, GLuint program, GLint location, GLint* pa
 
 GLS_DEF_CORE_API(int, glGetUniformLocation, GLuint program, const GLchar* name)
 {
-  WARN_ONCE("GLS WARNING: %s should be totally rewritten\n", __FUNCTION__);
+  WARN_ONCE("%s should be totally rewritten\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, glGetUniformLocation);
   c->program = program;
   // c->name[GLS_STRING_SIZE_PLUS - 1] = '\0';
@@ -1254,7 +1254,7 @@ GLS_DEF_CORE_API(void, glPolygonOffset, GLfloat factor, GLfloat units)
 
 GLS_DEF_CORE_API(void, glReadPixels, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels)
 {
-  WARN_ONCE("GLS WARNING: %s likely to buffer overflow on both server and client\n",
+  WARN_ONCE("%s likely to buffer overflow on both server and client\n",
             __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, glReadPixels);
   c->x = x;

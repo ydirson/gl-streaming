@@ -125,8 +125,8 @@ typedef struct
   } while(0);                            \
   //
 
-#define WARN_STUBBED() WARN_ONCE("GLS WARNING: %s is stubbed\n", __FUNCTION__)
-#define WARN_UNTESTED() WARN_ONCE("GLS WARNING: %s is untested\n", __FUNCTION__)
+#define WARN_STUBBED() WARN_ONCE("%s is stubbed\n", __FUNCTION__)
+#define WARN_UNTESTED() WARN_ONCE("%s is untested\n", __FUNCTION__)
 
 #define TRUE 1
 #define FALSE 0
