@@ -48,6 +48,7 @@ static int nofork;
 static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
+  init_egl(&glsec_global.gc);
   ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
   pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
@@ -56,6 +57,7 @@ static void child_process(recvr_context_t* rc,
     LOGE("pthread_join failed\n");
   recvr_stop(rc);
   LOGI("client terminated\n");
+  release_egl(&glsec_global.gc);
 }
 
 static void recvr_server_start(recvr_context_t* rc, const char* server_addr,

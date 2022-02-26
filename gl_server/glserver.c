@@ -135,8 +135,6 @@ static void glse_handle_ring_packet(recvr_context_t* rc)
 
 void glserver_handle_packets(recvr_context_t* rc)
 {
-  init_egl(&glsec_global.gc);
-
   glsec_global.pool.tmp_buf.buf = (char*)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
   glsec_global.pool.out_buf.buf = (char*)malloc(GLSE_OUT_BUFFER_SIZE);
@@ -175,8 +173,6 @@ void glserver_handle_packets(recvr_context_t* rc)
     if (pollfds[POLLFD_RING].revents)
       LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_RING].revents);
   }
-
-  release_egl(&glsec_global.gc);
 
   free(glsec_global.pool.tmp_buf.buf);
   free(glsec_global.pool.out_buf.buf);
