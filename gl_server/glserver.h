@@ -89,8 +89,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef struct
 {
-  // setup once by parent server
-  recvr_context_t* rc;
+  recvr_context_t rc;
   // setup for each connection
   gls_bufpool_t pool;
   graphics_context_t* gc;
