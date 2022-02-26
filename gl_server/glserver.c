@@ -81,7 +81,7 @@ void glse_cmd_HANDSHAKE(gls_command_t* buf)
 void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, CREATE_WINDOW);
-  graphics_context_t* gc = glsec_global.gc;
+  graphics_context_t* gc = &glsec_global.gc;
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGW("CREATE_WINDOW referencing NULL Window");
@@ -135,11 +135,8 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
 
 void glserver_handle_packets(recvr_context_t* rc)
 {
-  static graphics_context_t gc;
-  memset(&gc, 0, sizeof(gc));
-  init_egl(&gc);
+  init_egl(&glsec_global.gc);
 
-  glsec_global.gc = &gc;
   glsec_global.pool.tmp_buf.buf = (char*)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
   glsec_global.pool.out_buf.buf = (char*)malloc(GLSE_OUT_BUFFER_SIZE);
@@ -179,7 +176,7 @@ void glserver_handle_packets(recvr_context_t* rc)
       LOGW("FIFO poll revents=0x%x\n", pollfds[POLLFD_FIFO].revents);
   }
 
-  release_egl(&gc);
+  release_egl(&glsec_global.gc);
 
   free(glsec_global.pool.tmp_buf.buf);
   free(glsec_global.pool.out_buf.buf);

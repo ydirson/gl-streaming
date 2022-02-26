@@ -139,7 +139,7 @@ static void glse_eglCreateWindowSurface(gls_command_t* buf)
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGW("eglCreateWindowSurface referencing NULL Window");
-  Window window = gls_local_x11_window(glsec_global.gc, c->window);
+  Window window = gls_local_x11_window(&glsec_global.gc, c->window);
   if (!window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGE("eglCreateWindowSurface referencing unknown Window 0x%08x\n",
@@ -227,7 +227,7 @@ static void glse_eglGetDisplay(gls_command_t* buf)
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     break;
   case GLS_EGL_NATIVE_DISPLAY_NATIVE:
-    display = eglGetDisplay(glsec_global.gc->x.display);
+    display = eglGetDisplay(glsec_global.gc.x.display);
     break;
   default:
     display = EGL_NO_DISPLAY;
@@ -462,7 +462,7 @@ void glse_eglGetPlatformDisplay(gls_command_t* buf)
     break;
   case GLS_EGL_NATIVE_DISPLAY_NATIVE:
     display = eglGetPlatformDisplay(c->platform,
-                                    glsec_global.gc->x.display,
+                                    glsec_global.gc.x.display,
                                     dat);
     break;
   default:
@@ -496,7 +496,7 @@ void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
     break;
   case GLS_EGL_NATIVE_DISPLAY_NATIVE:
     display = egl_context.eglGetPlatformDisplayEXT(c->platform,
-              glsec_global.gc->x.display,
+              glsec_global.gc.x.display,
               dat);
     break;
   default:
@@ -525,7 +525,7 @@ static void glse_eglCreatePlatformWindowSurfaceEXT(gls_command_t* buf)
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGW("eglCreatePlatformWindowSurfaceEXT referencing NULL Window");
-  Window window = gls_local_x11_window(glsec_global.gc, c->window);
+  Window window = gls_local_x11_window(&glsec_global.gc, c->window);
   if (!window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGE("eglCreatePlatformWindowSurfaceEXT referencing unknown Window 0x%08x\n",

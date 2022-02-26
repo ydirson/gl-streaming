@@ -92,7 +92,7 @@ typedef struct
   recvr_context_t rc;
   // setup for each connection
   gls_bufpool_t pool;
-  graphics_context_t* gc;
+  graphics_context_t gc;
 } glse_context_t;
 
 // only to spare a parameter in message handlers
