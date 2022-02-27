@@ -225,6 +225,19 @@ int recvr_handle_packet(recvr_context_t* rc)
 }
 
 
+static void child_process(recvr_context_t* rc,
+                          void(*handle_child)(recvr_context_t*))
+{
+  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
+  pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
+  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  handle_child(rc);
+  if (pthread_join(rc->recvr_th, NULL) != 0)
+    LOGE("pthread_join failed\n");
+  recvr_stop(rc);
+  LOGI("client terminated\n");
+}
+
 void recvr_server_start(recvr_context_t* rc, const char* server_addr,
                         void(*handle_child)(recvr_context_t*))
 {
@@ -245,14 +258,7 @@ void recvr_server_start(recvr_context_t* rc, const char* server_addr,
       break;
     case 0:
       free(srv);
-      fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-      pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
-      pthread_setname_np(rc->recvr_th, "gls-recvr");
-      handle_child(rc);
-      if (pthread_join(rc->recvr_th, NULL) != 0)
-        LOGE("pthread_join failed\n");
-      recvr_stop(rc);
-      LOGI("client terminated\n");
+      child_process(rc, handle_child);
       exit(EXIT_SUCCESS);
     default:
       tport_close(rc->cnx);
@@ -267,15 +273,7 @@ void recvr_connection_start(recvr_context_t* rc,
                             void(*handle_child)(recvr_context_t*))
 {
   rc->cnx = tport_connection_create();
-  // FIXME the rest is a cut'n'paste
-  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-  pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
-  handle_child(rc);
-  if (pthread_join(rc->recvr_th, NULL) != 0)
-    LOGE("pthread_join failed\n");
-  recvr_stop(rc);
-  LOGI("client terminated\n");
+  child_process(rc, handle_child);
 }
 
 void recvr_client_start(recvr_context_t* rc, const char* server_addr)
