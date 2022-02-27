@@ -343,6 +343,7 @@ typedef struct
   uint32_t mode;
   int32_t count;
   uint32_t type;
+  uint32_t indices;
 } gls_glDrawElements_t;
 
 

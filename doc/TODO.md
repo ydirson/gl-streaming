@@ -7,7 +7,7 @@
   - [x] proper server logging, not hardcoded `/sdcard/`
   - [x] full mesa-demos EGL/GLES2 coverage
   - full glmark2 coverage
-    - [ ] ideas (scene misses several objects)
+    - [x] ideas (scene misses several objects)
     - [ ] buffer (needs `GL_OES_mapbuffer`)
   - SDL2 programs with a GLES2-only libSDL
     - [x] blobby

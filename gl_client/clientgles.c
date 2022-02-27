@@ -593,6 +593,12 @@ GLS_DEF_CORE_API(void, glDrawElements, GLenum mode, GLsizei count, GLenum type, 
   c->mode = mode;
   c->count = count;
   c->type = type;
+  if (buffer_objs.ibo) {
+    // offset into IBO
+    c->indices = (uint32_t)(GLintptr)indices;
+    assert((GLvoid*)(GLintptr)c->indices == indices);
+  } else
+    c->indices = 0;
 
   GLS_SEND_PACKET(glDrawElements);
 

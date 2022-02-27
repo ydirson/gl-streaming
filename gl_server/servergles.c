@@ -314,7 +314,7 @@ static void glse_glDrawArrays(gls_command_t* buf)
 static void glse_glDrawElements(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glDrawElements);
-  glDrawElements(c->mode, c->count, c->type, NULL);
+  glDrawElements(c->mode, c->count, c->type, (const GLvoid*)(GLintptr)c->indices);
 }
 
 
