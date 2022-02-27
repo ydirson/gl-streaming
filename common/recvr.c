@@ -56,7 +56,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // read everything into a scratch buffer to discard data
 static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch, size_t scratch_size)
 {
-  LOGW("GLS ERROR: discarding large packet (%zu bytes)\n", size);
+  LOGW("discarding large packet (%zu bytes)\n", size);
   do {
     size_t recv_size = tport_read(cnx, scratch, scratch_size);
     if (recv_size <= 0) {

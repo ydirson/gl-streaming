@@ -199,7 +199,7 @@ int glse_extension_supported(const char** allowed_list, const char* name, size_t
       dont_filter = 0;
     } else {
       dont_filter = 1;
-      LOGI("GLS: not filtering unsupported extensions, expect breakage\n");
+      LOGI("not filtering unsupported extensions, expect breakage\n");
     }
   }
   if (dont_filter)
