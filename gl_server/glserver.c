@@ -28,6 +28,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define _GNU_SOURCE
 #include "glserver.h"
 #include "transport.h"
 #include "fastlog.h"
@@ -147,7 +148,7 @@ void glserver_handle_packets(recvr_context_t* rc)
   };
   struct pollfd pollfds[] = {
     [POLLFD_RING] = {
-      .fd = rc->ring.pipe_rd,
+      .fd = notifier_fd(&rc->ring.notifier),
       .events = POLLIN
     },
   };

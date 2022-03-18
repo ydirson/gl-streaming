@@ -25,6 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // This file declare OpenGL ES methods on server side
 
+#define _GNU_SOURCE
 #include "gls_command_gles2.h"
 #include "glserver.h"
 #include "fastlog.h"

@@ -1,5 +1,6 @@
 // This file declare EGL methods for stubs or streaming
 
+#define _GNU_SOURCE
 #include "gls_command_egl.h"
 #include "glclient.h"
 

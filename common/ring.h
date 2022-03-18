@@ -30,14 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include "fastlog.h"
+#include "notifier.h"
 
 #include <assert.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 typedef struct
 {
@@ -45,7 +44,7 @@ typedef struct
   int idx_reader, idx_writer; // packet numbers
   unsigned int ring_size;
   unsigned int ring_packet_size;
-  int pipe_wr, pipe_rd;         // pipe for mainloop polling
+  struct notifier notifier;
 } ring_t;
 
 /*
@@ -71,8 +70,8 @@ static inline void ring_push_ptr_next(ring_t* ring)
   int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
   assert (next_idx != ring->idx_reader);
   ring->idx_writer = next_idx;
-  if (write(ring->pipe_wr, "", 1) < 0)
-    LOGE("ring write to notification pipe: %s\n", strerror(errno));
+  if (notify(&ring->notifier) < 0)
+    LOGE("RING notifier write error: %s\n", strerror(errno));
 }
 
 static inline char* ring_pop_ptr_get(ring_t* ring)
@@ -85,9 +84,8 @@ static inline char* ring_pop_ptr_get(ring_t* ring)
 static inline void ring_pop_ptr_next(ring_t* ring)
 {
   assert (!ring_is_empty(ring));
-  char buf;
-  if (read(ring->pipe_rd, &buf, 1) < 0)
-    LOGE("ring read from notification pipe: %s\n", strerror(errno));
+  if (notifier_drain_one(&ring->notifier) < 0)
+    LOGE("RING notifier drain error: %s\n", strerror(errno));
   int next_idx = (ring->idx_reader + 1) & (ring->ring_size - 1);
   ring->idx_reader = next_idx;
 }
@@ -95,8 +93,8 @@ static inline void ring_pop_ptr_next(ring_t* ring)
 static inline void ring_writer_close(ring_t* ring)
 {
   // signal end of data to reader
-  if (close(ring->pipe_wr) < 0)
-    LOGE("ring close of notification pipe: %s\n", strerror(errno));
+  if (notifier_terminate(&ring->notifier) < 0)
+    LOGE("RING notifier terminate error: %s\n", strerror(errno));
 }
 
 

@@ -28,6 +28,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define _GNU_SOURCE
 #include "glclient.h"
 #include "transport.h"
 #include "fastlog.h"
@@ -168,7 +169,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
   };
   struct pollfd pollfds[] = {
     [POLLFD_RING] = {
-      .fd = glsc_global.rc.ring.pipe_rd,
+      .fd = notifier_fd(&glsc_global.rc.ring.notifier),
       .events = POLLIN
     },
   };
