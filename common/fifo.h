@@ -54,6 +54,11 @@ typedef struct
  * fifo_*_ptr_get() returns NULL, and will assert.
  */
 
+static inline int fifo_is_empty(fifo_t* fifo)
+{
+  return fifo->idx_reader == fifo->idx_writer;
+}
+
 static inline char* fifo_push_ptr_get(fifo_t* fifo)
 {
   int next_idx = (fifo->idx_writer + 1) & (fifo->fifo_size - 1);
@@ -73,14 +78,14 @@ static inline void fifo_push_ptr_next(fifo_t* fifo)
 
 static inline char* fifo_pop_ptr_get(fifo_t* fifo)
 {
-  if (fifo->idx_reader == fifo->idx_writer)
+  if (fifo_is_empty(fifo))
     return NULL;
   return fifo->buffer + (fifo->idx_reader * fifo->fifo_packet_size);
 }
 
 static inline void fifo_pop_ptr_next(fifo_t* fifo)
 {
-  assert (fifo->idx_reader != fifo->idx_writer);
+  assert (!fifo_is_empty(fifo));
   char buf;
   if (read(fifo->pipe_rd, &buf, 1) < 0)
     LOGE("FIFO read from notification pipe: %s\n", strerror(errno));
