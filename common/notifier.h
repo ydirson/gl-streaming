@@ -45,7 +45,11 @@ static inline void notifier_close(struct notifier* notifier)
 
 static inline int notifier_terminate(struct notifier* notifier)
 {
-  return close(notifier->pipe_wr);
+  int ret = close(notifier->pipe_wr);
+  if (ret < 0)
+    return ret;
+  notifier->pipe_wr = -1;
+  return ret;
 }
 
 static inline int notify(struct notifier* notifier)
