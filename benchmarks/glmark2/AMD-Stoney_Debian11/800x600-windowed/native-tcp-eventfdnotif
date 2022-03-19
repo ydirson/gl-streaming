@@ -1,0 +1,48 @@
+=======================================================
+    glmark2 2021.12
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      AMD
+    GL_RENDERER:    AMD STONEY (DRM 3.42.0, 5.15.0-0.bpo.3-amd64, LLVM 11.0.1)
+    GL_VERSION:     OpenGL ES 2.0 GLS
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0
+    Surface Size:   800x600 windowed
+=======================================================
+[build] use-vbo=false: FPS: 564 FrameTime: 1.773 ms
+[build] use-vbo=true: FPS: 1175 FrameTime: 0.851 ms
+[texture] texture-filter=nearest: FPS: 1077 FrameTime: 0.929 ms
+[texture] texture-filter=linear: FPS: 1072 FrameTime: 0.933 ms
+[texture] texture-filter=mipmap: FPS: 1095 FrameTime: 0.913 ms
+[shading] shading=gouraud: FPS: 980 FrameTime: 1.020 ms
+[shading] shading=blinn-phong-inf: FPS: 983 FrameTime: 1.017 ms
+[shading] shading=phong: FPS: 984 FrameTime: 1.016 ms
+[shading] shading=cel: FPS: 975 FrameTime: 1.026 ms
+[bump] bump-render=high-poly: FPS: 884 FrameTime: 1.131 ms
+[bump] bump-render=normals: FPS: 1200 FrameTime: 0.833 ms
+[bump] bump-render=height: FPS: 1196 FrameTime: 0.836 ms
+[effect2d] kernel=0,1,0;1,-4,1;0,1,0;: FPS: 880 FrameTime: 1.136 ms
+[effect2d] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;: FPS: 523 FrameTime: 1.912 ms
+[pulsar] light=false:quads=5:texture=false: FPS: 832 FrameTime: 1.202 ms
+[desktop] blur-radius=5:effect=blur:passes=1:separable=true:windows=4: FPS: 331 FrameTime: 3.021 ms
+[desktop] effect=shadow:windows=4: FPS: 213 FrameTime: 4.695 ms
+Error: Requested MapBuffer VBO update method but GL_OES_mapbuffer is not supported!
+[buffer] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map: Unsupported
+[buffer] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata: FPS: 153 FrameTime: 6.536 ms
+Error: Requested MapBuffer VBO update method but GL_OES_mapbuffer is not supported!
+[buffer] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map: Unsupported
+[ideas] speed=duration: FPS: 188 FrameTime: 5.319 ms
+[jellyfish] <default>: FPS: 580 FrameTime: 1.724 ms
+[terrain] <default>: FPS: 104 FrameTime: 9.615 ms
+[shadow] <default>: FPS: 690 FrameTime: 1.449 ms
+[refract] <default>: FPS: 76 FrameTime: 13.158 ms
+[conditionals] fragment-steps=0:vertex-steps=0: FPS: 1066 FrameTime: 0.938 ms
+[conditionals] fragment-steps=5:vertex-steps=0: FPS: 1060 FrameTime: 0.943 ms
+[conditionals] fragment-steps=0:vertex-steps=5: FPS: 1061 FrameTime: 0.943 ms
+[function] fragment-complexity=low:fragment-steps=5: FPS: 1048 FrameTime: 0.954 ms
+[function] fragment-complexity=medium:fragment-steps=5: FPS: 1043 FrameTime: 0.959 ms
+[loop] fragment-loop=false:fragment-steps=5:vertex-steps=5: FPS: 1042 FrameTime: 0.960 ms
+[loop] fragment-steps=5:fragment-uniform=false:vertex-steps=5: FPS: 1034 FrameTime: 0.967 ms
+[loop] fragment-steps=5:fragment-uniform=true:vertex-steps=5: FPS: 1036 FrameTime: 0.965 ms
+=======================================================
+                                  glmark2 Score: 811
+=======================================================

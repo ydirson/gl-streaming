@@ -170,6 +170,10 @@ void glserver_handle_packets(recvr_context_t* rc)
       break;
     }
     if (pollfds[POLLFD_RING].revents & POLLIN) {
+      if (notifier_has_terminated(&rc->ring.notifier)) {
+        LOGD("RING notifier terminated\n");
+        break;
+      }
       uint64_t ret = notifier_drain(&rc->ring.notifier);
       if (ret == 0) {
         LOGE("RING notifier drain error: %s\n", strerror(errno));
