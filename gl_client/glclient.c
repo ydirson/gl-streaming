@@ -195,7 +195,13 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
       break;
     }
     if (pollfds[POLLFD_RING].revents & POLLIN) {
-      handle_packet(cmd);
+      uint64_t ret = notifier_drain(&glsc_global.rc.ring.notifier);
+      if (ret == 0) {
+        LOGE("RING notifier drain error: %s\n", strerror(errno));
+        break;
+      }
+      for (uint64_t i = 0; i < ret; i++)
+        handle_packet(cmd);
       pollfds[POLLFD_RING].revents &= ~POLLIN;
       return TRUE;
     }

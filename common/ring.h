@@ -84,8 +84,6 @@ static inline char* ring_pop_ptr_get(ring_t* ring)
 static inline void ring_pop_ptr_next(ring_t* ring)
 {
   assert (!ring_is_empty(ring));
-  if (notifier_drain_one(&ring->notifier) < 0)
-    LOGE("RING notifier drain error: %s\n", strerror(errno));
   int next_idx = (ring->idx_reader + 1) & (ring->ring_size - 1);
   ring->idx_reader = next_idx;
 }

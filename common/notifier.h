@@ -2,12 +2,14 @@
 
 // pollable notifications
 
+#include <stdint.h>
+
 struct notifier;
 static inline int notifier_init(struct notifier* notifier);
 static inline void notifier_close(struct notifier* notifier);
 static inline int notifier_terminate(struct notifier* notifier);
 static inline int notify(struct notifier* notifier);
-static inline int notifier_drain_one(struct notifier* notifier);
+static inline uint64_t notifier_drain(struct notifier* notifier);
 static inline int notifier_fd(struct notifier* notifier);
 
 // pipe implementation
@@ -57,10 +59,13 @@ static inline int notify(struct notifier* notifier)
   return write(notifier->pipe_wr, "", 1);
 }
 
-static inline int notifier_drain_one(struct notifier* notifier)
+static inline uint64_t notifier_drain(struct notifier* notifier)
 {
   char buf;
-  return read(notifier->pipe_rd, &buf, 1);
+  int ret = read(notifier->pipe_rd, &buf, 1);
+  if (ret < 0)
+    return 0;
+  return 1;
 }
 
 static inline int notifier_fd(struct notifier* notifier)
