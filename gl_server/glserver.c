@@ -40,10 +40,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // #define GL_DEBUG
 
-#ifdef GL_DEBUG
-#include <stdio.h>
-#endif
-
 glse_context_t glsec_global;
 
 
