@@ -52,7 +52,6 @@ typedef struct
 
 #define GLS_TMP_BUFFER_SIZE 2097152
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
-#define GLS_TIMEOUT_SEC 3.0f
 
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
   _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME)

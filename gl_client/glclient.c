@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GLES2/gl2.h>
 
 #include <errno.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,12 +46,7 @@ gls_context_t glsc_global;
 uint32_t client_egl_error;
 uint32_t client_gles_error;
 
-static float get_diff_time(struct timeval start, struct timeval end)
-{
-  float dt = (float)(end.tv_sec - start.tv_sec) + (float)(end.tv_usec - start.tv_usec) * 0.000001f;
-  return dt;
-}
-
+static const int GLS_TIMEOUT_MSEC = 3000;
 
 static int gls_init()
 {
@@ -129,51 +125,88 @@ int send_packet()
   return TRUE;
 }
 
+static int handle_packet(enum GL_Server_Command cmd)
+{
+  int ret = -1;
+  void* popptr = (void*)fifo_pop_ptr_get(&glsc_global.rc.fifo);
+  if (popptr == NULL) {
+    LOGE("handle_packet: no packet\n");
+    return 0;
+  }
+
+  gls_command_t* c = (gls_command_t*)popptr;
+  switch (c->cmd) {
+  case GLSC_SEND_DATA: {
+    gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)c;
+    if (data->dataptr)
+      data = (gls_cmd_send_data_t*)data->dataptr;
+    gls_command_t* ret = (gls_command_t*)data->data;
+    if (cmd != GLSC_GLS_UNDEF && ret->cmd != cmd) {
+      LOGE("received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
+           ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
+      break; // ignore packet and try again, but no luck
+    }
+    if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
+      ret = 0;
+    break;
+  }
+  default:
+    LOGE("received non-DATA packet, cmd=0x%x (%s)\n",
+         c->cmd, GLSC_tostring(c->cmd));
+    break;
+  }
+  fifo_pop_ptr_next(&glsc_global.rc.fifo);
+  return ret;
+}
 
 int wait_for_data(enum GL_Server_Command cmd, char* str)
 {
   if (glsc_global.is_debug) LOGD("wait_for_data(%s)\n", str);
-  struct timeval start_time, end_time;
-  gettimeofday(&start_time, NULL);
-  int quit = 0;
-  while (!quit) {
-    void* popptr = (void*)fifo_pop_ptr_get(&glsc_global.rc.fifo);
-    if (popptr == NULL) {
-      gettimeofday(&end_time, NULL);
-      float diff_time = get_diff_time(start_time, end_time);
-      if (diff_time > GLS_TIMEOUT_SEC) {
-        LOGE("timeout:%s\n", str);
-        exit(EXIT_FAILURE);
-        return FALSE;
-      }
-      usleep(SLEEP_USEC);
-      continue;
-    }
 
-    gls_command_t* c = (gls_command_t*)popptr;
-    switch (c->cmd) {
-    case GLSC_SEND_DATA: {
-        gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)c;
-        if (data->dataptr)
-          data = (gls_cmd_send_data_t*)data->dataptr;
-        gls_command_t* ret = (gls_command_t*)data->data;
-        if (cmd != GLSC_GLS_UNDEF && ret->cmd != cmd) {
-          LOGE("received DATA packet has wrong command, 0x%x (%s) != 0x%x (%s)\n",
-               ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
-          break; // ignore packet and try again, but no luck
-        }
-        if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
-          quit = TRUE;
-        break;
-      }
-    default:
-      LOGE("received non-DATA packet, cmd=0x%x (%s)\n",
-           c->cmd, GLSC_tostring(c->cmd));
+  enum {
+    POLLFD_FIFO,
+  };
+  struct pollfd pollfds[] = {
+    [POLLFD_FIFO] = {
+      .fd = glsc_global.rc.fifo.pipe_rd,
+      .events = POLLIN
+    },
+  };
+
+  while (1) {
+    int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), GLS_TIMEOUT_MSEC);
+    if (ret == 0) {
+      LOGE("timeout:%s\n", str);
       break;
     }
-    fifo_pop_ptr_next(&glsc_global.rc.fifo);
+    if (ret < 0) {
+      LOGE("poll failed: %s\n", strerror(errno));
+      break;
+    }
+    assert(!(pollfds[POLLFD_FIFO].revents & POLLNVAL));
+
+    if (pollfds[POLLFD_FIFO].revents & POLLERR) {
+      LOGE("FIFO poll error\n");
+      break;
+    }
+    if (pollfds[POLLFD_FIFO].revents & POLLHUP) {
+      LOGD("FIFO poll hangup\n");
+      break;
+    }
+    if (pollfds[POLLFD_FIFO].revents & POLLIN) {
+      handle_packet(cmd);
+      pollfds[POLLFD_FIFO].revents &= ~POLLIN;
+      return TRUE;
+    }
+    if (pollfds[POLLFD_FIFO].revents) {
+      LOGW("FIFO poll revents=0x%x\n", pollfds[POLLFD_FIFO].revents);
+      break;
+    }
+    // should not happen
+    LOGE("wait_for_data internal error\n");
+    break;
   }
-  return TRUE;
+  exit(EXIT_FAILURE);
 }
 
 
