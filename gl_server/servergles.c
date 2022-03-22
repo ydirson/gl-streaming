@@ -301,6 +301,7 @@ static void glse_glDisableVertexAttribArray(gls_command_t* buf)
 static void glse_glDisable(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glDisable);
+  //LOGW("glDisable %x\n", c->cap);
   glDisable(c->cap);
 }
 
