@@ -32,10 +32,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fastlog.h"
 
 #include <GLES2/gl2.h>
+#include <X11/Xatom.h>
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value;
@@ -107,6 +109,10 @@ void init_egl(graphics_context_t* gc)
     LOGE("couldn't open display %s\n", getenv("DISPLAY"));
     exit(EXIT_FAILURE);
   }
+  gc->x.fd = ConnectionNumber(gc->x.display);
+  gc->x.property_atom.qubes_vmname = XInternAtom(gc->x.display, "_QUBES_VMNAME", False);
+  gc->x.property_atom.qubes_vmwinid = XInternAtom(gc->x.display, "_QUBES_VMWINDOWID", False);
+
   gc->x.remote2local = list_new();
   if (!gc->x.remote2local) {
     LOGE("couldn't allocate window list\n");
@@ -190,6 +196,81 @@ Window gls_local_x11_window(graphics_context_t* gc, Window vmwindow)
   if (!l)
     return None;
   return (Window)(l->data);
+}
+
+static unsigned char* glse_vmname(graphics_context_t* gc, Window win)
+{
+  unsigned char* vmname;
+  int format;
+  Atom type_return;
+  unsigned long nitems_return, bytes_after_return;
+  XGetWindowProperty(gc->x.display, win, gc->x.property_atom.qubes_vmname, 0, 256, False,
+                     XA_STRING, &type_return, &format,
+                     &nitems_return, &bytes_after_return, &vmname);
+  // FIXME should XFree
+  if (nitems_return == 0)
+    return None;
+  if (type_return != XA_STRING) {
+    LOGE("bad _QUBES_VMNAME property type %lu\n", type_return);
+    return None;
+  }
+  LOGD("format=%u vmname=%s\n", format, vmname);
+  return vmname;
+}
+
+static Window glse_vmwinid(graphics_context_t* gc, Window win)
+{
+  Window* vmwinid;
+  int format;
+  Atom type_return;
+  unsigned long nitems_return, bytes_after_return;
+  XGetWindowProperty(gc->x.display, win, gc->x.property_atom.qubes_vmwinid, 0, 1, False,
+                     XA_WINDOW, &type_return, &format,
+                     &nitems_return, &bytes_after_return, (unsigned char**)&vmwinid);
+  // FIXME should XFree
+  if (nitems_return != 1)
+    return None;
+  if (type_return != XA_WINDOW) {
+    LOGE("bad _QUBES_VMWINDOWID property type %lu\n", type_return);
+    return None;
+  }
+  LOGD("format=%u vmwinid=0x%lx\n", format, *vmwinid);
+  return *vmwinid;
+}
+
+void glse_handle_x11_event(graphics_context_t* gc, const char* qubes_domain)
+{
+  while (XPending(gc->x.display)) {
+    XEvent evt;
+    XNextEvent(gc->x.display, &evt);
+    switch (evt.type) {
+    case CreateNotify:
+      LOGD("CreateNotify 0x%0lx\n", evt.xcreatewindow.window);
+      char* vmname = (char*)glse_vmname(gc, evt.xcreatewindow.window);
+      if (!vmname) {
+        LOGD("ignoring window 0x%0lx, no vmname\n", evt.xcreatewindow.window);
+        break;
+      }
+      LOGD("vmname=%s\n", vmname);
+      Window vmwin = glse_vmwinid(gc, evt.xcreatewindow.window);
+      LOGD("window=0x%lx\n", vmwin);
+      if (strcmp(vmname, qubes_domain) == 0) {
+        LOGI("window registered: 0x%lx -> 0x%lx\n", vmwin, evt.xcreatewindow.window);
+        list_insert(gc->x.remote2local,
+                    vmwin, (void*)evt.xcreatewindow.window);
+      }
+      else LOGD("ignoring window 0x%0lx, from qube %s\n",
+                evt.xcreatewindow.window, vmname);
+      break;
+    case DestroyNotify:
+      LOGD("DestroyNotify 0x%0lx\n", evt.xdestroywindow.window);
+      break;
+    default:
+      // ignore other XEvent types
+      ;
+      //LOGD("evt type %d\n", evt.type);
+    }
+  }
 }
 
 #else

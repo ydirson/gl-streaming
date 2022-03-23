@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
     LOGW("this is a development GLS protocol, "
          "make sure client and server match\n");
 
-  while ((opt = getopt(argc, argv, "nt:s:h")) != -1) {
+  while ((opt = getopt(argc, argv, "nt:s:q:h")) != -1) {
     switch (opt) {
     case 't':
       my_transport = optarg;
@@ -124,9 +124,12 @@ int main(int argc, char* argv[])
     case 'n':
       nofork = 1;
       break;
+    case 'q':
+      glsec_global.qubes_domain = optarg;
+      break;
     case 'h':
     default:
-      printf("Usage: %s [-n] [-t transport] [-s address]\n", argv[0]);
+      printf("Usage: %s [-n] [-t transport] [-s address] [-q qubes_domain]\n", argv[0]);
       return EXIT_SUCCESS;
     }
   }

@@ -85,6 +85,12 @@ void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
   if (!c->window)
     // invalid at X11 level, here mostly a safeguard for previous single-window code
     LOGW("CREATE_WINDOW referencing NULL Window");
+  if (glsec_global.qubes_domain) {
+    LOGI("waiting for window creation by qubes-guid\n");
+    while (list_lookup(gc->x.remote2local, c->window) == 0)
+      usleep(100);
+    return;
+  }
   Window w = gls_create_x11_window(gc, "OpenGL ES 2.x streaming", 0, 0, c->width, c->height);
   list_insert(gc->x.remote2local, c->window, (void*)w);
   // FIXME we have no DESTROY_WINDOW event to remove the mapping

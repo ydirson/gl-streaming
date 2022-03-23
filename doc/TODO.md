@@ -20,7 +20,7 @@
 - improve usability
   - [x] handle window size, create windows on demand, not just a fixed one
         (addresses: non-stub eglInitialize)
-  - [ ] get rid of "local window"
+  - [x] get rid of "local window" (on QubesOS)
   - [ ] work on native 32bit linux (now broken by hacking in 64bit support)
 - improve code quality
   - [x] take compiler warnings into account

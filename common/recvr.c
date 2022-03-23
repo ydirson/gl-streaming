@@ -44,6 +44,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <unistd.h>
 
+#ifdef GLS_SERVER
+// FIXME essentially for glsec_global.gc and .qubes_domain
+#include "../gl_server/glserver.h"
+#endif
+
 // read everything into a scratch buffer to discard data
 static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch, size_t scratch_size)
 {
@@ -67,13 +72,30 @@ void* recvr_socket_to_ring_loop(void* data)
 
   enum {
     POLLFD_TRANSPORT,
+#ifdef GLS_SERVER
+    POLLFD_X11,
+#endif
   };
   struct pollfd pollfds[] = {
     [POLLFD_TRANSPORT] = {
       .fd = tport_connection_fd(rc->cnx),
       .events = POLLIN
     },
+#ifdef GLS_SERVER
+    [POLLFD_X11] = {
+      .fd = glsec_global.gc.x.fd,
+      .events = POLLIN
+    },
+#endif
   };
+
+#ifdef GLS_SERVER
+  assert(glsec_global.qubes_domain);
+  XSelectInput(glsec_global.gc.x.display,
+               XDefaultRootWindow(glsec_global.gc.x.display),
+               SubstructureNotifyMask);
+  XSync(glsec_global.gc.x.display, False);
+#endif
 
   while (1) {
     int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
@@ -81,6 +103,10 @@ void* recvr_socket_to_ring_loop(void* data)
       LOGE("ring poll failed: %s\n", strerror(errno));
       break;
     }
+    assert(!(pollfds[POLLFD_TRANSPORT].revents & POLLNVAL));
+#ifdef GLS_SERVER
+    assert(!(pollfds[POLLFD_X11].revents & POLLNVAL));
+#endif
 
     if (pollfds[POLLFD_TRANSPORT].revents & POLLHUP) {
       LOGI("TRANSPORT poll hangup\n");
@@ -101,7 +127,27 @@ void* recvr_socket_to_ring_loop(void* data)
       pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
     }
     if (pollfds[POLLFD_TRANSPORT].revents)
-      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
+      LOGW("RING poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
+
+#ifdef GLS_SERVER
+    if (pollfds[POLLFD_X11].revents & POLLERR) {
+      LOGE("X11 poll error\n");
+      break;
+    }
+    if (pollfds[POLLFD_X11].revents & POLLHUP) {
+      LOGW("X11 poll hangup\n");
+      break;
+    }
+    if (pollfds[POLLFD_X11].revents & POLLIN) {
+      //if (!XPending(glsec_global.gc.x.display))
+      //  // FIXME triggers really often!
+      //  LOGW("X11 poll triggered but no event\n");
+      glse_handle_x11_event(&glsec_global.gc, glsec_global.qubes_domain);
+      pollfds[POLLFD_X11].revents &= ~POLLIN;
+    }
+    if (pollfds[POLLFD_X11].revents)
+      LOGW("X11 poll revents=0x%x\n", pollfds[POLLFD_X11].revents);
+#endif
   }
 
   // end of thread

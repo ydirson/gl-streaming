@@ -39,7 +39,12 @@ typedef struct
   struct
   {
     Display* display;
+    int fd;
     struct genlist* remote2local;
+    struct {
+      Atom qubes_vmname;
+      Atom qubes_vmwinid;
+    } property_atom;
   } x;
 #endif
 } graphics_context_t;
@@ -60,4 +65,5 @@ void release_egl(graphics_context_t* gc);
 #if USE_X11
 Window gls_create_x11_window(graphics_context_t* gc, const char* name, int x, int y, int width, int height);
 Window gls_local_x11_window(graphics_context_t* gc, Window vmwindow);
+void glse_handle_x11_event(graphics_context_t* gc, const char* qubes_domain);
 #endif

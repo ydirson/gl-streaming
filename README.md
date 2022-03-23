@@ -43,7 +43,8 @@ Notable information:
 
 * Only EGL/X11 is properly supported for now
 
-* The client still creates a window on its own, which is used for
+* When not using QubesOS integration,
+  the client still creates a window on its own, which is used for
   interaction with the app (input events, window resize, etc).  When
   running locally (ie. GPU server and app on the same display) it gets
   quite awkward, as both windows must share the same screen.  However,
@@ -107,9 +108,9 @@ those items or add their own in the picture.
   * [ ] solve structural security issues
     * [x] use separate processes to isolate clients' contexts on server
     * [ ] remove pointers from protocol
-  * [ ] implement a satisfying window/input experience
+  * [x] implement a satisfying window/input experience
     * [x] on-demand window, properly sized
-    * [ ] no extra client-side window
+    * [x] no extra client-side window (on QubesOS)
   * [ ] bring to decent performance level
 * [ ] add Vulkan support
 

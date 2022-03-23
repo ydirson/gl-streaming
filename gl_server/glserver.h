@@ -90,6 +90,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
   recvr_context_t rc;
+  char* qubes_domain;
   // setup for each connection
   gls_bufpool_t pool;
   graphics_context_t gc;
