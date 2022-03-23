@@ -41,6 +41,8 @@ Notable information:
   even stubbed.  Version 1.0 is advertised, even though it is not
   fully implemented yet.
 
+* Only EGL/X11 is properly supported for now
+
 * The client still creates a window on its own, which is used for
   interaction with the app (input events, window resize, etc).  When
   running locally (ie. GPU server and app on the same display) it gets
@@ -67,9 +69,11 @@ Notable information:
 
 * There are security concerns, notably:
   * usage of pointer types in the protocol must be cured
-  * when the server listens, any app can connect (somewhat mitigated
-    by listening only on `localhost` by default, but you'd better
-    trust other users of a system before launching `gl_server` on it)
+  * when using the TCP transport (which mostly exists for testing
+    purposes today), any app can connect to the server (somewhat
+    mitigated by listening only on `localhost` by default, but you'd
+    better trust other users of a system before launching `gl_server`
+    on it)
 
 * Usage of pointer types in the protocol also implies that only 64bit
   builds can work now.  We should not only be able to build 32bit
