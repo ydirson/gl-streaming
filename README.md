@@ -93,7 +93,6 @@ those items or add their own in the picture.
   * [ ] solve structural security issues
     * [x] use separate processes to isolate clients' contexts on server
     * [ ] remove pointers from protocol
-    * [ ] add some connection authorization
   * [ ] implement a satisfying window/input experience
     * [x] on-demand window, properly sized
     * [ ] no extra client-side window

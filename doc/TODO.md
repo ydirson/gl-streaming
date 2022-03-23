@@ -26,16 +26,13 @@
   - [x] take compiler warnings into account
   - [x] more readable idioms
   - [ ] audit string/data-size usages
-  - [ ] replace custom window creation with a standard portable library
   - [ ] stop encapsulating return messages in a SEND_DATA
   - [ ] make messages standalone, getting rid of SEND_DATA
 - improve performance
   - [x] make the fifo poll()able instead of using usleep-based active polling
   - [ ] zero-copy when possible
-    - [ ] virtio-based communication between app domain and GPU domain
+    - [ ] virtio/gnttable-based communication between app domain and GPU domain
           (needed for `GL_OES_mapbuffer` and such)
-    - [ ] replace 2-buffers design by a buffer pool instead of memcpy'ing between
-          network layer and queue layer
 - fixes
   - [x] non-implemented functions (eg. glIsEnabled) cause client to segfault because
         symbol is NULL, core functions must all be provided
@@ -70,6 +67,7 @@
     - [x] non-stub config handling
     - [x] non-default EGLDisplay handling
     - [x] non-stub context management
+  - add extensions useful for gl4es
   - [x] EGL extension support
   - [ ] proper `GL_OES_mapbuffer` implementation
   - [x] separate EGL and GLSclient libs out of libGLES2
@@ -95,3 +93,8 @@
 
 - [ ] sample2 causes server to fail with "Error: Command Flush -10256991" when
       it cannot load its data files (ie. not run from samples dir)
+- only impacting network/non-virtualization-aware transports:
+  - [ ] replace custom window creation with a standard portable library
+  - [ ] replace 2-buffers design by a buffer pool instead of memcpy'ing between
+        network layer and queue layer
+  - [ ] add some connection authorization
