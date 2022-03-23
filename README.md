@@ -86,6 +86,10 @@ Notable information:
 
 * Essentially tested both client and server sides on GNU/Linux.
 
+* Apps which do not control vsync using `eglSwapInterval()`
+  (eg. `es2gears`), which need to set `vblank_mode=0` to force disable
+  vsync rendering, need to do so _on the `gl_server`_ process.
+
 
 # How to use
 
