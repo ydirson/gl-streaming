@@ -46,11 +46,9 @@ typedef struct
   struct gls_connection* cnx;
 } recvr_context_t;
 
-void recvr_server_start(recvr_context_t* rc, const char* server_addr,
-                        void(*handle_child)(recvr_context_t*));
-void recvr_connection_start(recvr_context_t* rc,
-                            void(*handle_child)(recvr_context_t*));
-void recvr_client_start(recvr_context_t* rc, const char* server_addr);
 void recvr_setup(recvr_context_t* rc);
 int recvr_handle_packet(recvr_context_t* rc);
+void* recvr_socket_to_fifo_loop(void* data);
 void recvr_stop(recvr_context_t* c);
+
+void recvr_client_start(recvr_context_t* rc, const char* server_addr);
