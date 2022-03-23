@@ -142,11 +142,6 @@ GLS_DEF_CORE_API(EGLSurface, eglCreatePixmapSurface,  EGLDisplay dpy, EGLConfig 
 static EGLint gls_request_window(NativeWindowType window)
 {
 #if defined(USE_X11)
-  if (egl_clt_context.x_window && egl_clt_context.x_window != window) {
-    LOGE("%s: supports only one X11 Window\n", __FUNCTION__);
-    return EGL_BAD_NATIVE_WINDOW;
-  }
-
   egl_clt_context.x_window = window;
   XWindowAttributes xWindowAttrs;
   if (!XGetWindowAttributes(egl_clt_context.native_display, egl_clt_context.x_window, &xWindowAttrs)) {
