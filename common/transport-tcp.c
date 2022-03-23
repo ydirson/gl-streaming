@@ -221,6 +221,8 @@ static ssize_t tcp_tport_read(struct gls_connection* cnx, void* buffer, size_t s
 
 static void tcp_tport_close(struct gls_connection* cnx)
 {
+  if (!cnx)
+    return;
   close(cnx->sock_fd);
 }
 
