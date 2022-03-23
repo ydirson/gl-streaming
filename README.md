@@ -83,6 +83,12 @@ Notable information:
 * Essentially tested both client and server sides on GNU/Linux.
 
 
+# How to use
+
+See [usage instructions](doc/USAGE.md), and especially a [QubesOS test
+setup](doc/USAGE.md#qubesos-test-setup).
+
+
 # High-level roadmap
 
 This is my own personal roadmap.  Contributors welcome, to help with
