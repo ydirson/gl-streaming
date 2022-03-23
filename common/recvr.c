@@ -44,15 +44,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <unistd.h>
 
-#ifdef GLS_SERVER
-# define FIFO_SIZE_ORDER 12
-# define FIFO_PACKET_SIZE_ORDER 15
-#else
-# define FIFO_SIZE_ORDER 2
-# define FIFO_PACKET_SIZE_ORDER 10
-#endif
-
-
 // read everything into a scratch buffer to discard data
 static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch, size_t scratch_size)
 {
@@ -70,7 +61,7 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-static void* socket_to_fifo_loop(void* data)
+void* recvr_socket_to_fifo_loop(void* data)
 {
   recvr_context_t* rc = data;
 
@@ -225,58 +216,9 @@ int recvr_handle_packet(recvr_context_t* rc)
 }
 
 
-void recvr_server_start(recvr_context_t* rc, const char* server_addr,
-                        void(*handle_child)(recvr_context_t*))
-{
-  struct gls_server* srv = tport_server_create(server_addr);
-  if (!srv)
-    exit(EXIT_FAILURE);
-
-  int quit = 0;
-  while (!quit) {
-    rc->cnx = tport_server_wait_connection(srv);
-    if (!rc->cnx)
-      break;
-    LOGI("new client\n");
-
-    switch (fork()) {
-    case -1:
-      LOGE("%s: fork failed: %s\n", __FUNCTION__, strerror(errno));
-      break;
-    case 0:
-      free(srv);
-      fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-      pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
-      pthread_setname_np(rc->recvr_th, "gls-recvr");
-      handle_child(rc);
-      if (pthread_join(rc->recvr_th, NULL) != 0)
-        LOGE("pthread_join failed\n");
-      recvr_stop(rc);
-      LOGI("client terminated\n");
-      exit(EXIT_SUCCESS);
-    default:
-      tport_close(rc->cnx);
-      // ... loop and wait for a new client
-    }
-  }
-  free(srv);
-}
-
-// FIXME: could use server_addr -- worth it?
-void recvr_connection_start(recvr_context_t* rc,
-                            void(*handle_child)(recvr_context_t*))
-{
-  rc->cnx = tport_connection_create();
-  // FIXME the rest is a cut'n'paste
-  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-  pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
-  handle_child(rc);
-  if (pthread_join(rc->recvr_th, NULL) != 0)
-    LOGE("pthread_join failed\n");
-  recvr_stop(rc);
-  LOGI("client terminated\n");
-}
+// client settings
+#define FIFO_SIZE_ORDER 2
+#define FIFO_PACKET_SIZE_ORDER 10
 
 void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
@@ -286,7 +228,7 @@ void recvr_client_start(recvr_context_t* rc, const char* server_addr)
   if (!rc->cnx)
     exit(EXIT_FAILURE);
 
-  pthread_create(&rc->recvr_th, NULL, socket_to_fifo_loop, rc);
+  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_fifo_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
