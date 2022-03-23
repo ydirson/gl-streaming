@@ -1,0 +1,8 @@
+#!/bin/sh
+
+notify-send "dom0: GLS access from $QREXEC_REMOTE_DOMAIN"
+
+user=$(getent group qubes|cut -d: -f4|cut -d, -f1)
+if [ -n "$user" ]; then
+    exec /usr/sbin/runuser -u "$user" -- env DISPLAY=:0 /usr/local/bin/gl_server -t stdio
+fi

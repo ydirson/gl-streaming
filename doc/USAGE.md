@@ -121,43 +121,46 @@ Be sure you understand the security implications before trying this:
 this software is experimental, has known security issues, and you're
 going to run it in a sensible area of your QubesOS system.
 
+Also be aware, even if you trust the `gl_server` code, that the
+programs you run in your (untrusted) domain will cause execution of
+code in your `dom0` or `sys-gui-gpu` (GPU driver stack), that is
+usually not exercised by QubesOS, and which as such does not receive
+(in the case of `dom0`) the security updates that a graphics stack
+should receive.  This **it is strongly discouraged** to run this in
+`dom0`, the more so using proprietary driver stack, the more so using
+untrusted programs (eg. closed-source apps).
+
+
 ## in GPU domain (`dom0` or `sys-gui-gpu`)
 
-### declare a Qubes RPC service
-
-As root, create a script, eg. `/etc/qubes-rpc/xqubes.GLS`, and make it
-executable executable.  After sending a desktop notification for
-safety, it will forward the connection to a `gl_server` running on its
-default port:
-
-```
-#!/bin/sh
-notify-send "dom0: GLS access from $QREXEC_REMOTE_DOMAIN"
-socat - TCP:localhost:18145
-```
-
 ### transfer `gl_server` from your build qube to GPU domain
+
+Transfer the executable, eg. with:
 
 ```
 $ qvm-run -p perso-dev 'tar -zc gl_server' | tar -xz
 ```
 
-### launch `gl_server`
+Then install it, eg. in `/usr/local/bin/`.
 
-Since this software is experimental, you want to launch it by hand
-(not as a permanent service), and not as root.
+### declare a Qubes RPC service
 
-```
-$ ./gl_server
-```
+As root, create a RPC service script, eg. from provided
+[`qubes.GLS`](../qubes-os/qubes.GLS), as `/etc/qubes-rpc/qubes.GLS` (this
+is the default service used by `qrexecpipe` transport, but you may
+adjust at will) and make it executable executable.  You may need to
+adjust the path to `gl_server`.
+
+After sending a desktop notification for safety, it will launch a
+`gl_server` to handle your GLES2 app's connection.
 
 ## in client qube
 
-Just setup a TCP-to-qrexec bridge as follows, and launch your apps as
-previously described.
+Launch your apps as previously described, using the `qrexecpipe`
+transport.  E.g.:
 
 ```
-$ socat "TCP-LISTEN:18145,fork" "EXEC:qrexec-client-vm dom0 xqubes.GLS"
+$ GLS_TRANSPORT=qrexecpipe GLS_SERVER_ADDR=sys-gui-gpu LD_LIBRARY_PATH=$PWD/build/gl_client /usr/bin/es2gears
 ```
 
 
