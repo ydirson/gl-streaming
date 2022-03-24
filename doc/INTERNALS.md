@@ -1,23 +1,33 @@
 # gl-streaming internals
 
-This document attempts to describe the structure of the code, mostly
-inherited from previous projects.  It is surely incomplete, possibly
-not 100% accurate, and subject to change, hopefully to make the system
-better.
+This document attempts to describe the structure of the code, still in
+part inherited from previous projects.  It is surely incomplete,
+possibly not 100% accurate, and subject to change, hopefully to make
+the system better.  It will from time to time lag behind the actual
+code, check this file's last modification date, and please report
+problems you may notice.
 
 
 ## basic high-level structure
 
-1. Application makes EGL/GLES2 API calls, implemented by the
+1. Application makes EGL/GLES2 API calls, through custom libEGL and
+   libGLES2 libraries, implemented by the
    [clientegl](../gl_client/clientegl.c) and
    [clientgles](../gl_client/clientgles.c) modules
 
 2. API calls are marshalled into messages, described in
-   [gls_command.h](../common/gls_command.h), sent using TCP, and possibly
-   wait for a reply before the API returns control to the application
+   [gls_command.h](../common/gls_command.h), sent using a
+   [user-selectable transport](USAGE.md#available-transports), and
+   possibly wait for a reply before the API returns control to the
+   application
 
-3. The main server process just listens for connections, and forks a
-   dedicated "child" process to handle each incoming client.
+3. The server side can work in two ways, depending on the selected transport:
+   - either we launch a one-shot server process, handling a single
+     connection before exiting (e.g. `stdio` transport, or `tcp` in
+     no-fork mode),
+   - or a main server process just listens for connections, and forks
+     a dedicated "child" process to handle each incoming client
+     (e.g. `tcp` transport in default mode)
 
 4. Server "child" receives packets with [recvr](../common/recvr.c) in a
    dedicated thread, managed from [glserver](../gl_server/glserver.c) and
@@ -222,23 +232,9 @@ or shared memory.
 
 ## current implementation shortcuts
 
-### single GL session
-
-The server app does the allocations on behalf of all clients.  Some
-consequences are:
-
-- GPU resources not released explicitly by the client (eg. after a
-  crash, or simply relying on process exiting to release) stay
-  allocated until the server terminates
-- resources allocated by previous clients can be seen by later ones,
-  causing reproducibility issues
-
-This can be addressed by forking a dedicated server process for each
-client connecting, to replicate the client lifetime on the server-side
-GL client.  Additionally this will bring a more traditionnal design
-where several clients can connect at the same time.
-
 ### large buffers
+
+(some items here have been improved on, would need a reality check)
 
 Large data buffers cause problems to the fixed-size tmp_buf.
 Currently the code drops data that does not fit in the buffer, and the
@@ -265,14 +261,15 @@ implications of establishing real memory sharing.
 
 ### displays, windows, input
 
-Currently a single window on a single display is supported.  Since the
-window creation by client app is out of the EGL scope, it is today not
-intercepted, and gets shown with a background that will stay black.
+The window creation by client app is done out of the EGL scope, and is
+not intercepted.  It is still drawn, and gets shown with a background
+that will stay black.
 
 On server side, the rendering window is created when we know the size
-we want it to get, ie. when the client app calls `eglCreateWindowSurface`.
+we want it to get, that is when the client app make a call such as
+`eglCreateWindowSurface`.
 
-There are several options for proper window/input operation, including:
+There are several options for improving window/input operation, including:
 * intercept the creation of local window and of further calls
   targetting it, and forward events back: this is the best-performance
   option on GPU side, but requires one of:
