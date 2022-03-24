@@ -6,6 +6,7 @@
 
 static struct gls_transport* transports[] = {
   &gls_tport_tcp,
+  &gls_tport_unix,
   &gls_tport_stdio,
   &gls_tport_qrexecpipe,
 };

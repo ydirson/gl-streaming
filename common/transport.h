@@ -34,6 +34,7 @@ struct gls_transport
 };
 
 extern struct gls_transport gls_tport_tcp;
+extern struct gls_transport gls_tport_unix;
 extern struct gls_transport gls_tport_stdio;
 extern struct gls_transport gls_tport_qrexecpipe;
 extern struct gls_transport* the_tport;

@@ -23,6 +23,7 @@ common_srcs = files(
     'common/recvr.c',
     'common/transport.c',
     'common/transport-tcp.c',
+    'common/transport-unix.c',
     'common/transport-stdio.c',
     'common/transport-qrexecpipe.c',
   ])
