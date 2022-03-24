@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
-#define _GNU_SOURCE
 #include "fastlog.h"
 
 #include <assert.h>
