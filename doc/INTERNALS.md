@@ -30,7 +30,7 @@ better.
 
 6. Serverside implementations for calls with output parameters
    marshall a message like on client side and sends it back; client
-   receives them from its own [recvr](../common/server.c) thread, and
+   receives them from its own [recvr](../common/recvr.c) thread, and
    received synchronously
 
 
@@ -81,8 +81,8 @@ pointer to the API implementation.
 
 `SEND_DATA` message are handled according to where they were stored:
 
-* those small enough to fit in a ring buffer (`dataptr == NULL`)are
-  copied in `tmp_buf` to free their ring slot * those
+* those small enough to fit in a ring slot (`dataptr == NULL`) are
+  copied in `tmp_buf` to free their slot
 
 * the larger ones get their `dataptr` stored in `pool.mallocated`
   alongside the (unused) `tmp_buf`; that points to the `SEND_DATA`
