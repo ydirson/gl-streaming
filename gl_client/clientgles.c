@@ -1566,7 +1566,7 @@ static void _glVertexAttribFloat(enum GL_Server_Command cmd,
 {
   gls_data_glVertexAttribFloat_t* dat = (gls_data_glVertexAttribFloat_t*)glsc_global.pool.tmp_buf.buf;
   memcpy(dat->arr, arr, num_float);
-  // It's small so use GLS_DATA_SIZE
+  // It's small so use GLS_DATA_SIZE -- FIXME wat?!
   gls_cmd_send_data(GLS_DATA_SIZE, glsc_global.pool.tmp_buf.buf);
 
   _GLS_SET_COMMAND_PTR(c, glVertexAttribFloat, cmd);

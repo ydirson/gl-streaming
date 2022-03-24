@@ -42,6 +42,7 @@ static int gls_wire_native_display(EGLNativeDisplayType native_display,
   return 0;
 }
 
+// FIXME why copying to tmp_buf?
 #define SEND_ATTRIB_DATA(FLAG, ATTRIB_LIST)                             \
   uint32_t FLAG;                                                        \
   if (!ATTRIB_LIST || ATTRIB_LIST[0] == EGL_NONE) {                     \
@@ -51,7 +52,7 @@ static int gls_wire_native_display(EGLNativeDisplayType native_display,
     unsigned data_size;                                                 \
     for (num_attribs = 0; ATTRIB_LIST[2 * num_attribs] != EGL_NONE; num_attribs++); \
     data_size = (num_attribs * 2 + 1) * sizeof(EGLint);                 \
-    assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));                 \
+    assert(data_size < GLS_TMP_BUFFER_SIZE);                            \
     memcpy(glsc_global.pool.tmp_buf.buf, ATTRIB_LIST, data_size);       \
     gls_cmd_send_data(data_size, glsc_global.pool.tmp_buf.buf);         \
     FLAG = (num_attribs != 0);                                          \
