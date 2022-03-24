@@ -29,52 +29,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "fifo.h"
+#include "ring.h"
 
 #include <stdlib.h>
 
-int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
-              unsigned int fifo_packet_size_order)
+int ring_init(ring_t* ring, unsigned int ring_size_order,
+              unsigned int ring_packet_size_order)
 {
-  fifo->fifo_size = 1 << fifo_size_order;
-  fifo->fifo_packet_size = 1 << fifo_packet_size_order;
+  ring->ring_size = 1 << ring_size_order;
+  ring->ring_packet_size = 1 << ring_packet_size_order;
 
   int pipefds[2];
   if (pipe2(pipefds, O_CLOEXEC) < 0) {
-    LOGE("FIFO pipe allocation failure: %s\n", strerror(errno));
+    LOGE("ring pipe allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  fifo->pipe_rd = pipefds[0];
-  fifo->pipe_wr = pipefds[1];
+  ring->pipe_rd = pipefds[0];
+  ring->pipe_wr = pipefds[1];
 
 #if 0
   // aligned malloc ?  Do we gain anything ?
-  unsigned int alignment = fifo->fifo_packet_size;
-  fifo->buffer = (char*)aligned_alloc(alignment, fifo->fifo_size * fifo->fifo_packet_size);
-  if (fifo->buffer == NULL) {
-    LOGE("FIFO allocation failure: %s\n", strerror(errno));
+  unsigned int alignment = ring->ring_packet_size;
+  ring->buffer = (char*)aligned_alloc(alignment, ring->ring_size * ring->ring_packet_size);
+  if (ring->buffer == NULL) {
+    LOGE("ring allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 #else
-  fifo->buffer = (char*)malloc(fifo->fifo_size * fifo->fifo_packet_size);
+  ring->buffer = (char*)malloc(ring->ring_size * ring->ring_packet_size);
 #endif
 
-  fifo->idx_reader = 0;
-  fifo->idx_writer = 0;
+  ring->idx_reader = 0;
+  ring->idx_writer = 0;
   return 0;
 }
 
-int fifo_delete(fifo_t* fifo)
+int ring_delete(ring_t* ring)
 {
-  free(fifo->buffer);
-  fifo->buffer = NULL;
-  fifo->idx_reader = 0;
-  fifo->idx_writer = 0;
-  fifo->fifo_size = 0;
-  fifo->fifo_packet_size = 0;
-  close(fifo->pipe_wr);
-  fifo->pipe_wr = -1;
-  close(fifo->pipe_rd);
-  fifo->pipe_rd = -1;
+  free(ring->buffer);
+  ring->buffer = NULL;
+  ring->idx_reader = 0;
+  ring->idx_writer = 0;
+  ring->ring_size = 0;
+  ring->ring_packet_size = 0;
+  close(ring->pipe_wr);
+  ring->pipe_wr = -1;
+  close(ring->pipe_rd);
+  ring->pipe_rd = -1;
   return 0;
 }

@@ -39,16 +39,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 // server settings
-#define FIFO_SIZE_ORDER 12
-#define FIFO_PACKET_SIZE_ORDER 15
+#define RING_SIZE_ORDER 12
+#define RING_PACKET_SIZE_ORDER 15
 
 static int nofork;
 
 static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
-  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_fifo_loop, rc);
+  ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
+  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
   handle_child(rc);
   if (pthread_join(rc->recvr_th, NULL) != 0)

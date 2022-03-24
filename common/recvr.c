@@ -61,7 +61,7 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-void* recvr_socket_to_fifo_loop(void* data)
+void* recvr_socket_to_ring_loop(void* data)
 {
   recvr_context_t* rc = data;
 
@@ -78,7 +78,7 @@ void* recvr_socket_to_fifo_loop(void* data)
   while (1) {
     int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
     if (ret < 0) {
-      LOGE("FIFO poll failed: %s\n", strerror(errno));
+      LOGE("ring poll failed: %s\n", strerror(errno));
       break;
     }
 
@@ -101,11 +101,11 @@ void* recvr_socket_to_fifo_loop(void* data)
       pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
     }
     if (pollfds[POLLFD_TRANSPORT].revents)
-      LOGW("FIFO poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
+      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
   }
 
   // end of thread
-  fifo_writer_close(&rc->fifo);
+  ring_writer_close(&rc->ring);
   return NULL;
 }
 
@@ -127,9 +127,9 @@ ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 
 int recvr_handle_packet(recvr_context_t* rc)
 {
-  char* pushptr = fifo_push_ptr_get(&rc->fifo);
+  char* pushptr = ring_push_ptr_get(&rc->ring);
   if (pushptr == NULL) {
-    LOGW("FIFO full!\n");
+    LOGW("ring full!\n");
     usleep(SLEEP_USEC);
     return 0;
   }
@@ -155,13 +155,13 @@ int recvr_handle_packet(recvr_context_t* rc)
 
   // setup `dest` to point to a proper buffer depending on packet size ...
   char* dest;
-  if (c->cmd_size <= rc->fifo.fifo_packet_size) {
+  if (c->cmd_size <= rc->ring.ring_packet_size) {
     dest = pushptr;
   } else {
     if (c->cmd != GLSC_SEND_DATA) {
-      // only SEND_DATA packets may be larger than a fifo packet
+      // only SEND_DATA packets may be larger than a ring packet
       LOGE("received large packet, not a SEND_DATA\n");
-      if (discard_bytes(rc->cnx, remaining, pushptr, rc->fifo.fifo_packet_size))
+      if (discard_bytes(rc->cnx, remaining, pushptr, rc->ring.ring_packet_size))
         return 0;
       else
         return -1;
@@ -170,7 +170,7 @@ int recvr_handle_packet(recvr_context_t* rc)
     dest = malloc(c->cmd_size);
     if (!dest) {
       LOGE("malloc failed: %s\n", strerror(errno));
-      if (discard_bytes(rc->cnx, remaining, pushptr, rc->fifo.fifo_packet_size))
+      if (discard_bytes(rc->cnx, remaining, pushptr, rc->ring.ring_packet_size))
         return 0;
       else
         return -1;
@@ -203,7 +203,7 @@ int recvr_handle_packet(recvr_context_t* rc)
   if (endsession)
     return endsession;
 
-  if (c->cmd_size <= rc->fifo.fifo_packet_size && c->cmd == GLSC_SEND_DATA) {
+  if (c->cmd_size <= rc->ring.ring_packet_size && c->cmd == GLSC_SEND_DATA) {
     gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
     if (data->zero != 0) {
       LOGW("SEND_DATA with non-zero 'zero' field %lx, compensating\n", data->zero);
@@ -211,24 +211,24 @@ int recvr_handle_packet(recvr_context_t* rc)
     }
   }
 
-  fifo_push_ptr_next(&rc->fifo);
+  ring_push_ptr_next(&rc->ring);
   return 0;
 }
 
 
 // client settings
-#define FIFO_SIZE_ORDER 2
-#define FIFO_PACKET_SIZE_ORDER 10
+#define RING_SIZE_ORDER 2
+#define RING_PACKET_SIZE_ORDER 10
 
 void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
-  fifo_init(&rc->fifo, FIFO_SIZE_ORDER, FIFO_PACKET_SIZE_ORDER);
+  ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
 
   rc->cnx = tport_client_create(server_addr);
   if (!rc->cnx)
     exit(EXIT_FAILURE);
 
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_fifo_loop, rc);
+  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
@@ -236,5 +236,5 @@ void recvr_stop(recvr_context_t* rc)
 {
   tport_close(rc->cnx);
   free(rc->cnx);
-  fifo_delete(&rc->fifo);
+  ring_delete(&rc->ring);
 }

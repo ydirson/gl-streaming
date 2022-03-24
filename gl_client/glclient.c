@@ -128,7 +128,7 @@ int send_packet()
 static int handle_packet(enum GL_Server_Command cmd)
 {
   int ret = -1;
-  void* popptr = (void*)fifo_pop_ptr_get(&glsc_global.rc.fifo);
+  void* popptr = (void*)ring_pop_ptr_get(&glsc_global.rc.ring);
   if (popptr == NULL) {
     LOGE("handle_packet: no packet\n");
     return 0;
@@ -146,7 +146,7 @@ static int handle_packet(enum GL_Server_Command cmd)
            ret->cmd, GLSC_tostring(ret->cmd), cmd, GLSC_tostring(cmd));
       break; // ignore packet and try again, but no luck
     }
-    if (fifobuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.fifo, c))
+    if (ringbuf_data_to_bufpool(&glsc_global.pool, &glsc_global.rc.ring, c))
       ret = 0;
     break;
   }
@@ -155,7 +155,7 @@ static int handle_packet(enum GL_Server_Command cmd)
          c->cmd, GLSC_tostring(c->cmd));
     break;
   }
-  fifo_pop_ptr_next(&glsc_global.rc.fifo);
+  ring_pop_ptr_next(&glsc_global.rc.ring);
   return ret;
 }
 
@@ -164,11 +164,11 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
   if (glsc_global.is_debug) LOGD("wait_for_data(%s)\n", str);
 
   enum {
-    POLLFD_FIFO,
+    POLLFD_RING,
   };
   struct pollfd pollfds[] = {
-    [POLLFD_FIFO] = {
-      .fd = glsc_global.rc.fifo.pipe_rd,
+    [POLLFD_RING] = {
+      .fd = glsc_global.rc.ring.pipe_rd,
       .events = POLLIN
     },
   };
@@ -183,23 +183,23 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
       LOGE("poll failed: %s\n", strerror(errno));
       break;
     }
-    assert(!(pollfds[POLLFD_FIFO].revents & POLLNVAL));
+    assert(!(pollfds[POLLFD_RING].revents & POLLNVAL));
 
-    if (pollfds[POLLFD_FIFO].revents & POLLERR) {
-      LOGE("FIFO poll error\n");
+    if (pollfds[POLLFD_RING].revents & POLLERR) {
+      LOGE("ring poll error\n");
       break;
     }
-    if (pollfds[POLLFD_FIFO].revents & POLLHUP) {
-      LOGD("FIFO poll hangup\n");
+    if (pollfds[POLLFD_RING].revents & POLLHUP) {
+      LOGD("ring poll hangup\n");
       break;
     }
-    if (pollfds[POLLFD_FIFO].revents & POLLIN) {
+    if (pollfds[POLLFD_RING].revents & POLLIN) {
       handle_packet(cmd);
-      pollfds[POLLFD_FIFO].revents &= ~POLLIN;
+      pollfds[POLLFD_RING].revents &= ~POLLIN;
       return TRUE;
     }
-    if (pollfds[POLLFD_FIFO].revents) {
-      LOGW("FIFO poll revents=0x%x\n", pollfds[POLLFD_FIFO].revents);
+    if (pollfds[POLLFD_RING].revents) {
+      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_RING].revents);
       break;
     }
     // should not happen

@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "fifo.h"
+#include "ring.h"
 #include "transport.h"
 
 #include <unistd.h>
@@ -41,14 +41,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
   pthread_t recvr_th;
-  fifo_t fifo;
+  ring_t ring;
 
   struct gls_connection* cnx;
 } recvr_context_t;
 
 void recvr_setup(recvr_context_t* rc);
 int recvr_handle_packet(recvr_context_t* rc);
-void* recvr_socket_to_fifo_loop(void* data);
+void* recvr_socket_to_ring_loop(void* data);
 void recvr_stop(recvr_context_t* c);
 
 void recvr_client_start(recvr_context_t* rc, const char* server_addr);

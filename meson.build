@@ -17,7 +17,7 @@ add_project_arguments(
 common_incdir = include_directories('common')
 common_srcs = files(
   [
-    'common/fifo.c',
+    'common/ring.c',
     'common/recvr.c',
     'common/transport.c',
     'common/transport-tcp.c',

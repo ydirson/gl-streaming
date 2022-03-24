@@ -44,63 +44,63 @@ typedef struct
 {
   char* buffer;
   int idx_reader, idx_writer; // packet numbers
-  unsigned int fifo_size;
-  unsigned int fifo_packet_size;
+  unsigned int ring_size;
+  unsigned int ring_packet_size;
   int pipe_wr, pipe_rd;         // pipe for mainloop polling
-} fifo_t;
+} ring_t;
 
 /*
- * fifo_*_ptr_next() are not supposed to be called if the matching
- * fifo_*_ptr_get() returns NULL, and will assert.
+ * ring_*_ptr_next() are not supposed to be called if the matching
+ * ring_*_ptr_get() returns NULL, and will assert.
  */
 
-static inline int fifo_is_empty(fifo_t* fifo)
+static inline int ring_is_empty(ring_t* ring)
 {
-  return fifo->idx_reader == fifo->idx_writer;
+  return ring->idx_reader == ring->idx_writer;
 }
 
-static inline char* fifo_push_ptr_get(fifo_t* fifo)
+static inline char* ring_push_ptr_get(ring_t* ring)
 {
-  int next_idx = (fifo->idx_writer + 1) & (fifo->fifo_size - 1);
-  if (next_idx == fifo->idx_reader)
+  int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
+  if (next_idx == ring->idx_reader)
     return NULL;
-  return fifo->buffer + (fifo->idx_writer * fifo->fifo_packet_size);
+  return ring->buffer + (ring->idx_writer * ring->ring_packet_size);
 }
 
-static inline void fifo_push_ptr_next(fifo_t* fifo)
+static inline void ring_push_ptr_next(ring_t* ring)
 {
-  int next_idx = (fifo->idx_writer + 1) & (fifo->fifo_size - 1);
-  assert (next_idx != fifo->idx_reader);
-  fifo->idx_writer = next_idx;
-  if (write(fifo->pipe_wr, "", 1) < 0)
-    LOGE("FIFO write to notification pipe: %s\n", strerror(errno));
+  int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
+  assert (next_idx != ring->idx_reader);
+  ring->idx_writer = next_idx;
+  if (write(ring->pipe_wr, "", 1) < 0)
+    LOGE("ring write to notification pipe: %s\n", strerror(errno));
 }
 
-static inline char* fifo_pop_ptr_get(fifo_t* fifo)
+static inline char* ring_pop_ptr_get(ring_t* ring)
 {
-  if (fifo_is_empty(fifo))
+  if (ring_is_empty(ring))
     return NULL;
-  return fifo->buffer + (fifo->idx_reader * fifo->fifo_packet_size);
+  return ring->buffer + (ring->idx_reader * ring->ring_packet_size);
 }
 
-static inline void fifo_pop_ptr_next(fifo_t* fifo)
+static inline void ring_pop_ptr_next(ring_t* ring)
 {
-  assert (!fifo_is_empty(fifo));
+  assert (!ring_is_empty(ring));
   char buf;
-  if (read(fifo->pipe_rd, &buf, 1) < 0)
-    LOGE("FIFO read from notification pipe: %s\n", strerror(errno));
-  int next_idx = (fifo->idx_reader + 1) & (fifo->fifo_size - 1);
-  fifo->idx_reader = next_idx;
+  if (read(ring->pipe_rd, &buf, 1) < 0)
+    LOGE("ring read from notification pipe: %s\n", strerror(errno));
+  int next_idx = (ring->idx_reader + 1) & (ring->ring_size - 1);
+  ring->idx_reader = next_idx;
 }
 
-static inline void fifo_writer_close(fifo_t* fifo)
+static inline void ring_writer_close(ring_t* ring)
 {
   // signal end of data to reader
-  if (close(fifo->pipe_wr) < 0)
-    LOGE("FIFO close of notification pipe: %s\n", strerror(errno));
+  if (close(ring->pipe_wr) < 0)
+    LOGE("ring close of notification pipe: %s\n", strerror(errno));
 }
 
 
-int fifo_init(fifo_t* fifo, unsigned int fifo_size_order,
-              unsigned int fifo_packet_size_order);
-int fifo_delete(fifo_t* fifo);
+int ring_init(ring_t* ring, unsigned int ring_size_order,
+              unsigned int ring_packet_size_order);
+int ring_delete(ring_t* ring);

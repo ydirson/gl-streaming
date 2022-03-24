@@ -29,7 +29,7 @@
   - [ ] stop encapsulating return messages in a SEND_DATA
   - [ ] make messages standalone, getting rid of SEND_DATA
 - improve performance
-  - [x] make the fifo poll()able instead of using usleep-based active polling
+  - [x] make the ring poll()able instead of using usleep-based active polling
   - [ ] zero-copy when possible
     - [ ] virtio/gnttable-based communication between app domain and GPU domain
           (needed for `GL_OES_mapbuffer` and such)

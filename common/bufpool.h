@@ -1,5 +1,5 @@
 #pragma once
-#include "fifo.h"
+#include "ring.h"
 #include "gls_command.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -22,10 +22,10 @@ typedef struct
   void* data_payload;
 } gls_bufpool_t;
 
-// Copy a send_data chunk from fifo packet buffer to `pool`'s tmp_buf
-static inline int fifobuf_data_to_bufpool(gls_bufpool_t* pool, fifo_t* fifo, gls_command_t* buf)
+// Copy a send_data chunk from ring packet buffer to `pool`'s tmp_buf
+static inline int ringbuf_data_to_bufpool(gls_bufpool_t* pool, ring_t* ring, gls_command_t* buf)
 {
-  (void)fifo;
+  (void)ring;
   if (pool->mallocated) {
     LOGW("previous buffer for large data not freed!\n");
     free(pool->mallocated);

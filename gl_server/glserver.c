@@ -90,11 +90,11 @@ void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
   // FIXME we have no DESTROY_WINDOW event to remove the mapping
 }
 
-static void glse_handle_fifo_packet(recvr_context_t* rc)
+static void glse_handle_ring_packet(recvr_context_t* rc)
 {
-  void* popptr = (void*)fifo_pop_ptr_get(&rc->fifo);
+  void* popptr = (void*)ring_pop_ptr_get(&rc->ring);
   if (popptr == NULL) { // should not happen, poll() rocks
-    LOGW("glse_handle_fifo_packet called with empty fifo\n");
+    LOGW("glse_handle_ring_packet called with empty ring\n");
     return;
   }
 
@@ -106,7 +106,7 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
 
   switch (c->cmd) {
   case GLSC_SEND_DATA:
-    fifobuf_data_to_bufpool(&glsec_global.pool, &rc->fifo, c);
+    ringbuf_data_to_bufpool(&glsec_global.pool, &rc->ring, c);
     break;
   case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
@@ -130,7 +130,7 @@ static void glse_handle_fifo_packet(recvr_context_t* rc)
       LOGE("Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
   }
   }
-  fifo_pop_ptr_next(&rc->fifo);
+  ring_pop_ptr_next(&rc->ring);
 }
 
 void glserver_handle_packets(recvr_context_t* rc)
@@ -143,11 +143,11 @@ void glserver_handle_packets(recvr_context_t* rc)
   glsec_global.pool.out_buf.size = GLSE_OUT_BUFFER_SIZE;
 
   enum {
-    POLLFD_FIFO,
+    POLLFD_RING,
   };
   struct pollfd pollfds[] = {
-    [POLLFD_FIFO] = {
-      .fd = rc->fifo.pipe_rd,
+    [POLLFD_RING] = {
+      .fd = rc->ring.pipe_rd,
       .events = POLLIN
     },
   };
@@ -158,22 +158,22 @@ void glserver_handle_packets(recvr_context_t* rc)
       LOGE("poll failed: %s\n", strerror(errno));
       break;
     }
-    assert(!(pollfds[POLLFD_FIFO].revents & POLLNVAL));
+    assert(!(pollfds[POLLFD_RING].revents & POLLNVAL));
 
-    if (pollfds[POLLFD_FIFO].revents & POLLERR) {
-      LOGE("FIFO poll error\n");
+    if (pollfds[POLLFD_RING].revents & POLLERR) {
+      LOGE("ring poll error\n");
       break;
     }
-    if (pollfds[POLLFD_FIFO].revents & POLLHUP) {
-      //LOGD("FIFO poll hangup\n");
+    if (pollfds[POLLFD_RING].revents & POLLHUP) {
+      //LOGD("ring poll hangup\n");
       break;
     }
-    if (pollfds[POLLFD_FIFO].revents & POLLIN) {
-      glse_handle_fifo_packet(rc);
-      pollfds[POLLFD_FIFO].revents &= ~POLLIN;
+    if (pollfds[POLLFD_RING].revents & POLLIN) {
+      glse_handle_ring_packet(rc);
+      pollfds[POLLFD_RING].revents &= ~POLLIN;
     }
-    if (pollfds[POLLFD_FIFO].revents)
-      LOGW("FIFO poll revents=0x%x\n", pollfds[POLLFD_FIFO].revents);
+    if (pollfds[POLLFD_RING].revents)
+      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_RING].revents);
   }
 
   release_egl(&glsec_global.gc);

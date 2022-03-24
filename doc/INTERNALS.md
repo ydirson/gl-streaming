@@ -21,10 +21,10 @@ better.
 
 4. Server "child" receives packets with [recvr](../common/recvr.c) in a
    dedicated thread, managed from [glserver](../gl_server/glserver.c) and
-   puts them in a [FIFO queue](../common/fifo.h)
+   puts them in a [ring buffer](../common/ring.h)
 
 5. A server thread from [glserver](../gl_server/glserver.c) executes
-   commands from the FIFO, with implementations from
+   commands from the ring, with implementations from
    [serveregl](../gl_server/serveregl.c) and
    [servergles](../gl_server/servergles.c) modules
 
@@ -59,16 +59,16 @@ window.
 
 ### reception
 
-#### queuing to FIFO
+#### queuing to ring buffer
 
-To avoid dynamic allocation, a fixed-size FIFO of fixed-size packet
+To avoid dynamic allocation, a fixed-size ring of fixed-size packet
 buffers is pre-allocated.  Data received from the network lands here
-as long as there is space in the FIFO.  It may be necessary to adjust
-the compile-time `FIFO_SIZE_ORDER` if "FIFO full" is reported (causing
+as long as there is space in the ring.  It may be necessary to adjust
+the compile-time `RING_SIZE_ORDER` if "ring full" is reported (causing
 throttling of network reception).
 
-Incoming `SEND_DATA` messages too large for a FIFO packet get a
-newly-allocated buffer just for them.  They still use a FIFO packet
+Incoming `SEND_DATA` messages too large for a ring packet get a
+newly-allocated buffer just for them.  They still use a ring packet
 preserving the order of arrival, and it contains the
 `gls_cmd_send_data_t` header, including a pointer to the allocated
 data (a temporary hack which brings a nasty `zero` field to the
@@ -76,13 +76,13 @@ protocol just to reserve space for that pointer).
 
 #### dequeuing and execution
 
-When dequeuing an API command message from the FIFO, it gets passed by
+When dequeuing an API command message from the ring, it gets passed by
 pointer to the API implementation.
 
 `SEND_DATA` message are handled according to where they were stored:
 
-* those small enough to fit in a FIFO buffer (`dataptr == NULL`)are
-  copied in `tmp_buf` to free their FIFO slot * those
+* those small enough to fit in a ring buffer (`dataptr == NULL`)are
+  copied in `tmp_buf` to free their ring slot * those
 
 * the larger ones get their `dataptr` stored in `pool.mallocated`
   alongside the (unused) `tmp_buf`; that points to the `SEND_DATA`
@@ -97,7 +97,7 @@ holds a pointer (in which case it is finally freed after use).
 
 A message with output parameters uses has its client-side
 implementation use `wait_for_data()`, which expects to receive a
-`SEND_DATA` message in client FIFO, and subsequently reads those
+`SEND_DATA` message in client ring, and subsequently reads those
 results from `tmp_buf` just like the server does with large inputs.
 
 ### batched commands
