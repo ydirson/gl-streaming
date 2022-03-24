@@ -46,6 +46,16 @@ problems you may notice.
 
 ## data handling
 
+### pondering
+
+- [ ] infrastructure for shared-memory
+  - [ ] separate (low-volume) command stream from API stream
+    - [ ] explicit cnx parameter in send/recv infrastructure
+      - [ ] move out_buf to tport/cnx/new?
+        - [ ] new "xmit" (bad name but eh that's a proto ;) layer
+              between tport and glclient/server, to encapsulate
+              composition to buffer and send ?
+
 ### emission
 
 Client-side API implementations are essentially forwarding the call
