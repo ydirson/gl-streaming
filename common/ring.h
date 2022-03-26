@@ -47,6 +47,14 @@ typedef struct
   struct notifier notifier;
 } ring_t;
 
+// ring sizing - FIXME randomly chosen, should be more dynamic
+
+#define CLT2SRV_API_RING_SIZE_ORDER 12
+#define CLT2SRV_API_RING_PACKET_SIZE_ORDER 15
+
+#define SRV2CLT_API_RING_SIZE_ORDER 2
+#define SRV2CLT_API_RING_PACKET_SIZE_ORDER 10
+
 /*
  * ring_*_ptr_next() are not supposed to be called if the matching
  * ring_*_ptr_get() returns NULL, and will assert.
