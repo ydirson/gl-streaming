@@ -63,7 +63,7 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
+static ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
   char* current = buffer;
   size_t remaining = size;
@@ -79,7 +79,7 @@ ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
   return size;
 }
 
-int recvr_handle_packet(recvr_context_t* rc)
+static int recvr_handle_packet(recvr_context_t* rc)
 {
   char* pushptr = ring_push_ptr_get(&rc->ring);
   if (pushptr == NULL) {
