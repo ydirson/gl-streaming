@@ -18,6 +18,8 @@
   __asm__(".global " #FUNC "; .set " #FUNC ", __GLS_"#FUNC);            \
   static GL_APICALL RET GL_APIENTRY __GLS_##FUNC (__VA_ARGS__)
 
+#define ATTRIBPOINTER_ARRAY_SIZE 16
+
 static struct
 {
   GLuint vbo, ibo, ibo_emu;
@@ -31,7 +33,7 @@ static struct
     const GLvoid* ptr;
     GLuint vbo_id;
     GLuint emul_vbo_id;
-  } attrib_pointer[16]; // FIXME: GL_MAX_VERTEX_ATTRIBS has no upper limit
+  } attrib_pointer[ATTRIBPOINTER_ARRAY_SIZE]; // FIXME: GL_MAX_VERTEX_ATTRIBS has no upper limit
 } buffer_objs;
 
 static unsigned _type_bytesize(GLenum type)
@@ -540,7 +542,7 @@ GLS_DEF_CORE_API(void, glDrawArrays, GLenum mode, GLint first, GLsizei count)
   int i;
   if (!buffer_objs.vbo)
     WARN_ONCE("%s uses client-data vertex buffer, consider using a VBO\n", __FUNCTION__);
-  for (i = 0; i < 16; i++)
+  for (i = 0; i < ATTRIBPOINTER_ARRAY_SIZE; i++)
     defered_vertex_attrib_pointer(i, first + count);
   if (vbo_bkp != buffer_objs.vbo)
     glBindBuffer( GL_ARRAY_BUFFER, vbo_bkp );
@@ -578,7 +580,7 @@ GLS_DEF_CORE_API(void, glDrawElements, GLenum mode, GLsizei count, GLenum type, 
     }
   }
   // transfer client-data
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < ATTRIBPOINTER_ARRAY_SIZE; i++) {
     defered_vertex_attrib_pointer(i, max_idx + 1);
   }
   if (!buffer_objs.ibo) {
