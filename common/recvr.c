@@ -223,21 +223,6 @@ void recvr_run_loop(recvr_context_t* rc)
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
-// client settings
-#define RING_SIZE_ORDER 2
-#define RING_PACKET_SIZE_ORDER 10
-
-void recvr_client_start(recvr_context_t* rc, const char* server_addr)
-{
-  ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
-
-  rc->cnx = tport_client_create(server_addr);
-  if (!rc->cnx)
-    exit(EXIT_FAILURE);
-
-  recvr_run_loop(rc);
-}
-
 void recvr_stop(recvr_context_t* rc)
 {
   tport_close(rc->cnx);
