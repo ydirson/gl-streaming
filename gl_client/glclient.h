@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include <stdio.h>
+#include <arpa/inet.h>
 #include <EGL/eglplatform.h>
 
 #include "bufpool.h"

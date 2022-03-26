@@ -31,10 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "ring.h"
-#include "transport.h"
 
-#include <unistd.h>
-#include <arpa/inet.h>
+#include <pthread.h>
 
 typedef struct
 {
