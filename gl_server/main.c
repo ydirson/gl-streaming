@@ -63,6 +63,14 @@ static void recvr_server_start(recvr_context_t* rc, const char* server_addr,
   if (!srv)
     exit(EXIT_FAILURE);
 
+  if (!nofork) { // let forked processes be reaped for us
+    struct sigaction sa = {.sa_handler=SIG_IGN};
+    if (sigaction(SIGCHLD, &sa, NULL) < 0) {
+      perror("sigaction(SIGCHLD)");
+      exit(EXIT_FAILURE);
+    }
+  }
+
   int quit = 0;
   while (!quit) {
     rc->cnx = tport_server_wait_connection(srv);
@@ -124,14 +132,6 @@ int main(int argc, char* argv[])
     default:
       printf("Usage: %s [-n] [-t transport] [-s address]\n", argv[0]);
       return EXIT_SUCCESS;
-    }
-  }
-
-  { // let forked processes be reaped for us
-    struct sigaction sa = {.sa_handler=SIG_IGN};
-    if (sigaction(SIGCHLD, &sa, NULL) < 0) {
-      perror("sigaction(SIGCHLD)");
-      return EXIT_FAILURE;
     }
   }
 
