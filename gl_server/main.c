@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "glserver.h"
+#include "transport.h"
 
 #include <errno.h>
 #include <pthread.h>
