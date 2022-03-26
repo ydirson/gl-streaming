@@ -370,7 +370,7 @@ GLS_DEF_CORE_API(void, glDeleteBuffers, GLsizei n, const GLuint* buffers)
 
   if (buffer_objs.vbo || buffer_objs.ibo)
     for (int i = 0; i < n; i++) {
-      // deleting a buffer causes bindings to be reset to 0, emulate that
+      // deleting a buffer causes bindings to be reset to 0, record that
       if (buffers[i] == buffer_objs.vbo) buffer_objs.vbo = 0;
       if (buffers[i] == buffer_objs.ibo) buffer_objs.ibo = 0;
     }
