@@ -44,6 +44,5 @@ typedef struct
   struct gls_connection* cnx;
 } recvr_context_t;
 
-void recvr_setup(recvr_context_t* rc);
 void recvr_run_loop(recvr_context_t* rc);
 void recvr_stop(recvr_context_t* rc);
