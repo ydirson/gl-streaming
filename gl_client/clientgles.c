@@ -534,6 +534,8 @@ static void defered_vertex_attrib_pointer(int i, int count)
 
 GLS_DEF_CORE_API(void, glDrawArrays, GLenum mode, GLint first, GLsizei count)
 {
+  if (glsc_global.is_debug)
+    LOGD("preparing %s\n", "glDrawArrays");
   GLuint vbo_bkp = buffer_objs.vbo;
   int i;
   if (!buffer_objs.vbo)
@@ -555,6 +557,8 @@ GLS_DEF_CORE_API(void, glDrawArrays, GLenum mode, GLint first, GLsizei count)
 
 GLS_DEF_CORE_API(void, glDrawElements, GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
+  if (glsc_global.is_debug)
+    LOGD("preparing %s\n", "glDrawElements");
   uint32_t sizeoftype = _type_bytesize(type);
 
   GLuint vbo_bkp = buffer_objs.vbo;
@@ -1320,6 +1324,8 @@ GLS_DEF_CORE_API(void, glShaderBinary, GLsizei n, const GLuint* shaders, GLenum 
 
 GLS_DEF_CORE_API(void, glShaderSource, GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length)
 {
+  if (glsc_global.is_debug)
+    LOGD("preparing %s\n", "glShaderSource");
   if (count > 10240) { // 256
     LOGW("shader too large, over 10kb, ignoring.\n"); // FIXME why!?
     return;
@@ -1631,6 +1637,8 @@ GLS_DEF_CORE_API(void, glVertexAttribPointer,
                  GLuint indx, GLint size, GLenum type, GLboolean normalized,
                  GLsizei stride, const GLvoid* ptr)
 {
+  if (glsc_global.is_debug)
+    LOGD("preparing %s\n", "glVertexAttribPointer");
   if (buffer_objs.vbo) {
     // VBO: send now
     _send_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
