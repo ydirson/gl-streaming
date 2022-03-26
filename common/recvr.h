@@ -36,8 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SLEEP_USEC 1000
-
 typedef struct
 {
   pthread_t recvr_th;

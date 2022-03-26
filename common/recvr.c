@@ -44,6 +44,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <unistd.h>
 
+static const useconds_t RINGFULL_SLEEP_USEC = 1000;
+
 // read everything into a scratch buffer to discard data
 static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch, size_t scratch_size)
 {
@@ -130,7 +132,7 @@ int recvr_handle_packet(recvr_context_t* rc)
   char* pushptr = ring_push_ptr_get(&rc->ring);
   if (pushptr == NULL) {
     LOGW("ring full!\n");
-    usleep(SLEEP_USEC);
+    usleep(RINGFULL_SLEEP_USEC);
     return 0;
   }
 
