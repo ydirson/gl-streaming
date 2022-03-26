@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ring.h"
 #include "fastlog.h"
 
 #include <stddef.h>
@@ -24,6 +25,8 @@ struct gls_transport
   struct gls_connection* (*connection_create)(void);
 
   struct gls_connection* (*client_create)(const char* server_addr);
+  int (*client_initiate_offload)(struct gls_connection* cnx,
+                                 ring_allocator_t* allocator, void* allocator_data);
 
   int (*connection_fd)(struct gls_connection*);
   void (*close)(struct gls_connection* cnx);
@@ -62,11 +65,19 @@ static inline int tport_has_connection_create(void)
   return 1;
 }
 
+static inline int tport_has_offloading(void)
+{
+  if (!the_tport->client_initiate_offload)
+    return 0;
+  return 1;
+}
+
 #define tport_server_create(server_addr) the_tport->server_create(server_addr)
 #define tport_server_wait_connection(srv) the_tport->server_wait_connection(srv)
 #define tport_connection_create() the_tport->connection_create();
 
 #define tport_client_create(server_addr) the_tport->client_create(server_addr)
+#define tport_client_initiate_offload(cnx, allocator, allocator_data) the_tport->client_initiate_offload(cnx, allocator, allocator_data)
 
 #define tport_connection_fd(cnx) the_tport->connection_fd(cnx)
 #define tport_close(cnx) the_tport->close(cnx)

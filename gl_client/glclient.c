@@ -293,6 +293,10 @@ void gls_init_library(void)
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
 
+  if (tport_has_offloading())
+    if (tport_client_initiate_offload(glsc_global.rc.cnx, NULL, NULL) < 0)
+      exit(EXIT_FAILURE);
+
   init = TRUE;
 }
 
