@@ -63,7 +63,7 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-static void* recvr_socket_to_ring_loop(void* data)
+static void* recvr_tport_to_ring_loop(void* data)
 {
   recvr_context_t* rc = data;
 
@@ -219,7 +219,7 @@ int recvr_handle_packet(recvr_context_t* rc)
 
 void recvr_run_loop(recvr_context_t* rc)
 {
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
+  pthread_create(&rc->recvr_th, NULL, recvr_tport_to_ring_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
