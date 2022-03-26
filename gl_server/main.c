@@ -28,7 +28,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define _GNU_SOURCE
 #include "glserver.h"
 
 #include <errno.h>
@@ -49,8 +48,7 @@ static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
   ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  recvr_run_loop(rc);
   handle_child(rc);
   if (pthread_join(rc->recvr_th, NULL) != 0)
     LOGE("pthread_join failed\n");

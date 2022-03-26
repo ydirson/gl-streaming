@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #define _GNU_SOURCE
-#include <pthread.h>
 
 #include "recvr.h"
 #include "gls_command.h"
@@ -39,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -63,7 +63,7 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-void* recvr_socket_to_ring_loop(void* data)
+static void* recvr_socket_to_ring_loop(void* data)
 {
   recvr_context_t* rc = data;
 
@@ -217,6 +217,11 @@ int recvr_handle_packet(recvr_context_t* rc)
   return 0;
 }
 
+void recvr_run_loop(recvr_context_t* rc)
+{
+  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
+  pthread_setname_np(rc->recvr_th, "gls-recvr");
+}
 
 // client settings
 #define RING_SIZE_ORDER 2
@@ -230,8 +235,7 @@ void recvr_client_start(recvr_context_t* rc, const char* server_addr)
   if (!rc->cnx)
     exit(EXIT_FAILURE);
 
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  recvr_run_loop(rc);
 }
 
 void recvr_stop(recvr_context_t* rc)
