@@ -63,54 +63,6 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-static void* recvr_tport_to_ring_loop(void* data)
-{
-  recvr_context_t* rc = data;
-
-  enum {
-    POLLFD_TRANSPORT,
-  };
-  struct pollfd pollfds[] = {
-    [POLLFD_TRANSPORT] = {
-      .fd = tport_connection_fd(rc->cnx),
-      .events = POLLIN
-    },
-  };
-
-  while (1) {
-    int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
-    if (ret < 0) {
-      LOGE("ring poll failed: %s\n", strerror(errno));
-      break;
-    }
-
-    if (pollfds[POLLFD_TRANSPORT].revents & POLLHUP) {
-      LOGI("TRANSPORT poll hangup\n");
-      break;
-    }
-    if (pollfds[POLLFD_TRANSPORT].revents & POLLERR) {
-      LOGE("TRANSPORT poll error\n");
-      break;
-    }
-    if (pollfds[POLLFD_TRANSPORT].revents & POLLIN) {
-      int ret = recvr_handle_packet(rc);
-      if (ret < 0)
-        exit(EXIT_FAILURE);
-      if (ret > 0) {
-        //LOGD("recvr_handle_packet said stop\n");
-        break;
-      }
-      pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
-    }
-    if (pollfds[POLLFD_TRANSPORT].revents)
-      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
-  }
-
-  // end of thread
-  ring_writer_close(&rc->ring);
-  return NULL;
-}
-
 ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
   char* current = buffer;
@@ -215,6 +167,54 @@ int recvr_handle_packet(recvr_context_t* rc)
 
   ring_push_ptr_next(&rc->ring);
   return 0;
+}
+
+static void* recvr_tport_to_ring_loop(void* data)
+{
+  recvr_context_t* rc = data;
+
+  enum {
+    POLLFD_TRANSPORT,
+  };
+  struct pollfd pollfds[] = {
+    [POLLFD_TRANSPORT] = {
+      .fd = tport_connection_fd(rc->cnx),
+      .events = POLLIN
+    },
+  };
+
+  while (1) {
+    int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
+    if (ret < 0) {
+      LOGE("ring poll failed: %s\n", strerror(errno));
+      break;
+    }
+
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLHUP) {
+      LOGI("TRANSPORT poll hangup\n");
+      break;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLERR) {
+      LOGE("TRANSPORT poll error\n");
+      break;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLIN) {
+      int ret = recvr_handle_packet(rc);
+      if (ret < 0)
+        exit(EXIT_FAILURE);
+      if (ret > 0) {
+        //LOGD("recvr_handle_packet said stop\n");
+        break;
+      }
+      pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents)
+      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
+  }
+
+  // end of thread
+  ring_writer_close(&rc->ring);
+  return NULL;
 }
 
 void recvr_run_loop(recvr_context_t* rc)
