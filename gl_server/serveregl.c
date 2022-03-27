@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
-#define EGL_MINOR 0
+#define EGL_MINOR 5
 
 //#define DEBUG
 
