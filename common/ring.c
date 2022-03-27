@@ -58,8 +58,9 @@ static ring_allocator_t heap_allocator = {
   .free = ring_free,
 };
 
-int ring_init(ring_t* ring, unsigned int ring_size_order,
-              unsigned int ring_packet_size_order)
+int ring_init(ring_t* ring,
+              ring_allocator_t* allocator, void* allocator_data,
+              unsigned int ring_size_order, unsigned int ring_packet_size_order)
 {
   ring->ring_size = 1 << ring_size_order;
   ring->ring_packet_size = 1 << ring_packet_size_order;
@@ -69,9 +70,9 @@ int ring_init(ring_t* ring, unsigned int ring_size_order,
     exit(EXIT_FAILURE);
   }
 
-  ring->allocator = &heap_allocator;
+  ring->allocator = allocator ? allocator : &heap_allocator;
 
-  if (ring->allocator->alloc(ring, NULL) < 0) {
+  if (ring->allocator->alloc(ring, allocator_data) < 0) {
     LOGE("ring allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }

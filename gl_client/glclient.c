@@ -275,7 +275,8 @@ void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
 
 static void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
-  ring_init(&rc->ring, SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
+  ring_init(&rc->ring, NULL, NULL,
+            SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
 
   rc->cnx = tport_client_create(server_addr);
   if (!rc->cnx)

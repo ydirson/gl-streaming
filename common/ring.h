@@ -114,6 +114,7 @@ static inline void ring_writer_close(ring_t* ring)
 }
 
 
-int ring_init(ring_t* ring, unsigned int ring_size_order,
-              unsigned int ring_packet_size_order);
+int ring_init(ring_t* ring,
+              ring_allocator_t* allocator, void* allocator_data,
+              unsigned int ring_size_order, unsigned int ring_packet_size_order);
 int ring_delete(ring_t* ring);
