@@ -28,6 +28,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define _GNU_SOURCE
 #include "glclient.h"
 #include "transport.h"
 #include "fastlog.h"
@@ -168,7 +169,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
   };
   struct pollfd pollfds[] = {
     [POLLFD_RING] = {
-      .fd = glsc_global.rc.ring.pipe_rd,
+      .fd = notifier_fd(&glsc_global.rc.ring.notifier),
       .events = POLLIN
     },
   };
@@ -194,7 +195,17 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
       break;
     }
     if (pollfds[POLLFD_RING].revents & POLLIN) {
-      handle_packet(cmd);
+      if (notifier_has_terminated(&glsc_global.rc.ring.notifier)) {
+        LOGD("RING notifier terminated\n");
+        break;
+      }
+      uint64_t ret = notifier_drain(&glsc_global.rc.ring.notifier);
+      if (ret == 0) {
+        LOGE("RING notifier drain error: %s\n", strerror(errno));
+        break;
+      }
+      for (uint64_t i = 0; i < ret; i++)
+        handle_packet(cmd);
       pollfds[POLLFD_RING].revents &= ~POLLIN;
       return TRUE;
     }
