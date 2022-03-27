@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const char* GLS_EGL_EXTENSIONS[] = {
   "EGL_KHR_config_attribs",        // 1
-  "EGL_EXT_platform_base",         // 57
+//  "EGL_EXT_platform_base",         // 57
   "EGL_EXT_client_extensions",     // 58
   "EGL_EXT_platform_x11",          // 59
   //"EGL_MESA_platform_gbm",         // 62
@@ -347,6 +347,7 @@ static void glse_eglQueryString(gls_command_t* buf)
     }
   case EGL_CLIENT_APIS:
     // FIXME would rather query and filter those we support
+    //strcpy(ret->params, "OpenGL_ES OpenGL");
     strcpy(ret->params, "OpenGL_ES");
     ret->success = TRUE;
     break;
