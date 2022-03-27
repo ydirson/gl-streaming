@@ -28,8 +28,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define _GNU_SOURCE
 #include "glserver.h"
+#include "transport.h"
 
 #include <errno.h>
 #include <pthread.h>
@@ -49,8 +49,7 @@ static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
   ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
-  pthread_setname_np(rc->recvr_th, "gls-recvr");
+  recvr_run_loop(rc);
   handle_child(rc);
   if (pthread_join(rc->recvr_th, NULL) != 0)
     LOGE("pthread_join failed\n");
@@ -64,6 +63,14 @@ static void recvr_server_start(recvr_context_t* rc, const char* server_addr,
   struct gls_server* srv = tport_server_create(server_addr);
   if (!srv)
     exit(EXIT_FAILURE);
+
+  if (!nofork) { // let forked processes be reaped for us
+    struct sigaction sa = {.sa_handler=SIG_IGN};
+    if (sigaction(SIGCHLD, &sa, NULL) < 0) {
+      perror("sigaction(SIGCHLD)");
+      exit(EXIT_FAILURE);
+    }
+  }
 
   int quit = 0;
   while (!quit) {
@@ -126,14 +133,6 @@ int main(int argc, char* argv[])
     default:
       printf("Usage: %s [-n] [-t transport] [-s address]\n", argv[0]);
       return EXIT_SUCCESS;
-    }
-  }
-
-  { // let forked processes be reaped for us
-    struct sigaction sa = {.sa_handler=SIG_IGN};
-    if (sigaction(SIGCHLD, &sa, NULL) < 0) {
-      perror("sigaction(SIGCHLD)");
-      return EXIT_FAILURE;
     }
   }
 

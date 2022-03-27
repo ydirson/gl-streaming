@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #define _GNU_SOURCE
-#include <pthread.h>
 
 #include "recvr.h"
 #include "gls_command.h"
@@ -39,10 +38,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+static const useconds_t RINGFULL_SLEEP_USEC = 1000;
 
 // read everything into a scratch buffer to discard data
 static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch, size_t scratch_size)
@@ -61,55 +63,7 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   return 1;
 }
 
-void* recvr_socket_to_ring_loop(void* data)
-{
-  recvr_context_t* rc = data;
-
-  enum {
-    POLLFD_TRANSPORT,
-  };
-  struct pollfd pollfds[] = {
-    [POLLFD_TRANSPORT] = {
-      .fd = tport_connection_fd(rc->cnx),
-      .events = POLLIN
-    },
-  };
-
-  while (1) {
-    int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
-    if (ret < 0) {
-      LOGE("ring poll failed: %s\n", strerror(errno));
-      break;
-    }
-
-    if (pollfds[POLLFD_TRANSPORT].revents & POLLHUP) {
-      LOGI("TRANSPORT poll hangup\n");
-      break;
-    }
-    if (pollfds[POLLFD_TRANSPORT].revents & POLLERR) {
-      LOGE("TRANSPORT poll error\n");
-      break;
-    }
-    if (pollfds[POLLFD_TRANSPORT].revents & POLLIN) {
-      int ret = recvr_handle_packet(rc);
-      if (ret < 0)
-        exit(EXIT_FAILURE);
-      if (ret > 0) {
-        //LOGD("recvr_handle_packet said stop\n");
-        break;
-      }
-      pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
-    }
-    if (pollfds[POLLFD_TRANSPORT].revents)
-      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
-  }
-
-  // end of thread
-  ring_writer_close(&rc->ring);
-  return NULL;
-}
-
-ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
+static ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
   char* current = buffer;
   size_t remaining = size;
@@ -125,12 +79,12 @@ ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
   return size;
 }
 
-int recvr_handle_packet(recvr_context_t* rc)
+static int recvr_handle_packet(recvr_context_t* rc)
 {
   char* pushptr = ring_push_ptr_get(&rc->ring);
   if (pushptr == NULL) {
     LOGW("ring full!\n");
-    usleep(SLEEP_USEC);
+    usleep(RINGFULL_SLEEP_USEC);
     return 0;
   }
 
@@ -215,20 +169,57 @@ int recvr_handle_packet(recvr_context_t* rc)
   return 0;
 }
 
-
-// client settings
-#define RING_SIZE_ORDER 2
-#define RING_PACKET_SIZE_ORDER 10
-
-void recvr_client_start(recvr_context_t* rc, const char* server_addr)
+static void* recvr_tport_to_ring_loop(void* data)
 {
-  ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
+  recvr_context_t* rc = data;
 
-  rc->cnx = tport_client_create(server_addr);
-  if (!rc->cnx)
-    exit(EXIT_FAILURE);
+  enum {
+    POLLFD_TRANSPORT,
+  };
+  struct pollfd pollfds[] = {
+    [POLLFD_TRANSPORT] = {
+      .fd = tport_connection_fd(rc->cnx),
+      .events = POLLIN
+    },
+  };
 
-  pthread_create(&rc->recvr_th, NULL, recvr_socket_to_ring_loop, rc);
+  while (1) {
+    int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
+    if (ret < 0) {
+      LOGE("ring poll failed: %s\n", strerror(errno));
+      break;
+    }
+
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLHUP) {
+      LOGI("TRANSPORT poll hangup\n");
+      break;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLERR) {
+      LOGE("TRANSPORT poll error\n");
+      break;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents & POLLIN) {
+      int ret = recvr_handle_packet(rc);
+      if (ret < 0)
+        exit(EXIT_FAILURE);
+      if (ret > 0) {
+        //LOGD("recvr_handle_packet said stop\n");
+        break;
+      }
+      pollfds[POLLFD_TRANSPORT].revents &= ~POLLIN;
+    }
+    if (pollfds[POLLFD_TRANSPORT].revents)
+      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_TRANSPORT].revents);
+  }
+
+  // end of thread
+  ring_writer_close(&rc->ring);
+  return NULL;
+}
+
+void recvr_run_loop(recvr_context_t* rc)
+{
+  pthread_create(&rc->recvr_th, NULL, recvr_tport_to_ring_loop, rc);
   pthread_setname_np(rc->recvr_th, "gls-recvr");
 }
 
