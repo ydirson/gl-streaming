@@ -33,6 +33,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdlib.h>
 
+static int ring_malloc(ring_t* ring, void* data)
+{
+  (void)data; assert(!data); ring->allocator_data = NULL; // unused
+  size_t size = ring->ring_size * ring->ring_packet_size;
+#if 0
+  // aligned malloc ?  Do we gain anything ?
+  unsigned int alignment = ring->ring_packet_size;
+  ring->buffer = aligned_alloc(alignment, size);
+#else
+  ring->buffer = malloc(size);
+#endif
+  return ring->buffer ? 0 : -1;
+}
+
+static void ring_free(ring_t* ring)
+{
+  free(ring->buffer);
+  ring->buffer = NULL;
+}
+
+static ring_allocator_t heap_allocator = {
+  .alloc = ring_malloc,
+  .free = ring_free,
+};
+
 int ring_init(ring_t* ring, unsigned int ring_size_order,
               unsigned int ring_packet_size_order)
 {
@@ -44,17 +69,12 @@ int ring_init(ring_t* ring, unsigned int ring_size_order,
     exit(EXIT_FAILURE);
   }
 
-#if 0
-  // aligned malloc ?  Do we gain anything ?
-  unsigned int alignment = ring->ring_packet_size;
-  ring->buffer = (char*)aligned_alloc(alignment, ring->ring_size * ring->ring_packet_size);
-  if (ring->buffer == NULL) {
+  ring->allocator = &heap_allocator;
+
+  if (ring->allocator->alloc(ring, NULL) < 0) {
     LOGE("ring allocation failure: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-#else
-  ring->buffer = (char*)malloc(ring->ring_size * ring->ring_packet_size);
-#endif
 
   ring->idx_reader = 0;
   ring->idx_writer = 0;
@@ -63,8 +83,7 @@ int ring_init(ring_t* ring, unsigned int ring_size_order,
 
 int ring_delete(ring_t* ring)
 {
-  free(ring->buffer);
-  ring->buffer = NULL;
+  ring->allocator->free(ring);
   ring->idx_reader = 0;
   ring->idx_writer = 0;
   ring->ring_size = 0;

@@ -38,14 +38,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
+typedef struct ring ring_t;
+
 typedef struct
 {
+  int (*alloc)(ring_t*, void*);
+  void (*free)(ring_t*);
+} ring_allocator_t;
+
+struct ring
+{
   char* buffer;
+  ring_allocator_t* allocator;
+  void* allocator_data; // data that alloc() stores for free()
   int idx_reader, idx_writer; // packet numbers
   unsigned int ring_size;
   unsigned int ring_packet_size;
   struct notifier notifier;
-} ring_t;
+};
 
 // ring sizing - FIXME randomly chosen, should be more dynamic
 
