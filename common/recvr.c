@@ -78,7 +78,7 @@ static ssize_t recvr_read_fd(struct gls_connection* cnx, void* buffer, size_t si
     if (recv_size == 0)
       return 0;
     if (recv_size < 0)
-      break;
+      return -1;
     remaining -= recv_size;
     current += recv_size;
   }
@@ -165,7 +165,7 @@ static int recvr_handle_packet(recvr_context_t* rc)
   }
 
   int endsession = 0;
-  while (remaining) {
+  while (remaining) { // FIXME dup loop
     ssize_t recv_size = recvr_read(rc->cnx, dest, remaining);
     if (recv_size < 0) {
       tport_close(rc->cnx);
