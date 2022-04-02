@@ -15,6 +15,7 @@ add_project_arguments(
     '-Wold-style-definition',
   ],
   language : 'c')
+cc = meson.get_compiler('c')
 
 common_incdir = include_directories('common')
 common_srcs = files(
@@ -31,6 +32,7 @@ common_srcs = files(
 
 thread_dep = dependency('threads')
 x11_dep = dependency('x11')
+rt_dep = cc.find_library('rt') # for shm
 
 subdir('gl_client')
 subdir('gl_server')

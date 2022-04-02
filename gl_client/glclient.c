@@ -38,10 +38,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GLES2/gl2.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <sys/time.h>
 
 gls_context_t glsc_global;
@@ -122,6 +124,39 @@ int send_packet(struct xmitr* xmitr)
       client_gles_error = GL_INVALID_OPERATION; // dubious but eh
       break;
     }
+    return FALSE;
+  }
+  return TRUE;
+}
+
+static int send_packet_fd(struct xmitr* xmitr, int fd, uint32_t cmd, size_t size)
+{
+  // reset clientside error for protocol
+  switch (cmd & GLSC_PROTOCOL_MASK) {
+  case GLSC_PROTOCOL_EGL:
+    client_egl_error = EGL_SUCCESS;
+    break;
+  case GLSC_PROTOCOL_GLES2:
+    client_gles_error = GL_NO_ERROR;
+    break;
+  }
+
+  // send in 2 operations, so the fd is not attached to the header
+  char* out_buf = xmitr_getbuf(xmitr);
+  int ret = tport_write(glsc_global.rc.cnx, out_buf, sizeof(gls_command_t));
+  if (ret > 0)
+    ret = tport_write_fd(glsc_global.rc.cnx, out_buf + sizeof(gls_command_t),
+                         size - sizeof(gls_command_t), fd);
+  if (ret < 0) {
+    switch (cmd & GLSC_PROTOCOL_MASK) {
+    case GLSC_PROTOCOL_EGL:
+      client_egl_error = EGL_BAD_ACCESS; // dubious but eh
+      break;
+    case GLSC_PROTOCOL_GLES2:
+      client_gles_error = GL_INVALID_OPERATION; // dubious but eh
+      break;
+    }
+    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;
@@ -262,10 +297,73 @@ void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
   GLS_SEND_PACKET(CREATE_WINDOW);
 }
 
+static int gls_cmd_SHARE_SHM(int fd, uint32_t size)
+{
+  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
+  GLS_SET_COMMAND_PTR(c, SHARE_SHM);
+  c->size = size;
+  c->fd = -1; // mostly for safety of the hack
+  if (!send_packet_fd(glsc_global.api_xmitr, fd, GLSC_SHARE_SHM, c->cmd_size))
+    return FALSE;
+
+  GLS_WAIT_SET_RET_PTR(ret, SHARE_SHM);
+  GLS_RELEASE_RETURN_RET(int, ret, success);
+}
+
+static int shmcreate_malloc(ring_t* ring, void* data)
+{
+  (void)data; assert(!data); ring->allocator_data = NULL; // unused
+  // buffer creation and mapping
+  size_t size = ring->ring_size * ring->ring_packet_size;
+  int shm_fd = memfd_create("gls-ring", MFD_CLOEXEC);
+  if (shm_fd < 0) {
+    LOGE("shm ring allocation failure: %s\n", strerror(errno));
+    return -1;
+  }
+  if (ftruncate(shm_fd, size) < 0) {
+    LOGE("shm ring sizing failure: %s\n", strerror(errno));
+    close(shm_fd);
+    return -1;
+  }
+  ring->buffer = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+  if (!ring->buffer) {
+    LOGE("shm ring mapping failure: %s\n", strerror(errno));
+    close(shm_fd);
+    return -1;
+  }
+
+  // share, release fd on our side
+  if (!gls_cmd_SHARE_SHM(shm_fd, size)) {
+    LOGE("shm ring sharing failed\n");
+    munmap(ring->buffer, size);
+    close(shm_fd);
+    return -1;
+  }
+  close(shm_fd);
+
+  return 0;
+}
+static void shmcreate_free(ring_t* ring)
+{
+  size_t size = ring->ring_size * ring->ring_packet_size;
+  munmap(ring->buffer, size);
+  free(ring->allocator_data);
+}
+
+static ring_allocator_t shmcreate_allocator = {
+  .alloc = shmcreate_malloc,
+  .free = shmcreate_free,
+};
+
 static void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
-  int ret = ring_init(&rc->ring, NULL, NULL,
-                      SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
+  int ret;
+  if (tport_has_offloading())
+    ret = ring_init(&rc->ring, NULL, NULL,
+                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
+  else
+    ret = ring_init(&rc->ring, NULL, NULL,
+                    SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
   if (ret < 0)
     exit(EXIT_FAILURE);
 
@@ -294,7 +392,7 @@ void gls_init_library(void)
     exit(EXIT_FAILURE);
 
   if (tport_has_offloading())
-    if (tport_client_initiate_offload(glsc_global.rc.cnx, NULL, NULL) < 0)
+    if (tport_client_initiate_offload(glsc_global.rc.cnx, &shmcreate_allocator, NULL) < 0)
       exit(EXIT_FAILURE);
 
   init = TRUE;

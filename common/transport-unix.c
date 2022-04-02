@@ -1,10 +1,12 @@
 #define _GNU_SOURCE
 #include "transport.h"
 #include "fastlog.h"
+#include "ring.h"
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -18,6 +20,7 @@ struct gls_server
 struct gls_connection
 {
   int sock_fd;
+  ring_t api_ring; // FIXME really belongs here ?
 };
 
 // unix sockets
@@ -129,6 +132,21 @@ static struct gls_connection* unix_tport_client_create(const char* server_addr)
 }
 
 
+static int unix_tport_client_initiate_offload(struct gls_connection* cnx,
+                                              ring_allocator_t* allocator, void* allocator_data)
+{
+  // create API ring, auto-shared with server
+  if (ring_init(&cnx->api_ring, allocator, allocator_data,
+                CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER) < 0)
+    return -1;
+  return 0;
+}
+
+static ring_t* unix_api_ring(struct gls_connection* cnx)
+{
+  return &cnx->api_ring;
+}
+
 static int unix_tport_connection_fd(struct gls_connection* cnx)
 {
   return cnx->sock_fd;
@@ -165,6 +183,83 @@ static ssize_t unix_tport_read(struct gls_connection* cnx, void* buffer, size_t 
   return recv_size;
 }
 
+static ssize_t unix_tport_write_fd(struct gls_connection* cnx, void *buffer, size_t size, int fd)
+{
+  struct iovec iov = {
+    .iov_base = buffer,
+    .iov_len = size,
+  };
+  union {
+    char buffer[CMSG_SPACE(sizeof(int))];
+    struct cmsghdr align;
+  } control;
+  struct msghdr msg = {
+    .msg_iov = &iov,
+    .msg_iovlen = 1,
+    .msg_control = control.buffer,
+    .msg_controllen = sizeof(control.buffer),
+  };
+
+  struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
+  cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+  cmsg->cmsg_level = SOL_SOCKET;
+  cmsg->cmsg_type = SCM_RIGHTS;
+  *((int *) CMSG_DATA(cmsg)) = fd;
+
+  return sendmsg(cnx->sock_fd, &msg, 0);
+}
+
+static ssize_t unix_tport_read_fd(struct gls_connection* cnx, void* buffer, size_t size, int* fd_p)
+{
+  struct iovec iov = {
+    .iov_base = buffer,
+    .iov_len = size,
+  };
+  union {
+    char buffer[CMSG_SPACE(sizeof(int))];
+    struct cmsghdr align;
+  } control;
+  struct msghdr msg = {
+    .msg_iov = &iov,
+    .msg_iovlen = 1,
+    .msg_control = control.buffer,
+    .msg_controllen = sizeof(control.buffer),
+  };
+
+  ssize_t recv_size = recvmsg(cnx->sock_fd, &msg, 0);
+  if (recv_size < 0) {
+    LOGE("transport socket recv: %s\n", strerror(errno));
+    return -1;
+  } else if (recv_size == 0) {
+    LOGI("transport socket closed\n");
+    return 0;
+  }
+
+  struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
+  if (!cmsg) {
+    LOGE("%s: no control message\n", __FUNCTION__);
+    *fd_p = -1;
+    return recv_size;
+  }
+  if (cmsg->cmsg_len == CMSG_LEN(sizeof(int))) {
+    if (cmsg->cmsg_level != SOL_SOCKET) {
+      LOGW("%s: control level != SOL_SOCKET\n", __FUNCTION__);
+      return -1;
+    }
+    if (cmsg->cmsg_type != SCM_RIGHTS) {
+      LOGW("%s: control type != SCM_RIGHTS\n", __FUNCTION__);
+      return -1;
+    }
+    *fd_p = *((int *) CMSG_DATA(cmsg));
+  } else {
+    LOGW("%s: bad control message length %zu != %lu\n", __FUNCTION__,
+         cmsg->cmsg_len, CMSG_LEN(sizeof(int)));
+    *fd_p = -1;
+  }
+
+  return recv_size;
+}
+
 static void unix_tport_close(struct gls_connection* cnx)
 {
   if (!cnx)
@@ -177,9 +272,13 @@ struct gls_transport gls_tport_unix = {
   .server_create = unix_tport_server_create,
   .client_create = unix_tport_client_create,
   .server_wait_connection = unix_tport_server_wait_connection,
+  .client_initiate_offload = unix_tport_client_initiate_offload,
+  .api_ring = unix_api_ring,
   .connection_fd = unix_tport_connection_fd,
   .write = unix_tport_write,
   .writev = unix_tport_writev,
+  .write_fd = unix_tport_write_fd,
   .read = unix_tport_read,
+  .read_fd = unix_tport_read_fd,
   .close = unix_tport_close,
 };

@@ -27,13 +27,18 @@ struct gls_transport
   struct gls_connection* (*client_create)(const char* server_addr);
   int (*client_initiate_offload)(struct gls_connection* cnx,
                                  ring_allocator_t* allocator, void* allocator_data);
+  // FIXME seems bad abstraction
+  ring_t* (*api_ring)(struct gls_connection* cnx);
 
   int (*connection_fd)(struct gls_connection*);
   void (*close)(struct gls_connection* cnx);
 
   ssize_t (*write)(struct gls_connection* cnx, void* buffer, size_t size);
   ssize_t (*writev)(struct gls_connection* cnx, struct iovec *iov, int iovcnt);
+  ssize_t (*write_fd)(struct gls_connection* cnx, void *buffer, size_t size, int fd);
+
   ssize_t (*read)(struct gls_connection* cnx, void* buffer, size_t size);
+  ssize_t (*read_fd)(struct gls_connection* cnx, void* buffer, size_t size, int* fd_p);
 };
 
 extern struct gls_transport gls_tport_tcp;
@@ -78,10 +83,13 @@ static inline int tport_has_offloading(void)
 
 #define tport_client_create(server_addr) the_tport->client_create(server_addr)
 #define tport_client_initiate_offload(cnx, allocator, allocator_data) the_tport->client_initiate_offload(cnx, allocator, allocator_data)
+#define tport_api_ring(cnx) the_tport->api_ring(cnx)
 
 #define tport_connection_fd(cnx) the_tport->connection_fd(cnx)
 #define tport_close(cnx) the_tport->close(cnx)
 
 #define tport_write(cnx, buffer, size) the_tport->write(cnx, buffer, size)
 #define tport_writev(cnx, iov, iovcnt) the_tport->writev(cnx, iov, iovcnt)
+#define tport_write_fd(cnx, iov, iovcnt, fd) the_tport->write_fd(cnx, iov, iovcnt, fd)
 #define tport_read(cnx, buffer, size) the_tport->read(cnx, buffer, size)
+#define tport_read_fd(cnx, buffer, size, fd_p) the_tport->read_fd(cnx, buffer, size, fd_p)

@@ -44,8 +44,13 @@ static int nofork;
 static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
-  int ret = ring_init(&rc->ring, NULL, NULL,
-                      CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
+  int ret;
+  if (tport_has_offloading())
+    ret = ring_init(&rc->ring, NULL, NULL,
+                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
+  else
+    ret = ring_init(&rc->ring, NULL, NULL,
+                    CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
   if (ret < 0)
     exit(EXIT_FAILURE);
 

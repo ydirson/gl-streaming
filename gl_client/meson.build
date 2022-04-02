@@ -8,7 +8,7 @@ libglstreaming = shared_library(
             common_srcs,
            ],
   include_directories : [common_incdir],
-  dependencies: [thread_dep],
+  dependencies: [thread_dep, rt_dep],
   link_args: '-Wl,-init,gls_init_library,-fini,gls_cleanup_library',
   install: true,
 )
@@ -31,7 +31,7 @@ libegl = shared_library(
             common_srcs,
            ],
   include_directories : [common_incdir],
-  dependencies: [thread_dep, dl_dep, x11_dep],
+  dependencies: [thread_dep, dl_dep, x11_dep, rt_dep],
   link_with: [libglstreaming, libgles],
   install: true,
   install_dir: mylibdir,

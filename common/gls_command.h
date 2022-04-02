@@ -63,6 +63,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(HANDSHAKE)                                \
     X(SEND_DATA)                                \
     X(CREATE_WINDOW)                            \
+    X(SHARE_SHM)                                \
   //
 
 #define GLS_EGL_COMMANDS()                      \
@@ -372,6 +373,20 @@ typedef struct
   uint32_t height;
   uint32_t window;
 } gls_CREATE_WINDOW_t;
+
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t size;
+  int32_t fd; // memfd passed on unix transport using SCM_RIGHTS, -1 on the wire
+} gls_SHARE_SHM_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t success;
+} gls_ret_SHARE_SHM_t;
 
 
 typedef struct

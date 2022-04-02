@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 
 // #define GL_DEBUG
 
@@ -79,6 +80,57 @@ static void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
   // FIXME we have no DESTROY_WINDOW event to remove the mapping
 }
 
+static int shmattach_malloc(ring_t* ring, void* data)
+{
+  gls_SHARE_SHM_t* c = (gls_SHARE_SHM_t*)data;
+  //size_t size = ring->ring_size * ring->ring_packet_size;
+  ring->buffer = mmap(NULL, c->size, PROT_READ | PROT_WRITE, MAP_SHARED, c->fd, 0);
+  if (!ring->buffer) {
+    LOGE("shm ring mapping failure: %s\n", strerror(errno));
+    close(c->fd); // FIXME: better make sure it is close by called
+    return -1;
+  }
+  close(c->fd); // FIXME: same
+
+  return 0;
+}
+static void shmattach_free(ring_t* ring)
+{
+  size_t size = ring->ring_size * ring->ring_packet_size;
+  munmap(ring->buffer, size);
+  free(ring->allocator_data);
+}
+
+static ring_allocator_t shmattach_allocator = {
+  .alloc = shmattach_malloc,
+  .free = shmattach_free,
+};
+
+static void glse_cmd_SHARE_SHM(gls_command_t* buf, recvr_context_t* rc)
+{
+  int success = 0;
+  GLSE_SET_COMMAND_PTR(c, SHARE_SHM);
+  LOGD("SHARE_SHM received, fd=%d, size=%u\n", c->fd, c->size);
+  if (c->fd < 0) {
+    LOGE("SHARE_SHM with no valid fd\n");
+    goto reply;
+  }
+  // FIXME buffer sizing should come from msg
+  // FIXME api_ring must come from tport but this looks fishy
+  int res = ring_init(tport_api_ring(rc->cnx), &shmattach_allocator, (void*)c,
+                      CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
+  if (res < 0)
+    goto reply;
+  LOGD("SHARE_SHM created api_ring\n");
+  success = 1;
+
+ reply: ;
+  close(c->fd); // must be closed in both error/success cases
+  GLSE_SET_RET_PTR(ret, SHARE_SHM);
+  ret->success = success;
+  GLSE_SEND_RET(ret, SHARE_SHM);
+}
+
 static void glse_handle_ring_packet(recvr_context_t* rc)
 {
   void* popptr = (void*)ring_pop_ptr_get(&rc->ring);
@@ -108,6 +160,9 @@ static void glse_handle_ring_packet(recvr_context_t* rc)
     LOGD("executing: Create window...\n");
 #endif
     glse_cmd_CREATE_WINDOW(c);
+    break;
+  case GLSC_SHARE_SHM:
+    glse_cmd_SHARE_SHM(c, rc);
     break;
 
   default: {

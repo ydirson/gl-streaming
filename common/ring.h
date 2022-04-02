@@ -65,6 +65,9 @@ struct ring
 #define SRV2CLT_API_RING_SIZE_ORDER 2
 #define SRV2CLT_API_RING_PACKET_SIZE_ORDER 10
 
+#define CMD_RING_SIZE_ORDER 2
+#define CMD_RING_PACKET_SIZE_ORDER 8
+
 /*
  * ring_*_ptr_next() are not supposed to be called if the matching
  * ring_*_ptr_get() returns NULL, and will assert.
