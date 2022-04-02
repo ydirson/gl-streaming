@@ -91,8 +91,6 @@
 
 ## low priority
 
-- [ ] sample2 causes server to fail with "Error: Command Flush -10256991" when
-      it cannot load its data files (ie. not run from samples dir)
 - only impacting network/non-virtualization-aware transports:
   - [ ] replace custom window creation with a standard portable library
   - [ ] replace 2-buffers design by a buffer pool instead of memcpy'ing between
