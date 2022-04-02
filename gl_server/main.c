@@ -44,8 +44,11 @@ static int nofork;
 static void child_process(recvr_context_t* rc,
                           void(*handle_child)(recvr_context_t*))
 {
-  ring_init(&rc->ring, NULL, NULL,
-            CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
+  int ret = ring_init(&rc->ring, NULL, NULL,
+                      CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
+  if (ret < 0)
+    exit(EXIT_FAILURE);
+
   recvr_run_loop(rc);
   handle_child(rc);
   if (pthread_join(rc->recvr_th, NULL) != 0)

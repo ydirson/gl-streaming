@@ -67,14 +67,14 @@ int ring_init(ring_t* ring,
 
   if (notifier_init(&ring->notifier) < 0) {
     LOGE("RING notifier init error: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   ring->allocator = allocator ? allocator : &heap_allocator;
 
   if (ring->allocator->alloc(ring, allocator_data) < 0) {
     LOGE("ring allocation failure: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   ring->idx_reader = 0;
