@@ -49,20 +49,8 @@ int glse_cmd_send_data(uint32_t size, void* data)
 #ifdef GL_DEBUG
   LOGD("glse_cmd_send_data sending data back\n");
 #endif
-  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)xmitr_getbuf(glsec_global.xmitr);
-  c->cmd = GLSC_SEND_DATA;
-  c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
-  c->zero = 0;
-
-  struct iovec iov[] = {
-    { c, sizeof(gls_cmd_send_data_t) },
-    { (void*)data, size }
-  };
-
-  if (tport_writev(glsec_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
-    tport_close(glsec_global.rc.cnx);
+  if (xmitr_senddata(glsec_global.xmitr, data, size) < 0)
     return FALSE;
-  }
 
   return TRUE;
 }

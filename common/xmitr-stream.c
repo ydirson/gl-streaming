@@ -57,3 +57,26 @@ int xmitr_sendbuf(struct xmitr* xmitr, size_t size)
   }
   return 0;
 }
+
+// FIXME
+#include "gls_command.h"
+
+int xmitr_senddata(struct xmitr* xmitr, const void* data, size_t size)
+{
+  char* out_buf = xmitr_getbuf(xmitr);
+  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)out_buf;
+  c->cmd = GLSC_SEND_DATA;
+  c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
+  c->zero = 0;
+
+  struct iovec iov[] = {
+    { c, sizeof(gls_cmd_send_data_t) },
+    { (void*)data, size }
+  };
+
+  if (tport_writev(xmitr->cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
+    tport_close(xmitr->cnx);
+    return -1;
+  }
+  return 0;
+}

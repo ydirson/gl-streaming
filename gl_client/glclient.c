@@ -225,20 +225,8 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
 int gls_cmd_send_data(uint32_t size, const void* data)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
-  char* out_buf = xmitr_getbuf(glsc_global.api_xmitr);
-  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)out_buf;
-  c->cmd = GLSC_SEND_DATA;
-  c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
-  c->zero = 0;
-
-  struct iovec iov[] = {
-    { c, sizeof(gls_cmd_send_data_t) },
-    { (void*)data, size }
-  };
-
-  if (tport_writev(glsc_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
+  if (xmitr_senddata(glsc_global.api_xmitr, data, size) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
-    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;

@@ -10,3 +10,4 @@ void xmitr_free(struct xmitr*);
 void* xmitr_getbuf(struct xmitr*);
 size_t xmitr_getbufsize(struct xmitr*);
 int xmitr_sendbuf(struct xmitr*, size_t);
+int xmitr_senddata(struct xmitr* xmitr, const void* data, size_t size);
