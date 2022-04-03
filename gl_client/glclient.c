@@ -50,7 +50,7 @@ uint32_t client_gles_error;
 
 static const int GLS_TIMEOUT_MSEC = 3000;
 
-static int gls_init(void)
+static int gls_init(struct gls_connection* cnx)
 {
   if (GLS_VERSION & 1)
     LOGW("this is a development GLS protocol, "
@@ -72,7 +72,7 @@ static int gls_init(void)
 
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
-  glsc_global.api_xmitr = xmitr_init();
+  glsc_global.api_xmitr = xmitr_init(cnx);
   if (!glsc_global.api_xmitr) {
     LOGE("failed to init xmitr\n");
     return FALSE;
@@ -113,7 +113,7 @@ int send_packet(void)
     break;
   }
 
-  if (tport_write(glsc_global.rc.cnx, out_buf, c->cmd_size) < 0) {
+  if (xmitr_sendbuf(glsc_global.api_xmitr, c->cmd_size) < 0) {
     switch (c->cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
       client_egl_error = EGL_BAD_ACCESS; // dubious but eh
@@ -122,7 +122,6 @@ int send_packet(void)
       client_gles_error = GL_INVALID_OPERATION; // dubious but eh
       break;
     }
-    tport_close(glsc_global.rc.cnx);
     return FALSE;
   }
   return TRUE;
@@ -301,7 +300,7 @@ void gls_init_library(void)
   }
 
   recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
-  if (!gls_init())
+  if (!gls_init(glsc_global.rc.cnx))
     exit(EXIT_FAILURE);
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
