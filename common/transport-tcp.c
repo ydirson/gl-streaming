@@ -192,7 +192,7 @@ static ssize_t tcp_tport_write(struct gls_connection* cnx, void* buffer, size_t 
 {
   ssize_t ret = send(cnx->sock_fd, buffer, size, 0);
   if (ret < 0)
-    LOGE("send_packet(%zu) failure: %s\n", size, strerror(errno));
+    LOGE("tcp_write(%zu) failure: %s\n", size, strerror(errno));
 
   return ret;
 }
