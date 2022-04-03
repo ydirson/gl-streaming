@@ -98,9 +98,9 @@ static int gls_free(void)
 }
 
 
-int send_packet(void)
+int send_packet(struct xmitr* xmitr)
 {
-  char* out_buf = xmitr_getbuf(glsc_global.api_xmitr);
+  char* out_buf = xmitr_getbuf(xmitr);
   gls_command_t* c = (gls_command_t*)out_buf;
 
   // reset clientside error for protocol
@@ -113,7 +113,7 @@ int send_packet(void)
     break;
   }
 
-  if (xmitr_sendbuf(glsc_global.api_xmitr, c->cmd_size) < 0) {
+  if (xmitr_sendbuf(xmitr, c->cmd_size) < 0) {
     switch (c->cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
       client_egl_error = EGL_BAD_ACCESS; // dubious but eh
