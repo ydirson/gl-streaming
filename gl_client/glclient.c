@@ -250,7 +250,7 @@ static int gls_cmd_HANDSHAKE(void)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
-  if (!send_packet())
+  if (!GLS_SEND_PACKET(HANDSHAKE))
     return FALSE;
 
   GLS_WAIT_SET_RET_PTR(ret, HANDSHAKE);

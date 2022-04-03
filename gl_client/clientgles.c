@@ -393,7 +393,7 @@ GLS_DEF_CORE_API(void, glDeleteFramebuffers, GLsizei n, const GLuint* framebuffe
   GLS_SET_COMMAND_PTR(c, glDeleteFramebuffers);
   c->n = n;
   GLS_VARIABLE_PAYLOAD(c, framebuffers, datasize);
-  send_packet();
+  GLS_SEND_PACKET(glDeleteFramebuffers);
 }
 
 
@@ -411,7 +411,7 @@ GLS_DEF_CORE_API(void, glDeleteRenderbuffers, GLsizei n, const GLuint* renderbuf
   GLS_SET_COMMAND_PTR(c, glDeleteRenderbuffers);
   c->n = n;
   GLS_VARIABLE_PAYLOAD(c, renderbuffers, datasize);
-  send_packet();
+  GLS_SEND_PACKET(glDeleteRenderbuffers);
 }
 
 
@@ -429,7 +429,7 @@ GLS_DEF_CORE_API(void, glDeleteTextures, GLsizei n, const GLuint* textures)
   GLS_SET_COMMAND_PTR(c, glDeleteTextures);
   c->n = n;
   GLS_VARIABLE_PAYLOAD(c, textures, datasize);
-  send_packet();
+  GLS_SEND_PACKET(glDeleteTextures);
 }
 
 
@@ -1523,7 +1523,7 @@ IMPLEM_glUniformNX(glUniform4i, c->x = x; c->y = y; c->z = z; c->w = w;, GLint x
   c->location = location;                                               \
   c->count = count;                                                     \
   GLS_VARIABLE_PAYLOAD(c, v, datasize);                                 \
-  send_packet();                                                        \
+  GLS_SEND_PACKET(FUNC);                                                \
   }
 
 IMPLEM_glUniformNXv(glUniform1fv, 1, GLfloat);
@@ -1546,7 +1546,7 @@ IMPLEM_glUniformNXv(glUniform4iv, 4, GLint);
     c->count = count;                                                   \
     c->transpose = transpose;                                           \
     GLS_VARIABLE_PAYLOAD(c, value, datasize);                           \
-    send_packet();                                                      \
+    GLS_SEND_PACKET(FUNC);                                              \
   }
 
 IMPLEM_glUniformMatrixNXv(glUniformMatrix2fv, 2, GLfloat);
