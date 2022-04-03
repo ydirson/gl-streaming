@@ -51,8 +51,8 @@ problems you may notice.
 - [ ] infrastructure for shared-memory
   - [ ] separate (low-volume) command stream from API stream
     - [ ] explicit cnx parameter in send/recv infrastructure
-      - [ ] move out_buf to tport/cnx/new?
-        - [ ] new "xmit" (bad name but eh that's a proto ;) layer
+      - [x] move out_buf to tport/cnx/new?
+        - [x] new "xmit" (bad name but eh that's a proto ;) layer
               between tport and glclient/server, to encapsulate
               composition to buffer and send ?
 

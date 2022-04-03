@@ -16,7 +16,6 @@ typedef struct
 typedef struct
 {
   gls_buffer_t tmp_buf; // in_buf
-  gls_buffer_t out_buf;
   int has_data;
   char* mallocated;
   void* data_payload;

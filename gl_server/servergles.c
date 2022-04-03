@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _GNU_SOURCE
 #include "gls_command_gles2.h"
 #include "glserver.h"
+#include "xmitr.h"
 #include "fastlog.h"
 
 #include <GLES2/gl2.h>
@@ -466,7 +467,7 @@ static void glse_glGetProgramInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetProgramInfoLog);
   GLSE_SET_RET_PTR(ret, glGetProgramInfoLog);
-  int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetProgramInfoLog_t);
+  int32_t maxsize = xmitr_getbufsize(glsec_global.xmitr) - sizeof(gls_ret_glGetProgramInfoLog_t);
   if (c->bufsize > maxsize) {
     LOGW("lowering %s buffer size to %u\n",
          __FUNCTION__, maxsize);
@@ -492,7 +493,7 @@ static void glse_glGetShaderInfoLog(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, glGetShaderInfoLog);
   GLSE_SET_RET_PTR(ret, glGetShaderInfoLog);
-  int32_t maxsize = glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetShaderInfoLog_t);
+  int32_t maxsize = xmitr_getbufsize(glsec_global.xmitr) - sizeof(gls_ret_glGetShaderInfoLog_t);
   if (c->bufsize > maxsize) {
     LOGW("lowering %s buffer size to %u\n",
          __FUNCTION__, maxsize);
@@ -531,7 +532,7 @@ static void glse_glGetString(gls_command_t* buf)
           size_t len = strcspn(params, " ");
           if (!len) break;
           if (glse_extension_supported(GLS_GLES_EXTENSIONS, params, len)) {
-            if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_glGetString_t)) {
+            if (outlen + len + 1 > xmitr_getbufsize(glsec_global.xmitr) - sizeof(gls_ret_glGetString_t)) {
               LOGW("%s: not enough buffer space for all extensions, truncating\n",
                    __FUNCTION__);
               break;

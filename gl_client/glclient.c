@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define _GNU_SOURCE
 #include "glclient.h"
+#include "xmitr.h"
 #include "transport.h"
 #include "fastlog.h"
 
@@ -71,18 +72,17 @@ static int gls_init(void)
 
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
-  glsc_global.pool.out_buf.buf = (char*)malloc(GLS_OUT_BUFFER_SIZE);
-  if (glsc_global.pool.out_buf.buf == NULL) {
-    LOGE("failed to allocate out_buf: %s\n", strerror(errno));
+  glsc_global.api_xmitr = xmitr_init();
+  if (!glsc_global.api_xmitr) {
+    LOGE("failed to init xmitr\n");
     return FALSE;
   }
   glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
   if (glsc_global.pool.tmp_buf.buf == NULL) {
     LOGE("failed to allocate tmp_buf: %s\n", strerror(errno));
-    free(glsc_global.pool.out_buf.buf);
+    xmitr_free(glsc_global.api_xmitr);
     return FALSE;
   }
-  glsc_global.pool.out_buf.size = GLS_OUT_BUFFER_SIZE;
   glsc_global.pool.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
 
   return TRUE;
@@ -91,7 +91,7 @@ static int gls_init(void)
 
 static int gls_free(void)
 {
-  free(glsc_global.pool.out_buf.buf);
+  xmitr_free(glsc_global.api_xmitr);
   free(glsc_global.pool.tmp_buf.buf);
 
   return TRUE;
@@ -100,7 +100,8 @@ static int gls_free(void)
 
 int send_packet(void)
 {
-  gls_command_t* c = (gls_command_t*)glsc_global.pool.out_buf.buf;
+  char* out_buf = xmitr_getbuf(glsc_global.api_xmitr);
+  gls_command_t* c = (gls_command_t*)out_buf;
 
   // reset clientside error for protocol
   switch (c->cmd & GLSC_PROTOCOL_MASK) {
@@ -112,7 +113,7 @@ int send_packet(void)
     break;
   }
 
-  if (tport_write(glsc_global.rc.cnx, glsc_global.pool.out_buf.buf, c->cmd_size) < 0) {
+  if (tport_write(glsc_global.rc.cnx, out_buf, c->cmd_size) < 0) {
     switch (c->cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
       client_egl_error = EGL_BAD_ACCESS; // dubious but eh
@@ -225,7 +226,8 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
 int gls_cmd_send_data(uint32_t size, const void* data)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
-  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsc_global.pool.out_buf.buf;
+  char* out_buf = xmitr_getbuf(glsc_global.api_xmitr);
+  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)out_buf;
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
   c->zero = 0;

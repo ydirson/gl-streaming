@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _GNU_SOURCE
 #include "gls_command_egl.h"
 #include "glserver.h"
+#include "xmitr.h"
 #include "fastlog.h"
 
 #include <EGL/eglext.h>
@@ -326,7 +327,7 @@ static void glse_eglQueryString(gls_command_t* buf)
         size_t len = strcspn(params, " ");
         if (!len) break;
         if (glse_extension_supported(GLS_EGL_EXTENSIONS, params, len)) {
-          if (outlen + len + 1 > glsec_global.pool.out_buf.size - sizeof(gls_ret_eglQueryString_t)) {
+          if (outlen + len + 1 > xmitr_getbufsize(glsec_global.xmitr) - sizeof(gls_ret_eglQueryString_t)) {
             LOGW("%s: not enough buffer space for all extensions, truncating\n",
                  __FUNCTION__);
             break;

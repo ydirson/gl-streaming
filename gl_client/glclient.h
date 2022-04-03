@@ -34,12 +34,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <EGL/eglplatform.h>
 
 #include "bufpool.h"
+#include "xmitr.h"
 #include "recvr.h"
 #include "gls_command.h"
 
 typedef struct
 {
   gls_bufpool_t pool;
+  struct xmitr* api_xmitr;
   recvr_context_t rc;
   struct
   {
@@ -57,7 +59,7 @@ typedef struct
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
   _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME)
 #define _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, CMD)                        \
-  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)glsc_global.pool.out_buf.buf; \
+  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)xmitr_getbuf(glsc_global.api_xmitr); \
   PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \

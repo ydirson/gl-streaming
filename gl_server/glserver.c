@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define _GNU_SOURCE
 #include "glserver.h"
+#include "xmitr.h"
 #include "transport.h"
 #include "fastlog.h"
 
@@ -48,7 +49,7 @@ int glse_cmd_send_data(uint32_t size, void* data)
 #ifdef GL_DEBUG
   LOGD("glse_cmd_send_data sending data back\n");
 #endif
-  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)glsec_global.pool.out_buf.buf;
+  gls_cmd_send_data_t* c = (gls_cmd_send_data_t*)xmitr_getbuf(glsec_global.xmitr);
   c->cmd = GLSC_SEND_DATA;
   c->cmd_size = sizeof(gls_cmd_send_data_t) + size;
   c->zero = 0;
@@ -139,8 +140,7 @@ void glserver_handle_packets(recvr_context_t* rc)
 
   glsec_global.pool.tmp_buf.buf = (char*)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
-  glsec_global.pool.out_buf.buf = (char*)malloc(GLSE_OUT_BUFFER_SIZE);
-  glsec_global.pool.out_buf.size = GLSE_OUT_BUFFER_SIZE;
+  glsec_global.xmitr = xmitr_init();
 
   enum {
     POLLFD_RING,
@@ -189,7 +189,7 @@ void glserver_handle_packets(recvr_context_t* rc)
   release_egl(&glsec_global.gc);
 
   free(glsec_global.pool.tmp_buf.buf);
-  free(glsec_global.pool.out_buf.buf);
+  xmitr_free(glsec_global.xmitr);
 }
 
 

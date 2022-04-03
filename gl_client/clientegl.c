@@ -276,7 +276,7 @@ GLS_DEF_CORE_API(__eglMustCastToProperFunctionPointerType, eglGetProcAddress,  c
 {
   size_t procname_len = strlen(procname);
   if (sizeof(gls_eglGetProcAddress_t) + procname_len + 1 >
-      glsc_global.pool.out_buf.size) {
+      xmitr_getbufsize(glsc_global.api_xmitr)) {
     LOGE("%s: procname '%s' too long for buffer\n",
          __FUNCTION__, procname);
     return NULL;

@@ -21,6 +21,7 @@ common_srcs = files(
   [
     'common/ring.c',
     'common/recvr.c',
+    'common/xmitr-stream.c',
     'common/transport.c',
     'common/transport-tcp.c',
     'common/transport-unix.c',
