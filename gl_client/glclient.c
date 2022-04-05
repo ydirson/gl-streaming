@@ -222,10 +222,10 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
 }
 
 
-int gls_cmd_send_data(uint32_t size, const void* data)
+int gls_cmd_send_data(struct xmitr* xmitr, uint32_t size, const void* data)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
-  if (xmitr_senddata(glsc_global.api_xmitr, data, size) < 0) {
+  if (xmitr_senddata(xmitr, data, size) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
   }

@@ -82,7 +82,7 @@ typedef struct
   //
 
 #define GLS_SEND_PACKET(FUNCNAME) send_packet(glsc_global.api_xmitr)
-#define GLS_SEND_DATA(SIZE, DATA) gls_cmd_send_data(SIZE, DATA)
+#define GLS_SEND_DATA(SIZE, DATA) gls_cmd_send_data(glsc_global.api_xmitr, SIZE, DATA)
 
 #define GLS_WAIT_RET(TYPE, FUNCNAME)                            \
   wait_for_data(TYPE, #FUNCNAME);                               \
@@ -143,7 +143,7 @@ void gls_cleanup_library(void);
 
 extern gls_context_t glsc_global;
 int send_packet(struct xmitr* xmitr);
-int gls_cmd_send_data(uint32_t size, const void* data);
+int gls_cmd_send_data(struct xmitr* xmitr, uint32_t size, const void* data);
 int wait_for_data(enum GL_Server_Command, char* str);
 void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height);
 
