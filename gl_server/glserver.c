@@ -183,7 +183,7 @@ void glserver_handle_packets(recvr_context_t* rc)
 
   glsec_global.pool.tmp_buf.buf = (char*)malloc(GLSE_TMP_BUFFER_SIZE);
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
-  glsec_global.xmitr = xmitr_init(rc->cnx);
+  glsec_global.xmitr = xmitr_stream_init(rc->cnx);
 
   enum {
     POLLFD_RING,

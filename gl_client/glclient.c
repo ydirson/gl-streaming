@@ -74,7 +74,7 @@ static int gls_init(struct gls_connection* cnx)
 
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
-  glsc_global.cmd_xmitr = xmitr_init(cnx);
+  glsc_global.cmd_xmitr = xmitr_stream_init(cnx);
   if (!glsc_global.cmd_xmitr) {
     LOGE("failed to init cmd xmitr\n");
     return FALSE;
