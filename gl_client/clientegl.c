@@ -54,7 +54,7 @@ static int gls_wire_native_display(EGLNativeDisplayType native_display,
     data_size = (num_attribs * 2 + 1) * sizeof(EGLint);                 \
     assert(data_size < GLS_DATA_SIZE * sizeof(EGLint));                 \
     memcpy(glsc_global.pool.tmp_buf.buf, ATTRIB_LIST, data_size);       \
-    gls_cmd_send_data(data_size, glsc_global.pool.tmp_buf.buf);         \
+    GLS_SEND_DATA(data_size, glsc_global.pool.tmp_buf.buf);             \
     FLAG = (num_attribs != 0);                                          \
   }                                                                     \
   //

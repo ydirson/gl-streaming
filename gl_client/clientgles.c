@@ -212,7 +212,7 @@ GLS_DEF_CORE_API(void, glBlendFuncSeparate, GLenum srcRGB, GLenum dstRGB, GLenum
 GLS_DEF_CORE_API(void, glBufferData, GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage)
 {
   if (data)
-    gls_cmd_send_data((uint32_t)size, (void*)data);
+    GLS_SEND_DATA((uint32_t)size, (void*)data);
   GLS_SET_COMMAND_PTR(c, glBufferData);
   c->target = target;
   c->size = size;
@@ -225,7 +225,7 @@ GLS_DEF_CORE_API(void, glBufferData, GLenum target, GLsizeiptr size, const GLvoi
 GLS_DEF_CORE_API(void, glBufferSubData, GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data)
 {
   if (data)
-    gls_cmd_send_data((uint32_t)size, (void*)data);
+    GLS_SEND_DATA((uint32_t)size, (void*)data);
 
   GLS_SET_COMMAND_PTR(c, glBufferSubData);
   c->target = target;
@@ -379,7 +379,7 @@ GLS_DEF_CORE_API(void, glDeleteBuffers, GLsizei n, const GLuint* buffers)
     }
 
   uint32_t size = n * sizeof(uint32_t);
-  gls_cmd_send_data(size, (void*)buffers);
+  GLS_SEND_DATA(size, (void*)buffers);
 
   GLS_SET_COMMAND_PTR(c, glDeleteBuffers);
   c->n = n;
@@ -1364,7 +1364,7 @@ GLS_DEF_CORE_API(void, glShaderSource, GLuint shader, GLsizei count, const GLcha
 
   // LOGD(" ----- ENDED SHADER CONTENT -----\n\n");
 
-  gls_cmd_send_data(size_all, glsc_global.pool.tmp_buf.buf);
+  GLS_SEND_DATA(size_all, glsc_global.pool.tmp_buf.buf);
   GLS_SET_COMMAND_PTR(c, glShaderSource);
   c->shader = shader;
   c->count = count;
@@ -1426,7 +1426,7 @@ GLS_DEF_CORE_API(void, glTexImage2D, GLenum target, GLint level, GLint internalf
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
-    gls_cmd_send_data(linebytes * height, pixels);
+    GLS_SEND_DATA(linebytes * height, pixels);
   }
 
   GLS_SET_COMMAND_PTR(c, glTexImage2D);
@@ -1479,7 +1479,7 @@ GLS_DEF_CORE_API(void, glTexSubImage2D, GLenum target, GLint level, GLint xoffse
   if (pixels) {
     uint32_t pixelbytes = _pixelformat_to_bytes(format, type);
     uint32_t linebytes = (pixelbytes * width + glsc_global.unpack_alignment - 1) & (~ (glsc_global.unpack_alignment - 1));
-    gls_cmd_send_data(linebytes * height, pixels);
+    GLS_SEND_DATA(linebytes * height, pixels);
   }
 
   GLS_SET_COMMAND_PTR(c, glTexSubImage2D);
@@ -1576,7 +1576,7 @@ static void _glVertexAttribFloat(enum GL_Server_Command cmd,
   gls_data_glVertexAttribFloat_t* dat = (gls_data_glVertexAttribFloat_t*)glsc_global.pool.tmp_buf.buf;
   memcpy(dat->arr, arr, num_float);
   // It's small so use GLS_DATA_SIZE
-  gls_cmd_send_data(GLS_DATA_SIZE, glsc_global.pool.tmp_buf.buf);
+  GLS_SEND_DATA(GLS_DATA_SIZE, glsc_global.pool.tmp_buf.buf);
 
   _GLS_SET_COMMAND_PTR(c, glVertexAttribFloat, cmd);
   c->index = index;

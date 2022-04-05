@@ -82,6 +82,7 @@ typedef struct
   //
 
 #define GLS_SEND_PACKET(FUNCNAME) send_packet(glsc_global.api_xmitr)
+#define GLS_SEND_DATA(SIZE, DATA) gls_cmd_send_data(SIZE, DATA)
 
 #define GLS_WAIT_RET(TYPE, FUNCNAME)                            \
   wait_for_data(TYPE, #FUNCNAME);                               \
