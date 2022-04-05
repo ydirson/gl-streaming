@@ -41,6 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
   gls_bufpool_t pool;
+  struct xmitr* cmd_xmitr;
   struct xmitr* api_xmitr;
   recvr_context_t rc;
   struct

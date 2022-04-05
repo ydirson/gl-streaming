@@ -74,11 +74,14 @@ static int gls_init(struct gls_connection* cnx)
 
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
-  glsc_global.api_xmitr = xmitr_init(cnx);
-  if (!glsc_global.api_xmitr) {
-    LOGE("failed to init xmitr\n");
+  glsc_global.cmd_xmitr = xmitr_init(cnx);
+  if (!glsc_global.cmd_xmitr) {
+    LOGE("failed to init cmd xmitr\n");
     return FALSE;
   }
+  // for now we always share the same xmitr
+  glsc_global.api_xmitr = glsc_global.cmd_xmitr;
+
   glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
   if (glsc_global.pool.tmp_buf.buf == NULL) {
     LOGE("failed to allocate tmp_buf: %s\n", strerror(errno));
@@ -93,7 +96,9 @@ static int gls_init(struct gls_connection* cnx)
 
 static int gls_free(void)
 {
-  xmitr_free(glsc_global.api_xmitr);
+  if (glsc_global.api_xmitr != glsc_global.cmd_xmitr)
+    xmitr_free(glsc_global.api_xmitr);
+  xmitr_free(glsc_global.cmd_xmitr);
   free(glsc_global.pool.tmp_buf.buf);
 
   return TRUE;
@@ -272,7 +277,7 @@ static int gls_cmd_HANDSHAKE(void)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
-  if (!GLS_SEND_PACKET(HANDSHAKE))
+  if (!send_packet(glsc_global.cmd_xmitr))
     return FALSE;
 
   GLS_WAIT_SET_RET_PTR(ret, HANDSHAKE);
@@ -303,7 +308,7 @@ static int gls_cmd_SHARE_SHM(int fd, uint32_t size)
   GLS_SET_COMMAND_PTR(c, SHARE_SHM);
   c->size = size;
   c->fd = -1; // mostly for safety of the hack
-  if (!send_packet_fd(glsc_global.api_xmitr, fd, GLSC_SHARE_SHM, c->cmd_size))
+  if (!send_packet_fd(glsc_global.cmd_xmitr, fd, GLSC_SHARE_SHM, c->cmd_size))
     return FALSE;
 
   GLS_WAIT_SET_RET_PTR(ret, SHARE_SHM);
