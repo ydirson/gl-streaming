@@ -11,6 +11,8 @@ project(
 add_project_arguments(
   [
     '-DUSE_X11',
+    '-Wmissing-prototypes',
+    '-Wold-style-definition',
   ],
   language : 'c')
 
