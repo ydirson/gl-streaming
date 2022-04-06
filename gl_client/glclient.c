@@ -307,25 +307,6 @@ static ring_allocator_t shmcreate_allocator = {
   .free = shmcreate_free,
 };
 
-static void recvr_client_start(recvr_context_t* rc, const char* server_addr)
-{
-  int ret;
-  if (tport_has_offloading())
-    ret = ring_init(&rc->ring, NULL, NULL,
-                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
-  else
-    ret = ring_init(&rc->ring, NULL, NULL,
-                    SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
-  if (ret < 0)
-    exit(EXIT_FAILURE);
-
-  rc->cnx = tport_client_create(server_addr);
-  if (!rc->cnx)
-    exit(EXIT_FAILURE);
-
-  recvr_run_loop(rc);
-}
-
 void gls_init_library(void)
 {
   static int init = FALSE;
@@ -337,7 +318,22 @@ void gls_init_library(void)
     exit(EXIT_FAILURE);
   }
 
-  recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
+  int ret;
+  if (tport_has_offloading())
+    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
+                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
+  else
+    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
+                    SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
+  if (ret < 0)
+    exit(EXIT_FAILURE);
+
+  glsc_global.rc.cnx = tport_client_create(getenv("GLS_SERVER_ADDR"));
+  if (!glsc_global.rc.cnx)
+    exit(EXIT_FAILURE);
+
+  recvr_run_loop(&glsc_global.rc);
+
 
   if (GLS_VERSION & 1)
     LOGW("this is a development GLS protocol, "
