@@ -52,59 +52,6 @@ uint32_t client_gles_error;
 
 static const int GLS_TIMEOUT_MSEC = 3000;
 
-static int gls_init(struct gls_connection* cnx)
-{
-  if (GLS_VERSION & 1)
-    LOGW("this is a development GLS protocol, "
-         "make sure client and server match\n");
-
-  const char* env_isDebugStr = getenv("GLS_DEBUG");
-  int env_isDebug;
-  if (env_isDebugStr == NULL) {
-    env_isDebug = FALSE;
-  } else {
-    env_isDebug = atoi(env_isDebugStr);
-  }
-  if (env_isDebug == 0 || env_isDebug == 1) {
-    glsc_global.is_debug = env_isDebug;
-  } else {
-    LOGE("GLS_DEBUG variable must be 0 or 1\n");
-    return FALSE;
-  }
-
-  glsc_global.pack_alignment = 4;
-  glsc_global.unpack_alignment = 4;
-  glsc_global.cmd_xmitr = xmitr_stream_init(cnx);
-  if (!glsc_global.cmd_xmitr) {
-    LOGE("failed to init cmd xmitr\n");
-    return FALSE;
-  }
-  // for now we always share the same xmitr
-  glsc_global.api_xmitr = glsc_global.cmd_xmitr;
-
-  glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
-  if (glsc_global.pool.tmp_buf.buf == NULL) {
-    LOGE("failed to allocate tmp_buf: %s\n", strerror(errno));
-    xmitr_free(glsc_global.api_xmitr);
-    return FALSE;
-  }
-  glsc_global.pool.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
-
-  return TRUE;
-}
-
-
-static int gls_free(void)
-{
-  if (glsc_global.api_xmitr != glsc_global.cmd_xmitr)
-    xmitr_free(glsc_global.api_xmitr);
-  xmitr_free(glsc_global.cmd_xmitr);
-  free(glsc_global.pool.tmp_buf.buf);
-
-  return TRUE;
-}
-
-
 int send_packet(struct xmitr* xmitr)
 {
   char* out_buf = xmitr_getbuf(xmitr);
@@ -391,8 +338,43 @@ void gls_init_library(void)
   }
 
   recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
-  if (!gls_init(glsc_global.rc.cnx))
+
+  if (GLS_VERSION & 1)
+    LOGW("this is a development GLS protocol, "
+         "make sure client and server match\n");
+
+  const char* env_isDebugStr = getenv("GLS_DEBUG");
+  int env_isDebug;
+  if (env_isDebugStr == NULL) {
+    env_isDebug = FALSE;
+  } else {
+    env_isDebug = atoi(env_isDebugStr);
+  }
+  if (env_isDebug == 0 || env_isDebug == 1) {
+    glsc_global.is_debug = env_isDebug;
+  } else {
+    LOGE("GLS_DEBUG variable must be 0 or 1\n");
     exit(EXIT_FAILURE);
+  }
+
+  glsc_global.pack_alignment = 4;
+  glsc_global.unpack_alignment = 4;
+  glsc_global.cmd_xmitr = xmitr_stream_init(glsc_global.rc.cnx);
+  if (!glsc_global.cmd_xmitr) {
+    LOGE("failed to init cmd xmitr\n");
+    exit(EXIT_FAILURE);
+  }
+  // for now we always share the same xmitr
+  glsc_global.api_xmitr = glsc_global.cmd_xmitr;
+
+  glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
+  if (glsc_global.pool.tmp_buf.buf == NULL) {
+    LOGE("failed to allocate tmp_buf: %s\n", strerror(errno));
+    xmitr_free(glsc_global.api_xmitr);
+    exit(EXIT_FAILURE);
+  }
+  glsc_global.pool.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
+
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
 
@@ -406,5 +388,9 @@ void gls_init_library(void)
 void gls_cleanup_library(void)
 {
   recvr_stop(&glsc_global.rc);
-  gls_free();
+
+  if (glsc_global.api_xmitr != glsc_global.cmd_xmitr)
+    xmitr_free(glsc_global.api_xmitr);
+  xmitr_free(glsc_global.cmd_xmitr);
+  free(glsc_global.pool.tmp_buf.buf);
 }
