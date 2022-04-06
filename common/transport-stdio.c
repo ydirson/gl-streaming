@@ -11,7 +11,7 @@ struct gls_connection
   int write_fd;
 };
 
-static struct gls_connection* stdio_tport_connection_create()
+static struct gls_connection* stdio_tport_connection_create(void)
 {
   struct gls_connection* cnx = malloc(sizeof(struct gls_connection));
   if (!cnx) {

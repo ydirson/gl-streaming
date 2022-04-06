@@ -837,7 +837,7 @@ GLS_DEF_CORE_API(void, glGetBufferParameteriv, GLenum target, GLenum pname, GLin
 }
 
 
-GLS_DEF_CORE_API(GLenum, glGetError, )
+GLS_DEF_CORE_API(GLenum, glGetError, void)
 {
   if (client_gles_error != GL_NO_ERROR)
     return client_gles_error;
@@ -1037,7 +1037,7 @@ static int _registerGlesString(GLenum name, const char** field_p)
   return 1;
 }
 
-static void _populate_gles_strings()
+static void _populate_gles_strings(void)
 {
   assert(!gles_strings.allocated);
   gles_strings.allocated = 1024; // rather arbitrary
