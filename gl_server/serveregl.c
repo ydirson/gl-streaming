@@ -448,7 +448,7 @@ static void glse_eglGetCurrentContext(gls_command_t* buf)
 
 // EGL 1.5
 
-void glse_eglGetPlatformDisplay(gls_command_t* buf)
+static void glse_eglGetPlatformDisplay(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetPlatformDisplay);
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
@@ -476,7 +476,7 @@ void glse_eglGetPlatformDisplay(gls_command_t* buf)
 
 // EGL_EXT_platform_base
 
-void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
+static void glse_eglGetPlatformDisplayEXT(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, eglGetPlatformDisplayEXT);
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
