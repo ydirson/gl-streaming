@@ -313,31 +313,14 @@ void gls_init_library(void)
   if (init)
     return;
 
+  if (GLS_VERSION & 1)
+    LOGW("this is a development GLS protocol, "
+         "make sure client and server match\n");
+
   if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
     LOGE("cannot select transport\n");
     exit(EXIT_FAILURE);
   }
-
-  int ret;
-  if (tport_has_offloading())
-    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
-                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
-  else
-    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
-                    SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
-  if (ret < 0)
-    exit(EXIT_FAILURE);
-
-  glsc_global.rc.cnx = tport_client_create(getenv("GLS_SERVER_ADDR"));
-  if (!glsc_global.rc.cnx)
-    exit(EXIT_FAILURE);
-
-  recvr_run_loop(&glsc_global.rc);
-
-
-  if (GLS_VERSION & 1)
-    LOGW("this is a development GLS protocol, "
-         "make sure client and server match\n");
 
   const char* env_isDebugStr = getenv("GLS_DEBUG");
   int env_isDebug;
@@ -353,6 +336,23 @@ void gls_init_library(void)
     exit(EXIT_FAILURE);
   }
 
+  // get ready to receive replies
+  int ret;
+  if (tport_has_offloading())
+    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
+                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
+  else
+    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
+                    SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
+  if (ret < 0)
+    exit(EXIT_FAILURE);
+
+  // open cnx - FIXME logically part of xmitr_stream_init
+  glsc_global.rc.cnx = tport_client_create(getenv("GLS_SERVER_ADDR"));
+  if (!glsc_global.rc.cnx)
+    exit(EXIT_FAILURE);
+
+  // get ready to transmit
   glsc_global.pack_alignment = 4;
   glsc_global.unpack_alignment = 4;
   glsc_global.cmd_xmitr = xmitr_stream_init(glsc_global.rc.cnx);
@@ -363,6 +363,8 @@ void gls_init_library(void)
   // for now we always share the same xmitr
   glsc_global.api_xmitr = glsc_global.cmd_xmitr;
 
+  // get pool ready for reception of replies
+  // FIXME would need to move in a better place
   glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
   if (glsc_global.pool.tmp_buf.buf == NULL) {
     LOGE("failed to allocate tmp_buf: %s\n", strerror(errno));
@@ -371,6 +373,8 @@ void gls_init_library(void)
   }
   glsc_global.pool.tmp_buf.size = GLS_TMP_BUFFER_SIZE;
 
+  // start command transmission
+  recvr_run_loop(&glsc_global.rc);
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
 
