@@ -34,7 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <errno.h>
 #include <poll.h>
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 
