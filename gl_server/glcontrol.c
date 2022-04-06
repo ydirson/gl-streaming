@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#define DEBUG
 #define CASE_STRING( value ) case value: return #value;
-const char* eglGetErrorString(EGLint err)
+static const char* eglGetErrorString(EGLint err)
 {
   switch (err) {
     CASE_STRING( EGL_SUCCESS             )
@@ -61,7 +61,7 @@ const char* eglGetErrorString(EGLint err)
   default: return ("UNKNOWN EGL ERROR");
   }
 }
-const char* glGetErrorString(GLenum err)
+static const char* glGetErrorString(GLenum err)
 {
   switch (err) {
     CASE_STRING(GL_NO_ERROR)

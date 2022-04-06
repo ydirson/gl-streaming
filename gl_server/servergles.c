@@ -733,7 +733,7 @@ static void glse_glTexSubImage2D(gls_command_t* buf)
 
 
 #define IMPLEM_glUniformMatrixNX(FUNC, ...)         \
-  void glse_##FUNC(gls_command_t* buf)              \
+  static void glse_##FUNC(gls_command_t* buf)       \
   {                                                 \
     GLSE_SET_COMMAND_PTR(c, FUNC);                  \
     FUNC(c->location, __VA_ARGS__);                 \
@@ -749,7 +749,7 @@ IMPLEM_glUniformMatrixNX(glUniform4f, c->x, c->y, c->z, c->w);
 IMPLEM_glUniformMatrixNX(glUniform4i, c->x, c->y, c->z, c->w);
 
 #define IMPLEM_glUniformNXv(FUNC,TYPE)                           \
-  void glse_##FUNC(gls_command_t* buf)                           \
+  static void glse_##FUNC(gls_command_t* buf)                    \
   {                                                              \
   GLSE_SET_COMMAND_PTR(c, FUNC);                                 \
   FUNC(c->location, c->count, (const TYPE*) c->v);               \
@@ -767,7 +767,7 @@ IMPLEM_glUniformNXv(glUniform4iv, GLint);
 
 
 #define IMPLEM_glUniformMatrixNXv(FUNC)                                 \
-  void glse_##FUNC(gls_command_t* buf)                                  \
+  static void glse_##FUNC(gls_command_t* buf)                           \
   {                                                                     \
   GLSE_SET_COMMAND_PTR(c, FUNC);                                        \
   FUNC(c->location, c->count, c->transpose, (const GLfloat*) c->value); \
