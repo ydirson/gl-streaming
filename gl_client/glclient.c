@@ -48,7 +48,7 @@ uint32_t client_gles_error;
 
 static const int GLS_TIMEOUT_MSEC = 3000;
 
-static int gls_init()
+static int gls_init(void)
 {
   if (GLS_VERSION & 1)
     LOGW("this is a development GLS protocol, "
@@ -88,7 +88,7 @@ static int gls_init()
 }
 
 
-static int gls_free()
+static int gls_free(void)
 {
   free(glsc_global.pool.out_buf.buf);
   free(glsc_global.pool.tmp_buf.buf);
@@ -97,7 +97,7 @@ static int gls_free()
 }
 
 
-int send_packet()
+int send_packet(void)
 {
   gls_command_t* c = (gls_command_t*)glsc_global.pool.out_buf.buf;
 
@@ -233,7 +233,7 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 }
 
 
-static int gls_cmd_HANDSHAKE()
+static int gls_cmd_HANDSHAKE(void)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
@@ -277,7 +277,7 @@ static void recvr_client_start(recvr_context_t* rc, const char* server_addr)
   recvr_run_loop(rc);
 }
 
-void gls_init_library()
+void gls_init_library(void)
 {
   static int init = FALSE;
   if (init)
@@ -297,7 +297,7 @@ void gls_init_library()
   init = TRUE;
 }
 
-void gls_cleanup_library()
+void gls_cleanup_library(void)
 {
   recvr_stop(&glsc_global.rc);
   gls_free();
