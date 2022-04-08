@@ -30,5 +30,5 @@ common_srcs = files(
 thread_dep = dependency('threads')
 x11_dep = dependency('x11')
 
-subdir('gl_server')
 subdir('gl_client')
+subdir('gl_server')
