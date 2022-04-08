@@ -223,7 +223,7 @@ int gls_cmd_send_data(struct xmitr* xmitr, uint32_t size, const void* data)
 static int gls_cmd_HANDSHAKE(void)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
-  GLS_SET_COMMAND_PTR(c, HANDSHAKE);
+  GLSCMD_SET_COMMAND_PTR(c, HANDSHAKE);
   if (!send_packet(glsc_global.cmd_xmitr))
     return FALSE;
 
@@ -252,7 +252,7 @@ void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
 static int gls_cmd_SHARE_SHM(int fd, uint32_t size)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
-  GLS_SET_COMMAND_PTR(c, SHARE_SHM);
+  GLSCMD_SET_COMMAND_PTR(c, SHARE_SHM);
   c->size = size;
   c->fd = -1; // mostly for safety of the hack
   if (!send_packet_fd(glsc_global.cmd_xmitr, fd, GLSC_SHARE_SHM, c->cmd_size))

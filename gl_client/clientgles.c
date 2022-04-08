@@ -1578,7 +1578,7 @@ static void _glVertexAttribFloat(enum GL_Server_Command cmd,
   // It's small so use GLS_DATA_SIZE
   GLS_SEND_DATA(GLS_DATA_SIZE, glsc_global.pool.tmp_buf.buf);
 
-  _GLS_SET_COMMAND_PTR(c, glVertexAttribFloat, cmd);
+  _GLS_SET_COMMAND_PTR(c, glVertexAttribFloat, cmd, glsc_global.api_xmitr);
   c->index = index;
   GLS_SEND_PACKET(glVertexAttribFloat);
 }

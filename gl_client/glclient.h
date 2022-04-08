@@ -58,9 +58,11 @@ typedef struct
 #define GLS_OUT_BUFFER_SIZE 4096 // 2048
 
 #define GLS_SET_COMMAND_PTR(PTR, FUNCNAME)                              \
-  _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME)
-#define _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, CMD)                        \
-  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)xmitr_getbuf(glsc_global.api_xmitr); \
+  _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME, glsc_global.api_xmitr)
+#define GLSCMD_SET_COMMAND_PTR(PTR, FUNCNAME)                           \
+  _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, GLSC_##FUNCNAME, glsc_global.cmd_xmitr)
+#define _GLS_SET_COMMAND_PTR(PTR, FUNCNAME, CMD, XMITR)                 \
+  gls_##FUNCNAME##_t *PTR = (gls_##FUNCNAME##_t *)xmitr_getbuf(XMITR);  \
   PTR->cmd = CMD;                                                       \
   PTR->cmd_size = sizeof(gls_##FUNCNAME##_t);                           \
   if (glsc_global.is_debug)                                             \
