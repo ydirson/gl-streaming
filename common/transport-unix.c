@@ -131,17 +131,6 @@ static struct gls_connection* unix_tport_client_create(const char* server_addr)
   return cnx;
 }
 
-
-static int unix_tport_client_initiate_offload(struct gls_connection* cnx,
-                                              ring_allocator_t* allocator, void* allocator_data)
-{
-  // create API ring, auto-shared with server
-  if (ring_init(&cnx->api_ring, allocator, allocator_data,
-                CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER) < 0)
-    return -1;
-  return 0;
-}
-
 static ring_t* unix_api_ring(struct gls_connection* cnx)
 {
   return &cnx->api_ring;
@@ -269,10 +258,10 @@ static void unix_tport_close(struct gls_connection* cnx)
 
 struct gls_transport gls_tport_unix = {
   .name = "unix",
+  .has_offloading = 1,
   .server_create = unix_tport_server_create,
   .client_create = unix_tport_client_create,
   .server_wait_connection = unix_tport_server_wait_connection,
-  .client_initiate_offload = unix_tport_client_initiate_offload,
   .api_ring = unix_api_ring,
   .connection_fd = unix_tport_connection_fd,
   .write = unix_tport_write,

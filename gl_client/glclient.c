@@ -360,8 +360,6 @@ void gls_init_library(void)
     LOGE("failed to init cmd xmitr\n");
     exit(EXIT_FAILURE);
   }
-  // for now we always share the same xmitr
-  glsc_global.api_xmitr = glsc_global.cmd_xmitr;
 
   // get pool ready for reception of replies
   // FIXME would need to move in a better place
@@ -378,9 +376,16 @@ void gls_init_library(void)
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
 
-  if (tport_has_offloading())
-    if (tport_client_initiate_offload(glsc_global.rc.cnx, &shmcreate_allocator, NULL) < 0)
+  if (tport_has_offloading()) {
+    // negociate an API xmitr
+    glsc_global.api_xmitr = xmitr_shm_init(&shmcreate_allocator, NULL);
+    if (!glsc_global.api_xmitr) {
+      LOGE("failed to init API xmitr\n");
       exit(EXIT_FAILURE);
+    }
+  } else
+    // share the command xmitr
+    glsc_global.api_xmitr = glsc_global.cmd_xmitr;
 
   init = TRUE;
 }

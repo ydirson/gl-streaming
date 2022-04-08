@@ -1,4 +1,5 @@
 #pragma once
+#include "ring.h"
 #include <stddef.h>
 
 struct xmitr;
@@ -17,6 +18,7 @@ struct xmitr {
 };
 
 struct xmitr* xmitr_stream_init(struct gls_connection*);
+struct xmitr* xmitr_shm_init(ring_allocator_t*, void*);
 
 static inline void* xmitr_getbuf(struct xmitr* xmitr) {
   return xmitr->ops->getbuf(xmitr);

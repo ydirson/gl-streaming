@@ -116,7 +116,7 @@ static void glse_cmd_SHARE_SHM(gls_command_t* buf, recvr_context_t* rc)
     goto reply;
   }
   // FIXME buffer sizing should come from msg
-  // FIXME api_ring must come from tport but this looks fishy
+  // FIXME api_ring must come from tport but this looks fishy -- likely xmitr instead
   int res = ring_init(tport_api_ring(rc->cnx), &shmattach_allocator, (void*)c,
                       CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
   if (res < 0)

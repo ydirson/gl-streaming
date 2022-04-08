@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   EMPTY()                                       \
     X(HANDSHAKE)                                \
     X(SEND_DATA)                                \
+    X(SEND_DATA_FRAGMENT)                       \
     X(CREATE_WINDOW)                            \
     X(SHARE_SHM)                                \
   //
@@ -398,3 +399,11 @@ typedef struct
   };
   char data[];
 } gls_cmd_send_data_t;
+
+typedef struct
+{
+  GLSCOMMAND_FIELDS();
+  uint32_t totalsize; // total size of buffer containing this fragment
+  uint32_t offset;    // offset of this fragment in complete buffer
+  char data[];
+} gls_cmd_send_data_fragment_t;

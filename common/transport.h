@@ -18,6 +18,7 @@ struct gls_connection;
 struct gls_transport
 {
   const char* name;
+  int has_offloading;
 
   // API function pointers
   struct gls_server* (*server_create)(const char* server_addr);
@@ -25,8 +26,6 @@ struct gls_transport
   struct gls_connection* (*connection_create)(void);
 
   struct gls_connection* (*client_create)(const char* server_addr);
-  int (*client_initiate_offload)(struct gls_connection* cnx,
-                                 ring_allocator_t* allocator, void* allocator_data);
   // FIXME seems bad abstraction
   ring_t* (*api_ring)(struct gls_connection* cnx);
 
@@ -72,7 +71,7 @@ static inline int tport_has_connection_create(void)
 
 static inline int tport_has_offloading(void)
 {
-  if (!the_tport->client_initiate_offload)
+  if (!the_tport->has_offloading)
     return 0;
   return 1;
 }
