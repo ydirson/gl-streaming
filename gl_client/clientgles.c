@@ -1,5 +1,6 @@
 // This file declare OpenGL ES methods for streaming
 
+#define _GNU_SOURCE
 #include "gls_command_gles2.h"
 #include "glclient.h"
 #include "fastlog.h"

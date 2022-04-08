@@ -39,13 +39,10 @@ int ring_init(ring_t* ring, unsigned int ring_size_order,
   ring->ring_size = 1 << ring_size_order;
   ring->ring_packet_size = 1 << ring_packet_size_order;
 
-  int pipefds[2];
-  if (pipe2(pipefds, O_CLOEXEC) < 0) {
-    LOGE("ring pipe allocation failure: %s\n", strerror(errno));
+  if (notifier_init(&ring->notifier) < 0) {
+    LOGE("RING notifier init error: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  ring->pipe_rd = pipefds[0];
-  ring->pipe_wr = pipefds[1];
 
 #if 0
   // aligned malloc ?  Do we gain anything ?
@@ -72,9 +69,7 @@ int ring_delete(ring_t* ring)
   ring->idx_writer = 0;
   ring->ring_size = 0;
   ring->ring_packet_size = 0;
-  close(ring->pipe_wr);
-  ring->pipe_wr = -1;
-  close(ring->pipe_rd);
-  ring->pipe_rd = -1;
+
+  notifier_close(&ring->notifier);
   return 0;
 }
