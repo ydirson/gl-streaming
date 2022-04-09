@@ -342,10 +342,10 @@ void gls_init_library(void)
   // get ready to receive replies
   int ret;
   if (tport_has_offloading())
-    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
+    ret = ring_init(&glsc_global.rc.ring, -1, NULL, NULL,
                     CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
   else
-    ret = ring_init(&glsc_global.rc.ring, NULL, NULL,
+    ret = ring_init(&glsc_global.rc.ring, -1, NULL, NULL,
                     SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
   if (ret < 0)
     exit(EXIT_FAILURE);

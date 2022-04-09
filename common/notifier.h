@@ -33,6 +33,14 @@ static inline int notifier_init(struct notifier* notifier)
   return 0;
 }
 
+static inline int notifier_init_fromfd(struct notifier* notifier, int fd)
+{
+  LOGD("notifier_init_fromfd(%d)\n", fd);
+  notifier->event_fd = fd;
+  notifier->quit = 0;
+  return 0;
+}
+
 static inline void notifier_close(struct notifier* notifier)
 {
   close(notifier->event_fd);
@@ -93,6 +101,13 @@ static inline int notifier_init(struct notifier* notifier)
     return ret;
   notifier->pipe_rd = pipefds[0];
   notifier->pipe_wr = pipefds[1];
+  return 0;
+}
+
+static inline int notifier_init_fromfd(struct notifier* notifier, int fd)
+{
+  notifier->pipe_rd = fd;
+  notifier->pipe_wr = -1;
   return 0;
 }
 

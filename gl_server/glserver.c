@@ -80,7 +80,6 @@ static void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
   // FIXME we have no DESTROY_WINDOW event to remove the mapping
 }
 
-// FIXME handle notif_fd
 static int shmattach_malloc(ring_t* ring, void* data)
 {
   gls_SHARE_RING_t* c = data;
@@ -119,7 +118,7 @@ static void glse_cmd_SHARE_RING(gls_command_t* buf, recvr_context_t* rc)
   }
   // FIXME buffer sizing should come from msg
   // FIXME api_ring must come from tport but this looks fishy -- likely xmitr instead
-  int res = ring_init(tport_api_ring(rc->cnx), &shmattach_allocator, (void*)c,
+  int res = ring_init(tport_api_ring(rc->cnx), c->notif_fd, &shmattach_allocator, (void*)c,
                       CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
   if (res < 0)
     goto reply;
@@ -133,12 +132,15 @@ static void glse_cmd_SHARE_RING(gls_command_t* buf, recvr_context_t* rc)
   GLSE_SEND_RET(ret, SHARE_RING);
 }
 
-static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
+// return 0: nothing special
+// return 1: must update api ring notifier
+static int glse_handle_cmd_ring_packet(recvr_context_t* rc)
 {
+  int ret = 0;
   void* popptr = (void*)ring_pop_ptr_get(&rc->ring);
   if (popptr == NULL) { // should not happen, poll() rocks
     LOGW("glse_handle_cmd_ring_packet called with empty ring\n");
-    return;
+    return ret;
   }
 
   gls_command_t* c = (gls_command_t*)popptr;
@@ -165,6 +167,7 @@ static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
     break;
   case GLSC_SHARE_RING:
     glse_cmd_SHARE_RING(c, rc);
+    ret = 1; // new API ring to poll
     break;
 
   default: {
@@ -177,6 +180,7 @@ static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
   }
   }
   ring_pop_ptr_next(&rc->ring);
+  return ret;
 }
 
 // FIXME essentially dup of glse_handle_cmd_ring_packet
@@ -237,12 +241,13 @@ void glserver_handle_packets(recvr_context_t* rc)
       .events = POLLIN
     },
     [POLLFD_API_RING] = {
-      .fd = tport_has_offloading() ? notifier_fd(&api_ring->notifier) : -1,
+      .fd = -1, // initially the API ring is not there yet
       .events = POLLIN
     },
   };
 
   while (1) {
+    LOGD("poll([%d,%d])\n", pollfds[0].fd, pollfds[1].fd);
     int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
     if (ret < 0) {
       LOGE("poll failed: %s\n", strerror(errno));
@@ -271,7 +276,8 @@ void glserver_handle_packets(recvr_context_t* rc)
         break;
       }
       for (uint64_t i = 0; i < ret; i++)
-        glse_handle_cmd_ring_packet(rc);
+        if (glse_handle_cmd_ring_packet(rc) == 1)
+          pollfds[POLLFD_API_RING].fd = notifier_fd(&api_ring->notifier);
       pollfds[POLLFD_CMD_RING].revents &= ~POLLIN;
     }
     if (pollfds[POLLFD_CMD_RING].revents)

@@ -58,16 +58,23 @@ static ring_allocator_t heap_allocator = {
   .free = ring_free,
 };
 
-int ring_init(ring_t* ring,
+int ring_init(ring_t* ring, int notif_fd,
               ring_allocator_t* allocator, void* allocator_data,
               unsigned int ring_size_order, unsigned int ring_packet_size_order)
 {
   ring->ring_size = 1 << ring_size_order;
   ring->ring_packet_size = 1 << ring_packet_size_order;
 
-  if (notifier_init(&ring->notifier) < 0) {
-    LOGE("RING notifier init error: %s\n", strerror(errno));
-    return -1;
+  if (notif_fd == -1) {
+    if (notifier_init(&ring->notifier) < 0) {
+      LOGE("RING notifier init error: %s\n", strerror(errno));
+      return -1;
+    }
+  } else {
+    if (notifier_init_fromfd(&ring->notifier, notif_fd) < 0) {
+      LOGE("RING notifier init_fromfd error: %s\n", strerror(errno));
+      return -1;
+    }
   }
 
   ring->allocator = allocator ? allocator : &heap_allocator;

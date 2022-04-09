@@ -81,7 +81,7 @@ struct xmitr* xmitr_shm_init(ring_allocator_t* allocator, void* allocator_data)
 {
   the_xmitr.xmitr.ops = &xmitr_shm_ops;
 
-  if (ring_init(&the_xmitr.ring, allocator, allocator_data,
+  if (ring_init(&the_xmitr.ring, -1, allocator, allocator_data,
                 CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER) < 0) {
     LOGE("failed to init API ring\n");
     return NULL;
