@@ -36,13 +36,38 @@ static inline int ringbuf_data_to_bufpool(gls_bufpool_t* pool, ring_t* ring, gls
     pool->mallocated = c->dataptr; // transfer ownership
     pool->data_payload = pool->mallocated + sizeof(gls_cmd_send_data_t);
   } else {
-    if (c->cmd_size > pool->tmp_buf.size) {
+    if (c->cmd_size - sizeof(gls_cmd_send_data_t) > pool->tmp_buf.size) {
       LOGE("data too large for buffer (%u > %zu), dropping\n",
            c->cmd_size, pool->tmp_buf.size);
       return 0;
     }
     memcpy(pool->tmp_buf.buf, c->data, c->cmd_size - sizeof(gls_cmd_send_data_t));
   }
+  pool->has_data = 1;
+  return 1;
+}
+
+// FIXME duplicates most of ringbuf_data_to_bufpool
+static inline int ringbuf_datafrag_to_bufpool(gls_bufpool_t* pool, ring_t* ring, gls_command_t* buf)
+{
+  (void)ring;
+  if (pool->mallocated) {
+    LOGW("previous buffer for large data not freed!\n");
+    free(pool->mallocated);
+    pool->mallocated = NULL;
+  }
+  gls_cmd_send_data_fragment_t* c = (gls_cmd_send_data_fragment_t*)buf;
+  if (c->cmd_size - sizeof(gls_cmd_send_data_t) > pool->tmp_buf.size) {
+    LOGE("data frament too large for buffer (%u > %zu), dropping\n",
+         c->cmd_size, pool->tmp_buf.size);
+    return 0;
+  }
+  if (c->totalsize > pool->tmp_buf.size) {
+    LOGE("data too large for buffer (%u > %zu), dropping\n",
+         c->cmd_size, pool->tmp_buf.size);
+    return 0;
+  }
+  memcpy(pool->tmp_buf.buf + c->offset, c->data, c->cmd_size - sizeof(gls_cmd_send_data_t));
   pool->has_data = 1;
   return 1;
 }

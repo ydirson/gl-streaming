@@ -153,6 +153,9 @@ static int glse_handle_cmd_ring_packet(recvr_context_t* rc)
   case GLSC_SEND_DATA:
     ringbuf_data_to_bufpool(&glsec_global.pool, &rc->ring, c);
     break;
+  case GLSC_SEND_DATA_FRAGMENT:
+    ringbuf_datafrag_to_bufpool(&glsec_global.pool, &rc->ring, c);
+    break;
   case GLSC_HANDSHAKE:
 #ifdef GL_DEBUG
     LOGD("executing: Handshake...\n");
@@ -201,6 +204,9 @@ static void glse_handle_api_ring_packet(ring_t* ring)
   switch (c->cmd) {
   case GLSC_SEND_DATA:
     ringbuf_data_to_bufpool(&glsec_global.pool, ring, c);
+    break;
+  case GLSC_SEND_DATA_FRAGMENT:
+    ringbuf_datafrag_to_bufpool(&glsec_global.pool, ring, c);
     break;
   case GLSC_CREATE_WINDOW:
 #ifdef GL_DEBUG
