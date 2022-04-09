@@ -269,7 +269,7 @@ static int shmcreate_malloc(ring_t* ring, void* data)
 {
   (void)data; assert(!data); ring->allocator_data = NULL; // unused
   // buffer creation and mapping
-  size_t size = ring->ring_size * ring->ring_packet_size;
+  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
   int shm_fd = memfd_create("gls-ring", MFD_CLOEXEC);
   if (shm_fd < 0) {
     LOGE("shm ring allocation failure: %s\n", strerror(errno));
@@ -280,8 +280,8 @@ static int shmcreate_malloc(ring_t* ring, void* data)
     close(shm_fd);
     return -1;
   }
-  ring->buffer = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-  if (!ring->buffer) {
+  ring->storage = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+  if (!ring->storage) {
     LOGE("shm ring mapping failure: %s\n", strerror(errno));
     close(shm_fd);
     return -1;
@@ -290,7 +290,7 @@ static int shmcreate_malloc(ring_t* ring, void* data)
   // share, release fd on our side
   if (!gls_cmd_SHARE_RING(shm_fd, size, notifier_fd(&ring->notifier))) {
     LOGE("shm ring sharing failed\n");
-    munmap(ring->buffer, size);
+    munmap(ring->storage, size);
     close(shm_fd);
     return -1;
   }
@@ -300,8 +300,8 @@ static int shmcreate_malloc(ring_t* ring, void* data)
 }
 static void shmcreate_free(ring_t* ring)
 {
-  size_t size = ring->ring_size * ring->ring_packet_size;
-  munmap(ring->buffer, size);
+  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
+  munmap(ring->storage, size);
   free(ring->allocator_data);
 }
 

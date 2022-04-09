@@ -36,21 +36,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int ring_malloc(ring_t* ring, void* data)
 {
   (void)data; assert(!data); ring->allocator_data = NULL; // unused
-  size_t size = ring->ring_size * ring->ring_packet_size;
+  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
 #if 0
   // aligned malloc ?  Do we gain anything ?
   unsigned int alignment = ring->ring_packet_size;
   ring->buffer = aligned_alloc(alignment, size);
 #else
-  ring->buffer = malloc(size);
+  ring->storage = malloc(size);
 #endif
-  return ring->buffer ? 0 : -1;
+  return ring->storage ? 0 : -1;
 }
 
 static void ring_free(ring_t* ring)
 {
-  free(ring->buffer);
-  ring->buffer = NULL;
+  free(ring->storage);
+  ring->storage = NULL;
 }
 
 static ring_allocator_t heap_allocator = {
@@ -83,17 +83,19 @@ int ring_init(ring_t* ring, int notif_fd,
     LOGE("ring allocation failure: %s\n", strerror(errno));
     return -1;
   }
+  ring->control = ring->storage;
+  ring->elements = (char*)&(ring->control[1]); // memory just behind ring control
 
-  ring->idx_reader = 0;
-  ring->idx_writer = 0;
+  ring->control->idx_reader = 0;
+  ring->control->idx_writer = 0;
   return 0;
 }
 
 int ring_delete(ring_t* ring)
 {
   ring->allocator->free(ring);
-  ring->idx_reader = 0;
-  ring->idx_writer = 0;
+  ring->control->idx_reader = 0;
+  ring->control->idx_writer = 0;
   ring->ring_size = 0;
   ring->ring_packet_size = 0;
 

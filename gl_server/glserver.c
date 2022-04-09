@@ -83,9 +83,9 @@ static void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
 static int shmattach_malloc(ring_t* ring, void* data)
 {
   gls_SHARE_RING_t* c = data;
-  //size_t size = ring->ring_size * ring->ring_packet_size;
-  ring->buffer = mmap(NULL, c->size, PROT_READ | PROT_WRITE, MAP_SHARED, c->mem_fd, 0);
-  if (!ring->buffer) {
+  //size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
+  ring->storage = mmap(NULL, c->size, PROT_READ | PROT_WRITE, MAP_SHARED, c->mem_fd, 0);
+  if (!ring->storage) {
     LOGE("shm ring mapping failure: %s\n", strerror(errno));
     close(c->mem_fd); // FIXME: better make sure it is close by called
     return -1;
@@ -96,8 +96,8 @@ static int shmattach_malloc(ring_t* ring, void* data)
 }
 static void shmattach_free(ring_t* ring)
 {
-  size_t size = ring->ring_size * ring->ring_packet_size;
-  munmap(ring->buffer, size);
+  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
+  munmap(ring->storage, size);
   free(ring->allocator_data);
 }
 

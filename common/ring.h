@@ -46,12 +46,18 @@ typedef struct
   void (*free)(ring_t*);
 } ring_allocator_t;
 
+struct ring_control
+{
+  int idx_reader, idx_writer; // packet numbers
+};
+
 struct ring
 {
-  char* buffer;
+  void* storage; // the whole including ring_control and ring elements
+  char* elements;
+  struct ring_control* control;
   ring_allocator_t* allocator;
   void* allocator_data; // data that alloc() stores for free()
-  int idx_reader, idx_writer; // packet numbers
   unsigned int ring_size;
   unsigned int ring_packet_size;
   struct notifier notifier;
@@ -75,22 +81,22 @@ struct ring
 
 static inline int ring_is_empty(ring_t* ring)
 {
-  return ring->idx_reader == ring->idx_writer;
+  return ring->control->idx_reader == ring->control->idx_writer;
 }
 
 static inline char* ring_push_ptr_get(ring_t* ring)
 {
-  int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
-  if (next_idx == ring->idx_reader)
+  int next_idx = (ring->control->idx_writer + 1) & (ring->ring_size - 1);
+  if (next_idx == ring->control->idx_reader)
     return NULL;
-  return ring->buffer + (ring->idx_writer * ring->ring_packet_size);
+  return ring->elements + (ring->control->idx_writer * ring->ring_packet_size);
 }
 
 static inline void ring_push_ptr_next(ring_t* ring)
 {
-  int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
-  assert (next_idx != ring->idx_reader);
-  ring->idx_writer = next_idx;
+  int next_idx = (ring->control->idx_writer + 1) & (ring->ring_size - 1);
+  assert (next_idx != ring->control->idx_reader);
+  ring->control->idx_writer = next_idx;
   if (notify(&ring->notifier) < 0)
     LOGE("RING notifier write error: %s\n", strerror(errno));
 }
@@ -99,14 +105,14 @@ static inline char* ring_pop_ptr_get(ring_t* ring)
 {
   if (ring_is_empty(ring))
     return NULL;
-  return ring->buffer + (ring->idx_reader * ring->ring_packet_size);
+  return ring->elements + (ring->control->idx_reader * ring->ring_packet_size);
 }
 
 static inline void ring_pop_ptr_next(ring_t* ring)
 {
   assert (!ring_is_empty(ring));
-  int next_idx = (ring->idx_reader + 1) & (ring->ring_size - 1);
-  ring->idx_reader = next_idx;
+  int next_idx = (ring->control->idx_reader + 1) & (ring->ring_size - 1);
+  ring->control->idx_reader = next_idx;
 }
 
 static inline void ring_writer_close(ring_t* ring)
