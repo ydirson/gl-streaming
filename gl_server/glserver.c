@@ -235,7 +235,7 @@ void glserver_handle_packets(recvr_context_t* rc)
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
   glsec_global.xmitr = xmitr_stream_init(rc->cnx);
 
-  ring_t* api_ring = tport_api_ring(rc->cnx);
+  ring_t* api_ring = tport_has_offloading() ? tport_api_ring(rc->cnx) : NULL;
 
   enum {
     POLLFD_CMD_RING,
