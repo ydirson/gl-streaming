@@ -64,7 +64,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(SEND_DATA)                                \
     X(SEND_DATA_FRAGMENT)                       \
     X(CREATE_WINDOW)                            \
-    X(SHARE_SHM)                                \
+    X(SHARE_RING)                               \
   //
 
 #define GLS_EGL_COMMANDS()                      \
@@ -380,14 +380,15 @@ typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t size;
-  int32_t fd; // memfd passed on unix transport using SCM_RIGHTS, -1 on the wire
-} gls_SHARE_SHM_t;
+  int32_t mem_fd; // memfd passed on unix transport using SCM_RIGHTS, -1 on the wire
+  int32_t notif_fd;
+} gls_SHARE_RING_t;
 
 typedef struct
 {
   GLSCOMMAND_FIELDS();
   uint32_t success;
-} gls_ret_SHARE_SHM_t;
+} gls_ret_SHARE_RING_t;
 
 
 typedef struct

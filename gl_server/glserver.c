@@ -80,17 +80,18 @@ static void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
   // FIXME we have no DESTROY_WINDOW event to remove the mapping
 }
 
+// FIXME handle notif_fd
 static int shmattach_malloc(ring_t* ring, void* data)
 {
-  gls_SHARE_SHM_t* c = (gls_SHARE_SHM_t*)data;
+  gls_SHARE_RING_t* c = data;
   //size_t size = ring->ring_size * ring->ring_packet_size;
-  ring->buffer = mmap(NULL, c->size, PROT_READ | PROT_WRITE, MAP_SHARED, c->fd, 0);
+  ring->buffer = mmap(NULL, c->size, PROT_READ | PROT_WRITE, MAP_SHARED, c->mem_fd, 0);
   if (!ring->buffer) {
     LOGE("shm ring mapping failure: %s\n", strerror(errno));
-    close(c->fd); // FIXME: better make sure it is close by called
+    close(c->mem_fd); // FIXME: better make sure it is close by called
     return -1;
   }
-  close(c->fd); // FIXME: same
+  close(c->mem_fd); // FIXME: same
 
   return 0;
 }
@@ -106,13 +107,14 @@ static ring_allocator_t shmattach_allocator = {
   .free = shmattach_free,
 };
 
-static void glse_cmd_SHARE_SHM(gls_command_t* buf, recvr_context_t* rc)
+static void glse_cmd_SHARE_RING(gls_command_t* buf, recvr_context_t* rc)
 {
   int success = 0;
-  GLSE_SET_COMMAND_PTR(c, SHARE_SHM);
-  LOGD("SHARE_SHM received, fd=%d, size=%u\n", c->fd, c->size);
-  if (c->fd < 0) {
-    LOGE("SHARE_SHM with no valid fd\n");
+  GLSE_SET_COMMAND_PTR(c, SHARE_RING);
+  LOGD("SHARE_RING received, mem_fd=%d, size=%u, notif_fd=%d\n",
+       c->mem_fd, c->size, c->notif_fd);
+  if (c->mem_fd < 0) {
+    LOGE("SHARE_RING with no valid fd\n");
     goto reply;
   }
   // FIXME buffer sizing should come from msg
@@ -121,14 +123,14 @@ static void glse_cmd_SHARE_SHM(gls_command_t* buf, recvr_context_t* rc)
                       CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
   if (res < 0)
     goto reply;
-  LOGD("SHARE_SHM created api_ring\n");
+  LOGD("SHARE_RING created api_ring\n");
   success = 1;
 
  reply: ;
-  close(c->fd); // must be closed in both error/success cases
-  GLSE_SET_RET_PTR(ret, SHARE_SHM);
+  close(c->mem_fd); // must be closed in both error/success cases
+  GLSE_SET_RET_PTR(ret, SHARE_RING);
   ret->success = success;
-  GLSE_SEND_RET(ret, SHARE_SHM);
+  GLSE_SEND_RET(ret, SHARE_RING);
 }
 
 static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
@@ -161,8 +163,8 @@ static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
 #endif
     glse_cmd_CREATE_WINDOW(c);
     break;
-  case GLSC_SHARE_SHM:
-    glse_cmd_SHARE_SHM(c, rc);
+  case GLSC_SHARE_RING:
+    glse_cmd_SHARE_RING(c, rc);
     break;
 
   default: {

@@ -250,16 +250,18 @@ void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
   GLS_SEND_PACKET(CREATE_WINDOW);
 }
 
-static int gls_cmd_SHARE_SHM(int fd, uint32_t size)
+static int gls_cmd_SHARE_RING(int mem_fd, uint32_t size, int notif_fd)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
-  GLSCMD_SET_COMMAND_PTR(c, SHARE_SHM);
+  GLSCMD_SET_COMMAND_PTR(c, SHARE_RING);
   c->size = size;
-  c->fd = -1; // mostly for safety of the hack
-  if (!send_packet_fds(glsc_global.cmd_xmitr, GLSC_SHARE_SHM, c->cmd_size, &fd, 1)) // FIXME
+  c->mem_fd = -1; // mostly for safety of the hack
+  c->notif_fd = -1;
+  int fds[2] = {mem_fd, notif_fd};
+  if (!send_packet_fds(glsc_global.cmd_xmitr, GLSC_SHARE_RING, c->cmd_size, fds, 2))
     return FALSE;
 
-  GLS_WAIT_SET_RET_PTR(ret, SHARE_SHM);
+  GLS_WAIT_SET_RET_PTR(ret, SHARE_RING);
   GLS_RELEASE_RETURN_RET(int, ret, success);
 }
 
@@ -286,7 +288,7 @@ static int shmcreate_malloc(ring_t* ring, void* data)
   }
 
   // share, release fd on our side
-  if (!gls_cmd_SHARE_SHM(shm_fd, size)) {
+  if (!gls_cmd_SHARE_RING(shm_fd, size, notifier_fd(&ring->notifier))) {
     LOGE("shm ring sharing failed\n");
     munmap(ring->buffer, size);
     close(shm_fd);

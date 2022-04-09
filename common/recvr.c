@@ -149,18 +149,19 @@ static int recvr_handle_packet(recvr_context_t* rc)
   // ... and adjust it for the data already read
   dest += sizeof(gls_command_t);
 
-  if (c->cmd == GLSC_SHARE_SHM) {
-    int sharedfd; // FIXME
-    gls_SHARE_SHM_t *cc = (gls_SHARE_SHM_t *)c;
-    if (recvr_read_fds(rc->cnx, dest, remaining, &sharedfd, 1) < 0) {
+  if (c->cmd == GLSC_SHARE_RING) {
+    int sharedfds[2];
+    gls_SHARE_RING_t *cc = (gls_SHARE_RING_t *)c;
+    if (recvr_read_fds(rc->cnx, dest, remaining, sharedfds, 2) < 0) {
       LOGE("recvr_read_fd failed: %s\n", strerror(errno));
       return -1;
     }
-    if (sharedfd < 0) {
+    if (sharedfds[0] < 0) {
       LOGE("recvr_read_fd got no fd\n");
       return -1;
     }
-    cc->fd = sharedfd;
+    cc->mem_fd = sharedfds[0];
+    cc->notif_fd = sharedfds[1];
     ring_push_ptr_next(&rc->ring);
     return 0;
   }
