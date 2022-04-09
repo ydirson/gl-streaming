@@ -177,6 +177,44 @@ static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
   ring_pop_ptr_next(&rc->ring);
 }
 
+// FIXME essentially dup of glse_handle_cmd_ring_packet
+static void glse_handle_api_ring_packet(ring_t* ring)
+{
+  void* popptr = (void*)ring_pop_ptr_get(ring);
+  if (popptr == NULL) { // should not happen, poll() rocks
+    LOGW("glse_handle_api_ring_packet called with empty ring\n");
+    return;
+  }
+
+  gls_command_t* c = (gls_command_t*)popptr;
+#ifdef GL_DEBUG
+  LOGD("mainloop: Attempting to execute command 0x%x (%s)\n",
+          c->cmd, GLSC_tostring(c->cmd));
+#endif
+
+  switch (c->cmd) {
+  case GLSC_SEND_DATA:
+    ringbuf_data_to_bufpool(&glsec_global.pool, ring, c);
+    break;
+  case GLSC_CREATE_WINDOW:
+#ifdef GL_DEBUG
+    LOGD("executing: Create window...\n");
+#endif
+    glse_cmd_CREATE_WINDOW(c);
+    break;
+
+  default: {
+    int result = FALSE;
+    if (!result) result = gles_executeCommand(c);
+    if (!result) result = egl_executeCommand(c);
+
+    if (!result)
+      LOGE("Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+  }
+  }
+  ring_pop_ptr_next(ring);
+}
+
 void glserver_handle_packets(recvr_context_t* rc)
 {
   init_egl(&glsec_global.gc);
@@ -185,12 +223,19 @@ void glserver_handle_packets(recvr_context_t* rc)
   glsec_global.pool.tmp_buf.size = GLSE_TMP_BUFFER_SIZE;
   glsec_global.xmitr = xmitr_stream_init(rc->cnx);
 
+  ring_t* api_ring = tport_api_ring(rc->cnx);
+
   enum {
     POLLFD_CMD_RING,
+    POLLFD_API_RING,
   };
   struct pollfd pollfds[] = {
     [POLLFD_CMD_RING] = {
       .fd = notifier_fd(&rc->ring.notifier),
+      .events = POLLIN
+    },
+    [POLLFD_API_RING] = {
+      .fd = tport_has_offloading() ? notifier_fd(&api_ring->notifier) : -1,
       .events = POLLIN
     },
   };
@@ -202,6 +247,7 @@ void glserver_handle_packets(recvr_context_t* rc)
       break;
     }
     assert(!(pollfds[POLLFD_CMD_RING].revents & POLLNVAL));
+    assert(!(pollfds[POLLFD_API_RING].revents & POLLNVAL));
 
     // POLLFD_CMD_RING
     if (pollfds[POLLFD_CMD_RING].revents & POLLERR) {
@@ -228,6 +274,32 @@ void glserver_handle_packets(recvr_context_t* rc)
     }
     if (pollfds[POLLFD_CMD_RING].revents)
       LOGW("CMD ring poll revents=0x%x\n", pollfds[POLLFD_CMD_RING].revents);
+
+    // POLLFD_API_RING
+    if (pollfds[POLLFD_API_RING].revents & POLLERR) {
+      LOGE("API ring poll error\n");
+      break;
+    }
+    if (pollfds[POLLFD_API_RING].revents & POLLHUP) {
+      //LOGD("API ring poll hangup\n");
+      break;
+    }
+    if (pollfds[POLLFD_API_RING].revents & POLLIN) {
+      if (notifier_has_terminated(&api_ring->notifier)) {
+        LOGD("API ring notifier terminated\n");
+        break;
+      }
+      uint64_t ret = notifier_drain(&api_ring->notifier);
+      if (ret == 0) {
+        LOGE("API ring notifier drain error: %s\n", strerror(errno));
+        break;
+      }
+      for (uint64_t i = 0; i < ret; i++)
+        glse_handle_api_ring_packet(api_ring);
+      pollfds[POLLFD_API_RING].revents &= ~POLLIN;
+    }
+    if (pollfds[POLLFD_API_RING].revents)
+      LOGW("API ring poll revents=0x%x\n", pollfds[POLLFD_API_RING].revents);
   }
 
   release_egl(&glsec_global.gc);
