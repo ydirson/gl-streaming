@@ -131,11 +131,11 @@ static void glse_cmd_SHARE_SHM(gls_command_t* buf, recvr_context_t* rc)
   GLSE_SEND_RET(ret, SHARE_SHM);
 }
 
-static void glse_handle_ring_packet(recvr_context_t* rc)
+static void glse_handle_cmd_ring_packet(recvr_context_t* rc)
 {
   void* popptr = (void*)ring_pop_ptr_get(&rc->ring);
   if (popptr == NULL) { // should not happen, poll() rocks
-    LOGW("glse_handle_ring_packet called with empty ring\n");
+    LOGW("glse_handle_cmd_ring_packet called with empty ring\n");
     return;
   }
 
@@ -186,10 +186,10 @@ void glserver_handle_packets(recvr_context_t* rc)
   glsec_global.xmitr = xmitr_stream_init(rc->cnx);
 
   enum {
-    POLLFD_RING,
+    POLLFD_CMD_RING,
   };
   struct pollfd pollfds[] = {
-    [POLLFD_RING] = {
+    [POLLFD_CMD_RING] = {
       .fd = notifier_fd(&rc->ring.notifier),
       .events = POLLIN
     },
@@ -201,32 +201,33 @@ void glserver_handle_packets(recvr_context_t* rc)
       LOGE("poll failed: %s\n", strerror(errno));
       break;
     }
-    assert(!(pollfds[POLLFD_RING].revents & POLLNVAL));
+    assert(!(pollfds[POLLFD_CMD_RING].revents & POLLNVAL));
 
-    if (pollfds[POLLFD_RING].revents & POLLERR) {
-      LOGE("ring poll error\n");
+    // POLLFD_CMD_RING
+    if (pollfds[POLLFD_CMD_RING].revents & POLLERR) {
+      LOGE("CMD ring poll error\n");
       break;
     }
-    if (pollfds[POLLFD_RING].revents & POLLHUP) {
-      //LOGD("ring poll hangup\n");
+    if (pollfds[POLLFD_CMD_RING].revents & POLLHUP) {
+      //LOGD("CMD ring poll hangup\n");
       break;
     }
-    if (pollfds[POLLFD_RING].revents & POLLIN) {
+    if (pollfds[POLLFD_CMD_RING].revents & POLLIN) {
       if (notifier_has_terminated(&rc->ring.notifier)) {
-        LOGD("RING notifier terminated\n");
+        LOGD("CMD ring notifier terminated\n");
         break;
       }
       uint64_t ret = notifier_drain(&rc->ring.notifier);
       if (ret == 0) {
-        LOGE("RING notifier drain error: %s\n", strerror(errno));
+        LOGE("CMD ring notifier drain error: %s\n", strerror(errno));
         break;
       }
       for (uint64_t i = 0; i < ret; i++)
-        glse_handle_ring_packet(rc);
-      pollfds[POLLFD_RING].revents &= ~POLLIN;
+        glse_handle_cmd_ring_packet(rc);
+      pollfds[POLLFD_CMD_RING].revents &= ~POLLIN;
     }
-    if (pollfds[POLLFD_RING].revents)
-      LOGW("ring poll revents=0x%x\n", pollfds[POLLFD_RING].revents);
+    if (pollfds[POLLFD_CMD_RING].revents)
+      LOGW("CMD ring poll revents=0x%x\n", pollfds[POLLFD_CMD_RING].revents);
   }
 
   release_egl(&glsec_global.gc);
