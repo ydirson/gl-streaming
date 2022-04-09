@@ -247,7 +247,6 @@ void glserver_handle_packets(recvr_context_t* rc)
   };
 
   while (1) {
-    LOGD("poll([%d,%d])\n", pollfds[0].fd, pollfds[1].fd);
     int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), -1);
     if (ret < 0) {
       LOGE("poll failed: %s\n", strerror(errno));
