@@ -81,7 +81,8 @@ int send_packet(struct xmitr* xmitr)
   return TRUE;
 }
 
-static int send_packet_fd(struct xmitr* xmitr, int fd, uint32_t cmd, size_t size)
+static int send_packet_fds(struct xmitr* xmitr, uint32_t cmd, size_t size,
+                           int* fds, unsigned num_fds)
 {
   // reset clientside error for protocol
   switch (cmd & GLSC_PROTOCOL_MASK) {
@@ -97,8 +98,8 @@ static int send_packet_fd(struct xmitr* xmitr, int fd, uint32_t cmd, size_t size
   char* out_buf = xmitr_getbuf(xmitr);
   int ret = tport_write(glsc_global.rc.cnx, out_buf, sizeof(gls_command_t));
   if (ret > 0)
-    ret = tport_write_fd(glsc_global.rc.cnx, out_buf + sizeof(gls_command_t),
-                         size - sizeof(gls_command_t), fd);
+    ret = tport_write_fds(glsc_global.rc.cnx, out_buf + sizeof(gls_command_t),
+                          size - sizeof(gls_command_t), fds, num_fds);
   if (ret < 0) {
     switch (cmd & GLSC_PROTOCOL_MASK) {
     case GLSC_PROTOCOL_EGL:
@@ -255,7 +256,7 @@ static int gls_cmd_SHARE_SHM(int fd, uint32_t size)
   GLSCMD_SET_COMMAND_PTR(c, SHARE_SHM);
   c->size = size;
   c->fd = -1; // mostly for safety of the hack
-  if (!send_packet_fd(glsc_global.cmd_xmitr, fd, GLSC_SHARE_SHM, c->cmd_size))
+  if (!send_packet_fds(glsc_global.cmd_xmitr, GLSC_SHARE_SHM, c->cmd_size, &fd, 1)) // FIXME
     return FALSE;
 
   GLS_WAIT_SET_RET_PTR(ret, SHARE_SHM);

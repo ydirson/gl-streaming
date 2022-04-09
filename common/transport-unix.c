@@ -172,14 +172,15 @@ static ssize_t unix_tport_read(struct gls_connection* cnx, void* buffer, size_t 
   return recv_size;
 }
 
-static ssize_t unix_tport_write_fd(struct gls_connection* cnx, void *buffer, size_t size, int fd)
+static ssize_t unix_tport_write_fds(struct gls_connection* cnx, void *buffer, size_t size,
+                                    int* fds, unsigned num_fds)
 {
   struct iovec iov = {
     .iov_base = buffer,
     .iov_len = size,
   };
   union {
-    char buffer[CMSG_SPACE(sizeof(int))];
+    char buffer[CMSG_SPACE(num_fds * sizeof(int))];
     struct cmsghdr align;
   } control;
   struct msghdr msg = {
@@ -190,22 +191,23 @@ static ssize_t unix_tport_write_fd(struct gls_connection* cnx, void *buffer, siz
   };
 
   struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
-  cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+  cmsg->cmsg_len = CMSG_LEN(num_fds * sizeof(int));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  *((int *) CMSG_DATA(cmsg)) = fd;
+  memcpy(CMSG_DATA(cmsg), fds, num_fds * sizeof(int));
 
   return sendmsg(cnx->sock_fd, &msg, 0);
 }
 
-static ssize_t unix_tport_read_fd(struct gls_connection* cnx, void* buffer, size_t size, int* fd_p)
+static ssize_t unix_tport_read_fds(struct gls_connection* cnx, void* buffer, size_t size,
+                                   int* fds, unsigned num_fds)
 {
   struct iovec iov = {
     .iov_base = buffer,
     .iov_len = size,
   };
   union {
-    char buffer[CMSG_SPACE(sizeof(int))];
+    char buffer[CMSG_SPACE(num_fds * sizeof(int))];
     struct cmsghdr align;
   } control;
   struct msghdr msg = {
@@ -227,10 +229,10 @@ static ssize_t unix_tport_read_fd(struct gls_connection* cnx, void* buffer, size
   struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
   if (!cmsg) {
     LOGE("%s: no control message\n", __FUNCTION__);
-    *fd_p = -1;
+    *fds = -1;
     return recv_size;
   }
-  if (cmsg->cmsg_len == CMSG_LEN(sizeof(int))) {
+  if (cmsg->cmsg_len == CMSG_LEN(num_fds * sizeof(int))) {
     if (cmsg->cmsg_level != SOL_SOCKET) {
       LOGW("%s: control level != SOL_SOCKET\n", __FUNCTION__);
       return -1;
@@ -239,11 +241,11 @@ static ssize_t unix_tport_read_fd(struct gls_connection* cnx, void* buffer, size
       LOGW("%s: control type != SCM_RIGHTS\n", __FUNCTION__);
       return -1;
     }
-    *fd_p = *((int *) CMSG_DATA(cmsg));
+    memcpy(fds, CMSG_DATA(cmsg), num_fds * sizeof(int));
   } else {
     LOGW("%s: bad control message length %zu != %lu\n", __FUNCTION__,
-         cmsg->cmsg_len, CMSG_LEN(sizeof(int)));
-    *fd_p = -1;
+         cmsg->cmsg_len, CMSG_LEN(num_fds * sizeof(int)));
+    *fds = -1;
   }
 
   return recv_size;
@@ -266,8 +268,8 @@ struct gls_transport gls_tport_unix = {
   .connection_fd = unix_tport_connection_fd,
   .write = unix_tport_write,
   .writev = unix_tport_writev,
-  .write_fd = unix_tport_write_fd,
+  .write_fds = unix_tport_write_fds,
   .read = unix_tport_read,
-  .read_fd = unix_tport_read_fd,
+  .read_fds = unix_tport_read_fds,
   .close = unix_tport_close,
 };

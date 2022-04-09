@@ -65,16 +65,17 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
 
 // FIXME? should only work when specified size matches SCM_RIGHTS
 // emission, else read loop may overwrite `*fd_p`
-static ssize_t recvr_read_fd(struct gls_connection* cnx, void* buffer, size_t size, int* fd_p)
+static ssize_t recvr_read_fds(struct gls_connection* cnx, void* buffer, size_t size,
+                              int* fds, unsigned num_fds)
 {
   char* current = buffer;
   size_t remaining = size;
   while (remaining) {
     ssize_t recv_size;
-    if (fd_p == NULL)
+    if (fds == NULL)
       recv_size = tport_read(cnx, current, remaining);
     else
-      recv_size = tport_read_fd(cnx, current, remaining, fd_p);
+      recv_size = tport_read_fds(cnx, current, remaining, fds, num_fds);
     if (recv_size == 0)
       return 0;
     if (recv_size < 0)
@@ -87,7 +88,7 @@ static ssize_t recvr_read_fd(struct gls_connection* cnx, void* buffer, size_t si
 
 static ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
-  return recvr_read_fd(cnx, buffer, size, NULL);
+  return recvr_read_fds(cnx, buffer, size, NULL, 0);
 }
 
 static int recvr_handle_packet(recvr_context_t* rc)
@@ -149,9 +150,9 @@ static int recvr_handle_packet(recvr_context_t* rc)
   dest += sizeof(gls_command_t);
 
   if (c->cmd == GLSC_SHARE_SHM) {
-    int sharedfd;
+    int sharedfd; // FIXME
     gls_SHARE_SHM_t *cc = (gls_SHARE_SHM_t *)c;
-    if (recvr_read_fd(rc->cnx, dest, remaining, &sharedfd) < 0) {
+    if (recvr_read_fds(rc->cnx, dest, remaining, &sharedfd, 1) < 0) {
       LOGE("recvr_read_fd failed: %s\n", strerror(errno));
       return -1;
     }

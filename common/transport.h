@@ -34,10 +34,12 @@ struct gls_transport
 
   ssize_t (*write)(struct gls_connection* cnx, void* buffer, size_t size);
   ssize_t (*writev)(struct gls_connection* cnx, struct iovec *iov, int iovcnt);
-  ssize_t (*write_fd)(struct gls_connection* cnx, void *buffer, size_t size, int fd);
+  ssize_t (*write_fds)(struct gls_connection* cnx, void *buffer, size_t size,
+                      int* fds, unsigned num_fds);
 
   ssize_t (*read)(struct gls_connection* cnx, void* buffer, size_t size);
-  ssize_t (*read_fd)(struct gls_connection* cnx, void* buffer, size_t size, int* fd_p);
+  ssize_t (*read_fds)(struct gls_connection* cnx, void* buffer, size_t size,
+                      int* fds, unsigned num_fds);
 };
 
 extern struct gls_transport gls_tport_tcp;
@@ -89,6 +91,6 @@ static inline int tport_has_offloading(void)
 
 #define tport_write(cnx, buffer, size) the_tport->write(cnx, buffer, size)
 #define tport_writev(cnx, iov, iovcnt) the_tport->writev(cnx, iov, iovcnt)
-#define tport_write_fd(cnx, iov, iovcnt, fd) the_tport->write_fd(cnx, iov, iovcnt, fd)
+#define tport_write_fds(cnx, iov, iovcnt, fds, numfds) the_tport->write_fds(cnx, iov, iovcnt, fds, numfds)
 #define tport_read(cnx, buffer, size) the_tport->read(cnx, buffer, size)
-#define tport_read_fd(cnx, buffer, size, fd_p) the_tport->read_fd(cnx, buffer, size, fd_p)
+#define tport_read_fds(cnx, buffer, size, fds, numfds) the_tport->read_fds(cnx, buffer, size, fds, numfds)
