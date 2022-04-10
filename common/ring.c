@@ -93,9 +93,9 @@ int ring_init(ring_t* ring, int notif_fd,
 
 int ring_delete(ring_t* ring)
 {
-  ring->allocator->free(ring);
   ring->control->idx_reader = 0;
   ring->control->idx_writer = 0;
+  ring->allocator->free(ring);
   ring->ring_size = 0;
   ring->ring_packet_size = 0;
 
