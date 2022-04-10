@@ -397,7 +397,7 @@ void gls_cleanup_library(void)
 {
   recvr_stop(&glsc_global.rc);
 
-  if (glsc_global.api_xmitr != glsc_global.cmd_xmitr)
+  if (glsc_global.api_xmitr && glsc_global.api_xmitr != glsc_global.cmd_xmitr)
     xmitr_free(glsc_global.api_xmitr);
   xmitr_free(glsc_global.cmd_xmitr);
   free(glsc_global.pool.tmp_buf.buf);
