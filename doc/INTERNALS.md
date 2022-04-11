@@ -55,6 +55,27 @@ problems you may notice.
         - [x] new "xmit" (bad name but eh that's a proto ;) layer
               between tport and glclient/server, to encapsulate
               composition to buffer and send ?
+  - [ ] on-demand shm for `GL_OES_mapbuffer` ?
+    - need to convince shm manager to share the pages returned by GLES
+      - unixshm could, if e.g. we can get a FD to the GLES vbo
+        (`vkGetMemoryFdKHR` seems to do exactly that but there does
+        not seem to be an OpenGL equivalent)
+      - Xen through libgnttab explicitly does not support this either,
+        check at lower level, maybe look at pciback for inspiration
+- libxenvchan support ?  Implements a ring already, bonus over raw gnt
+  - we could allow to map our ring API onto libxenvchan
+  - our API ring size is larger than libxenvchan's max ring size
+  - libxenvchan ring is byte-oriented, but we don't really need the
+    block-oriented ring API we currently have, and it would solve the
+    ring-size issue
+  - libxenvchan ring already includes its notifier, our ring API would
+    need a rework
+  - like our shm API libxenvchan would need to be extended to support
+    zerocopy
+  - could end up like:
+    - [ ] change ring granularity to bytes, lower ring sizes
+    - [ ] reformulate "shm abstraction" to "ring abstraction"
+    - [ ] think zerocopy usecases
 
 ### emission
 
