@@ -83,7 +83,7 @@ static void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
 static int shmattach_malloc(ring_t* ring, void* data)
 {
   gls_SHARE_RING_t* c = data;
-  assert(sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size == c->size);
+  assert(sizeof(struct ring_control) + ring->ring_size == c->size);
   ring->storage = mmap(NULL, c->size, PROT_READ | PROT_WRITE, MAP_SHARED, c->mem_fd, 0);
   if (!ring->storage) {
     LOGE("shm ring mapping failure: %s\n", strerror(errno));
@@ -96,7 +96,7 @@ static int shmattach_malloc(ring_t* ring, void* data)
 }
 static void shmattach_free(ring_t* ring)
 {
-  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
+  size_t size = sizeof(struct ring_control) + ring->ring_size;
   munmap(ring->storage, size);
   free(ring->allocator_data);
 }
@@ -119,7 +119,7 @@ static void glse_cmd_SHARE_RING(gls_command_t* buf, recvr_context_t* rc)
   // FIXME buffer sizing should come from msg
   // FIXME api_ring must come from tport but this looks fishy -- likely xmitr instead
   int res = ring_init(tport_api_ring(rc->cnx), c->notif_fd, &shmattach_allocator, (void*)c,
-                      CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
+                      CLT2SRV_API_RING_SIZE_ORDER);
   if (res < 0)
     goto reply;
   LOGD("SHARE_RING created api_ring\n");

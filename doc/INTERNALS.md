@@ -73,7 +73,7 @@ problems you may notice.
   - like our shm API libxenvchan would need to be extended to support
     zerocopy
   - could end up like:
-    - [ ] change ring granularity to bytes, lower ring sizes
+    - [x] change ring granularity to bytes, lower ring sizes
     - [ ] reformulate "shm abstraction" to "ring abstraction"
     - [ ] think zerocopy usecases
 

@@ -53,26 +53,20 @@ struct ring_control
 
 struct ring
 {
-  void* storage; // the whole including ring_control and ring elements
+  void* storage; // the whole including ring_control and buffer
   char* elements;
   struct ring_control* control;
   ring_allocator_t* allocator;
   void* allocator_data; // data that alloc() stores for free()
   unsigned int ring_size;
-  unsigned int ring_packet_size;
   struct notifier notifier;
 };
 
 // ring sizing - FIXME randomly chosen, should be more dynamic
 
-#define CLT2SRV_API_RING_SIZE_ORDER 12
-#define CLT2SRV_API_RING_PACKET_SIZE_ORDER 15
-
-#define SRV2CLT_API_RING_SIZE_ORDER 2
-#define SRV2CLT_API_RING_PACKET_SIZE_ORDER 10
-
-#define CMD_RING_SIZE_ORDER 2
-#define CMD_RING_PACKET_SIZE_ORDER 8
+#define CLT2SRV_API_RING_SIZE_ORDER 27
+#define SRV2CLT_API_RING_SIZE_ORDER 12
+#define CMD_RING_SIZE_ORDER 10
 
 /*
  * ring_*_ptr_next() are not supposed to be called if the matching
@@ -84,12 +78,27 @@ static inline int ring_is_empty(ring_t* ring)
   return ring->control->idx_reader == ring->control->idx_writer;
 }
 
+// static inline size_t ring_freespace(ring_t* ring)
+// {
+//   size_t occupied = ((ring->ring_size + ring->control->idx_writer - ring->control->idx_reader) &
+//                      (ring->ring_size - 1));
+//   return ring->ring_size - occupied - 1;
+// }
+
+static inline size_t ring_contigfreespace(ring_t* ring)
+{
+  if (ring->control->idx_writer >= ring->control->idx_reader)
+    return ring->ring_size - ring->control->idx_writer - 1;
+  else
+    return ring->control->idx_reader - ring->control->idx_writer - 1;
+}
+
 static inline char* ring_push_ptr_get(ring_t* ring)
 {
   int next_idx = (ring->control->idx_writer + 1) & (ring->ring_size - 1);
   if (next_idx == ring->control->idx_reader)
     return NULL;
-  return ring->elements + (ring->control->idx_writer * ring->ring_packet_size);
+  return ring->elements + ring->control->idx_writer;
 }
 
 static inline void ring_push_ptr_next(ring_t* ring)
@@ -105,7 +114,7 @@ static inline char* ring_pop_ptr_get(ring_t* ring)
 {
   if (ring_is_empty(ring))
     return NULL;
-  return ring->elements + (ring->control->idx_reader * ring->ring_packet_size);
+  return ring->elements + ring->control->idx_reader;
 }
 
 static inline void ring_pop_ptr_next(ring_t* ring)
@@ -125,5 +134,5 @@ static inline void ring_writer_close(ring_t* ring)
 
 int ring_init(ring_t* ring, int notif_fd,
               ring_allocator_t* allocator, void* allocator_data,
-              unsigned int ring_size_order, unsigned int ring_packet_size_order);
+              unsigned int ring_size_order);
 int ring_delete(ring_t* ring);

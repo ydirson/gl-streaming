@@ -269,7 +269,7 @@ static int shmcreate_malloc(ring_t* ring, void* data)
 {
   (void)data; assert(!data); ring->allocator_data = NULL; // unused
   // buffer creation and mapping
-  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
+  size_t size = sizeof(struct ring_control) + ring->ring_size;
   int shm_fd = memfd_create("gls-ring", MFD_CLOEXEC);
   if (shm_fd < 0) {
     LOGE("shm ring allocation failure: %s\n", strerror(errno));
@@ -300,7 +300,7 @@ static int shmcreate_malloc(ring_t* ring, void* data)
 }
 static void shmcreate_free(ring_t* ring)
 {
-  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
+  size_t size = sizeof(struct ring_control) + ring->ring_size;
   munmap(ring->storage, size);
   free(ring->allocator_data);
 }
@@ -342,11 +342,9 @@ void gls_init_library(void)
   // get ready to receive replies
   int ret;
   if (tport_has_offloading())
-    ret = ring_init(&glsc_global.rc.ring, -1, NULL, NULL,
-                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
+    ret = ring_init(&glsc_global.rc.ring, -1, NULL, NULL, CMD_RING_SIZE_ORDER);
   else
-    ret = ring_init(&glsc_global.rc.ring, -1, NULL, NULL,
-                    SRV2CLT_API_RING_SIZE_ORDER, SRV2CLT_API_RING_PACKET_SIZE_ORDER);
+    ret = ring_init(&glsc_global.rc.ring, -1, NULL, NULL, SRV2CLT_API_RING_SIZE_ORDER);
   if (ret < 0)
     exit(EXIT_FAILURE);
 

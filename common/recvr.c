@@ -121,13 +121,13 @@ static int recvr_handle_packet(recvr_context_t* rc)
 
   // setup `dest` to point to a proper buffer depending on packet size ...
   char* dest;
-  if (c->cmd_size <= rc->ring.ring_packet_size) {
+  if (c->cmd_size <= ring_contigfreespace(&rc->ring)) {
     dest = pushptr;
   } else {
     if (c->cmd != GLSC_SEND_DATA) {
       // only SEND_DATA packets may be larger than a ring packet
       LOGE("received large packet, not a SEND_DATA\n");
-      if (discard_bytes(rc->cnx, remaining, pushptr, rc->ring.ring_packet_size))
+      if (discard_bytes(rc->cnx, remaining, pushptr, ring_contigfreespace(&rc->ring)))
         return 0;
       else
         return -1;
@@ -136,7 +136,7 @@ static int recvr_handle_packet(recvr_context_t* rc)
     dest = malloc(c->cmd_size);
     if (!dest) {
       LOGE("malloc failed: %s\n", strerror(errno));
-      if (discard_bytes(rc->cnx, remaining, pushptr, rc->ring.ring_packet_size))
+      if (discard_bytes(rc->cnx, remaining, pushptr, ring_contigfreespace(&rc->ring)))
         return 0;
       else
         return -1;

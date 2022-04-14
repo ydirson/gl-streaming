@@ -36,14 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int ring_malloc(ring_t* ring, void* data)
 {
   (void)data; assert(!data); ring->allocator_data = NULL; // unused
-  size_t size = sizeof(struct ring_control) + ring->ring_size * ring->ring_packet_size;
-#if 0
-  // aligned malloc ?  Do we gain anything ?
-  unsigned int alignment = ring->ring_packet_size;
-  ring->buffer = aligned_alloc(alignment, size);
-#else
+  size_t size = sizeof(struct ring_control) + ring->ring_size;
   ring->storage = malloc(size);
-#endif
   return ring->storage ? 0 : -1;
 }
 
@@ -60,10 +54,9 @@ static ring_allocator_t heap_allocator = {
 
 int ring_init(ring_t* ring, int notif_fd,
               ring_allocator_t* allocator, void* allocator_data,
-              unsigned int ring_size_order, unsigned int ring_packet_size_order)
+              unsigned int ring_size_order)
 {
   ring->ring_size = 1 << ring_size_order;
-  ring->ring_packet_size = 1 << ring_packet_size_order;
 
   if (notif_fd == -1) {
     if (notifier_init(&ring->notifier) < 0) {
@@ -97,7 +90,6 @@ int ring_delete(ring_t* ring)
   ring->control->idx_writer = 0;
   ring->allocator->free(ring);
   ring->ring_size = 0;
-  ring->ring_packet_size = 0;
 
   notifier_close(&ring->notifier);
   return 0;

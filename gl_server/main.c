@@ -46,11 +46,9 @@ static void child_process(recvr_context_t* rc,
 {
   int ret;
   if (tport_has_offloading())
-    ret = ring_init(&rc->ring, -1, NULL, NULL,
-                    CMD_RING_SIZE_ORDER, CMD_RING_PACKET_SIZE_ORDER);
+    ret = ring_init(&rc->ring, -1, NULL, NULL, CMD_RING_SIZE_ORDER);
   else
-    ret = ring_init(&rc->ring, -1, NULL, NULL,
-                    CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER);
+    ret = ring_init(&rc->ring, -1, NULL, NULL, CLT2SRV_API_RING_SIZE_ORDER);
   if (ret < 0)
     exit(EXIT_FAILURE);
 

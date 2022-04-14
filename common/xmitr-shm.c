@@ -30,13 +30,13 @@ static void* xmitr_shm_getbuf(struct xmitr* xmitr)
 static size_t xmitr_shm_getbufsize(struct xmitr* xmitr)
 {
   struct xmitr_shm* xmitr_shm = (struct xmitr_shm*)xmitr;
-  return xmitr_shm->ring.ring_packet_size;
+  return ring_contigfreespace(&xmitr_shm->ring);
 }
 
 static int xmitr_shm_sendbuf(struct xmitr* xmitr, size_t size)
 {
   struct xmitr_shm* xmitr_shm = (struct xmitr_shm*)xmitr;
-  (void)size; assert(size <= xmitr_shm->ring.ring_packet_size);
+  (void)size; assert(size <= ring_contigfreespace(&xmitr_shm->ring));
   ring_push_ptr_next(&xmitr_shm->ring);
   return 1;
 }
@@ -81,8 +81,7 @@ struct xmitr* xmitr_shm_init(ring_allocator_t* allocator, void* allocator_data)
 {
   the_xmitr.xmitr.ops = &xmitr_shm_ops;
 
-  if (ring_init(&the_xmitr.ring, -1, allocator, allocator_data,
-                CLT2SRV_API_RING_SIZE_ORDER, CLT2SRV_API_RING_PACKET_SIZE_ORDER) < 0) {
+  if (ring_init(&the_xmitr.ring, -1, allocator, allocator_data, CLT2SRV_API_RING_SIZE_ORDER) < 0) {
     LOGE("failed to init API ring\n");
     return NULL;
   }
