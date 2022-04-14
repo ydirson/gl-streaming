@@ -186,7 +186,7 @@ static int recvr_handle_packet(recvr_context_t* rc)
   if (endsession)
     return endsession;
 
-  if (c->cmd_size <= rc->ring.ring_packet_size && c->cmd == GLSC_SEND_DATA) {
+  if (dest == pushptr && c->cmd == GLSC_SEND_DATA) {
     gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
     if (data->zero != 0) {
       LOGW("SEND_DATA with non-zero 'zero' field %lx, compensating\n", data->zero);
