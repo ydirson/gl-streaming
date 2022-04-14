@@ -221,7 +221,7 @@ static void glse_handle_api_ring_packet(ring_t* ring)
     if (!result) result = egl_executeCommand(c);
 
     if (!result)
-      LOGE("Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
+      LOGE("Unhandled API command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
   }
   }
   ring_pop_ptr_next(ring);
