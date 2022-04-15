@@ -60,6 +60,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define GLS_GLS_COMMANDS()                      \
   EMPTY()                                       \
+    X(NOP)                                      \
     X(HANDSHAKE)                                \
     X(SEND_DATA)                                \
     X(SEND_DATA_FRAGMENT)                       \

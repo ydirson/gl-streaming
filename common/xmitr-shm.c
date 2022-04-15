@@ -24,7 +24,7 @@ static void xmitr_shm_free(struct xmitr* xmitr)
 static void* xmitr_shm_getbuf(struct xmitr* xmitr)
 {
   struct xmitr_shm* xmitr_shm = (struct xmitr_shm*)xmitr;
-  return ring_push_ptr_get(&xmitr_shm->ring);
+  return ring_push_ptr_get_contig(&xmitr_shm->ring, 1); // don't assume any size - FIXME?
 }
 
 static size_t xmitr_shm_getbufsize(struct xmitr* xmitr)
@@ -36,8 +36,14 @@ static size_t xmitr_shm_getbufsize(struct xmitr* xmitr)
 static int xmitr_shm_sendbuf(struct xmitr* xmitr, size_t size)
 {
   struct xmitr_shm* xmitr_shm = (struct xmitr_shm*)xmitr;
-  (void)size; assert(size <= ring_contigfreespace(&xmitr_shm->ring));
-  ring_push_ptr_next(&xmitr_shm->ring);
+  LOGD("size=%zu contigfree=%zu writer=%08x reader=%08x\n", size,
+       ring_contigfreespace(&xmitr_shm->ring),
+       xmitr_shm->ring.control->idx_writer,
+       xmitr_shm->ring.control->idx_reader);
+  if (size > ring_contigfreespace(&xmitr_shm->ring)) {
+    assert(!"not enough data for shm_sendbuf");
+  }
+  ring_push_ptr_next(&xmitr_shm->ring, size);
   return 1;
 }
 
@@ -51,14 +57,15 @@ static int xmitr_shm_senddata(struct xmitr* xmitr, const void* data, size_t size
   size_t offset;
   for (offset = 0; offset < size; offset += max_payload_size) {
     size_t this_fragment_size = (size - offset < max_payload_size) ? size - offset : max_payload_size;
+    size_t this_packet_size = sizeof(gls_cmd_send_data_t) + this_fragment_size;
     gls_cmd_send_data_fragment_t* c = xmitr_shm_getbuf(xmitr);
     c->cmd = GLSC_SEND_DATA_FRAGMENT;
-    c->cmd_size = sizeof(gls_cmd_send_data_t) + this_fragment_size;
+    c->cmd_size = this_packet_size;
     c->totalsize = size;
     c->offset = offset;
     memcpy(c->data, data + offset, this_fragment_size);
 
-    if (xmitr_shm_sendbuf(xmitr, xmitr_shm_getbufsize(xmitr)) < 0)
+    if (xmitr_shm_sendbuf(xmitr, this_packet_size) < 0)
       return -1;
   }
   return 0;

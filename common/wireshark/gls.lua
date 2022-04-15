@@ -9,9 +9,12 @@ local p_gls = Proto("gls", "GL-Streaming")
 
 local vs_commands = {
    [0] = "UNDEF",
-   [1] = "HANDSHAKE",
-   [2] = "SEND_DATA",
-   [3] = "CREATE_WINDOW",
+   [1] = "NOP",
+   [2] = "HANDSHAKE",
+   [3] = "SEND_DATA",
+   [4] = "SEND_DATA_FRAGMENT",
+   [5] = "CREATE_WINDOW",
+   [6] = "SHARE_RING",
 
    [0x10000] = "eglChooseConfig",
    [0x10008] = "eglGetConfigAttrib",

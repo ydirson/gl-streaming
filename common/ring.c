@@ -57,6 +57,7 @@ int ring_init(ring_t* ring, int notif_fd,
               unsigned int ring_size_order)
 {
   ring->ring_size = 1 << ring_size_order;
+  LOGD("%s: %p: order=%u size=%u\n", __FUNCTION__, ring, ring_size_order, ring->ring_size);
 
   if (notif_fd == -1) {
     if (notifier_init(&ring->notifier) < 0) {

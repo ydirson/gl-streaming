@@ -182,7 +182,7 @@ static int glse_handle_cmd_ring_packet(recvr_context_t* rc)
       LOGE("Unhandled command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
   }
   }
-  ring_pop_ptr_next(&rc->ring);
+  ring_pop_ptr_next(&rc->ring, c->cmd_size);
   return ret;
 }
 
@@ -224,7 +224,7 @@ static void glse_handle_api_ring_packet(ring_t* ring)
       LOGE("Unhandled API command 0x%x (%s)\n", c->cmd, GLSC_tostring(c->cmd));
   }
   }
-  ring_pop_ptr_next(ring);
+  ring_pop_ptr_next(ring, c->cmd_size);
 }
 
 void glserver_handle_packets(recvr_context_t* rc)

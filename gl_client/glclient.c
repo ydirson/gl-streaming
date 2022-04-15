@@ -50,7 +50,7 @@ gls_context_t glsc_global;
 uint32_t client_egl_error;
 uint32_t client_gles_error;
 
-static const int GLS_TIMEOUT_MSEC = 3000;
+static const int GLS_TIMEOUT_MSEC = -1;
 
 int send_packet(struct xmitr* xmitr)
 {
@@ -126,6 +126,8 @@ static int handle_packet(enum GL_Server_Command cmd)
 
   gls_command_t* c = (gls_command_t*)popptr;
   switch (c->cmd) {
+  case GLSC_NOP:
+    break; // just ignore
   case GLSC_SEND_DATA: {
     gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)c;
     if (data->dataptr)
@@ -145,7 +147,7 @@ static int handle_packet(enum GL_Server_Command cmd)
          c->cmd, GLSC_tostring(c->cmd));
     break;
   }
-  ring_pop_ptr_next(&glsc_global.rc.ring);
+  ring_pop_ptr_next(&glsc_global.rc.ring, c->cmd_size);
   return ret;
 }
 
@@ -212,7 +214,7 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
 
 int gls_cmd_send_data(struct xmitr* xmitr, uint32_t size, const void* data)
 {
-  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
+  if (glsc_global.is_debug) LOGD("%s(%u)\n", __FUNCTION__, size);
   if (xmitr_senddata(xmitr, data, size) < 0) {
     client_egl_error = EGL_BAD_ACCESS; // dubious but eh
     return FALSE;
@@ -397,6 +399,7 @@ void gls_cleanup_library(void)
 
   if (glsc_global.api_xmitr && glsc_global.api_xmitr != glsc_global.cmd_xmitr)
     xmitr_free(glsc_global.api_xmitr);
-  xmitr_free(glsc_global.cmd_xmitr);
+  if (glsc_global.cmd_xmitr)
+    xmitr_free(glsc_global.cmd_xmitr);
   free(glsc_global.pool.tmp_buf.buf);
 }

@@ -93,15 +93,10 @@ static ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 
 static int recvr_handle_packet(recvr_context_t* rc)
 {
-  char* pushptr = ring_push_ptr_get(&rc->ring);
-  if (pushptr == NULL) {
-    LOGW("ring full!\n");
-    usleep(RINGFULL_SLEEP_USEC);
-    return 0;
-  }
+  gls_command_t tmpcmd; // to discover packet size before allocating
 
   // look at message header to know its size and decide what to do
-  ssize_t recv_size = recvr_read(rc->cnx, pushptr, sizeof(gls_command_t));
+  ssize_t recv_size = recvr_read(rc->cnx, &tmpcmd, sizeof(gls_command_t));
   if (recv_size < 0) {
     tport_close(rc->cnx);
     return -1;
@@ -115,14 +110,53 @@ static int recvr_handle_packet(recvr_context_t* rc)
     return -1;
   }
 
+  assert(tmpcmd.cmd_size >= sizeof(gls_command_t)); // minimum sanity
+//  LOGD("%s received command 0x%x (%s), size=%u\n", __FUNCTION__,
+//       tmpcmd.cmd, GLSC_tostring(tmpcmd.cmd), tmpcmd.cmd_size);
+//  LOGD("%p: contigfree=%zu writer=%08x reader=%08x\n", &rc->ring,
+//       ring_contigfreespace(&rc->ring),
+//       rc->ring.control->idx_writer,
+//       rc->ring.control->idx_reader);
+
+  char* pushptr = ring_push_ptr_get_contig(&rc->ring, tmpcmd.cmd_size);
+  if (pushptr == NULL && !ring_is_wrapped(&rc->ring)) {
+//    LOGD("not enough trailing space in ring, idx_writer=%u\n", rc->ring.control->idx_writer);
+    // consume space till end of buffer
+    size_t sizetofill = ring_contigfreespace(&rc->ring);
+//    LOGD("free space: %zu\n", sizetofill);
+    pushptr = ring_push_ptr_get_contig(&rc->ring, sizetofill);
+    assert(pushptr);
+    gls_command_t* c = (gls_command_t*)pushptr;
+    c->cmd = GLSC_NOP;
+    c->cmd_size = sizetofill;
+    ring_push_ptr_next(&rc->ring, sizetofill);
+    // try getting space now at start of ring
+    if (rc->ring.control->idx_writer != 0) {
+      LOGE("idx_writer=%u\n", rc->ring.control->idx_writer);
+      assert(!"bug");
+    }
+    pushptr = ring_push_ptr_get_contig(&rc->ring, tmpcmd.cmd_size);
+  }
+  if (pushptr == NULL) {
+    // FIXME this was non-fatal only as long as we did not consume the
+    // packet header.  Now special handling is required to avoid loss of
+    // tmpcmd contents.
+    assert(!"ring full");
+    LOGW("ring full!\n");
+    usleep(RINGFULL_SLEEP_USEC);
+    return 0;
+  }
+
+  memcpy(pushptr, &tmpcmd, sizeof(gls_command_t));
+
   gls_command_t* c = (gls_command_t*)pushptr;
-  assert(c->cmd_size >= sizeof(gls_command_t)); // minimum sanity
   size_t remaining = c->cmd_size - sizeof(gls_command_t);
 
   // setup `dest` to point to a proper buffer depending on packet size ...
   char* dest;
   int inring = 1;
   if (c->cmd_size <= ring_contigfreespace(&rc->ring)) {
+    //LOGD("... in ring\n");
     dest = pushptr;
   } else {
     inring = 0;
@@ -164,7 +198,7 @@ static int recvr_handle_packet(recvr_context_t* rc)
     }
     cc->mem_fd = sharedfds[0];
     cc->notif_fd = sharedfds[1];
-    ring_push_ptr_next(&rc->ring);
+    ring_push_ptr_next(&rc->ring, c->cmd_size);
     return 0;
   }
 
@@ -196,7 +230,12 @@ static int recvr_handle_packet(recvr_context_t* rc)
     }
   }
 
-  ring_push_ptr_next(&rc->ring);
+//  {
+//    gls_command_t* cc = (gls_command_t*)pushptr;
+//    LOGD("pushing command 0x%x (%s)\n", cc->cmd, GLSC_tostring(cc->cmd));
+//  }
+
+  ring_push_ptr_next(&rc->ring, c->cmd_size);
   return 0;
 }
 

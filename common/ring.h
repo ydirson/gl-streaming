@@ -65,7 +65,7 @@ struct ring
 // ring sizing - FIXME randomly chosen, should be more dynamic
 
 #define CLT2SRV_API_RING_SIZE_ORDER 27
-#define SRV2CLT_API_RING_SIZE_ORDER 12
+#define SRV2CLT_API_RING_SIZE_ORDER 15
 #define CMD_RING_SIZE_ORDER 10
 
 /*
@@ -78,6 +78,11 @@ static inline int ring_is_empty(ring_t* ring)
   return ring->control->idx_reader == ring->control->idx_writer;
 }
 
+static inline int ring_is_wrapped(ring_t* ring)
+{
+  return ring->control->idx_writer < ring->control->idx_reader;
+}
+
 // static inline size_t ring_freespace(ring_t* ring)
 // {
 //   size_t occupied = ((ring->ring_size + ring->control->idx_writer - ring->control->idx_reader) &
@@ -87,23 +92,40 @@ static inline int ring_is_empty(ring_t* ring)
 
 static inline size_t ring_contigfreespace(ring_t* ring)
 {
-  if (ring->control->idx_writer >= ring->control->idx_reader)
-    return ring->ring_size - ring->control->idx_writer - 1;
-  else
+  if (ring_is_wrapped(ring)) {
     return ring->control->idx_reader - ring->control->idx_writer - 1;
+  } else {
+    size_t base = ring->ring_size - ring->control->idx_writer;
+    if (ring->control->idx_reader == 0)
+      return base - 1; // last byte unusable if reader == 0
+    return base;
+  }
 }
 
-static inline char* ring_push_ptr_get(ring_t* ring)
+// FIXME we have only a "_contig" version for now
+//static inline char* ring_push_ptr_get(ring_t* ring, size_t datasize)
+//{
+//  unsigned next_idx = (ring->control->idx_writer + datasize) & (ring->ring_size - 1);
+//  if (next_idx >= ring->control->idx_reader) // FIXME wrap
+//    return NULL;
+//  return ring->elements + ring->control->idx_writer;
+//}
+static inline char* ring_push_ptr_get_contig(ring_t* ring, size_t datasize)
 {
-  int next_idx = (ring->control->idx_writer + 1) & (ring->ring_size - 1);
-  if (next_idx == ring->control->idx_reader)
-    return NULL;
+  unsigned next_idx = ring->control->idx_writer + datasize;
+  if (ring_is_wrapped(ring)) {
+    if (next_idx >= ring->control->idx_reader)
+      return NULL;
+  } else {
+    if (next_idx > ring->ring_size)
+      return NULL; // callers should queue a NOP and retry once
+  }
   return ring->elements + ring->control->idx_writer;
 }
 
-static inline void ring_push_ptr_next(ring_t* ring)
+static inline void ring_push_ptr_next(ring_t* ring, size_t datasize)
 {
-  int next_idx = (ring->control->idx_writer + 1) & (ring->ring_size - 1);
+  unsigned next_idx = (ring->control->idx_writer + datasize) & (ring->ring_size - 1);
   assert (next_idx != ring->control->idx_reader);
   ring->control->idx_writer = next_idx;
   if (notify(&ring->notifier) < 0)
@@ -117,10 +139,10 @@ static inline char* ring_pop_ptr_get(ring_t* ring)
   return ring->elements + ring->control->idx_reader;
 }
 
-static inline void ring_pop_ptr_next(ring_t* ring)
+static inline void ring_pop_ptr_next(ring_t* ring, size_t datasize)
 {
   assert (!ring_is_empty(ring));
-  int next_idx = (ring->control->idx_reader + 1) & (ring->ring_size - 1);
+  int next_idx = (ring->control->idx_reader + datasize) & (ring->ring_size - 1);
   ring->control->idx_reader = next_idx;
 }
 
