@@ -121,9 +121,11 @@ static int recvr_handle_packet(recvr_context_t* rc)
 
   // setup `dest` to point to a proper buffer depending on packet size ...
   char* dest;
+  int inring = 1;
   if (c->cmd_size <= ring_contigfreespace(&rc->ring)) {
     dest = pushptr;
   } else {
+    inring = 0;
     if (c->cmd != GLSC_SEND_DATA) {
       // only SEND_DATA packets may be larger than a ring packet
       LOGE("received large packet, not a SEND_DATA\n");
@@ -186,7 +188,7 @@ static int recvr_handle_packet(recvr_context_t* rc)
   if (endsession)
     return endsession;
 
-  if (dest == pushptr && c->cmd == GLSC_SEND_DATA) {
+  if (inring && c->cmd == GLSC_SEND_DATA) {
     gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
     if (data->zero != 0) {
       LOGW("SEND_DATA with non-zero 'zero' field %lx, compensating\n", data->zero);
