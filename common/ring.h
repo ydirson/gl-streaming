@@ -48,7 +48,7 @@ typedef struct
 
 struct ring_control
 {
-  int idx_reader, idx_writer; // packet numbers
+  unsigned idx_reader, idx_writer; // packet numbers
 };
 
 struct ring
