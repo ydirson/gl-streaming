@@ -6,7 +6,7 @@ libglstreaming = shared_library(
             common_srcs,
            ],
   include_directories : [common_incdir],
-  dependencies: [thread_dep, lttust_dep],
+  dependencies: [thread_dep, lttust_dep, xenvchan_dep],
   link_args: ['-Wl,-init,gls_init_library,-fini,gls_cleanup_library'],
   install: true,
 )

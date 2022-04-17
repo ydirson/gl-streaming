@@ -27,6 +27,7 @@ common_srcs = files(
     'common/transport-tcp.c',
     'common/transport-stdio.c',
     'common/transport-qrexecpipe.c',
+    'common/transport-xenvchan.c',
   ])
 
 if use_ltt
@@ -47,6 +48,7 @@ endif
 thread_dep = dependency('threads')
 x11_dep = dependency('x11')
 dl_dep = meson.get_compiler('c').find_library('dl')
+xenvchan_dep = dependency('xenvchan')
 
 lttust_dep = use_ltt ? [ dependency('lttng-ust'), dl_dep ] : []
 
