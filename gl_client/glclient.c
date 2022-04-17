@@ -277,10 +277,11 @@ static void recvr_client_start(recvr_context_t* rc, const char* server_addr)
   recvr_run_loop(rc);
 }
 
+static int gls_initialized = FALSE;
+
 void gls_init_library(void)
 {
-  static int init = FALSE;
-  if (init)
+  if (gls_initialized)
     return;
 
   if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
@@ -294,11 +295,12 @@ void gls_init_library(void)
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
 
-  init = TRUE;
+  gls_initialized = TRUE;
 }
 
 void gls_cleanup_library(void)
 {
+  if (!gls_initialized) return;
   recvr_stop(&glsc_global.rc);
   gls_free();
 }
