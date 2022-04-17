@@ -105,6 +105,8 @@ static void recvr_connection_start(recvr_context_t* rc,
                                    void(*handle_child)(recvr_context_t*))
 {
   rc->cnx = tport_connection_create();
+  if (!rc->cnx)
+    exit(EXIT_FAILURE);
   child_process(rc, handle_child);
 }
 
