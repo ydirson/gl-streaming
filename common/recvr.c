@@ -52,10 +52,8 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
   LOGW("discarding large packet (%zu bytes)\n", size);
   do {
     size_t recv_size = tport_read(cnx, scratch, scratch_size);
-    if (recv_size <= 0) {
-      tport_close(cnx);
+    if (recv_size <= 0)
       return 0;
-    }
 
     assert ((size_t)recv_size <= size);
     size -= recv_size;
@@ -91,15 +89,12 @@ static int recvr_handle_packet(recvr_context_t* rc)
   // look at message header to know its size and decide what to do
   ssize_t recv_size = recvr_read(rc->cnx, pushptr, sizeof(gls_command_t));
   if (recv_size < 0) {
-    tport_close(rc->cnx);
     return -1;
   } else if (recv_size == 0) {
-    tport_close(rc->cnx);
     return 1; // EOF
   } else if (recv_size != sizeof(gls_command_t)) {
     // internal error: transport should handle that
     LOGE("short read %zu != %zu\n", recv_size, sizeof(gls_command_t));
-    tport_close(rc->cnx);
     return -1;
   }
 
@@ -141,11 +136,9 @@ static int recvr_handle_packet(recvr_context_t* rc)
   while (remaining) {
     ssize_t recv_size = recvr_read(rc->cnx, dest, remaining);
     if (recv_size < 0) {
-      tport_close(rc->cnx);
       endsession = -1;
       break;
     } else if (recv_size == 0) {
-      tport_close(rc->cnx);
       endsession = 1;
       break;
     }

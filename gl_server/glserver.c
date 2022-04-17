@@ -59,7 +59,6 @@ int glse_cmd_send_data(uint32_t size, void* data)
   };
 
   if (tport_writev(glsec_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
-    tport_close(glsec_global.rc.cnx);
     return FALSE;
   }
 
