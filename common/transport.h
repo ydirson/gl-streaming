@@ -37,6 +37,7 @@ extern struct gls_transport gls_tport_tcp;
 extern struct gls_transport gls_tport_stdio;
 extern struct gls_transport gls_tport_qrexecpipe;
 extern struct gls_transport gls_tport_xenvchan;
+extern struct gls_transport gls_tport_qubesvchan;
 extern struct gls_transport* the_tport;
 
 int tport_select(const char* name);

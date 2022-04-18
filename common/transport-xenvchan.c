@@ -20,8 +20,8 @@ static struct gls_connection* xenvchan_tport_connection_create(void)
   struct libxenvchan* vchan;
   // client is server for the shared pages
 #ifdef GLS_SERVER
-  int clt_domid = 16; // FIXME
-  const char xs_path[] = "/local/domain/16/data/vchan/gls"; // FIXME
+  int clt_domid = 6; // FIXME
+  const char xs_path[] = "/local/domain/6/data/vchan/gls"; // FIXME
   vchan = libxenvchan_client_init(NULL, clt_domid, xs_path);
 #else
   int srv_domid = 0; // FIXME
