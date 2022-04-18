@@ -324,12 +324,14 @@ static void glse_eglQueryString(gls_command_t* buf)
 {
   tracepoint(gls_api, call, GLSC_eglQueryString);
   GLSE_SET_COMMAND_PTR(c, eglQueryString);
+  LOGD("%s, name=%04x\n", __FUNCTION__, c->name);
   GLSE_SET_RET_PTR(ret, eglQueryString);
 
   const char* params = eglQueryString((EGLDisplay)c->dpy, c->name);
 
   switch (c->name) {
   case EGL_EXTENSIONS: {
+      LOGD("%s A\n", __FUNCTION__);
       size_t outlen = 0;
       while (1) {
         size_t len = strcspn(params, " ");
@@ -348,6 +350,7 @@ static void glse_eglQueryString(gls_command_t* buf)
         params += len;
         params += strspn(params, " ");
       }
+      LOGD("%s B\n", __FUNCTION__);
       if (outlen)
         // overwrite last space
         ret->params[outlen - 1] = '\0';
@@ -379,7 +382,7 @@ static void glse_eglQueryString(gls_command_t* buf)
     ret->success = FALSE;
   }
 
-  // LOGD("Client asking for 0x%04x, return %s\n", c->name, params);
+  LOGD("Client asking for 0x%04x, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
   GLSE_SEND_RET(ret, eglQueryString);
   tracepoint(gls_api, calldone, GLSC_eglQueryString);
@@ -633,6 +636,7 @@ int egl_executeCommand(gls_command_t* c)
     return FALSE;
   }
 
+  LOGD("command executed\n");
   check_egl_err_cmd(c->cmd);
   return TRUE;
 }

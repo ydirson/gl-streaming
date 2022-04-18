@@ -94,6 +94,7 @@ static ssize_t qubesvchan_tport_writev(struct gls_connection* cnx, struct iovec 
   int i;
   size_t written = 0;
   for (i = 0; i < iovcnt; i++) {
+    LOGD("  iov[%d]=%zu\n", i, iov[i].iov_len);
     ssize_t ret = _qubesvchan_tport_write(cnx, iov[i].iov_base, iov[i].iov_len);
     if (ret < 0) {
       LOGE("_qubesvchan_tport_write failed for writev\n");
@@ -101,8 +102,10 @@ static ssize_t qubesvchan_tport_writev(struct gls_connection* cnx, struct iovec 
       return ret;
     }
     written += ret;
-    if ((size_t)ret < iov[i].iov_len)
+    if ((size_t)ret < iov[i].iov_len) {
+      LOGW("%s: short write %zd < %zu\n", __FUNCTION__, ret, iov[i].iov_len);
       break;
+    }
   }
   tracepoint(gls_tport, writevdone, cnx, written);
   return written;
@@ -111,6 +114,9 @@ static ssize_t qubesvchan_tport_writev(struct gls_connection* cnx, struct iovec 
 static ssize_t qubesvchan_tport_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
   tracepoint(gls_tport, read, cnx, size);
+  //if (libvchan_wait(cnx->vchan) < 0)
+  //  LOGE("libvchan_wait error\n");
+  LOGD("data ready = %d, want %zu\n", libvchan_data_ready(cnx->vchan), size);
   ssize_t ret = libvchan_read(cnx->vchan, buffer, size);
   if (ret < 0) {
      // FIXME should check this right after select()
@@ -123,11 +129,14 @@ static ssize_t qubesvchan_tport_read(struct gls_connection* cnx, void* buffer, s
     abort();
   }
   tracepoint(gls_tport, readdone, cnx, ret);
+  // 
+  LOGD("data ready now = %d\n", libvchan_data_ready(cnx->vchan));
   return ret;
 }
 
 static void qubesvchan_tport_close(struct gls_connection* cnx)
 {
+  LOGD("%s\n", __FUNCTION__);
   libvchan_close(cnx->vchan);
 }
 

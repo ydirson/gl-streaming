@@ -129,6 +129,8 @@ int send_packet(void)
 
 static int handle_packet(enum GL_Server_Command cmd)
 {
+  if (glsc_global.is_debug) LOGD("handle_packet(%s)\n", GLSC_tostring(cmd));
+
   int ret = -1;
   void* popptr = (void*)ring_pop_ptr_get(&glsc_global.rc.ring);
   if (popptr == NULL) {
@@ -177,8 +179,10 @@ int wait_for_data(enum GL_Server_Command cmd, char* str)
 
   while (1) {
     int ret = poll(pollfds, sizeof(pollfds) / sizeof(pollfds[0]), GLS_TIMEOUT_MSEC);
+    LOGD("%s A ret=%d\n", __FUNCTION__, ret);
     if (ret == 0) {
       LOGE("timeout:%s\n", str);
+      abort();
       break;
     }
     if (ret < 0) {

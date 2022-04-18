@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-// #define GL_DEBUG
+#define GL_DEBUG
 
 glse_context_t glsec_global;
 

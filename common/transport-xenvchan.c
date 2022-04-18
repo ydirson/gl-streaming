@@ -86,8 +86,10 @@ static ssize_t xenvchan_tport_writev(struct gls_connection* cnx, struct iovec *i
       return ret;
     }
     written += ret;
-    if ((size_t)ret < iov[i].iov_len)
+    if ((size_t)ret < iov[i].iov_len) {
+      LOGW("%s: short write %zd < %zu\n", __FUNCTION__, ret, iov[i].iov_len);
       break;
+    }
   }
   return written;
 }

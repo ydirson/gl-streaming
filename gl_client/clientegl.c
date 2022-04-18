@@ -359,6 +359,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglQueryContext,  EGLDisplay dpy, EGLContext ctx, E
 
 static const char* EGLAPIENTRY _real_eglQueryString(EGLDisplay dpy, EGLint name)
 {
+  LOGD("%s: sizeof=%zu\n", __FUNCTION__, sizeof(gls_eglQueryString_t));
   GLS_SET_COMMAND_PTR(c, eglQueryString);
   c->dpy = (uint64_t)dpy;
   c->name = name;

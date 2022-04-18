@@ -63,17 +63,21 @@ static int discard_bytes(struct gls_connection* cnx, size_t size, void* scratch,
 
 static ssize_t recvr_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
+  LOGD("%s(%zu)\n", __FUNCTION__, size);
   char* current = buffer;
   size_t remaining = size;
   while (remaining) {
     ssize_t recv_size = tport_read(cnx, current, remaining);
-    if (recv_size == 0)
+    if (recv_size == 0) {
+      LOGD("%s tport_read=0\n", __FUNCTION__);
       return 0;
+    }
     if (recv_size < 0)
       break;
     remaining -= recv_size;
     current += recv_size;
   }
+  LOGD("%s ret %zu\n", __FUNCTION__, size);
   return size;
 }
 
@@ -87,10 +91,13 @@ static int recvr_handle_packet(recvr_context_t* rc)
   }
 
   // look at message header to know its size and decide what to do
+  LOGD("%s: read command header\n", __FUNCTION__);
   ssize_t recv_size = recvr_read(rc->cnx, pushptr, sizeof(gls_command_t));
   if (recv_size < 0) {
+    LOGD("recv_size < 0\n");
     return -1;
   } else if (recv_size == 0) {
+    LOGD("recv_size == 0\n");
     return 1; // EOF
   } else if (recv_size != sizeof(gls_command_t)) {
     // internal error: transport should handle that
@@ -132,6 +139,8 @@ static int recvr_handle_packet(recvr_context_t* rc)
   // ... and adjust it for the data already read
   dest += sizeof(gls_command_t);
 
+  LOGD("%s: read command payload for %s - size=%u remaining=%zu\n", __FUNCTION__,
+       GLSC_tostring(c->cmd), c->cmd_size, remaining);
   int endsession = 0;
   while (remaining) {
     ssize_t recv_size = recvr_read(rc->cnx, dest, remaining);
@@ -147,9 +156,12 @@ static int recvr_handle_packet(recvr_context_t* rc)
     dest += recv_size;
   }
 
-  if (endsession)
+  if (endsession) {
+    LOGD("%s: endsession=%d\n", __FUNCTION__, endsession);
     return endsession;
+  }
 
+  LOGD("%s: got payload\n", __FUNCTION__);
   if (c->cmd_size <= rc->ring.ring_packet_size && c->cmd == GLSC_SEND_DATA) {
     gls_cmd_send_data_t* data = (gls_cmd_send_data_t*)pushptr;
     if (data->zero != 0) {
