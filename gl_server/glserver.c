@@ -58,7 +58,11 @@ int glse_cmd_send_data(uint32_t size, void* data)
     { (void*)data, size }
   };
 
-  if (tport_writev(glsec_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0])) < 0) {
+  ssize_t ret = tport_writev(glsec_global.rc.cnx, iov, sizeof(iov)/sizeof(iov[0]));
+  if (ret < 0)
+    return FALSE;
+  if ((size_t)ret != size + sizeof(gls_cmd_send_data_t)) {
+    LOGD("%s: short write\n", __FUNCTION__);
     return FALSE;
   }
 
