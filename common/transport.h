@@ -42,7 +42,7 @@ int tport_select(const char* name);
 
 // public APIs, essentially as macro wrappers
 
-static inline int tport_has_server_create()
+static inline int tport_has_server_create(void)
 {
   if (!the_tport->server_create)
     return 0;
@@ -54,7 +54,7 @@ static inline int tport_has_server_create()
   return 1;
 }
 
-static inline int tport_has_connection_create()
+static inline int tport_has_connection_create(void)
 {
   if (!the_tport->connection_create)
     return 0;

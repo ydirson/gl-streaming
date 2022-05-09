@@ -53,7 +53,7 @@ int ring_init(ring_t* ring, unsigned int ring_size_order,
   ring->buffer = (char*)aligned_alloc(alignment, ring->ring_size * ring->ring_packet_size);
   if (ring->buffer == NULL) {
     LOGE("ring allocation failure: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 #else
   ring->buffer = (char*)malloc(ring->ring_size * ring->ring_packet_size);

@@ -34,7 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <errno.h>
 #include <poll.h>
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -67,7 +66,7 @@ int glse_cmd_send_data(uint32_t size, void* data)
 }
 
 
-void glse_cmd_HANDSHAKE(gls_command_t* buf)
+static void glse_cmd_HANDSHAKE(gls_command_t* buf)
 {
   //GLSE_SET_COMMAND_PTR(c, HANDSHAKE);
   (void)buf;
@@ -78,7 +77,7 @@ void glse_cmd_HANDSHAKE(gls_command_t* buf)
 }
 
 
-void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
+static void glse_cmd_CREATE_WINDOW(gls_command_t* buf)
 {
   GLSE_SET_COMMAND_PTR(c, CREATE_WINDOW);
   graphics_context_t* gc = &glsec_global.gc;

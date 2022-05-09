@@ -31,12 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "ring.h"
-#include "transport.h"
 
-#include <unistd.h>
-#include <arpa/inet.h>
-
-#define SLEEP_USEC 1000
+#include <pthread.h>
 
 typedef struct
 {
@@ -46,9 +42,5 @@ typedef struct
   struct gls_connection* cnx;
 } recvr_context_t;
 
-void recvr_setup(recvr_context_t* rc);
-int recvr_handle_packet(recvr_context_t* rc);
-void* recvr_socket_to_ring_loop(void* data);
-void recvr_stop(recvr_context_t* c);
-
-void recvr_client_start(recvr_context_t* rc, const char* server_addr);
+void recvr_run_loop(recvr_context_t* rc);
+void recvr_stop(recvr_context_t* rc);

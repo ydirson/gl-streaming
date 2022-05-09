@@ -725,7 +725,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglWaitSync, EGLDisplay dpy, EGLSync sync, EGLint f
 
 #ifdef EGL_EXT_platform_base
 // near-dup of eglGetPlatformDisplay
-EGLAPI EGLDisplay EGLAPIENTRY __GLS_eglGetPlatformDisplayEXT(EGLenum platform, void* native_display, const EGLint* attrib_list)
+static EGLAPI EGLDisplay EGLAPIENTRY __GLS_eglGetPlatformDisplayEXT(EGLenum platform, void* native_display, const EGLint* attrib_list)
 {
   SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglGetPlatformDisplayEXT);
@@ -740,7 +740,7 @@ EGLAPI EGLDisplay EGLAPIENTRY __GLS_eglGetPlatformDisplayEXT(EGLenum platform, v
 }
 
 // near-dup of eglCreateWindowSurface
-EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformWindowSurfaceEXT (EGLDisplay dpy, EGLConfig config, void* native_window, const EGLint* attrib_list)
+static EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformWindowSurfaceEXT (EGLDisplay dpy, EGLConfig config, void* native_window, const EGLint* attrib_list)
 {
   {
     EGLint err = gls_request_window(*(NativeWindowType*)native_window);
@@ -763,7 +763,7 @@ EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformWindowSurfaceEXT (EGLDispla
   GLS_RELEASE_RETURN_RET(EGLSurface, ret, surface);
 }
 
-EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformPixmapSurfaceEXT (EGLDisplay dpy, EGLConfig config, void* native_pixmap, const EGLint* attrib_list)
+static EGLAPI EGLSurface EGLAPIENTRY __GLS_eglCreatePlatformPixmapSurfaceEXT (EGLDisplay dpy, EGLConfig config, void* native_pixmap, const EGLint* attrib_list)
 {
   (void)dpy; (void)config; (void)native_pixmap; (void)attrib_list;
   WARN_STUBBED();

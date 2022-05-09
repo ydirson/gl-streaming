@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
   char* buffer;
-  int idx_reader, idx_writer; // packet numbers
+  unsigned idx_reader, idx_writer; // packet numbers
   unsigned int ring_size;
   unsigned int ring_packet_size;
   int pipe_wr, pipe_rd;         // pipe for mainloop polling
@@ -60,7 +60,7 @@ static inline int ring_is_empty(ring_t* ring)
 
 static inline char* ring_push_ptr_get(ring_t* ring)
 {
-  int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
+  unsigned next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
   if (next_idx == ring->idx_reader)
     return NULL;
   return ring->buffer + (ring->idx_writer * ring->ring_packet_size);
@@ -68,7 +68,7 @@ static inline char* ring_push_ptr_get(ring_t* ring)
 
 static inline void ring_push_ptr_next(ring_t* ring)
 {
-  int next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
+  unsigned next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
   assert (next_idx != ring->idx_reader);
   ring->idx_writer = next_idx;
   if (write(ring->pipe_wr, "", 1) < 0)

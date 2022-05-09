@@ -11,6 +11,8 @@ project(
 add_project_arguments(
   [
     '-DUSE_X11',
+    '-Wmissing-prototypes',
+    '-Wold-style-definition',
   ],
   language : 'c')
 
@@ -28,5 +30,5 @@ common_srcs = files(
 thread_dep = dependency('threads')
 x11_dep = dependency('x11')
 
-subdir('gl_server')
 subdir('gl_client')
+subdir('gl_server')

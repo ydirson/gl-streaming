@@ -48,7 +48,7 @@ uint32_t client_gles_error;
 
 static const int GLS_TIMEOUT_MSEC = 3000;
 
-static int gls_init()
+static int gls_init(void)
 {
   if (GLS_VERSION & 1)
     LOGW("this is a development GLS protocol, "
@@ -65,7 +65,6 @@ static int gls_init()
     glsc_global.is_debug = env_isDebug;
   } else {
     LOGE("GLS_DEBUG variable must be 0 or 1\n");
-    exit(EXIT_FAILURE);
     return FALSE;
   }
 
@@ -73,10 +72,12 @@ static int gls_init()
   glsc_global.unpack_alignment = 4;
   glsc_global.pool.out_buf.buf = (char*)malloc(GLS_OUT_BUFFER_SIZE);
   if (glsc_global.pool.out_buf.buf == NULL) {
+    LOGE("failed to allocate out_buf: %s\n", strerror(errno));
     return FALSE;
   }
   glsc_global.pool.tmp_buf.buf = (char*)malloc(GLS_TMP_BUFFER_SIZE);
   if (glsc_global.pool.tmp_buf.buf == NULL) {
+    LOGE("failed to allocate tmp_buf: %s\n", strerror(errno));
     free(glsc_global.pool.out_buf.buf);
     return FALSE;
   }
@@ -87,7 +88,7 @@ static int gls_init()
 }
 
 
-static int gls_free()
+static int gls_free(void)
 {
   free(glsc_global.pool.out_buf.buf);
   free(glsc_global.pool.tmp_buf.buf);
@@ -96,7 +97,7 @@ static int gls_free()
 }
 
 
-int send_packet()
+int send_packet(void)
 {
   gls_command_t* c = (gls_command_t*)glsc_global.pool.out_buf.buf;
 
@@ -232,7 +233,7 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 }
 
 
-static int gls_cmd_HANDSHAKE()
+static int gls_cmd_HANDSHAKE(void)
 {
   if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
@@ -261,10 +262,26 @@ void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
   GLS_SEND_PACKET(CREATE_WINDOW);
 }
 
-void gls_init_library()
+// client settings
+#define RING_SIZE_ORDER 2
+#define RING_PACKET_SIZE_ORDER 10
+
+static void recvr_client_start(recvr_context_t* rc, const char* server_addr)
 {
-  static int init = FALSE;
-  if (init)
+  ring_init(&rc->ring, RING_SIZE_ORDER, RING_PACKET_SIZE_ORDER);
+
+  rc->cnx = tport_client_create(server_addr);
+  if (!rc->cnx)
+    exit(EXIT_FAILURE);
+
+  recvr_run_loop(rc);
+}
+
+static int gls_initialized = FALSE;
+
+void gls_init_library(void)
+{
+  if (gls_initialized)
     return;
 
   if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
@@ -273,15 +290,17 @@ void gls_init_library()
   }
 
   recvr_client_start(&glsc_global.rc, getenv("GLS_SERVER_ADDR"));
-  gls_init();
+  if (!gls_init())
+    exit(EXIT_FAILURE);
   if (!gls_cmd_HANDSHAKE())
     exit(EXIT_FAILURE);
 
-  init = TRUE;
+  gls_initialized = TRUE;
 }
 
-void gls_cleanup_library()
+void gls_cleanup_library(void)
 {
+  if (!gls_initialized) return;
   recvr_stop(&glsc_global.rc);
   gls_free();
 }
