@@ -8,6 +8,8 @@ project(
   ],
 )
 
+use_ltt = get_option('ltt')
+
 add_project_arguments(
   [
     '-DUSE_X11',
@@ -27,8 +29,23 @@ common_srcs = files(
     'common/transport-qrexecpipe.c',
   ])
 
+if use_ltt
+  add_project_arguments(
+    [
+      '-DUSE_LTT',
+    ],
+    language : 'c')
+  common_srcs += files(
+    [
+    'common/ltt_ring.c',
+    ])
+endif
+
 thread_dep = dependency('threads')
 x11_dep = dependency('x11')
+dl_dep = meson.get_compiler('c').find_library('dl')
+
+lttust_dep = use_ltt ? [ dependency('lttng-ust'), dl_dep ] : []
 
 subdir('gl_client')
 subdir('gl_server')

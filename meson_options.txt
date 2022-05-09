@@ -1,0 +1,2 @@
+option('ltt', type: 'boolean', value: false,
+       description: 'Enable LTTng-UST support')

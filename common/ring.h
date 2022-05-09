@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 #include "fastlog.h"
+#include "ltt_ring_tp.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -70,9 +71,13 @@ static inline void ring_push_ptr_next(ring_t* ring)
 {
   unsigned next_idx = (ring->idx_writer + 1) & (ring->ring_size - 1);
   assert (next_idx != ring->idx_reader);
+  int orig_writer_idx = ring->idx_writer;
+  (void)orig_writer_idx;
+  tracepoint(gls_ring, push, ring, orig_writer_idx);
   ring->idx_writer = next_idx;
   if (write(ring->pipe_wr, "", 1) < 0)
     LOGE("ring write to notification pipe: %s\n", strerror(errno));
+  tracepoint(gls_ring, pushdone, ring, orig_writer_idx);
 }
 
 static inline char* ring_pop_ptr_get(ring_t* ring)
@@ -88,8 +93,12 @@ static inline void ring_pop_ptr_next(ring_t* ring)
   char buf;
   if (read(ring->pipe_rd, &buf, 1) < 0)
     LOGE("ring read from notification pipe: %s\n", strerror(errno));
+  int orig_reader_idx = ring->idx_reader;
+  (void)orig_reader_idx;
+  tracepoint(gls_ring, pop, ring, orig_reader_idx);
   int next_idx = (ring->idx_reader + 1) & (ring->ring_size - 1);
   ring->idx_reader = next_idx;
+  tracepoint(gls_ring, popdone, ring, orig_reader_idx);
 }
 
 static inline void ring_writer_close(ring_t* ring)

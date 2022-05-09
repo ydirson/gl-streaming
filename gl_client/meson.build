@@ -1,15 +1,13 @@
 mylibdir = get_option('libdir') / 'gl-streaming'
 
-dl_dep = meson.get_compiler('c').find_library('dl', required : false)
-
 libglstreaming = shared_library(
   'gl-streaming',
   sources: ['glclient.c',
             common_srcs,
            ],
   include_directories : [common_incdir],
-  dependencies: [thread_dep],
-  link_args: '-Wl,-init,gls_init_library,-fini,gls_cleanup_library',
+  dependencies: [thread_dep, lttust_dep],
+  link_args: ['-Wl,-init,gls_init_library,-fini,gls_cleanup_library'],
   install: true,
 )
 
@@ -19,6 +17,7 @@ libgles = shared_library(
   sources: ['clientgles.c',
            ],
   include_directories : [common_incdir],
+  dependencies: [lttust_dep],
   link_with: [libglstreaming],
   install: true,
   install_dir: mylibdir,
@@ -30,7 +29,7 @@ libegl = shared_library(
   sources: ['clientegl.c',
            ],
   include_directories : [common_incdir],
-  dependencies: [x11_dep],
+  dependencies: [x11_dep, lttust_dep],
   link_with: [libglstreaming, libgles],
   install: true,
   install_dir: mylibdir,

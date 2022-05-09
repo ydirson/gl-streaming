@@ -8,7 +8,7 @@ executable('gl_server',
                      common_srcs,
                     ],
            include_directories : [common_incdir],
-           dependencies: [egl_dep, gles2_dep, x11_dep, thread_dep],
+           dependencies: [egl_dep, gles2_dep, x11_dep, thread_dep, lttust_dep],
            c_args : '-DGLS_SERVER',
            install: true,
           )
