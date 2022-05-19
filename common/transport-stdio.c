@@ -1,6 +1,8 @@
 #include "transport.h"
 #include "fastlog.h"
+#include "ltt_tport_tp.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,25 +39,32 @@ static int stdio_tport_connection_fd(struct gls_connection* cnx)
 
 static ssize_t stdio_tport_write(struct gls_connection* cnx, void* buffer, size_t size)
 {
+  tracepoint(gls_tport, write, cnx, size);
   ssize_t ret = write(cnx->write_fd, buffer, size);
   if (ret < 0)
     LOGE("write failed: %s\n", strerror(errno));
+  tracepoint(gls_tport, writedone, cnx, ret);
   return ret;
 }
 
 static ssize_t stdio_tport_writev(struct gls_connection* cnx, struct iovec *iov, int iovcnt)
 {
+  assert(iovcnt == 2);
+  tracepoint(gls_tport, writev, cnx, iov[0].iov_len + iov[1].iov_len);
   ssize_t ret = writev(cnx->write_fd, iov, iovcnt);
   if (ret < 0)
     LOGE("writev failed: %s\n", strerror(errno));
+  tracepoint(gls_tport, writevdone, cnx, ret);
   return ret;
 }
 
 static ssize_t stdio_tport_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
+  tracepoint(gls_tport, read, cnx, size);
   ssize_t ret = read(cnx->read_fd, buffer, size);
   if (ret < 0)
     LOGE("read failed: %s\n", strerror(errno));
+  tracepoint(gls_tport, readdone, cnx, ret);
   return ret;
 }
 

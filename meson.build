@@ -38,6 +38,7 @@ if use_ltt
   common_srcs += files(
     [
     'common/ltt_ring.c',
+    'common/ltt_tport.c',
     ])
 endif
 

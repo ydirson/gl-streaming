@@ -1,7 +1,9 @@
 #define _GNU_SOURCE
 #include "transport.h"
 #include "fastlog.h"
+#include "ltt_tport_tp.h"
 
+#include <assert.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
@@ -190,32 +192,35 @@ static int tcp_tport_connection_fd(struct gls_connection* cnx)
 
 static ssize_t tcp_tport_write(struct gls_connection* cnx, void* buffer, size_t size)
 {
+  tracepoint(gls_tport, write, cnx, size);
   ssize_t ret = send(cnx->sock_fd, buffer, size, 0);
   if (ret < 0)
     LOGE("tcp_write(%zu) failure: %s\n", size, strerror(errno));
-
+  tracepoint(gls_tport, writedone, cnx, ret);
   return ret;
 }
 
 static ssize_t tcp_tport_writev(struct gls_connection* cnx, struct iovec *iov, int iovcnt)
 {
+  assert(iovcnt == 2);
+  tracepoint(gls_tport, writev, cnx, iov[0].iov_len + iov[1].iov_len);
   struct msghdr msg = { .msg_iov = iov, .msg_iovlen = iovcnt };
-
   ssize_t ret = sendmsg(cnx->sock_fd, &msg, 0);
   if (ret < 0)
     LOGE("tcp_writev failure: %s\n", strerror(errno));
-
+  tracepoint(gls_tport, writevdone, cnx, ret);
   return ret;
 }
 
 static ssize_t tcp_tport_read(struct gls_connection* cnx, void* buffer, size_t size)
 {
+  tracepoint(gls_tport, read, cnx, size);
   ssize_t recv_size = recv(cnx->sock_fd, buffer, size, 0);
   if (recv_size < 0)
     LOGE("transport socket recv: %s\n", strerror(errno));
   else if (recv_size == 0)
     LOGI("transport socket closed\n");
-
+  tracepoint(gls_tport, readdone, cnx, recv_size);
   return recv_size;
 }
 
