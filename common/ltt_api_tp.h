@@ -13,17 +13,19 @@
 
 #  include <lttng/tracepoint.h>
 
+#  include "gls_command.h"
+
 TRACEPOINT_EVENT_CLASS(gls_api, gls_call_eventclass,
-                       TP_ARGS(const char*, api),
-                       TP_FIELDS(ctf_string(const char*, api)
+                       TP_ARGS(enum GL_Server_Command, cmd),
+                       TP_FIELDS(ctf_integer_hex(enum GL_Server_Command, cmd, cmd)
                                  )
                        )
 
 TRACEPOINT_EVENT_INSTANCE(gls_api, gls_call_eventclass, call,
-                          TP_ARGS(const char*, api)
+                          TP_ARGS(enum GL_Server_Command, cmd)
                           )
 TRACEPOINT_EVENT_INSTANCE(gls_api, gls_call_eventclass, calldone,
-                          TP_ARGS(const char*, api)
+                          TP_ARGS(enum GL_Server_Command, cmd)
                           )
 
 # endif

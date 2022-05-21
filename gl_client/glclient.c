@@ -237,7 +237,7 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 
 static int gls_cmd_HANDSHAKE(void)
 {
-  tracepoint(gls_api, call, "HANDSHAKE");
+  tracepoint(gls_api, call, GLSC_HANDSHAKE);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
   if (!send_packet())
     return FALSE;
@@ -247,12 +247,12 @@ static int gls_cmd_HANDSHAKE(void)
     LOGE("Incompatible version, server version %i but client version %i.\n",
          ret->server_version, GLS_VERSION);
     GLS_RELEASE_RET();
-    tracepoint(gls_api, calldone, "HANDSHAKE");
+    tracepoint(gls_api, calldone, GLSC_HANDSHAKE);
     return FALSE;
   }
 
   GLS_RELEASE_RET();
-  tracepoint(gls_api, calldone, "HANDSHAKE");
+  tracepoint(gls_api, calldone, GLSC_HANDSHAKE);
   return TRUE;
 }
 
