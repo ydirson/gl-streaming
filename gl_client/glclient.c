@@ -235,7 +235,6 @@ int gls_cmd_send_data(uint32_t size, const void* data)
 
 static int gls_cmd_HANDSHAKE(void)
 {
-  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, HANDSHAKE);
   if (!send_packet())
     return FALSE;
@@ -254,7 +253,6 @@ static int gls_cmd_HANDSHAKE(void)
 
 void gls_cmd_CREATE_WINDOW(NativeWindowType w, unsigned width, unsigned height)
 {
-  if (glsc_global.is_debug) LOGD("%s\n", __FUNCTION__);
   GLS_SET_COMMAND_PTR(c, CREATE_WINDOW);
   c->window = w;
   c->width = width;
