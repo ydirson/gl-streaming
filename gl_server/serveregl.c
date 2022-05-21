@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gls_command_egl.h"
 #include "glserver.h"
 #include "fastlog.h"
+#include "ltt_api_tp.h"
 
 #include <EGL/eglext.h>
 
@@ -62,6 +63,7 @@ static struct
 
 static void glse_eglChooseConfig(gls_command_t* buf)
 {
+  tracepoint(gls_api, call, "eglChooseConfig");
   GLSE_SET_COMMAND_PTR(c, eglChooseConfig);
   GLSE_SET_RAWDATA_PTR(dat, void, c->has_attribs);
 
@@ -87,6 +89,7 @@ static void glse_eglChooseConfig(gls_command_t* buf)
   ret->success = success;
   ret->num_config = num_config;
   GLSE_SEND_RET(ret, eglChooseConfig);
+  tracepoint(gls_api, calldone, "eglChooseConfig");
 }
 
 static void glse_eglCreateContext(gls_command_t* buf)
@@ -243,16 +246,19 @@ static void glse_eglGetDisplay(gls_command_t* buf)
 static void glse_eglGetError(gls_command_t* buf)
 {
   (void)buf;
+  tracepoint(gls_api, call, "eglGetError");
   EGLint error = eglGetError();
   // Should check gl error inside eglGetError() ???
 
   GLSE_SET_RET_PTR(ret, eglGetError);
   ret->error = error;
   GLSE_SEND_RET(ret, eglGetError);
+  tracepoint(gls_api, calldone, "eglGetError");
 }
 
 static void glse_eglGetProcAddress(gls_command_t* buf)
 {
+  tracepoint(gls_api, call, "eglGetProcAddress");
   GLSE_SET_COMMAND_PTR(c, eglGetProcAddress);
   void* proc = eglGetProcAddress(c->procname);
 
@@ -269,10 +275,12 @@ static void glse_eglGetProcAddress(gls_command_t* buf)
   GLSE_SET_RET_PTR(ret, eglGetProcAddress);
   ret->success = (proc != NULL);
   GLSE_SEND_RET(ret, eglGetProcAddress);
+  tracepoint(gls_api, calldone, "eglGetProcAddress");
 }
 
 static void glse_eglInitialize(gls_command_t* buf)
 {
+  tracepoint(gls_api, call, "eglInitialize");
   GLSE_SET_COMMAND_PTR(c, eglInitialize);
   GLSE_SET_RET_PTR(ret, eglInitialize);
   EGLint major, minor;
@@ -286,6 +294,7 @@ static void glse_eglInitialize(gls_command_t* buf)
   ret->minor = minor;
   ret->success = success;
   GLSE_SEND_RET(ret, eglInitialize);
+  tracepoint(gls_api, calldone, "eglInitialize");
 }
 
 static void glse_eglMakeCurrent(gls_command_t* buf)
@@ -313,6 +322,7 @@ static void glse_eglQueryContext(gls_command_t* buf)
 
 static void glse_eglQueryString(gls_command_t* buf)
 {
+  tracepoint(gls_api, call, "eglQueryString");
   GLSE_SET_COMMAND_PTR(c, eglQueryString);
   GLSE_SET_RET_PTR(ret, eglQueryString);
 
@@ -372,6 +382,7 @@ static void glse_eglQueryString(gls_command_t* buf)
   // LOGD("Client asking for 0x%04x, return %s\n", c->name, params);
   // ret->params[GLS_STRING_SIZE_PLUS - 1] = '\0';
   GLSE_SEND_RET(ret, eglQueryString);
+  tracepoint(gls_api, calldone, "eglQueryString");
 }
 
 static void glse_eglQuerySurface(gls_command_t* buf)

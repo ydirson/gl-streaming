@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glserver.h"
 #include "transport.h"
 #include "fastlog.h"
+#include "ltt_api_tp.h"
 
 #include <errno.h>
 #include <poll.h>
@@ -68,12 +69,14 @@ int glse_cmd_send_data(uint32_t size, void* data)
 
 static void glse_cmd_HANDSHAKE(gls_command_t* buf)
 {
+  tracepoint(gls_api, call, "HANDSHAKE");
   //GLSE_SET_COMMAND_PTR(c, HANDSHAKE);
   (void)buf;
 
   GLSE_SET_RET_PTR(ret, HANDSHAKE);
   ret->server_version = GLS_VERSION;
   GLSE_SEND_RET(ret, HANDSHAKE);
+  tracepoint(gls_api, calldone, "HANDSHAKE");
 }
 
 

@@ -2,6 +2,7 @@
 
 #include "gls_command_egl.h"
 #include "glclient.h"
+#include "ltt_api_tp.h"
 
 #include <EGL/egl.h>
 #define EGL_EGLEXT_PROTOTYPES
@@ -62,6 +63,7 @@ static int gls_wire_native_display(EGLNativeDisplayType native_display,
 
 GLS_DEF_CORE_API(EGLBoolean, eglChooseConfig,  EGLDisplay dpy, const EGLint* attrib_list, EGLConfig* configs, EGLint config_size, EGLint* num_config )
 {
+  tracepoint(gls_api, call, "eglChooseConfig");
   SEND_ATTRIB_DATA(has_attribs, attrib_list);
   GLS_SET_COMMAND_PTR(c, eglChooseConfig);
   c->has_attribs = has_attribs;
@@ -80,6 +82,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglChooseConfig,  EGLDisplay dpy, const EGLint* att
     memcpy(configs, ret->configs, ret->num_config * sizeof(EGLConfig));
   }
 
+  tracepoint(gls_api, calldone, "eglChooseConfig");
   GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
@@ -261,28 +264,35 @@ GLS_DEF_CORE_API(EGLDisplay, eglGetDisplay, NativeDisplayType native_display)
 
 GLS_DEF_CORE_API(EGLint, eglGetError,  void )
 {
-  if (client_egl_error != EGL_SUCCESS)
+  tracepoint(gls_api, call, "eglGetError");
+  if (client_egl_error != EGL_SUCCESS) {
+    tracepoint(gls_api, calldone, "eglGetError");
     return client_egl_error;
+  }
 
   GLS_SET_COMMAND_PTR(c, eglGetError);
   GLS_SEND_PACKET(eglGetError);
 
   GLS_WAIT_SET_RET_PTR(ret, eglGetError);
+  tracepoint(gls_api, calldone, "eglGetError");
   GLS_RELEASE_RETURN_RET(EGLint, ret, error);
 }
 
 GLS_DEF_CORE_API(__eglMustCastToProperFunctionPointerType, eglGetProcAddress,  const char* procname )
 {
+  tracepoint(gls_api, call, "eglGetProcAddress");
   size_t procname_len = strlen(procname);
   if (sizeof(gls_eglGetProcAddress_t) + procname_len + 1 >
       glsc_global.pool.out_buf.size) {
     LOGE("%s: procname '%s' too long for buffer\n",
          __FUNCTION__, procname);
+    tracepoint(gls_api, calldone, "eglGetProcAddress");
     return NULL;
   }
 
   GLS_SET_COMMAND_PTR(c, eglGetProcAddress);
-  _GLS_VARIABLE_PAYLOAD(c, procname, procname_len, return NULL);
+  _GLS_VARIABLE_PAYLOAD(c, procname, procname_len,
+                        tracepoint(gls_api, call, "eglGetProcAddress"); return NULL);
   GLS_SEND_PACKET(eglGetProcAddress);
   GLS_WAIT_SET_RET_PTR(ret, eglGetProcAddress);
 
@@ -299,11 +309,13 @@ GLS_DEF_CORE_API(__eglMustCastToProperFunctionPointerType, eglGetProcAddress,  c
   // else hide the symbol even if GLS supports it
 
   GLS_RELEASE_RET();
+  tracepoint(gls_api, calldone, "eglGetProcAddress");
   return proc;
 }
 
 GLS_DEF_CORE_API(EGLBoolean, eglInitialize,  EGLDisplay dpy, EGLint* major, EGLint* minor )
 {
+  tracepoint(gls_api, call, "eglInitialize");
   GLS_SET_COMMAND_PTR(c, eglInitialize);
   c->dpy = (uint64_t)dpy;
   GLS_SEND_PACKET(eglInitialize);
@@ -313,6 +325,7 @@ GLS_DEF_CORE_API(EGLBoolean, eglInitialize,  EGLDisplay dpy, EGLint* major, EGLi
     *major = ret->major;
   if (minor)
     *minor = ret->minor;
+  tracepoint(gls_api, calldone, "eglInitialize");
   GLS_RELEASE_RETURN_RET(EGLBoolean, ret, success);
 }
 
@@ -437,16 +450,21 @@ static void _populate_egl_strings(EGLDisplay dpy)
 // more checks and fill client_egl_error properly, following spec
 GLS_DEF_CORE_API(const char*, eglQueryString, EGLDisplay dpy, EGLint name)
 {
+  tracepoint(gls_api, call, "eglQueryString");
   // handle the client-extensions special case
   if (dpy == EGL_NO_DISPLAY) {
     if (name != EGL_EXTENSIONS) {
       client_egl_error = EGL_BAD_DISPLAY;
+      tracepoint(gls_api, calldone, "eglQueryString");
       return NULL;
     }
     if (!eglquerystring_client_extensions) {
       // query and cache
       const char* value = _real_eglQueryString(dpy, name);
-      if (!value) return NULL;
+      if (!value) {
+        tracepoint(gls_api, calldone, "eglQueryString");
+        return NULL;
+      }
       eglquerystring_client_extensions = malloc(strlen(value) + 1);
       if (!eglquerystring_client_extensions) {
         LOGE("eglQueryString allocation failed: %s\n", strerror(errno));
@@ -456,6 +474,7 @@ GLS_DEF_CORE_API(const char*, eglQueryString, EGLDisplay dpy, EGLint name)
       GLS_RELEASE_RET();
     }
     client_egl_error = EGL_SUCCESS;
+    tracepoint(gls_api, calldone, "eglQueryString");
     return eglquerystring_client_extensions;
   }
 
@@ -474,9 +493,11 @@ GLS_DEF_CORE_API(const char*, eglQueryString, EGLDisplay dpy, EGLint name)
     case EGL_##FIELD:                                                   \
       if (!egl_strings.FIELD##_str) {                                   \
         client_egl_error = EGL_BAD_PARAMETER;                           \
+        tracepoint(gls_api, calldone, "eglQueryString");                \
         return NULL;                                                    \
       }                                                                 \
       client_egl_error = EGL_SUCCESS;                                   \
+      tracepoint(gls_api, calldone, "eglQueryString");                  \
       return egl_strings.FIELD##_str;                                   \
       //
     GLS_EGLQUERYSTRING_ITEMS();
@@ -484,6 +505,7 @@ GLS_DEF_CORE_API(const char*, eglQueryString, EGLDisplay dpy, EGLint name)
 
   default:
     client_egl_error = EGL_BAD_PARAMETER;
+    tracepoint(gls_api, calldone, "eglQueryString");
     return NULL;
   }
 }
