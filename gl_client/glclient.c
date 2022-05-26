@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "glclient.h"
 #include "transport.h"
 #include "fastlog.h"
+#include "ltt_wrappers.h"
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
@@ -281,6 +282,8 @@ void gls_init_library(void)
 {
   if (gls_initialized)
     return;
+
+  init_lttng_tracepoints();
 
   if (tport_select(getenv("GLS_TRANSPORT")) < 0) {
     LOGE("cannot select transport\n");

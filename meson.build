@@ -37,6 +37,7 @@ if use_ltt
     language : 'c')
   common_srcs += files(
     [
+    'common/ltt_wrappers.c',
     'common/ltt_ring.c',
     'common/ltt_tport.c',
     ])
