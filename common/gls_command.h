@@ -92,6 +92,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(eglGetError)                              \
     X(eglGetProcAddress)                        \
     X(eglInitialize)                            \
+    COMMENT(0x10)                               \
     X(eglMakeCurrent)                           \
     X(eglQueryContext)                          \
     X(eglQueryString)                           \
@@ -170,6 +171,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glBufferSubData)                          \
     X(glCheckFramebufferStatus)                 \
     X(glClear)                                  \
+    COMMENT(0x10)                               \
     X(glClearColor)                             \
     X(glClearDepthf)                            \
     X(glClearStencil)                           \
@@ -186,6 +188,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glDeleteFramebuffers)                     \
     X(glDeleteProgram)                          \
     X(glDeleteRenderbuffers)                    \
+    COMMENT(0x20)                               \
     X(glDeleteShader)                           \
     X(glDeleteTextures)                         \
     X(glDepthFunc)                              \
@@ -202,6 +205,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glFlush)                                  \
     X(glFramebufferRenderbuffer)                \
     X(glFramebufferTexture2D)                   \
+    COMMENT(0x30)                               \
     X(glFrontFace)                              \
     X(glGenBuffers)                             \
     X(glGenerateMipmap)                         \
@@ -218,6 +222,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glGetFloatv)                              \
     X(glGetFramebufferAttachmentParameteriv)    \
     X(glGetIntegerv)                            \
+    COMMENT(0x40)                               \
     X(glGetProgramiv)                           \
     X(glGetProgramInfoLog)                      \
     X(glGetRenderbufferParameteriv)             \
@@ -234,6 +239,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glGetVertexAttribfv)                      \
     X(glGetVertexAttribiv)                      \
     X(glGetVertexAttribPointerv)                \
+    COMMENT(0x50)                               \
     X(glHint)                                   \
     X(glIsBuffer)                               \
     X(glIsEnabled)                              \
@@ -250,6 +256,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glReleaseShaderCompiler)                  \
     X(glRenderbufferStorage)                    \
     X(glSampleCoverage)                         \
+    COMMENT(0x60)                               \
     X(glScissor)                                \
     X(glShaderBinary)                           \
     X(glShaderSource)                           \
@@ -266,6 +273,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glTexParameteriv)                         \
     X(glTexSubImage2D)                          \
     X(glUniform1f)                              \
+    COMMENT(0x70)                               \
     X(glUniform1fv)                             \
     X(glUniform1i)                              \
     X(glUniform1iv)                             \
@@ -282,6 +290,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X(glUniform4i)                              \
     X(glUniform4iv)                             \
     X(glUniformMatrix2fv)                       \
+    COMMENT(0x80)                               \
     X(glUniformMatrix3fv)                       \
     X(glUniformMatrix4fv)                       \
     X(glUseProgram)                             \
